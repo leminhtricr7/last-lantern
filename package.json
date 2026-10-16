@@ -1,0 +1,22 @@
+{
+  "name": "last-lantern",
+  "productName": "Last Lantern",
+  "version": "1.0.0",
+  "description": "Last Lantern - a pixel-art adventure platformer. Relight the shattered Sun.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "node tools/serve.js",
+    "dist": "electron-builder --win dir"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.yourstudio.lastlantern",
+    "productName": "Last Lantern",
+    "files": ["main.js", "index.html", "src/**/*", "assets/**/*"],
+    "win": { "target": "dir" }
+  }
+}
