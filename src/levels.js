@@ -83,34 +83,36 @@ const BIOMES = [
 ];
 
 const BOSS_MUSIC = { root: 48, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 150, wave: 'square', prog: [0, 1, 3, 1], seed: 77, density: 0.7 };
+const DEVIL_MUSIC = { root: 38, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 68, wave: 'sawtooth', prog: [0, 1, 0, -2], seed: 66, density: 0.3 };
 const TITLE_MUSIC = { root: 60, scale: [0, 2, 4, 7, 9], bpm: 78, wave: 'triangle', prog: [0, 5, 3, 7], seed: 2, density: 0.4, drums: false };
 
 const NPC_PLAN = {
   0: { start: ['lila'], cps: ['fairy'] },
-  1: { start: ['bram'], cps: ['gob', 'wizard'] },
-  2: { cps: ['smith', 'wizard'] },
-  3: { start: ['bram'], cps: ['gob', 'smith'] },
+  1: { start: ['bram'], cps: ['gob', 'quan', 'wizard'] },
+  2: { cps: ['quan', 'smith', 'wizard'] },
+  3: { start: ['bram'], cps: ['gob', 'miku', 'smith'] },
   4: { cps: ['angel', 'smith'] },
-  5: { cps: ['gob', 'smith'] },
-  6: { cps: ['wizard'], pre: ['lila', 'angel', 'bram', 'fairy'] }
+  5: { cps: ['gob', 'miku', 'smith'] },
+  6: { cps: ['wizard'], pre: ['lila', 'angel', 'bram', 'quan', 'miku', 'fairy'] }
 };
 // puzzles per map, easy -> hard
 const PUZZLES = {
-  0: ['lever', 'bombwall'],
-  1: ['key', 'lever', 'torches'],
+  0: ['lever', 'rescue', 'bombwall'],
+  1: ['key', 'trial', 'lever', 'torches'],
   2: ['torches', 'bombwall', 'multilever'],
-  3: ['timed', 'key', 'bombwall'],
+  3: ['timed', 'trial', 'key', 'bombwall'],
   4: ['seqtorch', 'multilever', 'timed'],
-  5: ['timed', 'bombwall', 'seqtorch', 'key'],
-  6: ['runes', 'seqtorch', 'multilever', 'timed']
+  5: ['timed', 'bombwall', 'trial', 'seqtorch', 'key'],
+  6: ['runes', 'seqtorch', 'trial', 'multilever', 'timed']
 };
+const TRIAL_WAVES = { 1: 2, 3: 3, 5: 3, 6: 4 };
 
 function genLevel(li) {
   const B = BIOMES[li], rnd = mulberry32(9001 + li * 7919);
   const R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
   const H = 15, W = B.len + 70;
   const grid = []; for (let y = 0; y < H; y++) grid.push(new Array(W).fill(' '));
-  const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], id: 0 };
+  const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], id: 0 };
   const set = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) grid[y][x] = c; };
   const col = (x, top) => { for (let y = top; y < H; y++) grid[y][x] = (B.ice && rnd() < 0.55) ? 'I' : '#'; };
   const solidCol = (x, top) => { for (let y = top; y < H; y++) grid[y][x] = '#'; };
@@ -217,7 +219,27 @@ function genLevel(li) {
     spawn('tablet', x0 + 3, gy, { gate: gid });
     pzGuards(x0, n, 3);
   }
+  function pRescue() { // Miku's cage, guarded
+    const n = 38, x0 = pzFlat(n), grp = L.id++;
+    spawn('cage', x0 + n - 8, gy, { grp });
+    let placed = 0, tries = 0;
+    while (placed < 4 && tries++ < 30) {
+      const t = pick(); if (FLY.has(t)) continue;
+      spawn(t, x0 + n - 20 + placed * 3, gy, { grp }); placed++;
+    }
+    spawn('heart', x0 + 10, gy - 2);
+    coinsLine(x0 + 14, gy - 2, 4);
+  }
+  function pTrial() { // Mr Shorty Phong's trial: sealed arena, waves of monsters
+    const n = 42, x0 = pzFlat(n);
+    L.trials.push({ id: L.id++, lw: x0 + 8, rw: x0 + n - 6, trig: x0 + 10, gy, waves: TRIAL_WAVES[li] || 3 });
+    spawn('spiketrap', x0 + 17, gy, { w: 2, off: rnd() * 3 });
+    spawn('spiketrap', x0 + 26, gy, { w: 2, off: rnd() * 3 });
+    for (let i = 0; i < 3; i++) set(x0 + 20 + i, gy - 3, '=');
+  }
   function runPuzzle(t) {
+    if (t === 'rescue') { pRescue(); return; }
+    if (t === 'trial') { pTrial(); return; }
     if (t === 'lever') pLever(); else if (t === 'key') pKey();
     else if (t === 'torches') pTorches(li < 3 ? 2 : 3, false); else if (t === 'seqtorch') pTorches(li < 6 ? 3 : 4, true);
     else if (t === 'bombwall') pBombWall(); else if (t === 'timed') pTimed();
@@ -377,7 +399,7 @@ function genLevel(li) {
     else if (r < 0.95) { if (li >= 1 && rnd() < 0.4) arena(); else trapRun(); }
     else flat(R(6, 10));
   }
-  { const ax = x; flat(8, { safe: true, cp: true, heart: true }); (plan.pre || []).forEach((w, i) => spawn('npc', ax + 3 + i * 2, gy, { who: w })); }
+  { const ax = x; flat(plan.pre ? 16 : 8, { safe: true, cp: true, heart: true }); (plan.pre || []).forEach((w, i) => spawn('npc', ax + 3 + i * 2, gy, { who: w })); }
   gy = 10; flat(4, { safe: true }); // return to arena height (visual step handled by stairs guard)
   // make sure arena ground is continuous: previous ground may differ -> already flat() uses gy.
   const ax0 = x;

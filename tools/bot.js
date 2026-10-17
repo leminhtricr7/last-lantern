@@ -8,6 +8,7 @@ window.runBot = function (li, maxSec) {
     if (Q.gates && Q.gates.some(gd => !gd.open) && Q.state === 'play') LL.solveAll();
     P.keys = 0;
     a.left = false; a.right = true; a.jump = false; a.jumpP = false; a.atkP = false; a.dashP = false; a.down = false; a.okP = false; a.pauseP = false; a.up = false; a.backP = false;
+    if (Q.state === 'talk' || Q.state === 'reward' || Q.state === 'tablet' || Q.state === 'shop') { a.okP = true; a.right = false; LL.updatePlay(dt); LL.clearPressed(); continue; }
     if (Q.state === 'intro') { a.okP = true; LL.updatePlay(dt); LL.clearPressed(); continue; }
     if (Q.state === 'dead') { deaths++; deathAt.push(Math.round(P.x / TS)); a.okP = true; for (let k = 0; k < 100; k++) LL.updatePlay(dt); LL.updatePlay(dt); LL.clearPressed(); continue; }
     if (Q.state === 'complete') return { li, done: true, t: Math.round(t), deaths, deathAt, stucks };

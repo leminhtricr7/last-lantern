@@ -63,6 +63,18 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **Boss relics** - every boss drops a permanent relic: +2 hearts, +1 damage, brighter lantern, double coins + magnet, no ice slip + fast dash, flame-wave sword.
 - All monsters, bosses, Ember and every NPC have their own voices (growls, screeches, speech blips), generated in code.
 
+## Story characters
+
+- **Hatsune Miku** (map 1) is locked in a cage guarded by monsters. Defeat the guards, free her, and she gives you her **glowing Leek Blade** - your new sword
+  (+1 damage, longer reach, green glow and sparkles). She cheers you on in maps 4, 6 and 7 (restores your hearts).
+- **Mr Shorty Phong** (villain) forces a **Trial** on you in maps 2, 4, 6 and 7: the arena seals and waves of monsters spawn; survive to win hearts, coins and a bomb.
+- **QuanSadBoy** (sad bookworm wizard) helps a lot in maps 2 and 3 with advice and free supplies.
+- **Quoc the Devil** - after every map the screen darkens and you see the giant devil screaming at his minions (Shorty and an imp). Press Enter to advance.
+
+> Licensing note: *Hatsune Miku* is a trademarked Crypton Future Media character. Fan use is fine for a free/non-commercial project, but selling it on Steam needs
+> a licence from Crypton - or rename/redesign her (change `MIKU_NAME` in `src/game.js` and the `npc_miku` painter in `src/art.js`). Also get permission from the
+> real people behind Shorty Phong / QuanSadBoy / Quoc before releasing commercially.
+
 ## Project layout
 
 - `src/art.js` — all pixel art is generated in code (sprites, tilesets, parallax backgrounds)

@@ -32,15 +32,16 @@
 
   // ---------- save / i18n ----------
   const SAVEKEY = 'last_lantern_save_v1';
-  let save = { cleared: [], shards: {}, coins: 0, lang: 'vi', vol: 0.6, relics: [0, 0, 0, 0, 0, 0, 0], ammo: { dagger: 0, bomb: 0, flask: 0 } };
+  let save = { cleared: [], shards: {}, coins: 0, lang: 'vi', vol: 0.6, relics: [0, 0, 0, 0, 0, 0, 0], ammo: { dagger: 0, bomb: 0, flask: 0 }, leek: false };
   try { Object.assign(save, JSON.parse(localStorage.getItem(SAVEKEY) || '{}')); } catch (e) { }
   const writeSave = () => { try { localStorage.setItem(SAVEKEY, JSON.stringify(save)); } catch (e) { } };
   if (!Array.isArray(save.relics) || save.relics.length < 7) save.relics = [0, 0, 0, 0, 0, 0, 0];
   if (!save.ammo) save.ammo = { dagger: 0, bomb: 0, flask: 0 };
+  save.leek = !!save.leek;
   const totalShards = () => Object.keys(save.shards).reduce((a, k) => a + save.shards[k].filter(Boolean).length, 0);
   const hasRelic = i => !!save.relics[i];
   const maxHP = () => 3 + Math.floor(totalShards() / 3) + (hasRelic(0) ? 2 : 0);
-  const swordDmg = () => 1 + Math.floor(totalShards() / 7) + (hasRelic(1) ? 1 : 0);
+  const swordDmg = () => 1 + Math.floor(totalShards() / 7) + (hasRelic(1) ? 1 : 0) + (save.leek ? 1 : 0);
   const maxPlayable = () => save.cleared.length ? Math.min(6, Math.max.apply(null, save.cleared) + 1) : 0;
   const sunPower = () => save.cleared.length / 7;
   Snd.setVol(save.vol);
@@ -66,6 +67,9 @@
     ctl: { en: 'Move A/D  Jump Space  Attack J / Click  Throw L / Right-click  Switch Q / Wheel  Dash K  Use E', vi: 'Di chuyển A/D  Nhảy Space  Đánh J / Nhấp chuột  Ném L / Chuột phải  Đổi đồ Q / Lăn chuột  Lướt K  Dùng E' },
     thanks: { en: 'Thank you for playing!', vi: 'Cảm ơn bạn đã chơi!' },
     talk: { en: 'E / Enter: Talk', vi: 'E / Enter: Nói chuyện' },
+    free: { en: 'E: Free her', vi: 'E: Giải cứu' }, guards: { en: 'Defeat the guards first!', vi: 'Hạ hết lính canh trước đã!' },
+    leekT: { en: 'LEEK BLADE OBTAINED!', vi: 'NHẬN ĐƯỢC KIẾM HÀNH LÁ!' }, leekD: { en: 'A glowing leek that sings with the light. +1 damage and longer reach.', vi: 'Cây hành phát sáng hát cùng ánh sáng. +1 sát thương và tầm đánh xa hơn.' },
+    wave: { en: 'Wave', vi: 'Đợt' }, trialWin: { en: 'TRIAL SURVIVED!', vi: 'VƯỢT QUA THỬ THÁCH!' }, gift: { en: 'Quan hands you some supplies!', vi: 'Quan đưa bạn ít đồ tiếp tế!' },
     use: { en: 'E: Use', vi: 'E: Dùng' }, light: { en: 'E: Light', vi: 'E: Thắp lửa' }, read: { en: 'E: Read', vi: 'E: Đọc' },
     dagger: { en: 'Dagger', vi: 'Dao găm' }, bomb: { en: 'Bomb', vi: 'Bom' }, flask: { en: 'Fire flask', vi: 'Bình lửa' },
     noammo: { en: 'No throwables left!', vi: 'Hết đồ để ném!' },
@@ -196,6 +200,116 @@
     ] }
   };
   for (const k in DLG2) DLG[k] = Object.assign(DLG[k] || {}, DLG2[k]);
+  const MIKU_NAME = { en: 'Hatsune Miku', vi: 'Hatsune Miku' }; // change here if you rename the character
+  Object.assign(NPCS, {
+    miku: { spr: 'npc_miku', name: MIKU_NAME },
+    shorty: { spr: 'npc_shorty', name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' } },
+    quan: { spr: 'npc_quan', name: { en: 'QuanSadBoy', vi: 'QuanSadBoy' }, gift: { dagger: 5, bomb: 2, flask: 2 } },
+    quoc: { spr: 'npc_shorty', name: { en: 'Quoc the Devil', vi: 'Quỷ Vương Quoc' } }
+  });
+  NPCS.miku.generic = [{ en: 'Your leek is shining so prettily! La la laaa~ ♪', vi: 'Cây hành của bạn sáng đẹp quá! La la laaa~ ♪' }];
+  NPCS.shorty.generic = [{ en: 'Hmph.', vi: 'Hừm.' }];
+  NPCS.quan.generic = [{ en: 'Sigh... nobody reads anymore.', vi: 'Haizz... giờ chẳng ai đọc sách nữa.' }];
+  const DLG3 = {
+    1: { quan: [
+      { en: 'Oh! Sorry, I was reading while walking. I am Quan... some call me QuanSadBoy. I am a wizard. Mostly I read.', vi: 'Ồ! Xin lỗi, mình vừa đi vừa đọc sách. Mình là Quan... người ta gọi mình là QuanSadBoy. Mình là phù thủy. Chủ yếu là đọc sách.' },
+      { en: 'I found extra supplies between chapter three and four. Please take them - you look like you need them.', vi: 'Mình tìm thấy ít đồ dư giữa chương ba và chương bốn. Bạn cầm lấy đi - trông bạn cần đấy.' },
+      { en: 'Forest puzzles? Torches first, then the door. It is all in chapter seven. Probably.', vi: 'Câu đố trong rừng à? Đuốc trước, rồi tới cửa. Tất cả nằm ở chương bảy. Chắc vậy.' }
+    ] },
+    2: { quan: [
+      { en: 'You again! This cave is chapter twelve: "Things That Fall On You". Watch the red markers!', vi: 'Lại là bạn! Hang này là chương mười hai: "Những Thứ Rơi Trúng Đầu Bạn". Để ý dấu đỏ nhé!' },
+      { en: 'I made notes on the crystal runes. The tablet shows the order. I think. I am sad, not wrong.', vi: 'Mình có ghi chú về ký hiệu pha lê. Bia đá cho biết thứ tự. Mình nghĩ vậy. Mình buồn chứ không sai.' },
+      { en: 'More supplies. I over-packed. Sad people over-pack. It is a known fact.', vi: 'Thêm đồ tiếp tế nè. Mình mang dư. Người buồn hay mang dư. Ai cũng biết.' }
+    ] },
+    3: { miku: [
+      { en: 'Your leek is shining so beautifully out here! La la laaa~ ♪', vi: 'Cây hành của bạn sáng đẹp quá ở ngoài này! La la laaa~ ♪' },
+      { en: 'Sing along with the light, Ember! I will keep you warm with my song.', vi: 'Hát cùng ánh sáng nhé, Ember! Tiếng hát của mình sẽ sưởi ấm bạn.' }
+    ] },
+    5: { miku: [
+      { en: 'Even the volcano cannot drown out a good melody! Keep shining, Ember! ♪', vi: 'Ngay cả núi lửa cũng không át được một giai điệu hay! Cứ tỏa sáng nhé, Ember! ♪' }
+    ] },
+    6: { quan: [
+      { en: 'I read the last chapter early. I will not spoil it. But... bring snacks. Good luck, Ember.', vi: 'Mình đọc trước chương cuối rồi. Mình sẽ không tiết lộ. Nhưng... nhớ mang đồ ăn vặt. Chúc may mắn, Ember.' }
+    ], miku: [
+      { en: 'I will sing for you the whole way! La la laaa~ Go light up the Sun! ♪', vi: 'Mình sẽ hát cho bạn suốt chặng đường! La la laaa~ Đi thắp lại Mặt Trời nào! ♪' }
+    ] }
+  };
+  for (const k in DLG3) DLG[k] = Object.assign(DLG[k] || {}, DLG3[k]);
+  const RESCUE = [
+    { en: 'You... you came for me? Thank you! I was locked in that cage when the Sun shattered.', vi: 'Bạn... bạn đến cứu mình sao? Cảm ơn bạn! Mình bị nhốt trong chiếc lồng này từ lúc Mặt Trời vỡ.' },
+    { en: 'Please take this - my leek! It sings when it shines. It will be your sword now.', vi: 'Bạn hãy nhận lấy - cây hành của mình! Nó hát mỗi khi phát sáng. Từ giờ nó là thanh kiếm của bạn.' },
+    { en: 'Sing with the light, Ember! La la laaa~ ♪', vi: 'Hãy hát cùng ánh sáng nhé, Ember! La la laaa~ ♪' }
+  ];
+  const TRIAL = {
+    1: { intro: [
+      { en: 'Hehehe... so THIS is the famous lantern-boy? Mr Shorty Phong welcomes you!', vi: 'Hê hê hê... vậy ĐÂY là cậu bé cầm đèn nổi tiếng? Mr Shorty Phong chào đón cậu!' },
+      { en: 'My master Quoc wants you stopped. So let us play with my little trial.', vi: 'Chủ nhân Quoc muốn cậu dừng lại. Vậy hãy chơi thử thách nhỏ của ta nào.' },
+      { en: 'No exit until every monster is dead. Tee-hee!', vi: 'Không có lối ra cho tới khi quái vật chết hết. Hí hí!' }
+    ], outro: [
+      { en: 'WHAT?! You beat my pets?! Impossible!', vi: 'CÁI GÌ?! Cậu đánh bại thú cưng của ta sao?! Không thể nào!' },
+      { en: 'Hmph. Short men make LONG grudges, lantern-boy!', vi: 'Hừm. Người thấp thì thù DAI, cậu bé cầm đèn!' }
+    ] },
+    3: { intro: [
+      { en: 'Back for more? The desert is MY garden, little lantern!', vi: 'Quay lại chịu đòn à? Sa mạc là vườn nhà ta, đèn con!' },
+      { en: 'Three waves this time. Survive... or become sand.', vi: 'Lần này ba đợt. Sống sót... hoặc hóa thành cát.' }
+    ], outro: [
+      { en: 'HOW?! My calculations were PERFECT!', vi: 'SAO CÓ THỂ?! Tính toán của ta HOÀN HẢO mà!' }
+    ] },
+    5: { intro: [
+      { en: 'This is the hot seat, kid. Even I sweat here.', vi: 'Đây là ghế nóng đó nhóc. Ngay cả ta cũng toát mồ hôi ở đây.' },
+      { en: 'Three waves of my FINEST. Do try to enjoy them.', vi: 'Ba đợt tinh nhuệ nhất của ta. Cố mà thưởng thức nhé.' }
+    ], outro: [
+      { en: 'N-no... Master Quoc will have my hat for this!', vi: 'K-không... Chủ nhân Quoc sẽ lấy chiếc mũ của ta mất!' }
+    ] },
+    6: { intro: [
+      { en: 'Welcome to the FINAL trial. The Eclipse awaits... but first, ME.', vi: 'Chào mừng tới thử thách CUỐI CÙNG. Nhật Thực đang chờ... nhưng trước tiên, là TA.' },
+      { en: 'Four waves. FOUR. I stayed up all night designing them.', vi: 'Bốn đợt. BỐN. Ta thức trắng đêm để thiết kế chúng.' }
+    ], outro: [
+      { en: 'Fine. FINE! Go! Be eaten by the Eclipse!', vi: 'Được thôi. ĐƯỢC THÔI! Đi đi! Để Nhật Thực nuốt chửng cậu!' }
+    ] }
+  };
+  const SPK = { quoc: { name: { en: 'Quoc the Devil', vi: 'Quỷ Vương Quoc' }, col: '#ff5a4a' }, shorty: { name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' }, col: '#ffd34e' }, imp: { name: { en: 'Imp', vi: 'Tiểu quỷ' }, col: '#c07bff' } };
+  const CUT = [
+    [ // after Verdant Meadow
+      { w: 'quoc', shout: 1, en: 'WHAT?! A WALKING CANDLE BEAT MY KING SLIME?!', vi: 'GÌ CƠ?! MỘT CÂY NẾN BIẾT ĐI ĐÁNH BẠI VUA SLIME CỦA TA SAO?!' },
+      { w: 'shorty', en: 'M-my lord Quoc... it is only one tiny flame...', vi: 'T-thưa ngài Quoc... chỉ là một ngọn lửa nhỏ xíu thôi ạ...' },
+      { w: 'quoc', shout: 1, en: 'TINY FLAMES START BIG FIRES, YOU FOOL! GO! PUT IT OUT!', vi: 'LỬA NHỎ CŨNG GÂY RA ĐÁM CHÁY LỚN, ĐỒ NGỐC! ĐI! DẬP NÓ ĐI!' }
+    ],
+    [ // after Whispering Forest
+      { w: 'quoc', shout: 1, en: 'THE SPIDER QUEEN... DEAD?! I RAISED HER FOR A THOUSAND YEARS!', vi: 'NỮ HOÀNG NHỆN... CHẾT RỒI SAO?! TA NUÔI NÓ HÀNG NGÀN NĂM!' },
+      { w: 'imp', en: 'Master... he fights with a glowing... LEEK.', vi: 'Thưa chủ nhân... hắn chiến đấu bằng một... CÂY HÀNH phát sáng.' },
+      { w: 'quoc', shout: 1, en: 'A... A LEEK?! HE BEAT HER WITH A VEGETABLE?!', vi: 'MỘT... MỘT CÂY HÀNH?! HẮN ĐÁNH BẠI NÓ BẰNG RAU SAO?!' },
+      { w: 'shorty', en: 'A very SHINY vegetable, my lord. Singing, even.', vi: 'Một cây rau rất SÁNG, thưa ngài. Còn biết hát nữa ạ.' },
+      { w: 'quoc', shout: 1, en: 'SILENCE! I WILL NOT BE HUMILIATED BY SALAD!', vi: 'IM LẶNG! TA SẼ KHÔNG BỊ NHỤC NHÃ BỞI MỘT ĐĨA SALAD!' }
+    ],
+    [ // after Crystal Caverns
+      { w: 'quoc', shout: 1, en: 'THE GOLEM SHATTERED LIKE CHEAP GLASS! WHO IS HELPING HIM?!', vi: 'NGƯỜI KHỔNG LỒ VỠ NHƯ THỦY TINH RẺ TIỀN! AI ĐANG GIÚP HẮN?!' },
+      { w: 'shorty', en: 'A sad bookworm wizard, my lord. They call him QuanSadBoy.', vi: 'Một phù thủy mọt sách buồn bã, thưa ngài. Người ta gọi hắn là QuanSadBoy.' },
+      { w: 'quoc', shout: 1, en: 'A BOOKWORM?! I AM BEING DEFEATED BY HOMEWORK?!', vi: 'MỘT CON MỌT SÁCH?! TA ĐANG BỊ ĐÁNH BẠI BỞI BÀI TẬP VỀ NHÀ SAO?!' },
+      { w: 'imp', en: 'He... also gave the hero snacks.', vi: 'Hắn... còn đưa cho anh hùng đồ ăn vặt nữa.' },
+      { w: 'quoc', shout: 1, en: 'SNACKS?! UNFORGIVABLE!!', vi: 'ĐỒ ĂN VẶT?! KHÔNG THỂ THA THỨ!!' }
+    ],
+    [ // after Sunscorch Desert
+      { w: 'quoc', shout: 1, en: 'MY PHARAOH! MY SANDS! MY PYRAMID COLLECTION!', vi: 'PHARAOH CỦA TA! CÁT CỦA TA! BỘ SƯU TẬP KIM TỰ THÁP CỦA TA!' },
+      { w: 'shorty', en: 'Master, I tried my little trial again. He... passed.', vi: 'Thưa chủ nhân, thần lại thử thách nhỏ của thần. Hắn... vượt qua rồi.' },
+      { w: 'quoc', shout: 1, en: 'AGAIN?! YOU CANNOT EVEN BEAT A CHILD WITH A LANTERN?!', vi: 'LẠI NỮA SAO?! NGƯƠI KHÔNG THỂ THẮNG NỔI MỘT ĐỨA TRẺ CẦM ĐÈN?!' },
+      { w: 'shorty', en: '...I am very short, my lord. It is hard to see him coming.', vi: '...Thần rất thấp, thưa ngài. Khó mà thấy hắn đang tới.' },
+      { w: 'quoc', shout: 1, en: 'THEN STAND ON A BOX AND TRY HARDER!!', vi: 'THÌ ĐỨNG LÊN CÁI HỘP VÀ CỐ GẮNG HƠN!!' }
+    ],
+    [ // after Frostbite Peaks
+      { w: 'quoc', shout: 1, en: 'THE FROST KING MELTED?! HE WAS FROZEN BY DEFINITION!', vi: 'VUA BĂNG TAN CHẢY SAO?! THEO ĐỊNH NGHĨA HẮN LÀ BĂNG CƠ MÀ!' },
+      { w: 'imp', en: 'H-he used fire flasks, master...', vi: 'H-hắn dùng bình lửa, thưa chủ nhân...' },
+      { w: 'quoc', shout: 1, en: 'THEN FREEZE THE FLASKS, YOU FOOL!!', vi: 'THÌ ĐÓNG BĂNG CÁI BÌNH ĐÓ ĐI, ĐỒ NGỐC!!' },
+      { w: 'shorty', en: 'Only the volcano and the Citadel remain, my lord...', vi: 'Chỉ còn núi lửa và Thành Trì thôi, thưa ngài...' },
+      { w: 'quoc', shout: 1, en: 'ENOUGH! WAKE THE TITAN! AND IF HE FAILS... WAKE THE ECLIPSE!', vi: 'ĐỦ RỒI! ĐÁNH THỨC TITAN! VÀ NẾU HẮN THẤT BẠI... ĐÁNH THỨC NHẬT THỰC!' }
+    ],
+    [ // after Ember Volcano
+      { w: 'quoc', shout: 1, en: 'THE TITAN IS ASH!! ASH!!! HE WAS MY FAVORITE VOLCANO!', vi: 'TITAN THÀNH TRO RỒI!! TRO!!! HẮN LÀ NGỌN NÚI LỬA YÊU THÍCH CỦA TA!' },
+      { w: 'shorty', en: 'Master... six fragments of the Sun burn together again.', vi: 'Thưa chủ nhân... sáu mảnh Mặt Trời lại cháy cùng nhau.' },
+      { w: 'quoc', shout: 1, en: 'THEN THE ECLIPSE WILL END THIS! AWAKEN IT!!', vi: 'VẬY NHẬT THỰC SẼ KẾT THÚC TẤT CẢ! ĐÁNH THỨC NÓ!!' },
+      { w: 'quoc', shout: 1, en: 'LET THE WORLD GO DARK FOREVER!!!', vi: 'ĐỂ THẾ GIỚI TỐI ĐEN MÃI MÃI!!!' }
+    ]
+  ];
   const SHOPS = {
     gob: [{ k: 'shop1', price: 15, fx: () => { Q.P.hp = maxHP(); } }, { k: 'shop2', price: 25, fx: () => { Q.P.shield = true; } }],
     smith: [{ k: 'shopb', price: 14, fx: () => { Q.P.ammo.bomb += 3; } }, { k: 'shopd', price: 10, fx: () => { Q.P.ammo.dagger += 8; } }, { k: 'shopf', price: 14, fx: () => { Q.P.ammo.flask += 3; } }]
@@ -495,7 +609,7 @@
     P.x = L.start.x; P.y = L.start.y - P.h;
     Q = {
       li, L, P, B: L.B, bg: bgs(li), ts: tiles(li), crum: new Map(), taken: new Set(), cp: null, cpIdx: -1,
-      ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
+      ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), trials: [], trialsDone: new Set(), nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
       cam: { x: 0, y: 0 }, coinsRun: 0, time: 0, safe: { x: P.x, y: P.y }, menu: 0,
       dj: li >= 1 || save.cleared.indexOf(0) >= 0, dashAb: li >= 3 || save.cleared.indexOf(2) >= 0,
       arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0
@@ -515,12 +629,15 @@
     for (const gd of L.gates) { const open = Q.solved.has(gd.id); for (let y = gd.y0; y <= gd.y1; y++) L.grid[y][gd.x] = open ? ' ' : 'G'; }
     for (const w of L.xwalls) for (const t of w.tiles) L.grid[t[1]][t[0]] = Q.brokenX.has(t[0] + ',' + t[1]) ? ' ' : 'X';
     Q.gates = L.gates.map(gd => Object.assign({}, gd, { open: Q.solved.has(gd.id), seqIdx: 0, timer: 0, levers: 0 }));
+    for (const t of L.trials) for (let y = 0; y < t.gy; y++) { L.grid[y][t.lw] = ' '; L.grid[y][t.rw] = ' '; }
+    Q.trials = L.trials.map(t => Object.assign({}, t, { state: Q.trialsDone.has(t.id) ? 'done' : 'idle', wave: 0, cd: 0 }));
     for (const s of L.spawns) {
       if (Q.taken.has(s.id)) continue;
       if (s.type === 'coin') Q.items.push({ kind: 'coin', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'heart') Q.items.push({ kind: 'heart', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'shard') { if (!save.shards[Q.li][s.k]) Q.items.push({ kind: 'shard', x: s.x, y: s.y, id: s.id, k: s.k, ph: 0 }); }
       else if (s.type === 'boss') Q.boss = makeBoss(s);
+      else if (s.type === 'cage') { if (save.leek) Q.items.push({ kind: 'npc', who: 'miku', x: s.x, y: s.y, id: s.id, ph: 0 }); else Q.pz.push({ type: 'cage', x: s.x, y: s.y, grp: s.grp, open: false }); }
       else if (s.type === 'pk') Q.items.push({ kind: 'pk', what: s.what, amt: s.what === 'dagger' ? 5 : 2, keep: !!s.keep, x: s.x, y: s.y - 7, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'key') Q.items.push({ kind: 'key', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'lever') Q.pz.push({ type: 'lever', x: s.x, y: s.y, gate: s.gate, on: false });
@@ -536,7 +653,7 @@
   }
   function makeEnemy(type, x, y, s) {
     const c = EN[type];
-    const e = { type, cfg: c, x: x - c.w / 2, y: y - c.h, w: c.w, h: c.h, vx: 0, vy: 0, hp: c.hp, dir: Math.random() < 0.5 ? -1 : 1, t: Math.random() * 5, cd: rr(0.5, 1.5), flash: 0, st: 'patrol', stT: 0, hx: x, hy: y, onGround: false, minion: !!(s && s.minion) };
+    const e = { type, cfg: c, x: x - c.w / 2, y: y - c.h, w: c.w, h: c.h, vx: 0, vy: 0, hp: c.hp, dir: Math.random() < 0.5 ? -1 : 1, t: Math.random() * 5, cd: rr(0.5, 1.5), flash: 0, st: 'patrol', stT: 0, hx: x, hy: y, onGround: false, minion: !!(s && s.minion), grp: s && s.grp, trial: s && s.trial };
     if (FLY.has(type) || c.ai === 'ghost' || c.ai === 'flyshoot') { e.y = y - c.h / 2; e.hy = e.y; e.fly = true; }
     if (c.ai === 'blob') { e.y = y + 10; e.hy = y; e.cd = rr(0.5, 2.5); e.st = 'wait'; }
     return e;
@@ -691,7 +808,8 @@
   function swordRect() {
     const P = Q.P;
     if (P.atkDown) return { x: P.x - 5, y: P.y + P.h - 3, w: P.w + 10, h: 15 };
-    return P.face > 0 ? { x: P.x + P.w - 1, y: P.y - 3, w: 24, h: P.h + 5 } : { x: P.x - 23, y: P.y - 3, w: 24, h: P.h + 5 };
+    const rch = save.leek ? 31 : 24;
+    return P.face > 0 ? { x: P.x + P.w - 1, y: P.y - 3, w: rch, h: P.h + 5 } : { x: P.x - rch + 1, y: P.y - 3, w: rch, h: P.h + 5 };
   }
   function swordHit() {
     const P = Q.P, r = swordRect(), dmg = swordDmg();
@@ -929,13 +1047,22 @@
     const d = (DLG[Q.li] || {})[it.who] || NPCS[it.who].generic || [{ en: '...', vi: '...' }];
     Q.talk = { it, npc: NPCS[it.who], lines: d, i: 0, t: 0 }; Q.state = 'talk'; Snd.blip(it.who); Q.P.vx = 0;
   }
+  function startScripted(who, lines, after) {
+    Q.talk = { it: { who }, npc: NPCS[who], lines, i: 0, t: 0, after }; Q.state = 'talk'; Snd.blip(who); Q.P.vx = 0;
+  }
+  function giveGift(gf) {
+    for (const k in gf) Q.P.ammo[k] += gf[k];
+    Snd.play('pickup'); Q.msg = T('gift') + '  (+' + gf.dagger + ' ' + T('dagger') + ', +' + gf.bomb + ' ' + T('bomb') + ', +' + gf.flask + ' ' + T('flask') + ')'; Q.msgT = 5;
+  }
   function endTalk() {
-    const n = Q.talk.npc, it = Q.talk.it; Q.talk = null;
+    const tk = Q.talk, n = tk.npc, it = tk.it; Q.talk = null;
+    if (tk.after) { Q.state = 'play'; tk.after(); return; }
     if (n.shop) { Q.state = 'shop'; Q.menu = 0; Q.shopMsg = ''; Q.shopWho = it.who; return; }
     Q.state = 'play';
     if (!it.blessed) {
       it.blessed = true;
       if (Q.P.hp < maxHP()) { Q.P.hp = maxHP(); Snd.play('heart'); Q.msg = T('healed'); Q.msgT = 3; emit(Q.P.x + 4, Q.P.y + 7, 14, { col: ['#e0453a', '#ff7fb0', '#fff'], sp0: 10, sp1: 60 }); }
+      if (n.gift) giveGift(n.gift);
     }
   }
   function updateTalk(dt) {
@@ -1245,18 +1372,61 @@
     if (pz.type === 'lever') leverPull(pz);
     else if (pz.type === 'torch') lightTorch(pz);
     else if (pz.type === 'tablet') { Q.tablet = gateOf(pz.gate); Q.state = 'tablet'; Snd.play('select'); }
+    else if (pz.type === 'cage') {
+      if (Q.ents.some(e => !e.dead && e.grp === pz.grp)) { Q.msg = T('guards'); Q.msgT = 3; Snd.play('zap'); return; }
+      startScripted('miku', RESCUE, () => { pz.open = true; save.leek = true; writeSave(); Q.items.push({ kind: 'npc', who: 'miku', x: pz.x, y: pz.y, id: -5, ph: 0 }); Q.state = 'reward'; Q.stateT = 0; Snd.play('relic'); Snd.hero('cheer'); emit(pz.x, pz.y - 14, 40, { col: ['#a4ffc0', '#fff', '#6ee7f2'], sp0: 20, sp1: 120 }); });
+    }
+  }
+  // ===================== Mr Shorty's trials =====================
+  function sealTrial(tr) { for (let y = 0; y < tr.gy; y++) { Q.L.grid[y][tr.lw] = 'G'; Q.L.grid[y][tr.rw] = 'G'; } Snd.play('gate'); Q.shake = 0.6; }
+  function openTrial(tr) { for (let y = 0; y < tr.gy; y++) { Q.L.grid[y][tr.lw] = ' '; Q.L.grid[y][tr.rw] = ' '; } Snd.play('gate'); }
+  function spawnWave(tr) {
+    const B = Q.B, d = 0.15 + tr.wave * 0.22 + Q.li * 0.06, pool = B.enemies.filter(e => e.min <= d);
+    const n = 2 + tr.wave + (Q.li > 3 ? 1 : 0);
+    for (let i = 0; i < n; i++) {
+      let tot = 0; pool.forEach(e => tot += e.w); let r = Math.random() * tot, type = pool[0].t;
+      for (const e of pool) { r -= e.w; if (r <= 0) { type = e.t; break; } }
+      const fx = (tr.lw + 3 + Math.random() * (tr.rw - tr.lw - 6)) * TS;
+      const e = makeEnemy(type, fx, FLY.has(type) ? (tr.gy - 4) * TS : tr.gy * TS, {}); e.trial = tr.id; e.alerted = true; e.minion = false;
+      Q.ents.push(e); emit(fx, e.y + e.h / 2, 14, { col: ['#c07bff', '#fff', '#6a3aa8'], sp0: 20, sp1: 80 });
+    }
+    tr.wave++; Q.msg = T('wave') + ' ' + tr.wave + ' / ' + tr.waves; Q.msgT = 3; Snd.play('zap');
+  }
+  function updateTrials(dt) {
+    const P = Q.P;
+    for (const tr of Q.trials) {
+      if (tr.state === 'idle') {
+        if (P.x > tr.trig * TS && P.x < tr.rw * TS - 8 && P.onGround) {
+          tr.state = 'intro';
+          startScripted('shorty', TRIAL[Q.li].intro, () => { sealTrial(tr); tr.state = 'active'; tr.cd = 0.8; });
+        }
+      } else if (tr.state === 'active') {
+        if (Q.ents.some(e => !e.dead && e.trial === tr.id)) continue;
+        tr.cd -= dt; if (tr.cd > 0) continue;
+        if (tr.wave < tr.waves) { spawnWave(tr); tr.cd = 1.2; }
+        else {
+          tr.state = 'done'; Q.trialsDone.add(tr.id); openTrial(tr); Q.msg = T('trialWin'); Q.msgT = 4; Snd.play('relic');
+          const cx = (tr.lw + tr.rw) / 2 * TS;
+          for (let i = 0; i < 2; i++) Q.items.push({ kind: 'heart', x: cx + i * 12, y: tr.gy * TS - 30, id: -1, vy: -120, vx: i ? 25 : -25, ph: 0, drop: true });
+          for (let i = 0; i < 10; i++) Q.items.push({ kind: 'coin', x: cx + rr(-20, 20), y: tr.gy * TS - 30, id: -1, vy: -rr(80, 160), vx: rr(-50, 50), ph: 0, drop: true });
+          Q.items.push({ kind: 'pk', what: 'bomb', amt: 2, keep: false, x: cx, y: tr.gy * TS - 30, id: -1, vy: -140, vx: 0, ph: 0, drop: true });
+          startScripted('shorty', TRIAL[Q.li].outro, null);
+        }
+      }
+    }
   }
   function updatePuzzles(dt) {
     const P = Q.P, pc = { x: P.x + 4, y: P.y + 7 };
     Q.nearPz = null;
+    updateTrials(dt);
     for (const pz of Q.pz) {
       if (pz.type === 'rune') {
         const on = P.onGround && P.x + P.w > pz.x - 8 && P.x < pz.x + 8 && Math.abs(P.y + P.h - pz.y) < 4;
         if (on && !pz.on) { pz.on = true; runeStep(pz); } else if (!on) pz.on = false;
         continue;
       }
-      if ((pz.type === 'lever' && pz.on) || (pz.type === 'torch' && pz.lit)) continue;
-      if (Math.abs(pz.x - pc.x) < 16 && Math.abs(pz.y - pc.y) < 26) Q.nearPz = pz;
+      if ((pz.type === 'lever' && pz.on) || (pz.type === 'torch' && pz.lit) || (pz.type === 'cage' && pz.open)) continue;
+      if (Math.abs(pz.x - pc.x) < (pz.type === 'cage' ? 22 : 16) && Math.abs(pz.y - pc.y) < 26) Q.nearPz = pz;
     }
     for (const gd of Q.gates) {
       if (!gd.open && gd.need === 'key') {
@@ -1274,13 +1444,19 @@
   }
   function drawPuzzles(camX, camY) {
     for (const pz of Q.pz) {
+      if (pz.type === 'cage' && pz.open) continue;
       const x = Math.round(pz.x - camX), y = Math.round(pz.y - camY);
       if (x < -30 || x > VW + 30) continue;
       if (pz.type === 'lever') drawSpr(g, icon('lever', pz.on ? 1 : 0), x, y, false);
       else if (pz.type === 'torch') drawSpr(g, icon('torch', pz.ci, pz.lit ? 1 : 0), x, y, false);
       else if (pz.type === 'tablet') drawSpr(g, icon('tablet'), x, y, false);
+      else if (pz.type === 'cage') {
+        const sp = npcSpr('npc_miku'); drawSpr(g, sp, x, y - 1 + Math.round(Math.sin(Q.t * 2) * 0.6), false, false);
+        drawSpr(g, npcSpr('cage'), x, y + 1, false);
+        if (Q.ents.some(e => !e.dead && e.grp === pz.grp)) { g.fillStyle = '#e0453a'; g.fillRect(x - 1, y - 52, 3, 7); g.fillRect(x - 1, y - 43, 3, 3); }
+      }
       else if (pz.type === 'rune') drawSpr(g, icon('rune', pz.ci, pz.lit ? 1 : 0), x, y + 1, false);
-      if (Q.nearPz === pz && Q.state === 'play') txt(pz.type === 'torch' ? T('light') : (pz.type === 'tablet' ? T('read') : T('use')), x, y - 26, { al: 'center', size: 6, col: '#ffd34e' });
+      if (Q.nearPz === pz && Q.state === 'play') txt(pz.type === 'torch' ? T('light') : (pz.type === 'tablet' ? T('read') : (pz.type === 'cage' ? T('free') : T('use'))), x, y - (pz.type === 'cage' ? 56 : 26), { al: 'center', size: 6, col: '#ffd34e' });
     }
     for (const gd of Q.gates) {
       if (gd.open && gd.need !== 'timed') continue;
@@ -1371,6 +1547,7 @@
     }
     if (st === 'talk') { updateTalk(dt); updateParticles(dt); return; }
     if (st === 'shop') { updateShop(); return; }
+    if (st === 'reward') { Q.stateT += 0; if (Q.stateT > 0.8 && (act.okP || act.talkP || act.atkP)) Q.state = 'play'; updateParticles(dt); return; }
     if (st === 'tablet') { if (act.okP || act.talkP || act.backP || act.pauseP || act.atkP) { Q.state = 'play'; } return; }
     if (st === 'dead') {
       updateParticles(dt);
@@ -1378,7 +1555,7 @@
       else if (Q.stateT > 0.8 && act.backP) toScene('map');
       return;
     }
-    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (Q.li >= 6) toScene('ending'); else { mapSel = Math.min(6, Q.li + 1); toScene('map'); } } return; }
+    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (Q.li >= 6) toScene('ending'); else { cutLevel = Q.li; mapSel = Math.min(6, Q.li + 1); toScene('cutscene'); } } return; }
     // play / bossintro
     if (act.pauseP && st === 'play') { Q.state = 'pause'; Q.menu = 0; return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
@@ -1483,7 +1660,7 @@
         drawSpr(g, icon('key'), x, y + 5 + Math.round(Math.sin(it.ph * 3) * 1.5), false);
         if (Math.random() < 0.15) emit(it.x + rr(-6, 6), it.y + rr(-5, 5), 1, { col: ['#fff', '#ffd34e'], sp0: 2, sp1: 8, grav: -10, l0: 0.3, l1: 0.7 });
       } else if (it.kind === 'npc') {
-        const n = NPCS[it.who], sp = getSprite(n.spr), bob = Math.round(Math.sin(it.ph * 2) * 0.5 + 0.5);
+        const n = NPCS[it.who], sp = npcSpr(n.spr), bob = Math.round(Math.sin(it.ph * 2) * 0.5 + 0.5);
         drawSpr(g, sp, x, y - bob, Q.P.x + 4 < it.x);
         const by = y - sp.h - 4 - bob;
         if (Q.nearNpc === it && Q.state === 'play') { txt(T('talk'), x, by - 4, { al: 'center', size: 6, col: '#ffd34e' }); }
@@ -1543,13 +1720,29 @@
     const lx = x + P.face * 8, ly = bot - 9 +Math.round(Math.sin(P.anim * 7) * (Math.abs(P.vx) > 15 ? 1.5 : 0.6));
     g.fillStyle = '#1b1626'; g.fillRect(lx - 3, ly - 3, 6, 7); g.fillRect(lx - 1, ly - 5, 2, 2);
     g.fillStyle = '#ffd34e'; g.fillRect(lx - 2, ly - 2, 4, 5); g.fillStyle = '#fff6c0'; g.fillRect(lx - 1, ly - 1, 2, 2);
-    // slash
-    if (P.atk > 0) {
-      const t = 1 - P.atk / 0.2, r = swordRect();
+    // sword: Miku's glowing leek once rescued, otherwise a white arc
+    const f = P.face, hx = x + f * 3, hy = bot - 9;
+    if (save.leek) {
+      const lk = leekSprite(), pulse = 0.6 + Math.sin(Q.t * 6) * 0.25;
+      let ang;
+      if (P.atk > 0) { const t = 1 - P.atk / 0.2; ang = P.atkDown ? 1.5 : lerp(-1.5, 1.0, t); } else ang = -2.15;
+      const tipx = hx + Math.cos(ang) * 18 * f, tipy = hy + Math.sin(ang) * 18;
+      g.globalCompositeOperation = 'lighter';
+      const grd = g.createRadialGradient(tipx, tipy, 0, tipx, tipy, 30);
+      grd.addColorStop(0, 'rgba(130,255,170,' + (0.5 * pulse + (P.atk > 0 ? 0.25 : 0)) + ')'); grd.addColorStop(1, 'rgba(130,255,170,0)');
+      g.fillStyle = grd; g.fillRect(tipx - 30, tipy - 30, 60, 60);
+      g.globalCompositeOperation = 'source-over';
+      if (P.atk > 0 && !P.atkDown) {
+        for (let k = 1; k <= 7; k++) { const a2 = ang - k * 0.24, tx = hx + Math.cos(a2) * 24 * f, ty = hy + Math.sin(a2) * 24; g.globalAlpha = 0.65 - k * 0.08; g.fillStyle = k % 2 ? '#c8ffd8' : '#6ee7b0'; g.fillRect(Math.round(tx) - 1, Math.round(ty) - 1, 3, 3); }
+        g.globalAlpha = 1;
+      }
+      g.save(); g.translate(hx, hy); g.scale(f, 1); g.rotate(ang); g.drawImage(lk.c, -1, -lk.h / 2); g.restore();
+      if (Math.random() < 0.35) emit(P.x + 4 + Math.cos(ang) * 18 * f + rr(-6, 6), P.y + 5 + Math.sin(ang) * 18 + rr(-6, 6), 1, { col: ['#c8ffd8', '#6ee7b0', '#fff'], sp0: 2, sp1: 10, grav: -12, l0: 0.3, l1: 0.7 });
+    } else if (P.atk > 0) {
+      const t = 1 - P.atk / 0.2;
       g.fillStyle = '#fff';
-      if (P.atkDown) { for (let i = 0; i < 8; i++) { const a = Math.PI * (0.15 + 0.7 * (i / 7)) + t * 0.5; g.fillRect(Math.round(x + Math.cos(a) * 12 * (P.face)) , Math.round(bot + Math.sin(a) * 12 - 2 - camY * 0), 2, 2); } g.fillStyle = '#cfd6e6'; g.fillRect(Math.round(x - 1), Math.round(bot - 2), 3, 12); }
+      if (P.atkDown) { for (let i = 0; i < 8; i++) { const a = Math.PI * (0.15 + 0.7 * (i / 7)) + t * 0.5; g.fillRect(Math.round(x + Math.cos(a) * 12 * f), Math.round(bot + Math.sin(a) * 12 - 2), 2, 2); } g.fillStyle = '#cfd6e6'; g.fillRect(Math.round(x - 1), Math.round(bot - 2), 3, 12); }
       else {
-        const f = P.face;
         for (let i = 0; i < 10; i++) { const a = (-1.2 + 2.4 * (i / 9)) * (t < 0.5 ? t * 2 : 1), px = x + f * (4 + Math.cos(a) * 17), py = bot - 7 + Math.sin(a) * 12; g.fillStyle = i > 6 ? '#fff' : '#cfeaff'; g.fillRect(Math.round(px), Math.round(py), 3, 3); }
       }
     }
@@ -1566,6 +1759,7 @@
     for (const pz of Q.pz) if ((pz.type === 'torch' && pz.lit) || (pz.type === 'rune' && pz.lit)) addL(pz.x, pz.y - 10, 38, 0.9);
     for (const f of Q.fires) addL(f.x, f.y - 8, 34, 0.9);
     for (const p of Q.fps) if (p.t !== 'dagger') addL(p.x, p.y, 20, 0.8);
+    if (save.leek) addL(P.x + 4 + P.face * 10, P.y + 2, 38, 0.85);
     if (Q.boss && Q.boss.st !== 'sleep') addL(Q.boss.x + Q.boss.w / 2, Q.boss.y + Q.boss.h / 2, 60, 0.7);
     for (const d of Q.L.decor) { if (Q.B.decor[d.k][0] === 'torch' || (B.id === 'caves' && Q.B.decor[d.k][0] === 'crystal')) addL(d.x, d.y - 6, 36, 0.8); }
     if (B.hazard === 'lava') { const tx0 = Math.floor(camX / TS), tx1 = Math.floor((camX + VW) / TS); for (let tx = tx0; tx <= tx1; tx += 2) { if (tx >= 0 && tx < Q.L.W && Q.L.grid[Q.L.H - 2][tx] === '~') addL(tx * TS + 8, (Q.L.H - 2) * TS, 40, 0.8); } }
@@ -1581,6 +1775,10 @@
     const pl = lights[0];
     const gr = g.createRadialGradient(pl.x, pl.y, 0, pl.x, pl.y, 60); gr.addColorStop(0, 'rgba(255,190,90,0.22)'); gr.addColorStop(1, 'rgba(255,190,90,0)'); g.fillStyle = gr; g.fillRect(pl.x - 60, pl.y - 60, 120, 120);
     for (let i = 1; i < lights.length; i++) { const l = lights[i]; const g2 = g.createRadialGradient(l.x, l.y, 0, l.x, l.y, l.r * 0.8); g2.addColorStop(0, 'rgba(255,200,110,0.18)'); g2.addColorStop(1, 'rgba(255,200,110,0)'); g.fillStyle = g2; g.fillRect(l.x - l.r, l.y - l.r, l.r * 2, l.r * 2); }
+    if (save.leek) {
+      const lx = P.x + 4 + P.face * 10 - camX, ly = P.y + 2 - camY, gl = g.createRadialGradient(lx, ly, 0, lx, ly, 44);
+      gl.addColorStop(0, 'rgba(120,255,170,0.20)'); gl.addColorStop(1, 'rgba(120,255,170,0)'); g.fillStyle = gl; g.fillRect(lx - 44, ly - 44, 88, 88);
+    }
     g.globalCompositeOperation = 'source-over';
   }
   function drawWeather() {
@@ -1663,7 +1861,7 @@
       for (let i = 0; i < 7; i++) { const ic = icon('r' + i); g.globalAlpha = save.relics[i] ? 1 : 0.2; g.drawImage(ic.c, VW / 2 - 7 * 13 + i * 26 + 4, 172); }
       g.globalAlpha = 1;
     } else if (st === 'talk') {
-      const tk = Q.talk, sp = getSprite(tk.npc.spr);
+      const tk = Q.talk, sp = npcSpr(tk.npc.spr);
       g.fillStyle = 'rgba(8,6,20,.93)'; g.fillRect(8, 148, VW - 16, 62);
       g.fillStyle = '#ffd34e'; g.fillRect(8, 148, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1); g.fillRect(8, 148, 1, 62); g.fillRect(VW - 9, 148, 1, 62);
       g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(14, 154, 44, 50);
@@ -1681,6 +1879,18 @@
       list.map(o => o.k).concat(['shop3']).forEach((k, i) => txt((Q.menu === i ? '> ' : '  ') + T(k), VW / 2, 96 + i * 14, { al: 'center', size: 7, col: Q.menu === i ? '#ffd34e' : '#e8eaf5' }));
       if (Q.shopMsg) txt(Q.shopMsg, VW / 2, 50 + hh - 8, { al: 'center', size: 6, col: '#a4e86b' });
       txt(T('dagger') + ' ' + Q.P.ammo.dagger + '  ' + T('bomb') + ' ' + Q.P.ammo.bomb + '  ' + T('flask') + ' ' + Q.P.ammo.flask + (Q.P.shield ? '  [Shield]' : ''), VW / 2, 50 + hh - 20, { al: 'center', size: 6, col: '#8892aa' });
+    } else if (st === 'reward') {
+      const a = Math.min(1, Q.stateT / 0.6), lk = leekSprite(), pulse = Math.sin(Q.stateT * 5);
+      g.globalAlpha = 0.8 * a; g.fillStyle = '#04100a'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1;
+      g.globalCompositeOperation = 'lighter';
+      for (let r = 70; r > 10; r -= 12) { g.globalAlpha = 0.05 * a; disc(g, VW / 2, 96, Math.round(r + pulse * 3), '#6effaa'); }
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = a;
+      g.save(); g.translate(VW / 2, 96); g.rotate(-0.5 + Math.sin(Q.stateT * 2) * 0.1); g.scale(3, 3); g.drawImage(lk.c, -lk.w / 2, -lk.h / 2); g.restore(); g.globalAlpha = 1;
+      for (let i = 0; i < 10; i++) { const an = Q.stateT * 1.5 + i * 0.63, rd = 50 + Math.sin(Q.stateT * 3 + i) * 8; g.fillStyle = i % 2 ? '#c8ffd8' : '#6ee7b0'; g.fillRect(Math.round(VW / 2 + Math.cos(an) * rd), Math.round(96 + Math.sin(an) * rd * 0.6), 2, 2); }
+      txt(T('leekT'), VW / 2, 38, { al: 'center', size: 13, bold: true, col: '#a4ffc0', alpha: a });
+      txt(LN(MIKU_NAME) + ' - ' + (save.lang === 'vi' ? 'Kiếm Hành Lá' : 'Leek Blade'), VW / 2, 150, { al: 'center', size: 9, bold: true, alpha: a });
+      wrapText(T('leekD'), 60).forEach((l, i) => txt(l, VW / 2, 166 + i * 10, { al: 'center', size: 7, col: '#a4e86b', alpha: a }));
+      if (Q.stateT > 0.8) txt(T('cont2'), VW / 2, 200, { al: 'center', size: 7, alpha: 0.6 + 0.4 * Math.sin(Q.stateT * 5) });
     } else if (st === 'tablet' && Q.tablet) {
       const gd = Q.tablet, cs = gd.seqColors || [];
       g.fillStyle = 'rgba(8,6,20,.95)'; g.fillRect(70, 56, VW - 140, 100);
@@ -1724,6 +1934,7 @@
     if (s === 'story') { storyPage = 0; storyT = 0; storyList = STORY; Snd.music('title', TITLE_MUSIC); }
     if (s === 'ending') { storyPage = 0; storyT = 0; storyList = ENDING; Snd.music('title', TITLE_MUSIC); }
     if (s === 'map') { Snd.music('title', TITLE_MUSIC); Q = null; mapSel = Math.min(mapSel, maxPlayable()); }
+    if (s === 'cutscene') startCut();
   }
 
   // title bg state
@@ -1749,7 +1960,7 @@
   function titleItems() {
     const it = [];
     if (save.cleared.length) it.push({ k: 'cont', fn: () => { mapSel = maxPlayable(); toScene('map'); } });
-    it.push({ k: 'newgame', fn: () => { save.cleared = []; save.shards = {}; save.coins = 0; writeSave(); mapSel = 0; toScene('story'); } });
+    it.push({ k: 'newgame', fn: () => { save.cleared = []; save.shards = {}; save.coins = 0; save.leek = false; save.relics = [0, 0, 0, 0, 0, 0, 0]; save.ammo = { dagger: 0, bomb: 0, flask: 0 }; writeSave(); mapSel = 0; toScene('story'); } });
     it.push({ k: 'lang', fn: () => { save.lang = save.lang === 'vi' ? 'en' : 'vi'; writeSave(); } });
     it.push({ k: 'sound', fn: () => { Snd.toggleMute(); } });
     it.push({ k: 'full', fn: toggleFull });
@@ -1845,6 +2056,64 @@
     txt(T('shards') + ' ' + ts + '/21   ' + T('hearts') + ' ' + maxHP() + '   ' + T('dmg') + ' ' + swordDmg(), 6, VH - 4, { size: 5, col: '#a4e86b' });
   }
 
+  // ============================== DEVIL CUTSCENE ==============================
+  let cutLevel = 0, cut = null;
+  function startCut() { cut = { t: 0, phase: 'walk', i: 0, lt: 0, pt: 0, fl: 0, shake: 0, thun: false, lastBlip: 0 }; Q = null; Snd.music('devil', DEVIL_MUSIC); }
+  function cutLineStart() {
+    const ln = CUT[cutLevel][cut.i];
+    if (ln.w === 'quoc') Snd.creature(7, 'attack', true); else if (ln.w === 'imp') Snd.creature('imp', 'alert'); else Snd.blip('shorty');
+    if (ln.shout) { cut.shake = 0.55; cut.fl = 0.3; if (Math.random() < 0.5) Snd.play('thunder'); }
+  }
+  function updateCut(dt) {
+    const c = cut; c.t += dt;
+    if (c.phase === 'walk') {
+      if (c.fl > 0) c.fl -= dt;
+      if (!c.thun && c.t > 2.1) { c.thun = true; Snd.play('thunder'); c.fl = 0.5; }
+      if (c.t > 3.5) { c.phase = 'devil'; c.pt = 0; c.i = 0; c.lt = 0; cutLineStart(); }
+      if (act.okP || act.backP) c.t = Math.max(c.t, 3.5);
+      return;
+    }
+    c.pt += dt; c.lt += dt; if (c.fl > 0) c.fl -= dt; if (c.shake > 0) c.shake -= dt;
+    const lines = CUT[cutLevel], ln = lines[c.i], txtL = ln[save.lang], n0 = Math.floor((c.lt - dt) * 38), n1 = Math.min(txtL.length, Math.floor(c.lt * 38));
+    for (let k = n0 + 1; k <= n1; k++) if (k % (ln.w === 'quoc' ? 3 : 2) === 0 && /\S/.test(txtL[k - 1] || ' ')) Snd.blip(ln.w === 'imp' ? 'fairy' : (ln.w === 'quoc' ? 'quoc' : 'shorty'));
+    if (act.okP) {
+      if (c.lt * 38 < txtL.length) c.lt = 999;
+      else { c.i++; c.lt = 0; if (c.i >= lines.length) { toScene('map'); c.i = lines.length - 1; c.lt = 999; } else cutLineStart(); }
+    }
+    if (act.backP) toScene('map');
+  }
+  function drawCut() {
+    const c = cut;
+    if (c.phase === 'walk') {
+      const gyy = drawBgOnly(cutLevel, c.t * 45, c.t);
+      drawSpr(g, getSprite('hero_run', {}, Math.floor(c.t * 10) % 4), 70 + c.t * 28, gyy, false);
+      const a = Math.min(0.97, Math.pow(c.t / 2.6, 1.3));
+      g.fillStyle = 'rgba(8,0,6,' + a + ')'; g.fillRect(0, 0, VW, VH);
+      if (c.t > 1.2) { const gl = g.createRadialGradient(VW / 2, VH, 0, VW / 2, VH, 220); gl.addColorStop(0, 'rgba(180,20,10,' + Math.min(0.5, (c.t - 1.2) * 0.25) + ')'); gl.addColorStop(1, 'rgba(180,20,10,0)'); g.fillStyle = gl; g.fillRect(0, 0, VW, VH); }
+      if (c.fl > 0) { g.fillStyle = 'rgba(255,255,255,' + Math.min(1, c.fl * 2) + ')'; g.fillRect(0, 0, VW, VH); }
+      if (c.t > 0.3) txt(save.lang === 'vi' ? 'Bóng tối đang kéo đến...' : 'Darkness is closing in...', VW / 2, 190, { al: 'center', size: 8, col: '#a8505a', alpha: Math.min(1, c.t - 0.3) });
+      return;
+    }
+    const lines = CUT[cutLevel], ln = lines[c.i], sp = SPK[ln.w], k = Math.min(1, c.pt / 1.1);
+    g.fillStyle = '#050003'; g.fillRect(0, 0, VW, VH);
+    const gl = g.createRadialGradient(VW / 2, 70, 0, VW / 2, 70, 190); gl.addColorStop(0, 'rgba(190,30,14,' + (0.45 + (ln.w === 'quoc' && ln.shout ? 0.2 : 0)) + ')'); gl.addColorStop(1, 'rgba(190,30,14,0)'); g.fillStyle = gl; g.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 26; i++) { const ex = (i * 53 + Math.sin(c.pt + i) * 10) % VW, ey = VH - ((c.pt * (20 + (i % 5) * 9) + i * 41) % VH); g.fillStyle = i % 2 ? '#ff9a2a' : '#ffd34e'; g.fillRect(Math.round(ex), Math.round(ey), 1, 1); }
+    const sh = c.shake > 0 ? c.shake * 7 : 0, dv = devilSprite(), rise = (1 - k) * 70, ox = sh ? rr(-sh, sh) : 0, oy = sh ? rr(-sh, sh) : 0;
+    const speak = ln.w === 'quoc';
+    g.globalAlpha = speak ? 1 : 0.7; g.drawImage(dv.c, Math.round(VW / 2 - dv.w / 2 + ox), Math.round(10 - dv.h / 2 + 62 + rise + oy + Math.sin(c.pt * 2) * 1.5)); g.globalAlpha = 1;
+    g.globalCompositeOperation = 'lighter';
+    if (speak) { const e1 = g.createRadialGradient(VW / 2 - 13 + ox, 76 + rise + oy, 0, VW / 2 - 13 + ox, 76 + rise + oy, 22); e1.addColorStop(0, 'rgba(255,200,60,.55)'); e1.addColorStop(1, 'rgba(255,200,60,0)'); g.fillStyle = e1; g.fillRect(VW / 2 - 40, 50 + rise, 80, 50); const e2 = g.createRadialGradient(VW / 2 + 13 + ox, 76 + rise + oy, 0, VW / 2 + 13 + ox, 76 + rise + oy, 22); e2.addColorStop(0, 'rgba(255,200,60,.55)'); e2.addColorStop(1, 'rgba(255,200,60,0)'); g.fillStyle = e2; g.fillRect(VW / 2 - 14, 50 + rise, 80, 50); }
+    g.globalCompositeOperation = 'source-over';
+    g.globalAlpha = ln.w === 'shorty' ? 1 : 0.55; drawSpr(g, npcSpr('npc_shorty'), 62, 150 + Math.round(Math.sin(c.pt * 3)), false, false, 2, 2);
+    g.globalAlpha = ln.w === 'imp' ? 1 : 0.55; drawSpr(g, getSprite('imp'), VW - 62, 150 + Math.round(Math.sin(c.pt * 4)), true, false, 3, 3); g.globalAlpha = 1;
+    if (c.fl > 0) { g.fillStyle = 'rgba(255,255,255,' + Math.min(0.8, c.fl * 2) + ')'; g.fillRect(0, 0, VW, VH); }
+    g.fillStyle = 'rgba(0,0,0,.82)'; g.fillRect(8, 152, VW - 16, 58); g.fillStyle = sp.col; g.fillRect(8, 152, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1);
+    txt(LN(sp.name), 18, 162, { size: 8, col: sp.col, bold: true });
+    const textL = ln[save.lang], n = Math.floor(c.lt * 38);
+    wrapText(textL.substr(0, n), 64).forEach((l, i) => txt(l, 18 + (ln.shout && Math.random() < 0.4 ? rr(-0.5, 0.5) : 0), 177 + i * 11, { size: ln.shout ? 8 : 7, bold: !!ln.shout, col: ln.shout ? '#ffb0a0' : '#fff' }));
+    if (n >= textL.length) txt('>', VW - 20, 200, { size: 8, col: sp.col, alpha: 0.5 + 0.5 * Math.sin(c.pt * 8) });
+  }
+
   // ============================== MAIN LOOP ==============================
   function frame(now) {
     requestAnimationFrame(frame);
@@ -1867,6 +2136,7 @@
         else if (scene === 'title') updateTitle(sub);
         else if (scene === 'story' || scene === 'ending') updateStory(sub);
         else if (scene === 'map') updateMap(sub);
+        else if (scene === 'cutscene') updateCut(sub);
         if (i === 0) clearPressed();
         if (fadeTo) break;
       }
@@ -1878,6 +2148,7 @@
     else if (scene === 'title') drawTitle();
     else if (scene === 'story' || scene === 'ending') drawStory();
     else if (scene === 'map') drawMap();
+    else if (scene === 'cutscene' && cut) drawCut();
     cv.style.cursor = (scene === 'play' && Q && Q.state === 'play') ? 'crosshair' : (scene === 'play' || scene === 'title' || scene === 'map' ? 'pointer' : 'default');
     const f = fadeTo ? fade : fadeIn;
     if (f > 0) { g.globalAlpha = Math.min(1, f); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
@@ -1890,5 +2161,5 @@
   let fadeIn = 0;
   enterScene('title');
   requestAnimationFrame(frame);
-  if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, hurtBoss, completeLevel, updatePlay, act, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, hurtBoss, completeLevel, updatePlay, act, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();
