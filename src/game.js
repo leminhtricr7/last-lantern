@@ -4582,7 +4582,14 @@
   function freeSlot() { for (let i = 1; i < 5; i++) { let used = false; for (const p of coop.peers.values()) if (p.slot === i) used = true; if (!used) return i; } return -1; }
   NET.on('ready', code => { coopUI.ph = 'lobby'; coopUI.msg = ''; coopUI.code = code; sendLobby(); Snd.play('ok'); });
   NET.on('connected', () => { coopUI.msg = cvs('Connected! Waiting for the host...', 'Đã kết nối! Đang chờ chủ phòng...'); coopUI.msgBad = false; NET.send({ t: 'hello', hero: myHero(), inv: { w: save.inv.w.slice(), armor: save.inv.armor } }); });
-  NET.on('error', e => { const m = e === 'peer-unavailable' ? cvs('Room not found. Check the code.', 'Không tìm thấy phòng. Kiểm tra lại mã.') : e === 'nolib' ? cvs('Network library missing.', 'Thiếu thư viện mạng.') : cvs('Network error: ', 'Lỗi mạng: ') + e; coopLeave(m); });
+  NET.on('status', (st, who) => {
+    if (!coop) return;
+    if (coop.role === 'host') { if (st === 'guest-connecting') { coopUI.msg = cvs('A player is connecting...', 'Có người đang kết nối...'); coopUI.msgBad = false; } else if (st === 'ice-failed') { coopUI.msg = cvs('A player could not connect (network blocked).', 'Một người không kết nối được (mạng bị chặn).'); coopUI.msgBad = true; } return; }
+    const M = { server: ['Contacting the game server...', 'Đang liên hệ máy chủ...'], calling: ['Calling the host...', 'Đang gọi tới chủ phòng...'], retry: ['Still trying, please wait...', 'Vẫn đang thử, chờ chút...'],
+      'ice-checking': ['Finding a route to the host...', 'Đang tìm đường tới chủ phòng...'], 'ice-connected': ['Connected!', 'Đã kết nối!'], 'ice-failed': ['Direct route blocked, trying a relay...', 'Đường trực tiếp bị chặn, đang thử đường khác...'] };
+    if (M[st] && coopUI.ph === 'code') { coopUI.msg = cvs(M[st][0], M[st][1]); coopUI.msgBad = st === 'ice-failed'; }
+  });
+  NET.on('error', e => { const m = e === 'timeout' ? cvs('Could not reach the host. Turn off VPN / "block WebRTC" in the browser, try Chrome or Edge, or another network.', 'Không nối được tới chủ phòng. Tắt VPN / chặn WebRTC của trình duyệt, thử Chrome/Edge hoặc mạng khác.') : e === 'peer-unavailable' ? cvs('Room not found. Check the code.', 'Không tìm thấy phòng. Kiểm tra lại mã.') : e === 'nolib' ? cvs('Network library missing.', 'Thiếu thư viện mạng.') : cvs('Network error: ', 'Lỗi mạng: ') + e; coopLeave(m); });
   NET.on('lost', () => coopLeave(cvs('Lost connection to the host.', 'Mất kết nối với chủ phòng.')));
   NET.on('join', id => { if (!coop) return; Snd.play('relic'); });
   NET.on('leave', id => {
@@ -4802,7 +4809,7 @@
       txt(host ? cvs('←/→ map   •   C = change hero   •   Enter = START   •   Esc = close room', '←/→ chọn map   •   C = đổi hero   •   Enter = BẮT ĐẦU   •   Esc = đóng phòng') : cvs('C = change hero   •   Waiting for the host to start...   •   Esc = leave', 'C = đổi hero   •   Đang chờ chủ phòng bắt đầu...   •   Esc = rời phòng'), VW / 2, 174, { al: 'center', size: 6, col: '#ffd34e' });
       txt(cvs('Join link (L = copy): ', 'Link vào phòng (L = copy): ') + roomLink(), VW / 2, 186, { al: 'center', size: 5, col: '#8892aa' });
     }
-    if (coopUI.msg) txt(coopUI.msg, VW / 2, VH - 12, { al: 'center', size: 7, col: coopUI.msgBad ? '#ff7a7a' : '#a4ffc0' });
+    if (coopUI.msg) { const ls = wrapText(coopUI.msg, 72); ls.forEach((l, i) => txt(l, VW / 2, VH - 12 - (ls.length - 1 - i) * 9, { al: 'center', size: 7, col: coopUI.msgBad ? '#ff7a7a' : '#a4ffc0' })); }
   }
   function drawHeroPick() {
     const C = 10, cw = 36, chh = 34, x0 = (VW - C * cw) / 2, y0 = 44;
