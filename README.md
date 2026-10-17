@@ -76,7 +76,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 ## Shop, inventory & gear
 
 - Open the **Shop & Inventory** from the title menu or press **B** on the world map. Tabs: Swords, Armor, Pets, Weapons, Inventory, Top-up.
-- **60 items** (15 each of swords, armors, pets, special weapons). The pricier, the prettier and the more special. Pay with **gold** (coins you collect; every cleared level also pays a bonus) or **gems**.
+- **100 items** (25 each of swords, armors, pets, special weapons). While testing, the shop is FREE (`SHOP_FREE = true` in `src/game.js`; set it to false before selling). The pricier, the prettier and the more special. Pay with **gold** (coins you collect; every cleared level also pays a bonus) or **gems**.
 - Selecting an item shows a card: what it does and how to use it. You can equip **2 weapons** (slot 1 = J / left-click, slot 2 = H / middle-click / gamepad LT / touch H), **1 armor** and **1 pet**. At least one sword must stay equipped.
 - Swords: burn, freeze, poison, chain lightning, lifesteal, crits, boss damage, beams, black holes. Armors: more hearts, damage reduction, dodge, thorns, auto-shield, regen, revive. Pets: coin magnet, biting, healing, shielding, fireballs, projectile blocking, revive... Special weapons include bows, wands, meteors, a black hole, a time-slowing hourglass, the **Staff of the Thunder God** (a god appears and smites enemies) and the **Dragon Horn**.
 - **Top-up is in TEST MODE** (`TOPUP_TEST = true` in `src/game.js`): it gives free gems. Before selling, replace `topUp()` with a real payment flow.
@@ -91,7 +91,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **Map 7 (Shadow Citadel)** is longer and full of monsters, traps and new back-and-forth puzzles (gates that need TWO keys - one lies far behind you). Then:
   1. **Mr Shorty Phong** duel: human form, then he turns into a hat-wearing monster.
   2. More trials and story, then **Mr Sy** duel: plague-doctor form, then a giant venom serpent.
-  3. **Quoc, the Eternal Eclipse** - **7 forms** (Shadow Imp, Hellhound, Chain Demon, Warlord, Archdemon, Titan of Ash, Eternal Eclipse), each with its own look and skills. When form 3 begins, QuanSadBoy, HoangKiller, DuongDracular and Santree join the fight with their own skills.
+  3. **Quoc, the Dark Lord** (spiked bone crown, black spiked armour, ragged cape, red eyes) - **7 forms** (Dark Prince, Crimson Aura, Blade of Ruin, Dark Sorcerer, Burning Wrath, Titan Lord, Eternal Eclipse), each with its own look and skills. When form 3 begins, QuanSadBoy, HoangKiller, DuongDracular and Santree join the fight with their own skills.
 - Code: `src/foes.js` (all new art), forms/dialogue tables near `FORMS`/`MINI` in `src/game.js`.
 
 ## Bosses, dragon & difficulty

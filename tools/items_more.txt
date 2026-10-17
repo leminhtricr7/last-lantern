@@ -1,0 +1,101 @@
+
+// ============ MORE ITEMS (+10 swords, +10 armors, +10 pets, +10 special weapons) ============
+Object.assign(SWORD_LOOK, {
+  cutlass: { shape: 'curved', len: 20, bl: '#cfd6e6', ed: '#ffffff', gd: '#c89a1c', gr: '#7a2a10', gl: null },
+  mace: { shape: 'wide', len: 16, bl: '#8a6a44', ed: '#c8a070', gd: '#5a3a22', gr: '#3a2412', gl: null },
+  glacier: { shape: 'straight', len: 30, bl: '#bfefff', ed: '#ffffff', gd: '#6ec8ff', gr: '#2a4a8a', gl: '#9fe8ff' },
+  magma: { shape: 'wide', len: 24, bl: '#d03a30', ed: '#ff9a2a', gd: '#2a1a1a', gr: '#3a1a10', gl: '#ff6a2a' },
+  plague: { shape: 'serrated', len: 26, bl: '#5a8a3a', ed: '#c8f07a', gd: '#2b4a2a', gr: '#1a2a1a', gl: '#9be564' },
+  storm: { shape: 'zig', len: 26, bl: '#9fe8ff', ed: '#ffffff', gd: '#6a6aff', gr: '#2a2a5a', gl: '#9fe8ff' },
+  bloodmoon: { shape: 'curved', len: 26, bl: '#a01830', ed: '#ff7a8a', gd: '#2a0a14', gr: '#2a0a14', gl: '#ff3a5a' },
+  archangel: { shape: 'holy', len: 30, bl: '#ffffff', ed: '#fff6c0', gd: '#ffd34e', gr: '#c89a1c', gl: '#fff6c0' },
+  dragonfang: { shape: 'flame', len: 30, bl: '#b02a2a', ed: '#ffd34e', gd: '#c89a1c', gr: '#3a1a10', gl: '#ff8a3a' },
+  cosmic: { shape: 'wide', len: 34, bl: '#5a3aa8', ed: '#e8d8ff', gd: '#ffd34e', gr: '#1a0f2e', gl: '#b88aff' }
+});
+[
+  ['cutlass', 2, 'Pirate Cutlass', 'Đoản Đao Hải Tặc', '+1 damage and 12% critical hits (x3).', '+1 sát thương và 12% đòn chí mạng (x3).', { dmg: 1, crit: 0.12 }],
+  ['mace', 3, 'Spiked Mace', 'Chùy Gai', '+2 damage, heavy and slow, but hits slow monsters down.', '+2 sát thương, nặng và chậm, nhưng làm quái bị chậm lại.', { dmg: 2, cd: 1.25, reach: 0.9, slow: 1.5 }],
+  ['glacier', 5, 'Glacier Lance', 'Thương Băng Sông', '+2 damage, very long reach. Hits freeze monsters for 3s.', '+2 sát thương, tầm đánh rất xa. Đòn đánh đóng băng quái 3 giây.', { dmg: 2, reach: 1.5, slow: 3 }],
+  ['magma', 6, 'Magma Cleaver', 'Rìu Dung Nham', '+3 damage, slow. Burns monsters; every 6th hit erupts in a shockwave.', '+3 sát thương, chậm. Đốt quái; cứ 6 đòn lại nổ sóng xung kích.', { dmg: 3, cd: 1.2, burn: 3, nova: 6 }],
+  ['plague', 7, 'Plague Scythe', 'Lưỡi Hái Dịch Bệnh', '+3 damage, long reach. Poison stacks up to 4 times and keeps ticking.', '+3 sát thương, tầm xa. Độc cộng dồn tới 4 lần và liên tục gây sát thương.', { dmg: 3, poison: 5, reach: 1.15 }],
+  ['storm', 9, 'Storm Cutter', 'Kiếm Bão Tố', '+3 damage, fast. Lightning chains to 3 enemies and every 5th hit sends a wind slash.', '+3 sát thương, nhanh. Sét lan sang 3 kẻ địch và cứ 5 đòn lại bắn luồng gió chém.', { dmg: 3, cd: 0.8, chain: 3, wind: 5 }],
+  ['bloodmoon', 10, 'Bloodmoon Blade', 'Kiếm Trăng Máu', '+4 damage, 15% crits, heals 1 heart every 4 hits.', '+4 sát thương, 15% chí mạng, hồi 1 tim sau mỗi 4 đòn trúng.', { dmg: 4, ls: 4, crit: 0.15 }],
+  ['archangel', 12, 'Archangel Sword', 'Kiếm Tổng Lãnh Thiên Thần', '+5 damage. Shoots 2 light beams per swing, heals, and revives you once per level.', '+5 sát thương. Mỗi nhát bắn 2 tia sáng, hồi máu và hồi sinh bạn 1 lần mỗi màn.', { dmg: 5, beam: 2, ls: 12, revive: 1 }],
+  ['dragonfang', 13, 'Dragon Fang', 'Nanh Rồng', '+6 damage, x1.6 vs bosses and big monsters. Burns and sends shockwaves.', '+6 sát thương, x1,6 với boss và quái to. Có đốt cháy và sóng xung kích.', { dmg: 6, burn: 4, boss: 1.6, nova: 6, reach: 1.2 }],
+  ['cosmic', 14, 'Cosmic Edge', 'Lưỡi Kiếm Vũ Trụ', '+8 damage. Chain lightning, 3 light beams per swing and a burning star aura.', '+8 sát thương. Sét lan, 3 tia sáng mỗi nhát và hào quang sao đốt cháy.', { dmg: 8, chain: 3, beam: 3, aura: 1, reach: 1.3 }]
+].forEach(a => addItem({ id: a[0], type: 'sword', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6] }));
+
+Object.assign(ARMOR_LOOK, {
+  scalem: { sw: { b: '#2b8a6e', A: '#5fcfa0', a: '#bfffe0' } },
+  ranger: { sw: { b: '#3a6a2a', A: '#6a4a2a', a: '#9ae070', r: '#a02a2a' }, cape: '#3a6a2a' },
+  mageb: { sw: { b: '#4a3aa8', A: '#7a6ae8', a: '#cfc4ff', r: '#ffd34e' }, aura: '#a98bff' },
+  bone: { sw: { b: '#c8c0a8', A: '#e8dfc0', a: '#ffffff', r: '#8e2335' }, spikes: '#ffffff' },
+  tidal: { sw: { b: '#2a8ac8', A: '#6ee7f2', a: '#ffffff', r: '#6ee7f2' }, aura: '#6ee7f2' },
+  stormp: { sw: { b: '#4a5a8a', A: '#9fe8ff', a: '#ffffff', r: '#ffe44e' }, aura: '#9fe8ff' },
+  samurai: { sw: { b: '#a02a2a', A: '#2a2a3a', a: '#ffd34e', r: '#ffd34e' }, spikes: '#ffd34e' },
+  lunar: { sw: { b: '#2a2a5a', A: '#c8d0ff', a: '#ffffff', r: '#c8d0ff' }, halo: '#e8e8ff', aura: '#c8d0ff' },
+  phoenixm: { sw: { b: '#d03a30', A: '#ff9a2a', a: '#ffd34e', r: '#ffd34e' }, wings: 'dragon', aura: '#ff8a3a', flame: true },
+  godplate: { sw: { b: '#ffd34e', A: '#fff6c0', a: '#ffffff', r: '#6ee7f2' }, wings: 'angel', halo: '#fff2a0', aura: '#ffe08a' }
+});
+[
+  ['scalem', 3, 'Scale Mail', 'Giáp Vảy', '+2 hearts and 10% damage reduction.', '+2 tim và giảm 10% sát thương.', { hp: 2, red: 0.1 }],
+  ['ranger', 4, 'Ranger Garb', 'Giáp Thợ Săn Rừng', '+2 hearts, 15% dodge, run 8% faster.', '+2 tim, 15% né đòn, chạy nhanh hơn 8%.', { hp: 2, dodge: 0.15, speed: 0.08 }],
+  ['mageb', 5, 'Mage Robe', 'Áo Pháp Sư', '+2 hearts, 8% reduction. A magic shield blocks one hit every 18s.', '+2 tim, giảm 8% sát thương. Khiên phép chặn 1 đòn mỗi 18 giây.', { hp: 2, red: 0.08, shieldT: 18 }],
+  ['bone', 6, 'Bone Armor', 'Giáp Xương', '+3 hearts, 12% reduction. Reflects 2 damage to attackers.', '+3 tim, giảm 12% sát thương. Phản 2 sát thương lên kẻ tấn công.', { hp: 3, red: 0.12, thorns: 2 }],
+  ['tidal', 8, 'Tidal Mail', 'Giáp Thủy Triều', '+4 hearts, 15% reduction, regen 1 heart / 24s, immune to slow.', '+4 tim, giảm 15% sát thương, hồi 1 tim / 24 giây, miễn nhiễm làm chậm.', { hp: 4, red: 0.15, regen: 24, slowImm: 1 }],
+  ['stormp', 9, 'Storm Plate', 'Giáp Bão Tố', '+4 hearts, 20% reduction. Reflects 2 and unleashes a shockwave when hit.', '+4 tim, giảm 20% sát thương. Phản 2 và nổ sóng xung kích khi bị đánh.', { hp: 4, red: 0.2, thorns: 2, nova: 1 }],
+  ['samurai', 10, 'Samurai Armor', 'Giáp Samurai', '+4 hearts, 20% dodge and 20% reduction.', '+4 tim, 20% né đòn và giảm 20% sát thương.', { hp: 4, dodge: 0.2, red: 0.2 }],
+  ['lunar', 11, 'Lunar Garb', 'Y Phục Nguyệt Quang', '+5 hearts, 20% dodge, melt into moonlight after a hit, regen 1 heart / 30s.', '+5 tim, 20% né đòn, hóa ánh trăng sau khi bị đánh, hồi 1 tim / 30 giây.', { hp: 5, dodge: 0.2, shadow: 1, regen: 30 }],
+  ['phoenixm', 13, 'Phoenix Mail', 'Giáp Phượng Hoàng', '+6 hearts, 30% reduction, burning thorns (3), immune to fire. Revives you once per level.', '+6 tim, giảm 30% sát thương, gai lửa (3), miễn nhiễm lửa. Hồi sinh bạn 1 lần mỗi màn.', { hp: 6, red: 0.3, thorns: 3, thornFx: 'burn', fireImm: 1, revive: 1 }],
+  ['godplate', 15, 'Titan Godplate', 'Giáp Thần Titan', '+9 hearts, 40% reduction, reflects 5, shield every 7s, regen, shockwaves; immune to fire and slow. The ultimate armor.', '+9 tim, giảm 40% sát thương, phản 5, khiên mỗi 7 giây, tự hồi máu, sóng xung kích; miễn nhiễm lửa và làm chậm. Bộ giáp tối thượng.', { hp: 9, red: 0.4, thorns: 5, shieldT: 7, regen: 25, nova: 1, slowImm: 1, fireImm: 1 }]
+].forEach(a => addItem({ id: a[0], type: 'armor', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6], look: ARMOR_LOOK[a[0]] }));
+
+Object.assign(PET_PAINT, {
+  hamster: P => { const c = '#e8c080'; P.ell(9, 9, 6, 5, c); P.ell(10, 11, 4, 3, '#fff0d0'); P.ell(5, 4, 2, 2, c); P.ell(13, 4, 2, 2, c); P.px(5, 4, '#ffb0c0'); P.px(13, 4, '#ffb0c0'); P.px(7, 8, 'k'); P.px(12, 8, 'k'); P.px(10, 10, '#ffb0c0'); P.px(5, 10, '#ffb0c0'); P.px(14, 10, '#ffb0c0'); P.rect(5, 13, 3, 1, '#c89a50'); P.rect(12, 13, 3, 1, '#c89a50'); },
+  panda: P => { P.ell(8, 9, 6, 5, '#f6f3e9'); P.rect(6, 8, 6, 3, '#2a2e40'); P.ell(12, 5, 4, 4, '#f6f3e9'); P.ell(9, 2, 2, 2, 'k'); P.ell(15, 2, 2, 2, 'k'); P.ell(11, 5, 1, 2, 'k'); P.ell(14, 5, 1, 2, 'k'); P.px(11, 5, 'w'); P.px(14, 5, 'w'); P.px(13, 7, 'k'); P.rect(4, 11, 3, 3, 'k'); P.rect(11, 11, 3, 3, 'k'); },
+  frog: P => { P.ell(9, 10, 6, 4, '#5fcf5a'); P.ell(10, 12, 4, 2, '#c8f0a0'); P.ell(12, 7, 4, 3, '#5fcf5a'); P.ell(10, 4, 2, 2, '#5fcf5a'); P.ell(14, 4, 2, 2, '#5fcf5a'); P.px(10, 4, 'w'); P.px(14, 4, 'w'); P.px(11, 4, 'k'); P.px(15, 4, 'k'); P.rect(11, 8, 5, 1, '#2b8a3e'); P.rect(3, 12, 5, 2, '#2b8a3e'); P.rect(12, 12, 4, 2, '#2b8a3e'); },
+  penguin: P => { P.ell(8, 8, 5, 6, '#2a2e40'); P.ell(9, 9, 3, 4, '#f6f3e9'); P.ell(11, 4, 3, 3, '#2a2e40'); P.tri(13, 4, 13, 6, 17, 5, '#ff9a2a'); P.px(12, 3, 'w'); P.px(12, 3, 'k'); P.tri(4, 6, 1, 10, 5, 11, '#2a2e40'); P.rect(6, 13, 3, 1, '#ff9a2a'); P.rect(10, 13, 3, 1, '#ff9a2a'); P.px(5, 2, '#6ee7f2'); },
+  tigercub: P => { const c = '#f08a2b'; P.line(3, 9, 0, 4, c, 2); P.ell(8, 9, 6, 4, c); P.ell(9, 11, 3, 2, '#fff0d0'); P.ell(13, 6, 3, 3, c); P.tri(11, 4, 12, 0, 13, 4, c); P.tri(14, 4, 15, 0, 16, 4, c); P.px(14, 6, 'k'); P.px(16, 7, 'k'); for (const x of [5, 8, 11]) P.rect(x, 6, 1, 3, 'k'); P.rect(5, 12, 2, 2, '#c8601a'); P.rect(11, 12, 2, 2, '#c8601a'); },
+  thunderbird: P => { P.ell(8, 8, 5, 4, '#ffe44e'); P.ell(12, 5, 3, 3, '#ffe44e'); P.tri(14, 5, 14, 7, 18, 6, '#ff9a2a'); P.px(13, 4, 'k'); P.tri(3, 7, 0, 1, 7, 6, '#fff8a0'); P.tri(6, 6, 9, 0, 11, 6, '#fff8a0'); P.px(1, 2, '#fff'); P.poly([[11, 0], [9, 2], [12, 3], [10, 5]], '#fff', 1); P.rect(6, 12, 1, 2, '#ff9a2a'); P.rect(9, 12, 1, 2, '#ff9a2a'); },
+  cerberus: P => { const c = '#7a1a2a'; P.line(3, 8, 0, 3, '#ff6a3a', 3); P.ell(8, 10, 6, 4, c); for (const [x, y] of [[10, 4], [13, 6], [14, 3]]) { P.ell(x, y, 2, 2, c); P.px(x + 1, y, '#ffe033'); } P.tri(9, 2, 10, 0, 11, 3, c); P.tri(12, 1, 13, -1 + 1, 14, 3, c); P.rect(5, 12, 2, 2, c); P.rect(10, 12, 2, 2, c); P.rect(14, 5, 3, 2, 'k'); },
+  seraphcat: P => { P.tri(6, 7, 1, 1, 3, 10, 'rgba(255,255,255,.9)'); P.tri(8, 6, 4, 0, 6, 8, 'rgba(230,240,255,.9)'); P.ell(8, 10, 5, 4, '#fff'); P.ell(12, 6, 3, 3, '#fff'); P.tri(10, 4, 11, 0, 13, 4, '#fff'); P.tri(13, 4, 14, 0, 15, 4, '#fff'); P.rect(10, 1, 5, 1, '#ffd34e'); P.px(12, 6, 'k'); P.px(14, 7, '#ffb0c0'); P.line(3, 11, 0, 8, '#fff', 2); P.rect(5, 13, 2, 1, '#e8e8f4'); P.rect(10, 13, 2, 1, '#e8e8f4'); },
+  griffin: P => { P.tri(5, 8, 0, 2, 9, 6, '#8a5a30'); P.tri(7, 7, 3, 1, 11, 6, '#a06a3a'); P.ell(8, 10, 6, 4, '#c89a50'); P.ell(13, 5, 3, 3, '#f6f3e9'); P.tri(15, 5, 15, 8, 18, 7, '#ffd34e'); P.px(14, 4, 'k'); P.line(3, 11, 0, 13, '#a06a3a', 2); P.rect(5, 13, 2, 1, '#8a5a30'); P.rect(10, 13, 2, 1, '#8a5a30'); },
+  starfox: P => { const c = '#6a3aa8'; P.line(3, 9, 0, 4, '#6ee7f2', 3); P.ell(8, 9, 5, 4, c); P.ell(9, 10, 3, 2, '#c8b0ff'); P.ell(12, 6, 3, 3, c); P.tri(10, 4, 11, 0, 13, 4, c); P.tri(13, 4, 14, 0, 15, 4, c); P.tri(14, 7, 17, 8, 14, 9, '#fff'); P.px(13, 6, '#ffe44e'); P.px(11, 5, '#ffe44e'); P.px(2, 2, '#fff'); P.px(16, 11, '#fff'); P.px(1, 7, '#ffe44e'); P.rect(5, 12, 2, 2, '#3a1a6a'); P.rect(10, 12, 2, 2, '#3a1a6a'); }
+});
+[
+  ['hamster', 2, 'Hamster', 'Chuột Hamster', 'Stuffs its cheeks with coins: strong coin magnet.', 'Nhét đầy má bằng xu: hút xu rất mạnh.', { role: 'coin' }],
+  ['panda', 4, 'Chubby Panda', 'Gấu Trúc Mũm Mĩm', 'A comfy tank: -20% damage taken.', 'Chịu đòn êm ái: giảm 20% sát thương nhận vào.', { role: 'tank', red: 0.2 }],
+  ['frog', 5, 'Hoppy Frog', 'Ếch Nhảy', 'Snaps at nearby monsters: 1 damage every 1.2s.', 'Ngoạm quái ở gần: 1 sát thương mỗi 1,2 giây.', { role: 'bite' }],
+  ['penguin', 7, 'Frost Penguin', 'Chim Cánh Cụt Băng', 'Spits ice shards that slow monsters for 3s every 2.2s.', 'Phun mảnh băng làm quái chậm 3 giây, mỗi 2,2 giây.', { role: 'ice' }],
+  ['tigercub', 8, 'Tiger Cub', 'Hổ Con', '+12% run speed and a higher jump.', '+12% tốc độ chạy và nhảy cao hơn.', { role: 'speed', speed: 0.12, jump: 1.1 }],
+  ['thunderbird', 10, 'Thunderbird', 'Chim Sấm', 'Calls lightning on the nearest monster every 5s, chaining to 2 more.', 'Gọi sét đánh quái gần nhất mỗi 5 giây, lan thêm 2 con nữa.', { role: 'thunder' }],
+  ['cerberus', 12, 'Cerberus Pup', 'Cún Ba Đầu', 'Spits fireballs at monsters: 3 damage every 1.8s.', 'Phun cầu lửa vào quái: 3 sát thương mỗi 1,8 giây.', { role: 'fire' }],
+  ['seraphcat', 13, 'Seraph Cat', 'Mèo Thiên Thần', 'Heals 1 heart every 20 seconds.', 'Hồi 1 tim mỗi 20 giây.', { role: 'heal', t: 20 }],
+  ['griffin', 14, 'Baby Griffin', 'Sư Thứu Con', 'Intercepts one enemy projectile every 4 seconds.', 'Chặn một viên đạn của kẻ địch mỗi 4 giây.', { role: 'block' }],
+  ['starfox', 15, 'Star Fox', 'Cáo Tinh Tú', 'Cosmic aura: +1 sword damage, heals 1 heart / 25s, strong coin magnet.', 'Hào quang vũ trụ: +1 sát thương kiếm, hồi 1 tim / 25 giây, hút xu mạnh.', { role: 'rainbow' }]
+].forEach(a => addItem({ id: a[0], type: 'pet', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6] }));
+
+Object.assign(WPN_PAINT, {
+  slingshot: P => { P.line(9, 17, 9, 10, '#8a5a30', 2); P.line(9, 10, 4, 3, '#8a5a30', 2); P.line(9, 10, 14, 3, '#8a5a30', 2); P.line(4, 3, 14, 3, '#cfd6e6', 1); P.ell(9, 3, 1, 1, '#8d9bbd'); },
+  knives: P => { for (const [x0, x1] of [[4, 2], [9, 9], [14, 16]]) { P.line(x0, 16, x1, 6, '#5a3a22', 2); P.tri(x1 - 1, 7, x1 + 2, 7, x1 + (x1 > x0 ? 1 : (x1 < x0 ? -1 : 0)), 0, '#cfd6e6'); } },
+  dart: P => { P.line(2, 16, 14, 4, '#5a3a22', 2); P.tri(14, 2, 17, 5, 13, 6, '#7ed957'); P.tri(2, 16, 0, 13, 4, 14, '#e0453a'); P.px(16, 3, '#d8ff9a'); },
+  cannon: P => { P.rect(2, 8, 12, 6, '#434d6e'); P.rect(2, 8, 12, 1, '#8d9bbd'); P.rect(12, 7, 5, 8, '#2a2e40'); P.ell(6, 15, 3, 3, '#5a3a22'); P.ell(6, 15, 1, 1, '#c8964a'); P.px(3, 6, '#ffd34e'); P.px(3, 5, '#ff7a2a'); },
+  chainlight: P => { P.rect(7, 10, 4, 7, '#8d9bbd'); P.rect(5, 16, 8, 2, '#434d6e'); P.ell(9, 7, 4, 4, '#6a6aff'); P.ell(9, 7, 2, 2, '#fff'); P.poly([[9, 0], [6, 3], [10, 4], [7, 7]], '#ffe44e', 2); },
+  laser: P => { P.rect(3, 6, 12, 6, '#434d6e'); P.rect(4, 7, 8, 1, '#8d9bbd'); P.rect(13, 8, 5, 2, '#ff3a5a'); P.ell(15, 9, 1, 1, '#fff'); P.rect(4, 12, 3, 5, '#2a2e40'); P.px(8, 9, '#ff3a5a'); P.px(10, 9, '#ff3a5a'); },
+  windstaff: P => { P.line(4, 17, 10, 5, '#8a5a30', 2); P.ell(11, 5, 4, 4, '#6ee7b0'); P.ell(11, 5, 2, 2, '#e8fff4'); P.px(8, 2, '#fff'); P.px(15, 8, '#fff'); P.px(14, 1, '#bff3ff'); },
+  iceage: P => { P.rect(8, 1, 2, 16, '#bff3ff'); P.rect(1, 8, 16, 2, '#bff3ff'); P.line(3, 3, 15, 15, '#8fe0f8', 1); P.line(15, 3, 3, 15, '#8fe0f8', 1); P.ell(9, 9, 2, 2, '#fff'); },
+  solarflare: P => { for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; P.line(Math.round(9 + Math.cos(a) * 5), Math.round(9 + Math.sin(a) * 5), Math.round(9 + Math.cos(a) * 8), Math.round(9 + Math.sin(a) * 8), '#ff9a2a', 1); } P.ell(9, 9, 5, 5, '#ffd34e'); P.ell(9, 9, 3, 3, '#fff6c0'); },
+  starfall: P => { const c = '#ffe44e'; P.tri(9, 1, 5, 8, 13, 8, c); P.tri(9, 16, 5, 9, 13, 9, c); P.tri(1, 7, 8, 5, 8, 11, c); P.tri(17, 7, 10, 5, 10, 11, c); P.ell(9, 8, 2, 2, '#fff'); }
+});
+[
+  ['slingshot', 1, 'Slingshot', 'Súng Cao Su', 'Flings a stone in a line. Quick reload.', 'Bắn một viên đá thẳng. Nạp đạn nhanh.', { cd: 0.45 }],
+  ['knives', 3, 'Throwing Knives', 'Dao Phi Tiêu Ba', 'Throws 3 knives in a narrow fan.', 'Ném 3 con dao thành hình quạt hẹp.', { cd: 1.0 }],
+  ['dart', 4, 'Poison Dart', 'Phi Tiêu Độc', 'A dart that poisons the target (stacking damage over time).', 'Phi tiêu làm mục tiêu trúng độc (sát thương cộng dồn theo thời gian).', { cd: 0.8 }],
+  ['cannon', 6, 'Hand Cannon', 'Pháo Cầm Tay', 'Fires a heavy cannonball that explodes on impact (6 damage, big blast).', 'Bắn đạn pháo nặng nổ khi chạm (6 sát thương, nổ lớn).', { cd: 2.4 }],
+  ['chainlight', 8, 'Tesla Coil', 'Cuộn Tesla', 'Zaps the nearest enemy and arcs through up to 4 more.', 'Giật kẻ địch gần nhất và lan qua tối đa 4 kẻ nữa.', { cd: 3 }],
+  ['laser', 9, 'Ruby Laser', 'Súng Laser Hồng Ngọc', 'Fires a piercing laser beam for a second.', 'Bắn tia laser xuyên thấu trong một giây.', { cd: 7 }],
+  ['windstaff', 10, 'Tempest Staff', 'Trượng Cuồng Phong', 'Summons a cyclone for 3.5s that drags enemies in and shreds them.', 'Triệu hồi cơn lốc 3,5 giây hút kẻ địch vào và xé nát chúng.', { cd: 12 }],
+  ['iceage', 12, 'Ice Age Scroll', 'Cuộn Giấy Kỷ Băng Hà', 'A blizzard hits every monster on screen: damage and a 5s freeze.', 'Bão tuyết đánh mọi quái trên màn hình: gây sát thương và đóng băng 5 giây.', { cd: 16 }],
+  ['solarflare', 13, 'Solar Flare Orb', 'Quả Cầu Mặt Trời', 'A huge solar explosion around you: heavy damage and burning.', 'Một vụ nổ mặt trời khổng lồ quanh bạn: sát thương lớn và thiêu đốt.', { cd: 18 }],
+  ['starfall', 15, 'Starfall Wand', 'Đũa Sao Rơi', 'Calls 14 shooting stars down across the whole screen!', 'Gọi 14 ngôi sao băng rơi khắp màn hình!', { cd: 26 }]
+].forEach(a => addItem({ id: a[0], type: 'wpn', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6] }));

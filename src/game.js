@@ -675,13 +675,13 @@
       { name: { en: 'SY, THE VENOM SERPENT', vi: 'SY, RẮN CHÚA ĐỘC' }, spr: 'sy_m', w: 70, h: 62, hp: 680, armor: 0.3, smart: 0.5, sp: 22, minion: 'spider', proj: '#7ed957', skills: ['breath', 'spit', 'lobs', 'wall', 'rain', 'charge', 'slam'], skills2: ['summon', 'curse', 'spin', 'tornado'], skills3: ['blizzard', 'shield', 'roar'] }
     ],
     quoc: [
-      { name: { en: 'Quoc - Shadow Imp', vi: 'Quoc - Tiểu Quỷ Bóng Tối' }, spr: 'quoc1', w: 24, h: 32, hp: 200, armor: 0.1, smart: 0.9, sp: 44, minion: 'imp', proj: '#ff6a3a', skills: ['jump', 'charge', 'shoot', 'rush', 'fan'], skills2: ['teleport', 'guard'] },
-      { name: { en: 'Quoc - Hellhound', vi: 'Quoc - Chó Địa Ngục' }, spr: 'quoc2', w: 50, h: 32, hp: 260, armor: 0.15, smart: 0.7, sp: 50, minion: 'imp', proj: '#ff6a3a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
-      { name: { en: 'Quoc - Chain Demon', vi: 'Quoc - Quỷ Xích' }, spr: 'quoc3', w: 38, h: 56, hp: 340, armor: 0.25, smart: 0.75, sp: 30, minion: 'imp', proj: '#ff3a5a', skills: ['slam', 'erupt', 'fan', 'crossBeam', 'teleport', 'shoot'], skills2: ['summon', 'spin'] },
-      { name: { en: 'Quoc - Warlord', vi: 'Quoc - Đại Tướng Quỷ' }, spr: 'quoc4', w: 50, h: 66, hp: 420, armor: 0.35, smart: 0.6, sp: 26, minion: 'eclipseclone', proj: '#cfd6e6', skills: ['shield', 'guard', 'sweep', 'lobs', 'charge', 'slam', 'meteor'], skills2: ['roar', 'erupt', 'crossBeam'] },
-      { name: { en: 'Quoc - Archdemon', vi: 'Quoc - Đại Quỷ Cánh' }, spr: 'quoc5', w: 68, h: 64, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffd34e', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
-      { name: { en: 'Quoc - Titan of Ash', vi: 'Quoc - Titan Tro Tàn' }, spr: 'quoc6', w: 76, h: 88, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
-      { name: { en: 'QUOC, THE ETERNAL ECLIPSE', vi: 'QUOC, NHẬT THỰC VĨNH CỬU' }, spr: 'quoc7', w: 62, h: 98, hp: 780, armor: 0.45, smart: 0.9, sp: 30, minion: 'ghost', eclipse: true, proj: '#d58bff', skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak', 'crossBeam', 'rush'], skills2: ['dark', 'clone', 'summon', 'roar', 'fan', 'lobs'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
+      { name: { en: 'Quoc - Dark Prince', vi: 'Quoc - Hoàng Tử Bóng Tối' }, spr: 'quoc1', w: 30, h: 76, hp: 200, armor: 0.1, smart: 0.9, sp: 44, minion: 'imp', proj: '#ff6a3a', skills: ['jump', 'charge', 'shoot', 'rush', 'fan'], skills2: ['teleport', 'guard'] },
+      { name: { en: 'Quoc - Crimson Aura', vi: 'Quoc - Hào Quang Đỏ Thẫm' }, spr: 'quoc2', w: 30, h: 76, hp: 260, armor: 0.15, smart: 0.8, sp: 48, minion: 'imp', proj: '#ff3a2a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
+      { name: { en: 'Quoc - Blade of Ruin', vi: 'Quoc - Lưỡi Kiếm Hủy Diệt' }, spr: 'quoc3', w: 32, h: 76, hp: 340, armor: 0.25, smart: 0.75, sp: 32, minion: 'imp', proj: '#ff3a5a', skills: ['slam', 'charge', 'rush', 'erupt', 'crossBeam', 'teleport'], skills2: ['spin', 'summon', 'sweep'] },
+      { name: { en: 'Quoc - Dark Sorcerer', vi: 'Quoc - Pháp Sư Hắc Ám' }, spr: 'quoc4', w: 32, h: 76, hp: 420, armor: 0.3, smart: 0.8, sp: 26, minion: 'eclipseclone', proj: '#ff3a2a', skills: ['lobs', 'crossBeam', 'meteor', 'teleport', 'shield', 'fan', 'tornado'], skills2: ['dark', 'guard', 'clone'] },
+      { name: { en: 'Quoc - Burning Wrath', vi: 'Quoc - Cơn Thịnh Nộ Rực Cháy' }, spr: 'quoc5', w: 34, h: 76, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffd34e', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
+      { name: { en: 'Quoc - Titan Lord', vi: 'Quoc - Chúa Tể Khổng Lồ' }, spr: 'quoc6', w: 46, h: 102, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
+      { name: { en: 'QUOC, THE ETERNAL ECLIPSE', vi: 'QUOC, NHẬT THỰC VĨNH CỬU' }, spr: 'quoc7', w: 54, h: 120, hp: 780, armor: 0.45, smart: 0.9, sp: 30, minion: 'ghost', eclipse: true, proj: '#d58bff', skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak', 'crossBeam', 'rush'], skills2: ['dark', 'clone', 'summon', 'roar', 'fan', 'lobs'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
     ]
   };
   const MINI = {
@@ -716,10 +716,10 @@
       { en: 'Your leek is amusing, boy. But venom spoils every blade. Behold, the true Sy!', vi: 'Cây hành của nhóc thật thú vị. Nhưng nọc độc làm hỏng mọi lưỡi kiếm. Chiêm ngưỡng Sy thực sự đi!' }
     ] },
     quoc: {
-      1: [{ en: 'A SPARK THAT BITES? HOW CUTE. LET LOOSE... MY HOUND!', vi: 'MỘT TIA LỬA BIẾT CẮN? DỄ THƯƠNG ĐẤY. THẢ RA... CON CHÓ CỦA TA!' }],
-      3: [{ en: 'ENOUGH!! I WILL NOT BE SHAMED IN MY OWN HOUSE! BEHOLD THE WARLORD!', vi: 'ĐỦ RỒI!! TA SẼ KHÔNG BỊ NHỤC NHÃ TRONG NHÀ CỦA CHÍNH MÌNH! CHIÊM NGƯỠNG ĐẠI TƯỚNG!' }],
-      4: [{ en: 'WINGS OF THE ARCHDEMON! THE SKY ITSELF WILL BURN!', vi: 'ĐÔI CÁNH CỦA ĐẠI QUỶ! CẢ BẦU TRỜI SẼ CHÁY!' }],
-      5: [{ en: 'I AM THE ASH OF EVERY VOLCANO! KNEEL!', vi: 'TA LÀ TRO TÀN CỦA MỌI NGỌN NÚI LỬA! QUỲ XUỐNG!' }],
+      1: [{ en: 'A SPARK THAT BITES? HOW CUTE. FEEL THE CRIMSON FLAME!', vi: 'MỘT TIA LỬA BIẾT CẮN? DỄ THƯƠNG ĐẤY. HÃY NẾM NGỌN LỬA ĐỎ THẪM!' }],
+      3: [{ en: 'ENOUGH!! I WILL NOT BE SHAMED IN MY OWN HOUSE! TASTE DARK MAGIC!', vi: 'ĐỦ RỒI!! TA SẼ KHÔNG BỊ NHỤC NHÃ TRONG NHÀ CỦA CHÍNH MÌNH! NẾM THỬ HẮC PHÁP!' }],
+      4: [{ en: 'YOU MADE ME ANGRY! THE WHOLE WORLD WILL BURN WITH ME!', vi: 'NGƯƠI ĐÃ LÀM TA GIẬN! CẢ THẾ GIỚI SẼ CHÁY CÙNG TA!' }],
+      5: [{ en: 'I AM THE KING OF EVERY NIGHTMARE! LOOK UP AND TREMBLE!', vi: 'TA LÀ VUA CỦA MỌI CƠN ÁC MỘNG! NGẨNG LÊN VÀ RUN RẨY ĐI!' }],
       6: [{ en: 'I AM THE ECLIPSE! THE END OF ALL LIGHT! GO DARK... FOREVER!!!', vi: 'TA LÀ NHẬT THỰC! SỰ KẾT THÚC CỦA MỌI ÁNH SÁNG! HÃY TỐI ĐEN... MÃI MÃI!!!' }]
     }
   };
@@ -1038,7 +1038,7 @@
   function drawEmoteFace(x, bot, flip, sc, emo, tt) {
     if (!emo) return;
     const spr = getSprite('hero_idle', {}, 0), W = spr.w, ox = Math.round(x - W * sc / 2), oy = Math.round(bot - spr.h * sc + sc);
-    const px = (cx, cy, col, w, h) => { const ww = w || 1, xx = flip ? (W - 1 - cx - (ww - 1)) : cx; g.fillStyle = col; g.fillRect(ox + xx * sc, oy + cy * sc, ww * sc, (h || 1) * sc); };
+    const EX = (W - 18) >> 1, px = (cx0, cy, col, w, h) => { const ww = w || 1, cx = cx0 + EX, xx = flip ? (W - 1 - cx - (ww - 1)) : cx; g.fillStyle = col; g.fillRect(ox + xx * sc, oy + cy * sc, ww * sc, (h || 1) * sc); };
     const V = '#434d6e';
     px(6, 8, V, 8, 2);
     if (emo === 'happy') { ['#ffe08a'].forEach(c => { px(7, 9, c); px(8, 8, c); px(9, 9, c); px(10, 9, c); px(11, 8, c); px(12, 9, c); }); }
@@ -1066,7 +1066,7 @@
       if (src === 'fire' && aSt('fireImm')) { P.inv = 0.4; emit(P.x + 4, P.y + 7, 6, { col: ['#ff7a2a', '#ffd34e'], sp0: 10, sp1: 40 }); return false; }
       const dod = aSt('dodge');
       if (dod && Math.random() < dod) { P.inv = 0.6; Snd.play('whoosh'); emit(P.x + 4, P.y + 7, 8, { col: ['#fff', '#bfeaff'], sp0: 20, sp1: 70 }); return false; }
-      const red = Math.min(0.6, aSt('red') + (petRole() === 'tank' ? 0.15 : 0)), eff = n * (1 - red);
+      const red = Math.min(0.6, aSt('red') + (petRole() === 'tank' ? (pSt('red') || 0.15) : 0)), eff = n * (1 - red);
       let take = Math.floor(eff); if (Math.random() < eff - take) take++;
       if (take <= 0) { P.inv = 0.8; Snd.play('clang'); emit(P.x + 4, P.y + 7, 8, { col: ['#cfd6e6', '#fff'], sp0: 20, sp1: 70 }); thornsAndFx(); return false; }
       n = take;
@@ -2155,6 +2155,7 @@
       if (!p.expl) dmgFoe(e, p.dmg, !!p.pierce, !!p.quiet);
       if (p.burn) e.burnT = Math.max(e.burnT || 0, p.burn);
       if (p.slow) e.slowT = Math.max(e.slowT || 0, p.slow);
+      if (p.poison) { e.poisonT = 4; e.poisonN = Math.min(4, (e.poisonN || 0) + 1); }
       if (!p.quiet) Snd.play('hit');
       if (p.expl) { explode(p.x, p.y, p.expl, p.dmg); p.dead = true; return; }
       if (p.pierceN !== undefined) { p.pierceN--; if (p.pierceN < 0) { p.dead = true; return; } } else if (!p.thru && !p.boom) { p.dead = true; return; }
@@ -2238,6 +2239,16 @@
     }
     else if (id === 'hourglass') { Snd.play('whoosh'); G.slowT = 6; addRing(P.x + 4, P.y + 7, '#ffd34e', 140, 0.8); G.flash = 0.1; }
     else if (id === 'thundergod') { Snd.play('thunder'); G.flash = 0.35; G.god = { x: P.x + 4 + f * 34, y: P.y - 34, f, life: 12, t: 0, strike: 0.5 }; zap(P.x + 4, Q.cam.y - 6, P.x + 4 + f * 30, P.y - 22); Q.shake = Math.max(Q.shake, 0.4); Q.msg = save.lang === 'vi' ? 'THẦN SẤM GIÁNG THẾ!' : 'THE THUNDER GOD DESCENDS!'; Q.msgT = 3; }
+    else if (id === 'slingshot') { Snd.play('throw'); const a = v(290); mk({ vx: a[0], vy: a[1], life: 0.9, dmg: wd(1) + 1, shape: 'bolt', col: '#cfd6e6', sz: 2 }); }
+    else if (id === 'knives') { Snd.play('whoosh'); for (const an of [-0.18, 0, 0.18]) mk({ vx: f * Math.cos(an) * 300, vy: Math.sin(an) * 300, life: 0.8, dmg: wd(2), shape: 'arrow', col: '#e8e8f0', sz: 2 }); }
+    else if (id === 'dart') { Snd.play('throw'); const a = v(320); mk({ vx: a[0], vy: a[1], life: 1, dmg: wd(2), poison: 1, shape: 'arrow', col: '#7ed957', sz: 2 }); }
+    else if (id === 'cannon') { Snd.play('explode'); mk({ vx: f * 210, vy: -90, g: 300, life: 1.6, dmg: wd(6), expl: 40, shape: 'meteor', col: '#8d9bbd', sz: 4, trail: '#cfd6e6' }); P.vx -= f * 40; Q.shake = Math.max(Q.shake, 0.3); }
+    else if (id === 'chainlight') { const t = nearestFoe(P.x + 4, P.y + 6, 230); Snd.play('thunder'); G.flash = 0.12; if (t) { zap(P.x + 4, P.y + 4, t.x + t.w / 2, t.y + t.h / 2); dmgFoe(t, wd(5), true); chainZap(t, wd(4), 4, 90); } else { P.wcd[s] = 0.8; zap(P.x + 4, P.y + 4, P.x + 4 + f * 80, P.y + 4); } }
+    else if (id === 'laser') { Snd.play('flame'); for (let k = 0; k < 9; k++) later(k * 0.09, () => shootG({ x: Q.P.x + 4 + f * 8, y: Q.P.y + 6, f, vx: f * 420, vy: 0, life: 0.55, dmg: wd(3), thru: true, pierceN: 99, shape: 'beam', col: '#ff3a5a', sz: 3, quiet: true })); }
+    else if (id === 'windstaff') { Snd.play('whoosh'); G.holes.push({ x: P.x + 4 + f * 70, y: P.y + 4, life: 3.5, r: 80, tick: 0.2, wind: true }); }
+    else if (id === 'iceage') { Snd.play('zap'); G.flash = 0.2; addRing(P.x + 4, P.y + 7, '#bff3ff', 200, 0.8); for (const e of foes()) { e.slowT = Math.max(e.slowT || 0, 5); dmgFoe(e, wd(3), true, true); emit(e.x + e.w / 2, e.y + e.h / 2, 6, { col: ['#fff', '#8fe0f8'], sp0: 20, sp1: 80 }); } }
+    else if (id === 'solarflare') { Snd.play('explode'); G.flash = 0.4; nova(P.x + 4, P.y + 7, 120, wd(8)); for (const e of foes()) if (Math.hypot(e.x - P.x, e.y - P.y) < 130) e.burnT = Math.max(e.burnT || 0, 4); }
+    else if (id === 'starfall') { Snd.play('thunder'); G.flash = 0.2; for (let i = 0; i < 14; i++) later(i * 0.12, () => { const mx = Q.cam.x + rr(20, VW - 20); shootG({ x: mx - 20, y: Math.max(8, Q.cam.y - 6), f, vx: 30, vy: 260, life: 2.4, dmg: wd(4), expl: 28, burn: 2, shape: 'meteor', trail: '#ffe44e', sz: 4, col: '#ffe44e', arm: 0.3 }); }); }
     else if (id === 'dragonhorn') { Snd.creature('dragon', 'alert', true); G.dr = { f, life: 5, t: 0, fire: 0, x: 0, y: 0 }; Q.shake = Math.max(Q.shake, 0.4); Q.msg = save.lang === 'vi' ? 'RỒNG LỬA ĐƯỢC TRIỆU HỒI!' : 'THE DRAGON ANSWERS THE HORN!'; Q.msgT = 3; }
   }
   // ---- per-frame gear update ----
@@ -2333,6 +2344,8 @@
     else if (role === 'drain') { const t = nearestFoe(px, py, 110); if (t) { dmgFoe(t, 2, true, true); pt.cd = 8; pt.lunge = 0.3; pt.tdir = t.x + t.w / 2 < px ? -1 : 1; G.half += 0.5; emit(t.x + t.w / 2, t.y + t.h / 2, 8, { col: ['#a15be0', '#e0453a'], sp0: 20, sp1: 70 }); if (G.half >= 1 && P.hp < maxHP()) { G.half = 0; P.hp++; Snd.play('heart'); } } else pt.cd = 0.4; }
     else if (role === 'spark') { const t = nearestFoe(px, py, 160); if (t) { pt.cd = 0.9; shootG({ x: px, y: py - 4, vx: (t.x + t.w / 2 < px ? -1 : 1) * 120, vy: -30, home: true, life: 1.4, dmg: 1 + Math.floor(baseDmg() / 4), sz: 2, col: '#ffd34e', shape: 'spark', quiet: true, trail: '#ffd34e', thru: false }); } else pt.cd = 0.3; }
     else if (role === 'fire') { const t = nearestFoe(px, py, 170); if (t) { pt.cd = 1.8; Snd.play('flame'); const dx = t.x + t.w / 2 - px, dy = t.y + t.h / 2 - py, d = Math.hypot(dx, dy) || 1; pt.tdir = dx < 0 ? -1 : 1; pt.lunge = 0.25; shootG({ x: px + pt.tdir * 8, y: py, vx: dx / d * 160, vy: dy / d * 160, life: 1.3, dmg: 3 + Math.floor(baseDmg() / 3), burn: 2, sz: 3, col: '#ff7a2a', shape: 'fire', trail: '#ffd34e' }); } else pt.cd = 0.3; }
+    else if (role === 'ice') { const t = nearestFoe(px, py, 170); if (t) { pt.cd = 2.2; Snd.play('zap'); shootG({ x: px, y: py - 4, vx: (t.x + t.w / 2 < px ? -1 : 1) * 130, vy: -10, home: true, life: 1.6, dmg: 1 + Math.floor(baseDmg() / 4), slow: 3, shape: 'ice', col: '#8fe0f8', trail: '#bff3ff', sz: 3, quiet: true }); } else pt.cd = 0.3; }
+    else if (role === 'thunder') { const t = nearestFoe(px, py, 210); if (t) { pt.cd = 5; Snd.play('thunder'); zap(px, py - 6, t.x + t.w / 2, t.y + t.h / 2); dmgFoe(t, 4 + Math.floor(baseDmg() / 2), true); chainZap(t, 3, 2, 60); } else pt.cd = 0.4; }
     else if (role === 'block') { let hit = null; for (const p of Q.projs) if (!p.dead && Math.hypot(p.x - (P.x + 4), p.y - (P.y + 7)) < 95) { hit = p; break; } if (hit) { hit.dead = true; pt.cd = 4; Snd.play('clang'); emit(hit.x, hit.y, 10, { col: ['#fff', '#cfd6e6'], sp0: 20, sp1: 80 }); addRing(hit.x, hit.y, '#fff', 20, 0.3); } else pt.cd = 0.1; }
     else pt.cd = 1;
   }
@@ -2345,7 +2358,7 @@
   }
   function tryRevive() {
     const P = Q.P, G = Q.G;
-    if (!G.rvSw && eqHas('revive')) { G.rvSw = true; P.hp = Math.ceil(maxHP() / 2); }
+    if (!G.rvSw && (eqHas('revive') || aSt('revive'))) { G.rvSw = true; P.hp = Math.ceil(maxHP() / 2); }
     else if (!G.rvPet && petRole() === 'revive') { G.rvPet = true; P.hp = maxHP(); }
     else return false;
     P.inv = 2.5; Snd.play('relic'); Snd.hero('cheer'); Q.shake = 0.6; G.flash = 0.3;
@@ -2368,8 +2381,8 @@
     const G = Q.G, P = Q.P;
     for (const h of G.holes) {
       const x = Math.round(h.x - camX), y = Math.round(h.y - camY), a = Math.min(1, h.life);
-      g.globalAlpha = 0.4 * a; disc(g, x, y, Math.round(h.r * 0.35), '#2a1a4a'); g.globalAlpha = 0.85 * a; disc(g, x, y, Math.round(h.r * 0.18), '#14101e'); disc(g, x, y, 3, '#000'); g.globalAlpha = 1;
-      for (let i = 0; i < 14; i++) { const an = Q.t * 6 + i * 0.45, rd = 8 + i * (h.r / 18); g.fillStyle = i % 2 ? '#a15be0' : '#d58bff'; g.fillRect(Math.round(x + Math.cos(an) * rd), Math.round(y + Math.sin(an) * rd * 0.5), 2, 2); }
+      g.globalAlpha = 0.4 * a; disc(g, x, y, Math.round(h.r * 0.35), h.wind ? '#1a5a5a' : '#2a1a4a'); g.globalAlpha = 0.85 * a; disc(g, x, y, Math.round(h.r * 0.18), h.wind ? '#0e3a3a' : '#14101e'); disc(g, x, y, 3, h.wind ? '#052a2a' : '#000'); g.globalAlpha = 1;
+      for (let i = 0; i < 14; i++) { const an = Q.t * 6 + i * 0.45, rd = 8 + i * (h.r / 18); g.fillStyle = h.wind ? (i % 2 ? '#6ee7b0' : '#e8fff4') : (i % 2 ? '#a15be0' : '#d58bff'); g.fillRect(Math.round(x + Math.cos(an) * rd), Math.round(y + Math.sin(an) * rd * 0.5), 2, 2); }
     }
     if (G.lyra) { const ly = G.lyra, hop = Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(ly.t * 12)) * 2 : Math.sin(ly.t * 3) * 0.6; drawSpr(g, npcSpr('npc_lyra_leek'), Math.round(ly.x - camX), Math.round(ly.y - camY + hop), ly.x > P.x + 4); }
     drawAllies(camX, camY);
@@ -3294,6 +3307,7 @@
   // TEST MODE: top-up gives free gems so you can try the economy. For release, replace topUp() with a real
   // payment (Steam microtransactions via your server) and set TOPUP_TEST = false.
   const TOPUP_TEST = true;
+  const SHOP_FREE = true; // TEST BUILD: everything in the shop is free. Set to false before selling the game.
   const TOPUP_PACKS = [{ gems: 60, vnd: '20.000đ', usd: '$0.99' }, { gems: 330, vnd: '99.000đ', usd: '$4.99' }, { gems: 700, vnd: '199.000đ', usd: '$9.99' }, { gems: 1500, vnd: '399.000đ', usd: '$19.99' }, { gems: 4000, vnd: '999.000đ', usd: '$49.99' }];
   const SH_TABS = [['sword', { en: 'Swords', vi: 'Kiếm' }], ['armor', { en: 'Armor', vi: 'Giáp' }], ['pet', { en: 'Pets', vi: 'Thú cưng' }], ['wpn', { en: 'Weapons', vi: 'Vũ khí' }], ['bag', { en: 'Inventory', vi: 'Kho đồ' }], ['topup', { en: 'Top-up', vi: 'Nạp' }]];
   const TYPE_NAME = { sword: { en: 'Sword', vi: 'Kiếm' }, armor: { en: 'Armor', vi: 'Giáp' }, pet: { en: 'Pet', vi: 'Thú cưng' }, wpn: { en: 'Special weapon', vi: 'Vũ khí đặc biệt' } };
@@ -3339,14 +3353,14 @@
   }
   function cardOpts() {
     const it = shopCard.it, o = [];
-    if (!owned(it.id)) { o.push({ k: 'gold' }); o.push({ k: 'gems' }); }
+    if (!owned(it.id)) { o.push({ k: 'gold' }); if (!SHOP_FREE) o.push({ k: 'gems' }); }
     else if (it.type === 'armor' || it.type === 'pet') o.push({ k: isEq(it) ? 'uneq' : 'eq' });
     else { o.push({ k: 'slot0' }); o.push({ k: 'slot1' }); if (isEq(it)) o.push({ k: 'uneq' }); }
     o.push({ k: 'close' }); return o;
   }
   function optLabel(o, it) {
     switch (o.k) {
-      case 'gold': return sv('Buy ' + it.gold + ' gold', 'Mua ' + it.gold + ' vàng');
+      case 'gold': return SHOP_FREE ? sv('Get it FREE!', 'Lấy MIỄN PHÍ!') : sv('Buy ' + it.gold + ' gold', 'Mua ' + it.gold + ' vàng');
       case 'gems': return sv('Buy ' + it.gems + ' gems', 'Mua ' + it.gems + ' gem');
       case 'eq': return sv('Equip', 'Trang bị');
       case 'slot0': return sv('Slot 1 (J)', 'Ô 1 (J)') + (save.inv.w[0] === it.id ? ' *' : '');
@@ -3360,7 +3374,7 @@
     if (o.k === 'close') { shopCard = null; Snd.play('select'); return; }
     if (o.k === 'gold' || o.k === 'gems') {
       if (owned(it.id)) return;
-      if (o.k === 'gold') { if (save.coins < it.gold) { shopSay(sv('Not enough gold! Collect more coins in the levels.', 'Không đủ vàng! Hãy nhặt thêm xu trong màn chơi.'), true); return; } save.coins -= it.gold; }
+      if (o.k === 'gold') { if (!SHOP_FREE && save.coins < it.gold) { shopSay(sv('Not enough gold! Collect more coins in the levels.', 'Không đủ vàng! Hãy nhặt thêm xu trong màn chơi.'), true); return; } if (!SHOP_FREE) save.coins -= it.gold; }
       else { if (iv.gems < it.gems) { shopSay(sv('Not enough gems! Open the Top-up tab.', 'Không đủ gem! Vào mục Nạp.'), true); return; } iv.gems -= it.gems; }
       iv.own.push(it.id); writeSave(); Snd.play('relic'); shopSay(sv('Purchased! Now equip it.', 'Đã mua! Hãy trang bị nó.')); shopCard.opt = 0; return;
     }
@@ -3466,6 +3480,7 @@
         txt(LN(it.name), 250, 40, { size: 8, bold: true, col });
         txt(LN(RARITY_NAME[it.rar]) + ' · ' + LN(TYPE_NAME[it.type]), 250, 52, { size: 5.5, col });
         if (owned(it.id)) txt(isEq(it) ? sv('Equipped', 'Đang trang bị') : sv('Owned', 'Đã sở hữu'), 250, 64, { size: 6.5, col: '#a4e86b' });
+        else if (SHOP_FREE) txt(sv('FREE (test build)', 'MIỄN PHÍ (bản test)'), 250, 65, { size: 7, col: '#a4e86b', bold: true });
         else { drawCoinIc(253, 65); txt(String(it.gold), 259, 65, { size: 7, col: '#ffd34e' }); drawGemIc(300, 65); txt(String(it.gems), 306, 65, { size: 7, col: '#9ff0ff' }); }
         wrapText(LN(it.desc), 46).slice(0, 7).forEach((l, i) => txt(l, 192, 96 + i * 8, { size: 5.8, col: '#e8eaf5' }));
         txt(sv('Enter: details / buy', 'Enter: xem chi tiết / mua'), 280, 130, { al: 'center', size: 5, col: '#8892aa' });
@@ -3490,6 +3505,7 @@
     txt(LN(it.name), 96, 26, { size: 10, bold: true, col });
     txt(LN(RARITY_NAME[it.rar]) + ' · ' + LN(TYPE_NAME[it.type]), 96, 40, { size: 6, col });
     if (has) txt(isEq(it) ? sv('Equipped', 'Đang trang bị') : sv('Owned', 'Đã sở hữu'), 96, 54, { size: 7, col: '#a4e86b' });
+    else if (SHOP_FREE) txt(sv('FREE (test build)', 'MIỄN PHÍ (bản test)'), 96, 55, { size: 7, col: '#a4e86b', bold: true });
     else { drawCoinIc(99, 55); txt(it.gold + sv(' gold', ' vàng'), 106, 55, { size: 7, col: save.coins >= it.gold ? '#ffd34e' : '#ff9a8a' }); drawGemIc(172, 55); txt(it.gems + ' gem', 179, 55, { size: 7, col: save.inv.gems >= it.gems ? '#9ff0ff' : '#ff9a8a' }); }
     txt(sv('What it does', 'Công dụng'), 34, 80, { size: 6.5, col: '#ffd34e', bold: true });
     wrapText(LN(it.desc), 76).slice(0, 4).forEach((l, i) => txt(l, 34, 91 + i * 9, { size: 6.2 }));
@@ -3497,7 +3513,7 @@
     wrapText(howTo(it), 76).slice(0, 4).forEach((l, i) => txt(l, 34, 142 + i * 9, { size: 6.2, col: '#cfd6e6' }));
     txt(sv('Gold: ', 'Vàng: ') + save.coins + '    ' + sv('Gems: ', 'Gem: ') + save.inv.gems, VW / 2, 178, { al: 'center', size: 6, col: '#8892aa' });
     o.forEach((op, i) => {
-      const cx = VW / 2 + (i - (o.length - 1) / 2) * 84, on = i === shopCard.opt, bad = (op.k === 'gold' && save.coins < it.gold) || (op.k === 'gems' && save.inv.gems < it.gems);
+      const cx = VW / 2 + (i - (o.length - 1) / 2) * 84, on = i === shopCard.opt, bad = !SHOP_FREE && ((op.k === 'gold' && save.coins < it.gold) || (op.k === 'gems' && save.inv.gems < it.gems));
       g.fillStyle = on ? 'rgba(255,211,78,.22)' : 'rgba(255,255,255,.06)'; g.fillRect(cx - 38, 184, 76, 16);
       g.fillStyle = on ? '#ffd34e' : '#434d6e'; g.fillRect(cx - 38, 184, 76, 1); g.fillRect(cx - 38, 199, 76, 1);
       txt(optLabel(op, it), cx, 192, { al: 'center', size: 6.2, col: bad ? '#ff9a8a' : (on ? '#ffd34e' : '#e8eaf5'), bold: on });
@@ -3897,7 +3913,7 @@
       g.fillStyle = 'rgba(170,190,255,.55)'; for (let i = 0; i < 80; i++) { const rx = (i * 47 + c.pt * 50) % VW, ry = (i * 31 + c.pt * 280) % VH; g.fillRect(Math.round(rx), Math.round(ry), 1, 5); }
       if (Math.sin(c.pt * 2.3) > 0.94 || c.fl > 0.2) { const bx = 40 + (Math.floor(c.pt * 2.3) * 97) % 300; g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.moveTo(bx, 0); for (let k = 1; k < 8; k++) g.lineTo(bx + ((k * 37 + Math.floor(c.pt * 9) * 13) % 24) - 12, k * 20); g.stroke(); }
     }
-    const sh = c.shake > 0 ? c.shake * 7 : 0, dv = devilSprite(), rise = (1 - k) * 70, ox = sh ? rr(-sh, sh) : 0, oy = sh ? rr(-sh, sh) : 0;
+    const sh = c.shake > 0 ? c.shake * 7 : 0, dv = devilSprite(!!ln.shout), rise = (1 - k) * 70, ox = sh ? rr(-sh, sh) : 0, oy = sh ? rr(-sh, sh) : 0;
     const speak = ln.w === 'quoc';
     g.globalAlpha = speak ? 1 : 0.7; g.drawImage(dv.c, Math.round(VW / 2 - dv.w / 2 + ox), Math.round(10 - dv.h / 2 + 62 + rise + oy + Math.sin(c.pt * 2) * 1.5)); g.globalAlpha = 1;
     g.globalCompositeOperation = 'lighter';

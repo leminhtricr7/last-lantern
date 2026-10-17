@@ -21,33 +21,34 @@ const PAL = {
 
 // ---- sprite sources (fill only, outline is added automatically) ----
 // Ember: 16x21 chibi warrior — steel helm with flame plume, glowing eyes, red scarf, pauldrons
+const heroPad = r => '..' + r + '..';
+// Ember: a taller, cooler Lanternbearer - flame-plume helm, spiked pauldrons, ragged scarf, separate arms with gauntlets, long armoured legs and boots
 const heroTop = [
   ['......ofo.......', '.....oyyyo......'],
   ['.....o.o.o......', '......oyyo......']
-];
+].map(a => a.map(heroPad));
 const heroBody = [
   '.....rrrrrr.....',
   '....aaaaaaaa....',
   '...aAAAAAAAAa...',
   '...aAaaaaaaAa...',
-  '...AqqqqqqqqA...',
+  '..AAqqqqqqqqAA..',
   '...AqqqyqqyqA...',
   '...AqqqyqqyqA...',
-  '...AAAAAAAAAA...',
-  '..rrrrrrrrrrrr..',
-  '.aaAbbbbbbbbAaa.',
-  '.aAAbbaabbbbAAa.',
-  '..AAbbbbbbbbAA..',
-  '..AAnnnnnnnnAA..',
-  '...AbbbyybbbA...',
-  '...AAbbbbbbAA...'
-];
+  '...AAAAAAAAAA...'
+].map(heroPad).concat([
+  'rrraarrrrrrrrrraa...',
+  'rraAAAbbbbbbbbAAAa..',
+  '...AA.bbbyybbb.AA...',
+  '...qA.bbnnnnbb.Aq...',
+  '...qq.AbbyybbA.qq...'
+]);
 const heroLegs = {
-  idle: ['....qq....qq....', '....AA....AA....', '...AAA....AAA...', '...qqq....qqq...'],
-  runA: ['...qq......qq...', '..AAq......AA...', '..AA........AAq.', '..qq.........qq.'],
-  runB: ['....qqqqqqqq....', '....AAAAAAAA....', '....AA....AA....', '....qq....qq....'],
-  jump: ['...qqqqqqqqqq...', '...AAAAAAAAAA...', '...qq......qq...', '................'],
-  fall: ['...qq......qq...', '..AA........AA..', '..qq........qq..', '................']
+  idle: ['......AAbbbbAA......', '......AAA..AAA......', '......AAA..AAA......', '......qAq..qAq......', '......qqq..qqq......', '.....qqqq..qqqq.....'],
+  runA: ['......AAbbbbAA......', '.....AAA....AAA.....', '....AAA......AAA....', '...qAq........qAq...', '...qqq........qqq...', '..qqqq........qqqq..'],
+  runB: ['......AAbbbbAA......', '.......AAAAAA.......', '.......AAAAAA.......', '.......qAAAAq.......', '.......qqqqqq.......', '......qqqqqqqq......'],
+  jump: ['......AAbbbbAA......', '.....AAAA..AAAA.....', '.....qAAq..qAAq.....', '.....qqqq..qqqq.....', '....................', '....................'],
+  fall: ['......AAbbbbAA......', '.....AAA....AAA.....', '....AAq......qAA....', '....qqq......qqq....', '....................', '....................']
 };
 const rev = rows => rows.map(r => r.split('').reverse().join(''));
 const heroFrame = (top, legs) => top.concat(heroBody, legs);
