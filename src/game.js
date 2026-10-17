@@ -333,7 +333,7 @@
       { en: 'Fine. FINE! Go! Be eaten by the Eclipse!', vi: 'Được thôi. ĐƯỢC THÔI! Đi đi! Để Nhật Thực nuốt chửng cậu!' }
     ] }
   };
-  const SPK = { quoc: { name: { en: 'Quoc the Devil', vi: 'Quỷ Vương Quoc' }, col: '#ff5a4a' }, shorty: { name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' }, col: '#ffd34e' }, imp: { name: { en: 'Imp', vi: 'Tiểu quỷ' }, col: '#c07bff' } };
+  const SPK = { quoc: { name: { en: 'Quoc the Devil', vi: 'Quỷ Vương Quoc' }, col: '#ff5a4a' }, shorty: { name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' }, col: '#ffd34e' }, imp: { name: { en: 'Imp', vi: 'Tiểu quỷ' }, col: '#c07bff' }, sy: { name: { en: 'Mr Sy', vi: 'Mr Sy' }, col: '#7ed957' } };
   const CUT = [
     [ // after Verdant Meadow
       { w: 'quoc', shout: 1, en: 'WHAT?! A WALKING CANDLE BEAT MY KING SLIME?!', vi: 'GÌ CƠ?! MỘT CÂY NẾN BIẾT ĐI ĐÁNH BẠI VUA SLIME CỦA TA SAO?!' },
@@ -351,7 +351,7 @@
       { w: 'quoc', shout: 1, en: 'THE GOLEM SHATTERED LIKE CHEAP GLASS! WHO IS HELPING HIM?!', vi: 'NGƯỜI KHỔNG LỒ VỠ NHƯ THỦY TINH RẺ TIỀN! AI ĐANG GIÚP HẮN?!' },
       { w: 'shorty', en: 'A sad bookworm wizard, my lord. They call him QuanSadBoy.', vi: 'Một phù thủy mọt sách buồn bã, thưa ngài. Người ta gọi hắn là QuanSadBoy.' },
       { w: 'quoc', shout: 1, en: 'A BOOKWORM?! I AM BEING DEFEATED BY HOMEWORK?!', vi: 'MỘT CON MỌT SÁCH?! TA ĐANG BỊ ĐÁNH BẠI BỞI BÀI TẬP VỀ NHÀ SAO?!' },
-      { w: 'imp', en: 'He... also gave the hero snacks.', vi: 'Hắn... còn đưa cho anh hùng đồ ăn vặt nữa.' },
+      { w: 'sy', en: 'He also gave the hero snacks, my lord. I watched. I took notes.', vi: 'Hắn còn đưa đồ ăn vặt cho anh hùng nữa, thưa chủ nhân. Thần đã quan sát. Thần đã ghi chép.' },
       { w: 'quoc', shout: 1, en: 'SNACKS?! UNFORGIVABLE!!', vi: 'ĐỒ ĂN VẶT?! KHÔNG THỂ THA THỨ!!' }
     ],
     [ // after Sunscorch Desert
@@ -359,11 +359,13 @@
       { w: 'shorty', en: 'Master, I tried my little trial again. He... passed.', vi: 'Thưa chủ nhân, thần lại thử thách nhỏ của thần. Hắn... vượt qua rồi.' },
       { w: 'quoc', shout: 1, en: 'AGAIN?! YOU CANNOT EVEN BEAT A CHILD WITH A LANTERN?!', vi: 'LẠI NỮA SAO?! NGƯƠI KHÔNG THỂ THẮNG NỔI MỘT ĐỨA TRẺ CẦM ĐÈN?!' },
       { w: 'shorty', en: '...I am very short, my lord. It is hard to see him coming.', vi: '...Thần rất thấp, thưa ngài. Khó mà thấy hắn đang tới.' },
-      { w: 'quoc', shout: 1, en: 'THEN STAND ON A BOX AND TRY HARDER!!', vi: 'THÌ ĐỨNG LÊN CÁI HỘP VÀ CỐ GẮNG HƠN!!' }
+      { w: 'quoc', shout: 1, en: 'THEN STAND ON A BOX AND TRY HARDER!!', vi: 'THÌ ĐỨNG LÊN CÁI HỘP VÀ CỐ GẮNG HƠN!!' },
+      { w: 'sy', en: 'Allow me, my lord. The boy keeps eating my little experiments. I will meet him in the Citadel with something... more dramatic.', vi: 'Xin để thần, thưa chủ nhân. Thằng nhóc cứ ăn hết mấy thí nghiệm nhỏ của thần. Thần sẽ gặp hắn ở Thành Trì với thứ gì đó... kịch tính hơn.' },
+      { w: 'quoc', shout: 1, en: 'FINALLY! SOMEONE WITH A PLAN!!', vi: 'CUỐI CÙNG! CÓ KẺ CÓ KẾ HOẠCH RỒI!!' }
     ],
     [ // after Frostbite Peaks
       { w: 'quoc', shout: 1, en: 'THE FROST KING MELTED?! HE WAS FROZEN BY DEFINITION!', vi: 'VUA BĂNG TAN CHẢY SAO?! THEO ĐỊNH NGHĨA HẮN LÀ BĂNG CƠ MÀ!' },
-      { w: 'imp', en: 'H-he used fire flasks, master...', vi: 'H-hắn dùng bình lửa, thưa chủ nhân...' },
+      { w: 'sy', en: 'He used fire flasks, my lord. I... may have underestimated the Frost King\'s melting point.', vi: 'Hắn dùng bình lửa, thưa chủ nhân. Thần... có lẽ đã đánh giá thấp điểm nóng chảy của Vua Băng.' },
       { w: 'quoc', shout: 1, en: 'THEN FREEZE THE FLASKS, YOU FOOL!!', vi: 'THÌ ĐÓNG BĂNG CÁI BÌNH ĐÓ ĐI, ĐỒ NGỐC!!' },
       { w: 'shorty', en: 'Only the volcano and the Citadel remain, my lord...', vi: 'Chỉ còn núi lửa và Thành Trì thôi, thưa ngài...' },
       { w: 'quoc', shout: 1, en: 'ENOUGH! WAKE THE TITAN! AND IF HE FAILS... WAKE THE ECLIPSE!', vi: 'ĐỦ RỒI! ĐÁNH THỨC TITAN! VÀ NẾU HẮN THẤT BẠI... ĐÁNH THỨC NHẬT THỰC!' }
@@ -372,11 +374,46 @@
       { w: 'quoc', shout: 1, en: 'THE TITAN IS ASH!! ASH!!! HE WAS MY FAVORITE VOLCANO!', vi: 'TITAN THÀNH TRO RỒI!! TRO!!! HẮN LÀ NGỌN NÚI LỬA YÊU THÍCH CỦA TA!' },
       { w: 'shorty', en: 'Master... six fragments of the Sun burn together again.', vi: 'Thưa chủ nhân... sáu mảnh Mặt Trời lại cháy cùng nhau.' },
       { w: 'quoc', shout: 1, en: 'THEN THE ECLIPSE WILL END THIS! AWAKEN IT!!', vi: 'VẬY NHẬT THỰC SẼ KẾT THÚC TẤT CẢ! ĐÁNH THỨC NÓ!!' },
+      { w: 'sy', en: 'My lord, Shorty and I will hold the Citadel. My serpent is hungry... and so is his hat.', vi: 'Thưa chủ nhân, thần và Shorty sẽ giữ Thành Trì. Con rắn của thần đang đói... và cái mũ của hắn cũng vậy.' },
+      { w: 'quoc', shout: 1, en: 'GO, BOTH OF YOU! AND IF THE LANTERN REACHES ME... I WILL BECOME SEVEN!', vi: 'ĐI ĐI, CẢ HAI NGƯƠI! VÀ NẾU CHIẾC ĐÈN ĐẾN ĐƯỢC CHỖ TA... TA SẼ HÓA THÀNH BẢY!' },
       { w: 'quoc', shout: 1, en: 'LET THE WORLD GO DARK FOREVER!!!', vi: 'ĐỂ THẾ GIỚI TỐI ĐEN MÃI MÃI!!!' }
     ]
   ];
   NPCS.dragon = { spr: 'dragon_head', name: { en: 'Ignarok the Ashwing', vi: 'Ignarok Cánh Tro' } };
   NPCS.dragon.generic = [{ en: 'ROAAAR!', vi: 'GÀOOO!' }];
+  // ---------- the new cast: Mr Sy, Quoc, and the four helpers who appear on maps 2-5 ----------
+  Object.assign(NPCS, {
+    sy: { spr: 'npc_sy', name: { en: 'Mr Sy', vi: 'Mr Sy' } },
+    quoc: { spr: 'npc_quoc', name: { en: 'Quoc the Devil', vi: 'Quỷ Vương Quoc' } },
+    ember: { spr: 'hero_idle', name: { en: 'Ember', vi: 'Ember' } },
+    hoang: { spr: 'npc_hoang', name: { en: 'HoangKiller', vi: 'HoangKiller' } },
+    duong: { spr: 'npc_duong', name: { en: 'DuongDracular', vi: 'DuongDracular' } },
+    santree: { spr: 'npc_santree', name: { en: 'Santree', vi: 'Santree' } }
+  });
+  NPCS.sy.generic = [{ en: 'Hm.', vi: 'Hm.' }];
+  NPCS.quoc.generic = [{ en: 'GRRR!', vi: 'GRRR!' }];
+  NPCS.hoang.generic = [{ en: 'Whistle when you need me.', vi: 'Huýt sáo khi cần tôi nhé.' }];
+  NPCS.duong.generic = [{ en: 'Call, and the bats will answer.', vi: 'Hãy gọi, và lũ dơi sẽ đáp lời.' }];
+  NPCS.santree.generic = [{ en: 'Ho ho ho! Hope grows here.', vi: 'Ho ho ho! Hy vọng mọc ở đây.' }];
+  DLG[2] = Object.assign(DLG[2] || {}, { hoang: [
+    { en: 'Psst. Do not scream. I am HoangKiller. Yes, killer. Of boredom, mostly.', vi: 'Suỵt. Đừng la. Tôi là HoangKiller. Ừ, sát thủ. Chủ yếu là giết thời gian chán.' },
+    { en: 'I came into these caves for a rare crystal, and a very rude Golem chased me back out. We have history.', vi: 'Tôi vào hang này tìm một viên pha lê hiếm, và một Người Khổng Lồ rất thô lỗ đuổi tôi chạy ra. Tụi tôi có thù cũ.' },
+    { en: 'Wait... you are the lantern kid? The one who beat the Spider Queen with a LEEK? QuanSadBoy wrote me about you!', vi: 'Khoan... cậu là cậu bé cầm đèn? Người đã hạ Nữ Hoàng Nhện bằng một CÂY HÀNH? QuanSadBoy đã viết thư kể về cậu!' },
+    { en: 'Listen. When you face Quoc himself, I will find you. HoangKiller never misses a fight that matters.', vi: 'Nghe này. Khi cậu đối đầu với chính Quoc, tôi sẽ tìm cậu. HoangKiller không bao giờ bỏ lỡ một trận chiến quan trọng.' }
+  ] });
+  DLG[3] = Object.assign(DLG[3] || {}, { duong: [
+    { en: 'Ah... the Sun has fallen, so a vampire may walk the desert at noon. Irony is delicious.', vi: 'À... Mặt Trời đã rơi, nên một ma cà rồng có thể đi trên sa mạc giữa trưa. Sự trớ trêu thật ngon.' },
+    { en: 'I am Duong Dracular, count of nothing and keeper of a very large tomb. I was napping when the Pharaoh\'s sand woke me.', vi: 'Ta là Duong Dracular, bá tước của hư vô và người giữ một ngôi mộ rất lớn. Ta đang ngủ trưa thì cát của Pharaoh đánh thức ta.' },
+    { en: 'You carry the Sun\'s flame? ...I know you. QuanSadBoy\'s letter said: "a boy with a lantern; protect him." Fascinating.', vi: 'Cậu mang ngọn lửa của Mặt Trời sao? ...Ta biết cậu. Thư của QuanSadBoy viết: "một cậu bé cầm đèn; hãy bảo vệ cậu ấy." Thú vị.' },
+    { en: 'I do not fight in daylight, usually. For you I will make an exception. Call, and my bats will answer.', vi: 'Thường thì ta không chiến đấu dưới ánh sáng. Vì cậu ta sẽ ngoại lệ. Hãy gọi, và lũ dơi của ta sẽ đáp lời.' }
+  ] });
+  DLG[4] = Object.assign(DLG[4] || {}, { santree: [
+    { en: 'HO HO HO! Do not mind me, I am a tree. A walking one. A... SANTREE! Hee!', vi: 'HO HO HO! Đừng bận tâm tôi, tôi là một cái cây. Một cây biết đi. Một... SANTREE! Hí!' },
+    { en: 'I was a seed in the north before Quoc\'s winter. The Frost King froze my forest and I had to walk away. Walking is hard with roots.', vi: 'Tôi từng là một hạt giống ở phương bắc trước mùa đông của Quoc. Vua Băng đóng băng rừng của tôi và tôi phải bỏ đi. Đi bộ khó lắm khi có rễ.' },
+    { en: 'You are the one who melted the king? Duong\'s bats told me! We trees talk. Mostly about you.', vi: 'Cậu là người đã làm tan chảy vị vua đó? Lũ dơi của Duong kể tôi nghe! Cây cối tụi tôi hay nói chuyện. Chủ yếu là về cậu.' },
+    { en: 'When the final night comes, Santree will plant itself right next to you. Presents optional. Hee hee!', vi: 'Khi đêm cuối cùng đến, Santree sẽ cắm rễ ngay cạnh cậu. Quà tặng không bắt buộc. Hí hí!' }
+  ] });
+
   const DRG_DLG = {
     young_intro: [
       { en: 'So... the little lantern-bearer crawls through my meadow. I can smell the last flame of Aurelia on you!', vi: 'Thì ra... cậu bé cầm đèn bé nhỏ đang bò qua đồng cỏ của ta. Ta ngửi thấy ngọn lửa cuối cùng của Aurelia trên người ngươi!' },
@@ -627,6 +664,107 @@
     { name: { en: 'THE ECLIPSE', vi: 'NHẬT THỰC' }, w: 30, h: 56, hp: 760, armor: 0.4, smart: 0.8, sp: 30, minion: 'ghost', eclipse: true, skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak'], skills2: ['dark', 'clone', 'summon', 'roar'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
   ];
 
+  // ---------- final map: Shorty, Sy and Quoc (multi-form bosses) ----------
+  const FORMS = {
+    shorty: [
+      { name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' }, spr: 'shorty_h', w: 32, h: 46, hp: 380, armor: 0.15, smart: 0.75, sp: 34, minion: 'imp', proj: '#d58bff', skills: ['shoot', 'fan', 'teleport', 'jump', 'charge', 'guard'], skills2: ['clone', 'crossBeam', 'rush'] },
+      { name: { en: 'SHORTY, THE HAT BEAST', vi: 'SHORTY, QUÁI VẬT MŨ CAO' }, spr: 'shorty_m', w: 58, h: 68, hp: 620, armor: 0.3, smart: 0.55, sp: 26, minion: 'imp', proj: '#ff6a3a', skills: ['slam', 'sweep', 'lobs', 'summon', 'rain', 'erupt', 'rush'], skills2: ['roar', 'spin', 'crossBeam'], skills3: ['meteor', 'guard', 'shield'] }
+    ],
+    sy: [
+      { name: { en: 'Mr Sy', vi: 'Mr Sy' }, spr: 'sy_h', w: 32, h: 52, hp: 420, armor: 0.2, smart: 0.8, sp: 32, minion: 'shadewisp', proj: '#7ed957', skills: ['spit', 'lobs', 'curse', 'web', 'cloak', 'teleport'], skills2: ['dark', 'tornado', 'crossBeam'] },
+      { name: { en: 'SY, THE VENOM SERPENT', vi: 'SY, RẮN CHÚA ĐỘC' }, spr: 'sy_m', w: 70, h: 62, hp: 680, armor: 0.3, smart: 0.5, sp: 22, minion: 'spider', proj: '#7ed957', skills: ['breath', 'spit', 'lobs', 'wall', 'rain', 'charge', 'slam'], skills2: ['summon', 'curse', 'spin', 'tornado'], skills3: ['blizzard', 'shield', 'roar'] }
+    ],
+    quoc: [
+      { name: { en: 'Quoc - Shadow Imp', vi: 'Quoc - Tiểu Quỷ Bóng Tối' }, spr: 'quoc1', w: 24, h: 32, hp: 200, armor: 0.1, smart: 0.9, sp: 44, minion: 'imp', proj: '#ff6a3a', skills: ['jump', 'charge', 'shoot', 'rush', 'fan'], skills2: ['teleport', 'guard'] },
+      { name: { en: 'Quoc - Hellhound', vi: 'Quoc - Chó Địa Ngục' }, spr: 'quoc2', w: 50, h: 32, hp: 260, armor: 0.15, smart: 0.7, sp: 50, minion: 'imp', proj: '#ff6a3a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
+      { name: { en: 'Quoc - Chain Demon', vi: 'Quoc - Quỷ Xích' }, spr: 'quoc3', w: 38, h: 56, hp: 340, armor: 0.25, smart: 0.75, sp: 30, minion: 'imp', proj: '#ff3a5a', skills: ['slam', 'erupt', 'fan', 'crossBeam', 'teleport', 'shoot'], skills2: ['summon', 'spin'] },
+      { name: { en: 'Quoc - Warlord', vi: 'Quoc - Đại Tướng Quỷ' }, spr: 'quoc4', w: 50, h: 66, hp: 420, armor: 0.35, smart: 0.6, sp: 26, minion: 'eclipseclone', proj: '#cfd6e6', skills: ['shield', 'guard', 'sweep', 'lobs', 'charge', 'slam', 'meteor'], skills2: ['roar', 'erupt', 'crossBeam'] },
+      { name: { en: 'Quoc - Archdemon', vi: 'Quoc - Đại Quỷ Cánh' }, spr: 'quoc5', w: 68, h: 64, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffd34e', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
+      { name: { en: 'Quoc - Titan of Ash', vi: 'Quoc - Titan Tro Tàn' }, spr: 'quoc6', w: 76, h: 88, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
+      { name: { en: 'QUOC, THE ETERNAL ECLIPSE', vi: 'QUOC, NHẬT THỰC VĨNH CỬU' }, spr: 'quoc7', w: 62, h: 98, hp: 780, armor: 0.45, smart: 0.9, sp: 30, minion: 'ghost', eclipse: true, proj: '#d58bff', skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak', 'crossBeam', 'rush'], skills2: ['dark', 'clone', 'summon', 'roar', 'fan', 'lobs'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
+    ]
+  };
+  const MINI = {
+    shorty: { forms: FORMS.shorty,
+      intro: [
+        { en: 'Well, well. You made it all the way to the Citadel, little lantern-boy. I am done playing with trials.', vi: 'Chà chà. Cậu đã đến được tận Thành Trì, cậu bé cầm đèn. Ta chán trò thử thách rồi.' },
+        { w: 'ember', en: 'Mr Shorty... you do not have to do this. Quoc is only using you.', vi: 'Mr Shorty... ông không cần làm vậy. Quoc chỉ đang lợi dụng ông thôi.' },
+        { en: 'Using me?! He promised me a taller throne and a TALLER HAT! ...And I am short, not small. Come on!', vi: 'Lợi dụng ta?! Ngài hứa cho ta ngai vàng cao hơn và một chiếc MŨ CAO HƠN! ...Ta thấp chứ không nhỏ. Lại đây!' }
+      ],
+      outro: [
+        { en: 'My lord... Quoc... I only wanted to be... tall...', vi: 'Chủ nhân... Quoc... ta chỉ muốn được... cao thôi...' },
+        { en: '...Go on, lantern-boy. Sy waits ahead. He is not as kind as I was. Tee-hee... hee...', vi: '...Đi đi, cậu bé cầm đèn. Sy đang đợi phía trước. Hắn không tử tế như ta đâu. Hí hí... hí...' },
+        { w: 'ember', en: '(Shorty dissolves into a shower of top hats. For a moment Ember almost feels sorry for him.)', vi: '(Shorty tan thành một cơn mưa mũ cao. Trong thoáng chốc Ember suýt thấy thương hại hắn.)' }
+      ] },
+    sy: { forms: FORMS.sy,
+      intro: [
+        { en: 'Shorty fell? A pity. He was loud, but cheap. I am Sy. Quoc\'s second hand, and the quieter one.', vi: 'Shorty gục rồi à? Tiếc thật. Hắn ồn ào nhưng rẻ tiền. Ta là Sy. Cánh tay thứ hai của Quoc, và là người kín tiếng hơn.' },
+        { w: 'ember', en: 'You were in the caves, and in the snow. You woke the Golem and the Frost King for me.', vi: 'Ông đã ở trong hang động, và cả trên tuyết. Ông đã đánh thức Người Khổng Lồ và Vua Băng cho tôi.' },
+        { en: 'Test subjects, boy. I wanted to see how bright your lantern really burns. Now I want to see how long it lasts against my venom.', vi: 'Vật thí nghiệm thôi, nhóc. Ta muốn xem đèn của nhóc thực sự cháy sáng đến đâu. Giờ ta muốn xem nó chịu nổi bao lâu trước nọc độc của ta.' }
+      ],
+      outro: [
+        { en: 'Ha... ha... even my venom... could not put you out.', vi: 'Ha... ha... ngay cả nọc độc của ta... cũng không dập được ngươi.' },
+        { en: 'Listen, boy. Quoc is not one monster. He is seven. Each one angrier than the last. Do not let your light flicker.', vi: 'Nghe này, nhóc. Quoc không phải một con quái vật. Hắn có bảy dạng. Dạng sau giận dữ hơn dạng trước. Đừng để ánh sáng của nhóc chập chờn.' },
+        { w: 'ember', en: '(Sy fades into green mist. The Citadel gate groans open. Only Quoc remains.)', vi: '(Sy tan vào làn sương xanh. Cổng Thành Trì rền rĩ mở ra. Chỉ còn lại Quoc.)' }
+      ] }
+  };
+  const FORM_LINES = {
+    shorty: { 1: [
+      { en: 'IMPOSSIBLE?! Then... Quoc\'s gift... AWAKEN! I WILL BE TALL!! GRAAAH!!', vi: 'KHÔNG THỂ NÀO?! Vậy thì... món quà của Quoc... THỨC TỈNH! TA SẼ CAO LỚN!! GRAAAH!!' }
+    ] },
+    sy: { 1: [
+      { en: 'Your leek is amusing, boy. But venom spoils every blade. Behold, the true Sy!', vi: 'Cây hành của nhóc thật thú vị. Nhưng nọc độc làm hỏng mọi lưỡi kiếm. Chiêm ngưỡng Sy thực sự đi!' }
+    ] },
+    quoc: {
+      1: [{ en: 'A SPARK THAT BITES? HOW CUTE. LET LOOSE... MY HOUND!', vi: 'MỘT TIA LỬA BIẾT CẮN? DỄ THƯƠNG ĐẤY. THẢ RA... CON CHÓ CỦA TA!' }],
+      3: [{ en: 'ENOUGH!! I WILL NOT BE SHAMED IN MY OWN HOUSE! BEHOLD THE WARLORD!', vi: 'ĐỦ RỒI!! TA SẼ KHÔNG BỊ NHỤC NHÃ TRONG NHÀ CỦA CHÍNH MÌNH! CHIÊM NGƯỠNG ĐẠI TƯỚNG!' }],
+      4: [{ en: 'WINGS OF THE ARCHDEMON! THE SKY ITSELF WILL BURN!', vi: 'ĐÔI CÁNH CỦA ĐẠI QUỶ! CẢ BẦU TRỜI SẼ CHÁY!' }],
+      5: [{ en: 'I AM THE ASH OF EVERY VOLCANO! KNEEL!', vi: 'TA LÀ TRO TÀN CỦA MỌI NGỌN NÚI LỬA! QUỲ XUỐNG!' }],
+      6: [{ en: 'I AM THE ECLIPSE! THE END OF ALL LIGHT! GO DARK... FOREVER!!!', vi: 'TA LÀ NHẬT THỰC! SỰ KẾT THÚC CỦA MỌI ÁNH SÁNG! HÃY TỐI ĐEN... MÃI MÃI!!!' }]
+    }
+  };
+  const QUOC_PRE = [
+    { en: 'So... the little flame crawls into my house. You have burned my slimes, my kings, my titans...', vi: 'Thì ra... ngọn lửa nhỏ bò vào nhà ta. Ngươi đã thiêu slime của ta, vua của ta, titan của ta...' },
+    { w: 'ember', en: 'And I will burn the Eclipse too. Give back the Sun, Quoc!', vi: 'Và cháu sẽ thiêu cả Nhật Thực. Trả Mặt Trời lại đây, Quoc!' },
+    { en: 'GIVE IT BACK?! I SWALLOWED IT!! IT IS PART OF ME NOW! COME, LANTERNBEARER... TASTE MY SEVEN FACES!', vi: 'TRẢ LẠI SAO?! TA ĐÃ NUỐT NÓ!! NÓ LÀ MỘT PHẦN CỦA TA RỒI! LẠI ĐÂY, NGƯỜI MANG ĐÈN... NẾM THỬ BẢY KHUÔN MẶT CỦA TA!' }
+  ];
+  const ALLY_STORY = [
+    { w: 'quoc', en: 'THREE FACES, AND YOU STILL STAND?! THEN I WILL DROWN YOU IN SHADOW, LANTERN-BOY!', vi: 'BA KHUÔN MẶT MÀ NGƯƠI VẪN ĐỨNG ĐƯỢC SAO?! VẬY TA SẼ NHẤN CHÌM NGƯƠI TRONG BÓNG TỐI, CẬU BÉ CẦM ĐÈN!' },
+    { w: 'ember', en: '(coughing) ...I cannot keep this up. His power is too much...', vi: '(ho) ...Mình không trụ nổi nữa. Sức mạnh của hắn quá lớn...' },
+    { w: 'quan', en: 'EMBER!! Hold on! I read it in the Great Book of Embers: a Lanternbearer never fights alone!', vi: 'EMBER!! Cố lên! Mình đã đọc trong Đại Thư Tro Tàn: Người Mang Đèn không bao giờ chiến đấu một mình!' },
+    { w: 'ember', en: 'QuanSadBoy?! How did you get into the Citadel?!', vi: 'QuanSadBoy?! Làm sao cậu vào được Thành Trì?!' },
+    { w: 'hoang', en: 'Through the back door. HoangKiller is very good at back doors.', vi: 'Qua cửa sau. HoangKiller rất giỏi các cánh cửa sau.' },
+    { w: 'ember', en: 'HoangKiller! The one from the Crystal Caverns?', vi: 'HoangKiller! Người ở Hang Pha Lê đó sao?' },
+    { w: 'hoang', en: 'You beat the Golem that chased me. I never forget a debt... or a friend.', vi: 'Cậu đã hạ Người Khổng Lồ từng đuổi tôi. Tôi không bao giờ quên ơn... hay một người bạn.' },
+    { w: 'duong', en: 'And Duong Dracular could not miss such a splendid night. The Sun is whole, and a vampire may stand in daylight thanks to you, Ember. I owe you my afternoons.', vi: 'Và Duong Dracular sao có thể bỏ lỡ một đêm tuyệt vời thế này. Mặt Trời trọn vẹn, và một ma cà rồng được đứng dưới nắng là nhờ cậu, Ember. Ta nợ cậu những buổi chiều.' },
+    { w: 'santree', en: 'SANTREE IS HERE TOO! HO HO HO! Santree grows wherever there is hope! And there is a LOT of hope in this room!', vi: 'SANTREE CŨNG ĐÂY! HO HO HO! Santree mọc ở nơi nào có hy vọng! Và trong căn phòng này có RẤT NHIỀU hy vọng!' },
+    { w: 'ember', en: 'Everyone... why did you all come?', vi: 'Mọi người... sao tất cả lại đến đây?' },
+    { w: 'quan', en: 'Because we each heard the same news: a boy with a lantern is going to defeat the Eclipse. And we each decided, on our own, that you are not doing it alone.', vi: 'Vì ai trong chúng mình cũng nghe cùng một tin: có một cậu bé cầm đèn sẽ đánh bại Nhật Thực. Và mỗi người đều tự quyết định rằng cậu sẽ không làm điều đó một mình.' },
+    { w: 'quoc', en: 'A BOOKWORM, A KNIFE, A BAT AND A... CHRISTMAS TREE?! HAHAHA! I AM QUOC! LORD OF THE ECLIPSE!', vi: 'MỘT CON MỌT SÁCH, MỘT CON DAO, MỘT CON DƠI VÀ MỘT... CÂY THÔNG NOEL?! HAHAHA! TA LÀ QUOC! CHÚA TỂ NHẬT THỰC!' },
+    { w: 'ember', en: 'Then watch us, Quoc. TOGETHER!', vi: 'Vậy hãy xem chúng tôi, Quoc. CÙNG NHAU!' }
+  ];
+  const SY_CAMEO = {
+    2: {
+      pre: [
+        { en: 'Hm. The Golem is sleeping on the job. Allow me. *snaps fingers* ARISE, my little experiment!', vi: 'Hm. Người Khổng Lồ đang ngủ gật khi làm việc. Để ta. *búng tay* TRỖI DẬY, thí nghiệm bé nhỏ của ta!' },
+        { en: 'I am Sy, one of Quoc\'s two hands. Do not worry, boy. I will not fight you today. Today... I only watch.', vi: 'Ta là Sy, một trong hai cánh tay của Quoc. Đừng lo, nhóc. Hôm nay ta sẽ không đánh nhau với nhóc. Hôm nay... ta chỉ xem.' }
+      ],
+      post: [
+        { en: 'Impressive. The Golem lasted longer than I bet. Keep the shiny dust, boy.', vi: 'Ấn tượng. Người Khổng Lồ trụ lâu hơn ta cược. Cứ giữ lấy bụi lấp lánh đi, nhóc.' },
+        { en: 'We will meet again at the Citadel. Bring your little leek.', vi: 'Chúng ta sẽ gặp lại ở Thành Trì. Nhớ mang theo cây hành bé nhỏ của nhóc.' }
+      ] },
+    4: {
+      pre: [
+        { en: 'The Frost King. A prince of ice. Quoc told me to wake him, but I like him better angry.', vi: 'Vua Băng. Một hoàng tử của băng giá. Quoc bảo ta đánh thức ông ta, nhưng ta thích ông ta khi nổi giận hơn.' },
+        { en: '*shatters the ice cage* WAKE UP, Majesty! A lantern has come to melt you!', vi: '*đập vỡ lồng băng* DẬY ĐI, Bệ hạ! Có một chiếc đèn đến để làm tan chảy ngài!' }
+      ],
+      post: [
+        { en: 'Tsk. He melted faster than my notes predicted. Quoc is very, very angry now.', vi: 'Chậc. Ông ta tan nhanh hơn ghi chép của ta dự đoán. Quoc đang rất, rất giận.' },
+        { en: 'Run along, little flame. I will tell him you said hello.', vi: 'Đi đi, ngọn lửa nhỏ. Ta sẽ nói với hắn là nhóc gửi lời chào.' }
+      ] }
+  };
+  const bpc = () => (Q && Q.boss && Q.boss.cfg && Q.boss.cfg.proj) || Q.B.proj;
+
   // ---------- caches ----------
   const tileCache = {}, bgCache = {};
   const tiles = li => tileCache[li] || (tileCache[li] = buildTileset(BIOMES[li]));
@@ -715,7 +853,7 @@
       ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), trials: [], trialsDone: new Set(), rings: [], ghosts: [], corpses: [], zones: [], tmpCells: [], dragon: null, dragons: [], dragonsDone: new Set(), tmpCells2: 0, windT: 0, windDir: 1, darkBoost: 0, darkBoostT: 0, nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
       cam: { x: 0, y: 0 }, coinsRun: 0, time: 0, safe: { x: P.x, y: P.y }, menu: 0,
       dj: li >= 1 || save.cleared.indexOf(0) >= 0, dashAb: li >= 3 || save.cleared.indexOf(2) >= 0,
-      arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0
+      arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0, minisDone: new Set(), mainBoss: null, mainArena: null, syFig: null
     };
     if (!save.shards[li]) save.shards[li] = [0, 0, 0];
     initGear();
@@ -734,6 +872,8 @@
     Q.rings = []; Q.ghosts = []; Q.corpses = []; Q.zones = []; cleanupCells(); Q.windT = 0; Q.darkBoost = 0; Q.darkBoostT = 0; Q.dragon = null;
     for (const t of L.dragons) for (let y = 0; y < t.gy; y++) { L.grid[y][t.lw] = ' '; L.grid[y][t.rw] = ' '; }
     Q.dragons = L.dragons.map(t => Object.assign({}, t, { state: Q.dragonsDone.has(t.id) ? 'done' : 'idle' }));
+    for (const m of (L.minis || [])) for (let y = 0; y < m.gy; y++) { L.grid[y][m.lw] = ' '; L.grid[y][m.rw] = ' '; }
+    Q.minis = (L.minis || []).map(m => Object.assign({}, m, { state: Q.minisDone.has(m.id) ? 'done' : 'idle' })); Q.syFig = null;
     for (const gd of L.gates) { const open = Q.solved.has(gd.id); for (let y = gd.y0; y <= gd.y1; y++) L.grid[y][gd.x] = open ? ' ' : 'G'; }
     for (const w of L.xwalls) for (const t of w.tiles) L.grid[t[1]][t[0]] = Q.brokenX.has(t[0] + ',' + t[1]) ? ' ' : 'X';
     Q.gates = L.gates.map(gd => Object.assign({}, gd, { open: Q.solved.has(gd.id), seqIdx: 0, timer: 0, levers: 0 }));
@@ -774,6 +914,7 @@
     return e;
   }
   function makeBoss(s) {
+    if (Q.li === 6) return makeFormBoss(FORMS.quoc, s.x, s.y, { id: 'quoc', who: 'quoc' });
     const c = BOSS[Q.li], hp = Math.round(c.hp * (1 + 0.02 * totalShards()));
     return { isBoss: true, cfg: c, spr: bossSprite(Q.li), x: s.x - c.w / 2, y: s.y - c.h, w: c.w, h: c.h, vx: 0, vy: 0, hp, max: 0, dir: -1, st: 'sleep', timer: 0, flash: 0, t: 0, sk: null, atkSk: null, lastSk: null, onGround: false, noOneWay: true, n: 0, phase: 0, shield: 0, evCd: 1, invul: 0, hide: false, closeT: 0, fury: 1, armor: c.armor };
   }
@@ -872,6 +1013,7 @@
     P.hp = maxHP(); P.vx = P.vy = 0; P.inv = 1.5; P.atk = 0; P.dash = 0;
     const sp = Q.cp ? { x: Q.cp.x - P.w / 2, y: Q.cp.y - P.h } : { x: L.start.x, y: L.start.y - P.h };
     P.x = sp.x; P.y = sp.y; Q.safe = { x: P.x, y: P.y };
+    if (Q.mainArena) { Q.L.arena = Q.mainArena; Q.mainArena = null; Q.mainBoss = null; }
     if (Q.arenaSealed) unseal();
     Q.arenaSealed = false; Q.bossDead = false; Q.bossDeadDone = false;
     resetGearFx();
@@ -886,6 +1028,8 @@
     Q.boss.st = 'intro'; Q.boss.max = Q.boss.hp;
     Snd.creature(Q.li, 'alert', true); Snd.music('boss', BOSS_MUSIC); setEmo('angry', 2.6);
     Q.shake = 0.6;
+    if (Q.li === 6) startScripted('quoc', QUOC_PRE, () => { Q.state = 'bossintro'; Q.stateT = 0; });
+    else syCameoPre();
   }
   function unseal() { const L = Q.L, ar = L.arena; for (let y = 0; y < ar.gy; y++) L.grid[y][ar.x0 + 1] = ' '; }
 
@@ -1109,12 +1253,15 @@
     if (!b.t1 && pct < 0.66) { b.t1 = 1; Q.items.push({ kind: 'heart', x: b.x + b.w / 2, y: b.y - 10, id: -1, vy: -150, vx: 0, ph: 0, drop: true }); }
     if (!b.t2 && pct < 0.33) { b.t2 = 1; Q.items.push({ kind: 'heart', x: b.x + b.w / 2, y: b.y - 10, id: -1, vy: -150, vx: 0, ph: 0, drop: true }); }
     if (b.hp <= 0) {
+      if (nextForm(b)) return;
+      if (b.mini) { miniDeath(b); return; }
       b.dead = true; Q.bossDead = true; Q.bossDeadT = 0; Q.bossBooms = 0; Q.freeze = 0.25; Q.shake = 1;
       Snd.play('boom'); Snd.stop(); Q.zones.length = 0; cleanupCells(); Q.windT = 0; Q.darkBoost = 0;
       Q.ents.forEach(e => { if (!e.dead) { e.dead = true; emit(e.x, e.y, 10, { col: '#fff' }); } });
       Q.projs.length = 0;
       const ar = Q.L.arena;
       Q.items.push({ kind: 'frag', x: clamp(b.x + b.w / 2, (ar.x0 + 5) * TS, (ar.x1 - 5) * TS), y: ar.gy * TS - 22, id: -1, ph: 0 });
+      syCameoPost();
     }
   }
   function updateBossDeath(dt) {
@@ -1123,7 +1270,7 @@
     if (Q.bossBooms < 5 && Q.bossDeadT > Q.bossBooms * 0.15) { Q.bossBooms++; Snd.play('boom'); emit(b.x + rr(0, b.w), b.y + rr(0, b.h), 30, { col: ['#fff', '#ffd34e', '#f08a2b', '#e0453a'], sp0: 30, sp1: 160 }); }
     if (Q.bossDeadT > 1.4) { Q.bossDeadDone = true; unseal(); Q.arenaSealed = false; Snd.play('win'); Snd.music('lvl' + Q.li, Q.B.music); }
   }
-  function firePr(x, y, vx, vy, o) { Q.projs.push(Object.assign({ x, y, vx, vy, life: 4, grav: 0, col: Q.B.proj, type: 'ball', boss: false }, o || {})); if (!(o && o.silent)) Snd.play('shoot'); if (o && o.boss && Q.boss && !Q.boss.dead) Q.boss.kick = 0.16; }
+  function firePr(x, y, vx, vy, o) { Q.projs.push(Object.assign({ x, y, vx, vy, life: 4, grav: 0, col: bpc(), type: 'ball', boss: false }, o || {})); if (!(o && o.silent)) Snd.play('shoot'); if (o && o.boss && Q.boss && !Q.boss.dead) Q.boss.kick = 0.16; }
 
   function burrowTick(e, dt, dx) {
     const c = e.cfg;
@@ -1214,9 +1361,9 @@
         case 'ghost': {
           const near = Math.abs(dx) < 150 && Math.abs(dy) < 110;
           e.blT = (e.blT === undefined ? rr(2, 4) : e.blT) - dt;
-          if (e.st === 'fade') { e.stT -= dt; if (e.stT <= 0) { const sd = Math.random() < 0.5 ? -1 : 1; e.x = P.x + 4 + sd * 70 - e.w / 2; e.y = P.y - 12; e.st = 'appear'; e.stT = 0.3; emit(e.x + e.w / 2, e.y + e.h / 2, 10, { col: [Q.B.proj, '#fff'], sp0: 10, sp1: 50 }); Snd.play('poof'); } break; }
+          if (e.st === 'fade') { e.stT -= dt; if (e.stT <= 0) { const sd = Math.random() < 0.5 ? -1 : 1; e.x = P.x + 4 + sd * 70 - e.w / 2; e.y = P.y - 12; e.st = 'appear'; e.stT = 0.3; emit(e.x + e.w / 2, e.y + e.h / 2, 10, { col: [bpc(), '#fff'], sp0: 10, sp1: 50 }); Snd.play('poof'); } break; }
           if (e.st === 'appear') { e.stT -= dt; if (e.stT <= 0) { e.st = 'patrol'; e.blT = rr(4, 6); } break; }
-          if (c.blink && near && e.blT <= 0) { e.st = 'fade'; e.stT = 0.3; Snd.play('poof'); emit(e.x + e.w / 2, e.y + e.h / 2, 8, { col: [Q.B.proj, '#fff'], sp0: 10, sp1: 40 }); break; }
+          if (c.blink && near && e.blT <= 0) { e.st = 'fade'; e.stT = 0.3; Snd.play('poof'); emit(e.x + e.w / 2, e.y + e.h / 2, 8, { col: [bpc(), '#fff'], sp0: 10, sp1: 40 }); break; }
           if (near) { const d = Math.hypot(dx, dy) || 1; e.vx = lerp(e.vx, dx / d * e.sp, 0.03); e.vy = lerp(e.vy, dy / d * e.sp, 0.03); }
           else { e.vx = lerp(e.vx, Math.sin(e.t) * 12, 0.05); e.vy = lerp(e.vy, Math.cos(e.t * 1.3) * 10, 0.05); }
           e.dir = e.vx > 0 ? 1 : -1; e.x += e.vx * dt; e.y += e.vy * dt; break;
@@ -1234,6 +1381,83 @@
     Q.ents = Q.ents.filter(e => !e.dead);
   }
 
+  // ===================== MULTI-FORM BOSSES, MINI-BOSS ARENAS, CAMEOS =====================
+  function makeFormBoss(forms, cx, gyPx, extra) {
+    const c = forms[0], hp = Math.round(c.hp * (1 + 0.02 * totalShards()));
+    return Object.assign({ isBoss: true, forms, fi: 0, cfg: c, spr: formSprite(c.spr), x: cx - c.w / 2, y: gyPx - c.h, w: c.w, h: c.h, vx: 0, vy: 0, hp, max: hp, dir: -1, st: 'sleep', timer: 0, flash: 0, t: 0, sk: null, atkSk: null, lastSk: null, onGround: false, noOneWay: true, n: 0, phase: 0, shield: 0, evCd: 1, invul: 0, hide: false, closeT: 0, fury: 1, armor: c.armor }, extra || {});
+  }
+  function applyForm(b, idx) {
+    const c = b.forms[idx], cx = b.x + b.w / 2, bot = b.y + b.h, hp = Math.round(c.hp * (1 + 0.02 * totalShards()));
+    b.fi = idx; b.cfg = c; b.spr = formSprite(c.spr); b.w = c.w; b.h = c.h; b.x = cx - b.w / 2; b.y = bot - b.h - 2;
+    b.hp = b.max = hp; b.armor = c.armor; b.phase = 0; b.t1 = b.t2 = 0; b.st = 'rec'; b.timer = 1.1; b.invul = 1.8; b.sk = null; b.atkSk = null; b.shield = 0; b.guard = 0; b.cloak = false; b.hide = false; b.vx = 0; b.vy = 0;
+    Q.shake = 1; Q.freeze = 0.1; Snd.creature(Q.li, 'alert', true); Snd.play('boom');
+    emit(b.x + b.w / 2, b.y + b.h / 2, 50, { col: [bpc(), '#fff', '#ffd34e'], sp0: 40, sp1: 180 }); addRing(b.x + b.w / 2, b.y + b.h, bpc(), 110, 0.7);
+    Q.msg = LN(c.name); Q.msgT = 3;
+  }
+  function nextForm(b) {
+    if (!b.forms || b.fi >= b.forms.length - 1) return false;
+    const idx = b.fi + 1;
+    b.hp = 1; b.invul = 99; Q.projs.length = 0; Q.zones.length = 0; cleanupCells(); Q.windT = 0; Q.darkBoost = 0;
+    Q.ents.forEach(e => { if (!e.dead) { e.dead = true; emit(e.x, e.y, 8, { col: '#fff' }); } });
+    Snd.play('boom'); Q.shake = 1;
+    emit(b.x + b.w / 2, b.y + b.h / 2, 40, { col: ['#fff', '#ffd34e', bpc()], sp0: 30, sp1: 160 });
+    const who = b.who || 'quoc', lines = (FORM_LINES[b.id] || {})[idx];
+    if (b.id === 'quoc' && idx === 2) startScripted('quoc', ALLY_STORY, () => { applyForm(b, idx); spawnAllies(); });
+    else if (lines) startScripted(who, lines, () => applyForm(b, idx));
+    else applyForm(b, idx);
+    return true;
+  }
+  function miniDeath(b) {
+    const m = b.mini; b.dead = true; b.hp = 0; Q.freeze = 0.2; Q.shake = 1; Snd.play('boom'); Snd.stop();
+    Q.projs.length = 0; Q.zones.length = 0; cleanupCells(); Q.windT = 0; Q.darkBoost = 0;
+    Q.ents.forEach(e => { if (!e.dead) { e.dead = true; emit(e.x, e.y, 10, { col: '#fff' }); } });
+    for (let i = 0; i < 5; i++) later(i * 0.18, () => { Snd.play('boom'); emit(b.x + rr(0, b.w), b.y + rr(0, b.h), 26, { col: ['#fff', '#ffd34e', bpc()], sp0: 30, sp1: 150 }); });
+    later(1.3, () => startScripted(m.who, MINI[m.who].outro, () => finishMini(b)));
+  }
+  function finishMini(b) {
+    const m = b.mini, L = Q.L;
+    for (let y = 0; y < m.gy; y++) { L.grid[y][m.lw] = ' '; L.grid[y][m.rw] = ' '; }
+    Q.minisDone.add(m.id); const mm = Q.minis.find(o => o.id === m.id); if (mm) mm.state = 'done';
+    addGhost(b, 'out'); addRing(b.x + b.w / 2, b.y + b.h, bpc(), 90, 0.6);
+    Q.boss = Q.mainBoss; Q.mainBoss = null; L.arena = Q.mainArena; Q.mainArena = null; Q.arenaSealed = false; Q.bossDead = false; Q.bossDeadDone = false;
+    const cx = b.x + b.w / 2;
+    for (let i = 0; i < 2; i++) Q.items.push({ kind: 'heart', x: cx + (i - 0.5) * 16, y: b.y, id: -1, vy: -150, vx: (i - 0.5) * 40, ph: 0, drop: true });
+    for (let i = 0; i < 12; i++) Q.items.push({ kind: 'coin', x: cx + rr(-14, 14), y: b.y, id: -1, vy: -rr(100, 200), vx: rr(-60, 60), ph: 0, drop: true });
+    Snd.play('win'); Snd.music('lvl' + Q.li, Q.B.music); setEmo('happy', 2);
+  }
+  function beginMini(m) {
+    const L = Q.L, def = MINI[m.who];
+    Q.mainBoss = Q.boss; Q.mainArena = L.arena; L.arena = { x0: m.lw, x1: m.rw, gy: m.gy };
+    const b = makeFormBoss(def.forms, (m.lw + m.rw) / 2 * TS + 48, m.gy * TS, { id: m.who, who: m.who, mini: m });
+    b.st = 'intro'; b.timer = 0; Q.boss = b; Q.arenaSealed = true; Q.bossDead = false;
+    Q.state = 'bossintro'; Q.stateT = 0; Snd.music('boss', BOSS_MUSIC); setEmo('angry', 2.6); Snd.creature(Q.li, 'alert', true); Q.shake = 0.6;
+  }
+  function updateMiniEnc() {
+    const P = Q.P;
+    if (!Q.minis) return;
+    for (const m of Q.minis) {
+      if (m.state !== 'idle') continue;
+      if (P.x > m.trig * TS && P.x < m.rw * TS - 8 && P.onGround && Q.state === 'play' && !Q.arenaSealed) {
+        m.state = 'active';
+        for (let y = 0; y < m.gy; y++) { Q.L.grid[y][m.lw] = 'G'; Q.L.grid[y][m.rw] = 'G'; }
+        Snd.play('gate'); Q.shake = 0.8; setEmo('scared', 2);
+        startScripted(m.who, MINI[m.who].intro, () => beginMini(m));
+      }
+    }
+  }
+  // Mr Sy watches from a ledge on maps 3 and 5: he wakes the boss before the fight and speaks when it falls
+  function syPoof() { const f = Q.syFig; if (!f) return; emit(f.x, f.y - 12, 30, { col: ['#7ed957', '#2f7a4a', '#fff'], sp0: 20, sp1: 100 }); addRing(f.x, f.y, '#7ed957', 50, 0.5); Snd.play('poof'); Q.syFig = null; }
+  function syCameoPre() {
+    const cam = SY_CAMEO[Q.li], ar = Q.L.arena; if (!cam) return false;
+    Q.syFig = { x: (ar.x0 + 9) * TS, y: (ar.gy - 3) * TS }; emit(Q.syFig.x, Q.syFig.y - 12, 24, { col: ['#7ed957', '#fff'], sp0: 20, sp1: 90 }); Snd.play('poof');
+    startScripted('sy', cam.pre, () => { Q.state = 'bossintro'; Q.stateT = 0; });
+    return true;
+  }
+  function syCameoPost() {
+    const cam = SY_CAMEO[Q.li]; if (!cam || !Q.syFig) return;
+    later(1.6, () => { if (Q.state === 'play' && Q.syFig) startScripted('sy', cam.post, () => syPoof()); else syPoof(); });
+  }
+
   // ===================== BOSS AI =====================
   const bc = b => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 });
   function bossTargets() {
@@ -1243,12 +1467,12 @@
     return out;
   }
   function cleanupCells() { if (Q.tmpCells) for (const c of Q.tmpCells) if (Q.L.grid[c[1]][c[0]] === 'I') Q.L.grid[c[1]][c[0]] = ' '; Q.tmpCells = []; }
-  function addZone(o) { Q.zones.push(Object.assign({ t: 0, tel: 0.7, life: 0.6, dmg: 1, col: Q.B.proj, vx: 0 }, o)); }
+  function addZone(o) { Q.zones.push(Object.assign({ t: 0, tel: 0.7, life: 0.6, dmg: 1, col: bpc(), vx: 0 }, o)); }
   function shockwave(b, small) {
-    const c = bc(b); Q.shake = small ? 0.25 : 0.5; Snd.play('boom'); addRing(c.x, b.y + b.h, Q.B.proj, small ? 55 : 90, 0.5); emit(c.x, b.y + b.h, 14, { col: '#cfd6e6', sp0: 20, sp1: 80, vy: -20 });
+    const c = bc(b); Q.shake = small ? 0.25 : 0.5; Snd.play('boom'); addRing(c.x, b.y + b.h, bpc(), small ? 55 : 90, 0.5); emit(c.x, b.y + b.h, 14, { col: '#cfd6e6', sp0: 20, sp1: 80, vy: -20 });
     const sp = (small ? 70 : 95) * b.fury;
-    Q.projs.push({ x: c.x - 12, y: b.y + b.h - 6, vx: -sp, vy: 0, life: 1.8, grav: 0, col: Q.B.proj, type: 'wave', boss: true });
-    Q.projs.push({ x: c.x + 12, y: b.y + b.h - 6, vx: sp, vy: 0, life: 1.8, grav: 0, col: Q.B.proj, type: 'wave', boss: true });
+    Q.projs.push({ x: c.x - 12, y: b.y + b.h - 6, vx: -sp, vy: 0, life: 1.8, grav: 0, col: bpc(), type: 'wave', boss: true });
+    Q.projs.push({ x: c.x + 12, y: b.y + b.h - 6, vx: sp, vy: 0, life: 1.8, grav: 0, col: bpc(), type: 'wave', boss: true });
   }
   function bounceJump(b) { const P = Q.P; b.vy = -270; b.vx = clamp((P.x - b.x) * 1.5, -140, 140); b.onGround = false; b.jt = 0; }
   const wait = (b, dt) => { b.skT -= dt; return b.skT <= 0; };
@@ -1259,11 +1483,11 @@
     bounce3: { tele: 0.5, start(b) { b.n = 3; bounceJump(b); }, upd(b, dt) { b.jt += dt; moveX(b, b.vx * dt); if (b.onGround && b.jt > 0.18) { shockwave(b, true); if (--b.n > 0) bounceJump(b); else return true; } } },
     charge: { tele: 0.6, start(b) { b.dir = Q.P.x < b.x ? -1 : 1; b.skT = 1.3; b.recAfter = 1.1; }, upd(b, dt) { b.skT -= dt; if (moveX(b, b.dir * 155 * b.fury * dt)) { Q.shake = 0.4; Snd.play('boom'); return true; } if (Math.random() < 0.5) emit(b.x + b.w / 2 - b.dir * b.w / 2, b.y + b.h, 1, { col: '#cfd6e6', sp0: 5, sp1: 20, vy: -10, grav: 20 }); return b.skT <= 0; } },
     shoot: { tele: 0.55, start(b) { b.n = 2 + (Q.li > 3 ? 1 : 0); b.skT = 0; }, upd(b, dt) { b.skT -= dt; if (b.skT <= 0) { const c = bc(b), P = Q.P, a0 = Math.atan2(P.y + 7 - c.y, P.x + 4 - c.x), k = Q.li > 4 ? 2 : 1; for (let i = -k; i <= k; i++) firePr(c.x, c.y, Math.cos(a0 + i * 0.28) * 105, Math.sin(a0 + i * 0.28) * 105, { boss: true }); if (--b.n <= 0) return true; b.skT = 0.55 / b.fury; } } },
-    rain: { tele: 0.5, start(b) { b.skT = 2.4; b.drop = 0; }, upd(b, dt) { b.skT -= dt; b.drop -= dt; const ar = Q.L.arena; if (b.drop <= 0) { b.drop = 0.2 / b.fury; Q.projs.push({ x: rr((ar.x0 + 3) * TS, (ar.x1 - 2) * TS), y: (ar.gy - 12) * TS, vx: 0, vy: 30, life: 3, grav: 260, col: Q.B.proj, type: 'fall', boss: true }); } return b.skT <= 0; } },
+    rain: { tele: 0.5, start(b) { b.skT = 2.4; b.drop = 0; }, upd(b, dt) { b.skT -= dt; b.drop -= dt; const ar = Q.L.arena; if (b.drop <= 0) { b.drop = 0.2 / b.fury; Q.projs.push({ x: rr((ar.x0 + 3) * TS, (ar.x1 - 2) * TS), y: (ar.gy - 12) * TS, vx: 0, vy: 30, life: 3, grav: 260, col: bpc(), type: 'fall', boss: true }); } return b.skT <= 0; } },
     spin: { tele: 0.55, start(b) { b.n = 2 + (Q.li > 4 ? 1 : 0); b.skT = 0; b.rot = 0; b.recAfter = 1.0; }, upd(b, dt) { b.skT -= dt; if (b.skT <= 0) { const c = bc(b); b.rot += 0.26; for (let i = 0; i < 12; i++) { const a = b.rot + i / 12 * Math.PI * 2; firePr(c.x, c.y, Math.cos(a) * 80, Math.sin(a) * 80, { boss: true }); } if (--b.n <= 0) return true; b.skT = 0.8 / b.fury; } } },
     summon: { tele: 0.5, start(b) {
       let alive = Q.ents.filter(e => !e.dead).length;
-      for (let i = 0; i < 3 && alive < 5; i++, alive++) { const m = makeEnemy(b.cfg.minion, b.x + b.w / 2 + (i - 1) * 34, b.y + b.h - 4, { minion: true }); if (!m.fly) m.vy = -150; m.alerted = true; Q.ents.push(m); emit(m.x, m.y, 10, { col: Q.B.proj }); }
+      for (let i = 0; i < 3 && alive < 5; i++, alive++) { const m = makeEnemy(b.cfg.minion, b.x + b.w / 2 + (i - 1) * 34, b.y + b.h - 4, { minion: true }); if (!m.fly) m.vy = -150; m.alerted = true; Q.ents.push(m); emit(m.x, m.y, 10, { col: bpc() }); }
       Snd.creature(Q.li, 'alert', true); b.skT = 0.8; }, upd: wait },
     splitslime: { tele: 0.5, start(b) { for (let i = 0; i < 3; i++) { const m = makeEnemy('slime', b.x + b.w / 2 + (i - 1) * 30, b.y + b.h - 4, { minion: true, v: 'small' }); m.vy = -170; m.alerted = true; Q.ents.push(m); emit(m.x, m.y, 8, { col: '#a4e86b' }); } Snd.creature('slime', 'alert'); b.skT = 0.9; }, upd: wait },
     goo: { tele: 0.5, start(b) { const P = Q.P; for (let i = -1; i <= 1; i++) { const x = arenaClamp(P.x + 4 + i * 44 + rr(-8, 8)); addZone({ type: 'goo', x: x - 18, y: groundYAt(x) - 5, w: 36, h: 5, tel: 0.4, life: 6, col: '#7a4cff' }); } b.skT = 0.9; Snd.play('flame'); }, upd: wait },
@@ -1314,7 +1538,7 @@
         if (b.ph === 0 && b.vy > 0) { b.ph = 1; b.vy = 540; Snd.play('whoosh'); }
         if (b.ph === 1 && b.onGround) { shockwave(b); const c = bc(b); for (let i = 1; i <= 4; i++) for (const sg of [-1, 1]) { const x = arenaClamp(c.x + sg * i * 24); addZone({ type: 'spike', x: x - 7, y: groundYAt(x) - 30, w: 14, h: 30, tel: 0.15 + i * 0.08, life: 0.4 }); } return true; }
       } },
-    roar: { tele: 0.6, start(b) { Q.shake = 0.9; Snd.creature(Q.li, 'alert', true); const c = bc(b); addRing(c.x, b.y + b.h, Q.B.proj, 95, 0.7); shockwave(b, true); b.kick = 0.16; b.skT = 1.0; b.rt = 0; }, upd(b, dt) { b.skT -= dt; b.rt -= dt; if (b.rt <= 0 && b.skT > 0.3) { b.rt = 0.28; addRing(b.x + b.w / 2, b.y + b.h, Q.B.proj, 70, 0.5); } return b.skT <= 0; } },
+    roar: { tele: 0.6, start(b) { Q.shake = 0.9; Snd.creature(Q.li, 'alert', true); const c = bc(b); addRing(c.x, b.y + b.h, bpc(), 95, 0.7); shockwave(b, true); b.kick = 0.16; b.skT = 1.0; b.rt = 0; }, upd(b, dt) { b.skT -= dt; b.rt -= dt; if (b.rt <= 0 && b.skT > 0.3) { b.rt = 0.28; addRing(b.x + b.w / 2, b.y + b.h, bpc(), 70, 0.5); } return b.skT <= 0; } },
     guard: { tele: 0.4, start(b) { b.guard = 3; b.skT = 3; b.recAfter = 0.4; Snd.play('gate'); addRing(b.x + b.w / 2, b.y + b.h, '#6ee7f2', 50, 0.5); }, upd: wait },
     cloak: { tele: 0.5, start(b) { b.cloak = true; b.skT = 3.0; b.ph = 0; addGhost(b, 'out'); Snd.whisper(); Snd.play('poof'); },
       upd(b, dt) {
@@ -1325,10 +1549,14 @@
           if (Math.abs(dx) < 48 || b.skT <= 0) { b.ph = 1; b.cloak = false; b.revT = 0.3; b.vy = -210; b.onGround = false; b.jt = 0; b.vx = 0; addGhost(b, 'in'); Snd.creature(Q.li, 'attack', true); Snd.play('poof'); }
         } else { b.jt += dt; if (b.onGround && b.jt > 0.15) { shockwave(b); return true; } }
       } },
-    clone: { tele: 0.6, start(b) { const ar = Q.L.arena; for (let i = 0; i < 2; i++) { const m = makeEnemy('eclipseclone', (ar.x0 + 8 + i * 14) * TS, ar.gy * TS, { minion: true, v: 'big' }); m.alerted = true; Q.ents.push(m); emit(m.x, m.y, 14, { col: ['#a15be0', '#fff'], sp0: 20, sp1: 80 }); } Snd.creature(Q.li, 'alert', true); b.skT = 0.9; }, upd: wait }
+    clone: { tele: 0.6, start(b) { const ar = Q.L.arena; for (let i = 0; i < 2; i++) { const m = makeEnemy('eclipseclone', (ar.x0 + 8 + i * 14) * TS, ar.gy * TS, { minion: true, v: 'big' }); m.alerted = true; Q.ents.push(m); emit(m.x, m.y, 14, { col: ['#a15be0', '#fff'], sp0: 20, sp1: 80 }); } Snd.creature(Q.li, 'alert', true); b.skT = 0.9; }, upd: wait },
+    fan: { tele: 0.55, start(b) { b.n = 2; b.skT = 0; }, upd(b, dt) { b.skT -= dt; if (b.skT <= 0) { const c = bc(b), P = Q.P, a0 = Math.atan2(P.y + 7 - c.y, P.x + 4 - c.x); for (let i = -4; i <= 4; i++) firePr(c.x, c.y, Math.cos(a0 + i * 0.2) * 95, Math.sin(a0 + i * 0.2) * 95, { boss: true }); if (--b.n <= 0) return true; b.skT = 0.75 / b.fury; } } },
+    lobs: { tele: 0.6, start(b) { const c = bc(b), P = Q.P; for (let i = 0; i < 3; i++) { const tx = arenaClamp(P.x + 4 + (i - 1) * 54 + rr(-12, 12)), t = 0.95 + i * 0.22; Q.projs.push({ x: c.x, y: c.y, vx: (tx - c.x) / t, vy: -160, grav: 320, life: 3, col: bpc(), type: 'ball', boss: true, big: true, onLand: 'poison' }); } Snd.play('shoot'); b.skT = 1.4; }, upd: wait },
+    crossBeam: { tele: 0.9, start(b) { const ar = Q.L.arena, gt = ar.gy * TS; addZone({ type: 'beam', x: ar.x0 * TS + 8, y: gt - 9, w: (ar.x1 - ar.x0) * TS - 16, h: 10, tel: 0.9, life: 0.5 }); addZone({ type: 'beam', x: ar.x0 * TS + 8, y: gt - 27, w: (ar.x1 - ar.x0) * TS - 16, h: 10, tel: 1.8, life: 0.5 }); b.skT = 2.8; Snd.play('flame'); }, upd: wait },
+    rush: { tele: 0.55, start(b) { b.n = 3; b.dir = Q.P.x < b.x ? -1 : 1; b.skT = 0.8; b.recAfter = 1.0; }, upd(b, dt) { b.skT -= dt; const hit = moveX(b, b.dir * 190 * b.fury * dt); if (Math.random() < 0.6) emit(b.x + b.w / 2 - b.dir * b.w / 2, b.y + b.h, 1, { col: '#cfd6e6', sp0: 5, sp1: 25, vy: -10, grav: 20 }); if (hit || b.skT <= 0) { Q.shake = 0.3; Snd.play('boom'); if (--b.n <= 0) return true; b.dir = Q.P.x < b.x ? -1 : 1; b.skT = 0.8; } } }
   };
   function groundYAt(x) { const tx = Math.floor(x / TS); for (let ty = 3; ty < Q.L.H; ty++) if (solid(tx, ty)) return ty * TS; return Q.L.arena.gy * TS; }
-  const MELEE = ['jump', 'stomp', 'charge', 'erupt', 'teleport', 'bounce3', 'ambush', 'slam', 'cloak'], RANGED = ['shoot', 'web', 'spit', 'curse', 'breath', 'rain', 'beam', 'meteor', 'lavaCols', 'sweep', 'spin'];
+  const MELEE = ['jump', 'stomp', 'charge', 'erupt', 'teleport', 'bounce3', 'ambush', 'slam', 'cloak', 'rush'], RANGED = ['shoot', 'web', 'spit', 'curse', 'breath', 'rain', 'beam', 'meteor', 'lavaCols', 'sweep', 'spin', 'fan', 'lobs', 'crossBeam'];
   function pickSkill(b) {
     const c = b.cfg, P = Q.P; let list = c.skills.slice();
     if (b.phase >= 1 && c.skills2) list = list.concat(c.skills2);
@@ -1352,7 +1580,7 @@
     if (b.st === 'sleep') return;
     if (b.st === 'intro') { b.timer += dt; if (b.timer > 2.2) { b.st = 'wait'; b.timer = 0.8; Q.state = 'play'; } return; }
     const pct = b.hp / b.max, ph = pct < 0.33 ? 2 : (pct < 0.66 ? 1 : 0);
-    if (ph > b.phase) { b.phase = ph; b.invul = 1.0; Q.shake = 0.8; Snd.creature(Q.li, 'alert', true); emit(b.x + b.w / 2, b.y + b.h / 2, 30, { col: ['#fff', Q.B.proj], sp0: 40, sp1: 160 }); Q.msg = save.lang === 'vi' ? 'Boss nổi điên!' : 'The boss is enraged!'; Q.msgT = 3; }
+    if (ph > b.phase) { b.phase = ph; b.invul = 1.0; Q.shake = 0.8; Snd.creature(Q.li, 'alert', true); emit(b.x + b.w / 2, b.y + b.h / 2, 30, { col: ['#fff', bpc()], sp0: 40, sp1: 160 }); Q.msg = save.lang === 'vi' ? 'Boss nổi điên!' : 'The boss is enraged!'; Q.msgT = 3; }
     if (b.hide) { const sk = BS[b.sk]; if (sk && sk.upd(b, dt)) endSkill(b); return; }
     b.vy = Math.min(420, b.vy + GRAV * dt);
     const cxm = b.x + b.w / 2, cym = b.y + b.h / 2, dxp = (P.x + 4) - cxm;
@@ -1429,7 +1657,7 @@
       drawSprT(g, c.spr, c.x - camX, c.bot - camY, c.flip, c.t < 0.09, sc, sc, c.rot, 1 - k);
     }
   }
-  const SLAM_L = ['jump', 'stomp', 'bounce3', 'slam', 'ambush'], RANGE_L = ['shoot', 'web', 'spit', 'curse', 'breath', 'spin', 'rain', 'beam'], CAST_L = ['summon', 'splitslime', 'goo', 'erupt', 'tornado', 'dark', 'clone', 'meteor', 'lavaCols', 'sweep', 'roar', 'wall', 'blizzard'];
+  const SLAM_L = ['jump', 'stomp', 'bounce3', 'slam', 'ambush'], RANGE_L = ['shoot', 'web', 'spit', 'curse', 'breath', 'spin', 'rain', 'beam', 'fan', 'lobs', 'crossBeam'], CAST_L = ['summon', 'splitslime', 'goo', 'erupt', 'tornado', 'dark', 'clone', 'meteor', 'lavaCols', 'sweep', 'roar', 'wall', 'blizzard'];
   function bossPose(b) {
     const t = b.t, dir = b.dir < 0 ? -1 : 1, sk = b.st === 'tele' ? b.atkSk : b.sk, br = Math.sin(t * 3);
     let sx = 1, sy = 1, rot = 0, ox = 0, oy = 0, al = 1, aura = null, circle = false;
@@ -1437,21 +1665,21 @@
     else if (b.st === 'tele' && BS[b.atkSk]) {
       const k = clamp(1 - b.timer / (BS[b.atkSk].tele / b.fury), 0, 1), j = (Math.random() - 0.5) * 2 * k;
       if (SLAM_L.indexOf(sk) >= 0) { sy = 1 - 0.22 * k; sx = 1 + 0.14 * k; ox = j * 1.2; }
-      else if (sk === 'charge') { rot = -dir * 0.16 * k; sx = 1 + 0.06 * k; ox = -dir * 3 * k + j; }
-      else if (RANGE_L.indexOf(sk) >= 0) { sy = 1 + 0.08 * k; sx = 1 - 0.05 * k; oy = -2 * k; rot = -dir * 0.07 * k; aura = [Q.B.proj, 0.5 * k]; }
+      else if (sk === 'charge' || sk === 'rush') { rot = -dir * 0.16 * k; sx = 1 + 0.06 * k; ox = -dir * 3 * k + j; }
+      else if (RANGE_L.indexOf(sk) >= 0) { sy = 1 + 0.08 * k; sx = 1 - 0.05 * k; oy = -2 * k; rot = -dir * 0.07 * k; aura = [bpc(), 0.5 * k]; }
       else if (sk === 'guard' || sk === 'shield') { sy = 1 - 0.1 * k; sx = 1 + 0.1 * k; aura = ['#6ee7f2', 0.5 * k]; }
       else if (sk === 'cloak' || sk === 'teleport') { sx = 1 - 0.3 * k; sy = 1 + 0.1 * k; al = 1 - 0.55 * k; aura = ['#a15be0', 0.5 * k]; }
-      else { oy = -5 * k; sy = 1 + 0.1 * k; rot = j * 0.05; aura = [Q.B.proj, 0.6 * k]; circle = true; }
+      else { oy = -5 * k; sy = 1 + 0.1 * k; rot = j * 0.05; aura = [bpc(), 0.6 * k]; circle = true; }
     } else if (b.st === 'act') {
       if (SLAM_L.indexOf(b.sk) >= 0 && !b.onGround) { const st = clamp(Math.abs(b.vy) / 1400, 0, 0.2); sy = 1 + st; sx = 1 - st * 0.7; rot = dir * 0.05; }
-      else if (b.sk === 'charge') { sx = 1.14; sy = 0.92; rot = dir * 0.2; }
+      else if (b.sk === 'charge' || b.sk === 'rush') { sx = 1.14; sy = 0.92; rot = dir * 0.2; }
       else if (b.sk === 'guard' || b.sk === 'shield') { sy = 0.92; sx = 1.08; }
-      else if (CAST_L.indexOf(b.sk) >= 0) { oy = -4 + Math.sin(t * 6) * 1.2; sy = 1.05; circle = true; aura = [Q.B.proj, 0.35]; }
-      else if (RANGE_L.indexOf(b.sk) >= 0) { sy = 1.03; aura = [Q.B.proj, 0.25]; }
+      else if (CAST_L.indexOf(b.sk) >= 0) { oy = -4 + Math.sin(t * 6) * 1.2; sy = 1.05; circle = true; aura = [bpc(), 0.35]; }
+      else if (RANGE_L.indexOf(b.sk) >= 0) { sy = 1.03; aura = [bpc(), 0.25]; }
     } else if (b.st === 'rec') { sy = 0.95 + 0.02 * Math.sin(t * 5); sx = 1.04; }
     else if (b.st === 'stun') { rot = Math.sin(t * 14) * 0.12; sy = 0.9; sx = 1.06; }
     else if (b.st === 'evade') { rot = (b.ed || 1) * -0.2; sx = 1.08; sy = 0.94; }
-    else if (b.st === 'intro') { const k = Math.min(1, b.timer / 1.2); sy = 0.8 + 0.2 * k; sx = 1.1 - 0.1 * k; aura = [Q.B.proj, 0.4 * (1 - k)]; }
+    else if (b.st === 'intro') { const k = Math.min(1, b.timer / 1.2); sy = 0.8 + 0.2 * k; sx = 1.1 - 0.1 * k; aura = [bpc(), 0.4 * (1 - k)]; }
     if (b.squashT > 0) { const k = b.squashT / 0.22; sy *= 1 - 0.32 * k; sx *= 1 + 0.28 * k; }
     if (b.kick > 0) { const k = b.kick / 0.16; sx *= 1 + 0.12 * k; ox -= dir * 3 * k; }
     if (b.cloak) al = 0.1 + 0.07 * Math.sin(t * 9);
@@ -1694,7 +1922,7 @@
     const tk = Q.talk; tk.t += dt;
     const full = tk.lines[tk.i][save.lang].length;
     { const ln = tk.lines[tk.i][save.lang], n0 = Math.floor((tk.t - dt) * 45), n1 = Math.min(ln.length, Math.floor(tk.t * 45));
-      for (let k = n0 + 1; k <= n1; k++) if (k % 2 === 0 && /\S/.test(ln[k - 1] || ' ')) Snd.blip(tk.it.who); }
+      for (let k = n0 + 1; k <= n1; k++) if (k % 2 === 0 && /\S/.test(ln[k - 1] || ' ')) Snd.blip(tk.lines[tk.i].w || tk.it.who); }
     if (act.okP || act.talkP || act.atkP) {
       if (tk.t * 45 < full) tk.t = 999;
       else { tk.i++; tk.t = 0; Snd.play('select'); if (tk.i >= tk.lines.length) endTalk(); }
@@ -1877,12 +2105,12 @@
     return null;
   }
   function initGear() {
-    Q.G = { shT: 0, regT: 0, petT: 0, flash: 0, slowT: 0, later: [], bolts: [], holes: [], god: null, dr: null, pet: null, hc: {}, kills: 0, half: 0, auraT: 0, rvSw: false, rvPet: false, rings: [], leekHeal: 0, torn: [], lyra: (Q.li === 1 && save.leek) ? { x: Q.P.x - 20, y: Q.P.y + Q.P.h, t: 0 } : null };
+    Q.G = { shT: 0, regT: 0, petT: 0, flash: 0, slowT: 0, later: [], bolts: [], holes: [], god: null, dr: null, pet: null, hc: {}, kills: 0, half: 0, auraT: 0, rvSw: false, rvPet: false, rings: [], leekHeal: 0, torn: [], allies: [], pops: [], lyra: (Q.li === 1 && save.leek) ? { x: Q.P.x - 20, y: Q.P.y + Q.P.h, t: 0 } : null };
     if (Q.G.lyra) Q.G.later.push({ t: 8, fn: () => { Q.msg = save.lang === 'vi' ? 'Công chúa Lyra đi cùng bạn! Hãy đưa cô về lâu đài.' : 'Princess Lyra follows you! Bring her safely to the castle.'; Q.msgT = 5; } });
     Q.P.wcd = [0, 0]; Q.P.wmax = [1, 1]; Q.P.sw = null;
     if (aSt('shieldT') || petRole() === 'shield') Q.P.shield = false;
   }
-  function resetGearFx() { const G = Q.G; G.later = []; G.bolts = []; G.holes = []; G.god = null; G.dr = null; G.slowT = 0; G.rvSw = false; G.rvPet = false; Q.P.wcd = [0, 0]; }
+  function resetGearFx() { const G = Q.G; G.allies = []; G.pops = []; G.later = []; G.bolts = []; G.holes = []; G.god = null; G.dr = null; G.slowT = 0; G.rvSw = false; G.rvPet = false; Q.P.wcd = [0, 0]; }
   function foes() { return Q.ents.filter(e => !e.dead && !e.hid && !(e.cfg && e.cfg.ai === 'blob' && e.st !== 'up')).concat(bossTargets()); }
   function nearestFoe(x, y, r, not) {
     let b = null, bd = r;
@@ -2084,6 +2312,8 @@
       if (d.life <= 0) G.dr = null;
     }
     if (G.lyra) { const ly = G.lyra, tx = P.x + 4 - P.face * 26, k = 1 - Math.exp(-5 * dt); ly.t += dt; ly.x += (tx - ly.x) * k; ly.y += (P.y + P.h - ly.y) * (1 - Math.exp(-12 * dt)); if (Math.hypot(tx - ly.x, P.y - ly.y) > 190) { ly.x = tx; ly.y = P.y + P.h; } if (Math.random() < 0.03) emit(ly.x + rr(-6, 6), ly.y - 22, 1, { col: ['#a4ffc0', '#6ee7f2', '#fff'], sp0: 3, sp1: 10, grav: -14, l0: 0.5, l1: 0.9 }); }
+    updateAllies(dt);
+    for (const p of G.pops) p.t -= dt; G.pops = G.pops.filter(p => p.t > 0);
     updatePet(dt);
   }
   function updatePet(dt) {
@@ -2142,6 +2372,7 @@
       for (let i = 0; i < 14; i++) { const an = Q.t * 6 + i * 0.45, rd = 8 + i * (h.r / 18); g.fillStyle = i % 2 ? '#a15be0' : '#d58bff'; g.fillRect(Math.round(x + Math.cos(an) * rd), Math.round(y + Math.sin(an) * rd * 0.5), 2, 2); }
     }
     if (G.lyra) { const ly = G.lyra, hop = Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(ly.t * 12)) * 2 : Math.sin(ly.t * 3) * 0.6; drawSpr(g, npcSpr('npc_lyra_leek'), Math.round(ly.x - camX), Math.round(ly.y - camY + hop), ly.x > P.x + 4); }
+    drawAllies(camX, camY);
     const pt = G.pet;
     if (pt) { const sp = petSprite(pt.id), fly = FLY_PET[pt.id], hop = fly ? 0 : (Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(pt.t * 14)) * 2 : 0), off = pt.lunge > 0 ? pt.tdir * 5 : 0; g.globalAlpha = pt.id === 'ghostie' ? 0.75 : 1; drawSpr(g, sp, Math.round(pt.x - camX + off), Math.round(pt.y - camY + hop), pt.f < 0); g.globalAlpha = 1; }
     if (G.god) {
@@ -2182,6 +2413,7 @@
       g.globalAlpha = a; g.strokeStyle = '#9fe8ff'; g.lineWidth = 3; g.beginPath(); b.pts.forEach((p, i) => i ? g.lineTo(p[0] - camX, p[1] - camY) : g.moveTo(p[0] - camX, p[1] - camY)); g.stroke();
       g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke(); g.globalAlpha = 1;
     }
+    for (const p of G.pops) txt(p.s, Math.round(p.x - camX), Math.round(p.y - camY - (1.3 - p.t) * 10), { al: 'center', size: 7, col: p.col, bold: true, alpha: Math.min(1, p.t * 2) });
     if (G.flash > 0) { g.globalAlpha = Math.min(0.55, G.flash * 1.6); g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
     if (G.slowT > 0) { g.globalAlpha = 0.1 + 0.05 * Math.sin(Q.t * 6); g.fillStyle = '#ffd34e'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
   }
@@ -2195,6 +2427,8 @@
     else if (sh === 'beam') { const f = p.f; g.globalCompositeOperation = 'lighter'; g.fillStyle = hexA(p.col, 0.4); g.fillRect(x - 12, y - 5, 24, 10); g.globalCompositeOperation = 'source-over'; g.fillStyle = p.col; g.fillRect(x - 11 + (f > 0 ? 0 : 2), y - 2, 20, 4); g.fillStyle = '#fff'; g.fillRect(x - 10 + (f > 0 ? 2 : 0), y - 1, 16, 1); }
     else if (sh === 'wind') { g.fillStyle = 'rgba(223,246,255,.75)'; const f = p.f; for (let i = 0; i < 5; i++) g.fillRect(x - f * i * 2 - 2, y - 6 + i * 3 - (i > 2 ? 3 : 0), 5 - (i % 2), 1 + (i === 2 ? 1 : 0)); }
     else if (sh === 'meteor') { disc(g, x, y, 5, '#6a3a2a'); disc(g, x, y, 4, '#ff7a2a'); disc(g, x, y, 2, '#ffd34e'); }
+    else if (sh === 'orb') { disc(g, x, y, 4, hexA(p.col, 0.5)); disc(g, x, y, 3, p.col); disc(g, x, y, 1, '#fff'); }
+    else if (sh === 'bat') { g.fillStyle = p.col; g.fillRect(x - 1, y - 1, 3, 3); const fl = Math.floor(Q.t * 18) % 2; g.fillRect(x - 4, y - 2 + fl * 2, 3, 1); g.fillRect(x + 2, y - 2 + fl * 2, 3, 1); g.fillStyle = '#e0453a'; g.fillRect(x, y, 1, 1); }
     else if (sh === 'spark') { g.fillStyle = '#ffd34e'; g.fillRect(x - 1, y - 2, 3, 5); g.fillRect(x - 2, y - 1, 5, 3); g.fillStyle = '#fff'; g.fillRect(x, y, 1, 1); }
     else { g.fillStyle = p.col; g.fillRect(x - 2, y - 1, 4, 3); }
   }
@@ -2219,6 +2453,50 @@
     if (petRole() === 'scout') {
       let best = null, bd = 1e9; for (const it of Q.items) if (it.kind === 'shard' && !it.dead) { const d = Math.hypot(it.x - P.x, it.y - P.y); if (d < bd) { bd = d; best = it; } }
       if (best && bd > 40) { const an = Math.atan2(best.y - P.y, best.x - P.x), cx = P.x + 4 - Q.cam.x + Math.cos(an) * 26, cy = P.y + 4 - Q.cam.y + Math.sin(an) * 26; g.save(); g.translate(Math.round(cx), Math.round(cy)); g.rotate(an); g.fillStyle = '#6ee7f2'; g.beginPath(); g.moveTo(5, 0); g.lineTo(-3, -4); g.lineTo(-3, 4); g.fill(); g.restore(); txt(Math.round(bd / 16) + 'm', cx, cy - 8, { al: 'center', size: 5, col: '#6ee7f2' }); }
+    }
+  }
+
+  // ===================== ALLIES: QuanSadBoy, HoangKiller, DuongDracular, Santree =====================
+  const ALLY = { quan: { spr: 'npc_quan', col: '#a98bff' }, hoang: { spr: 'npc_hoang', col: '#e0453a' }, duong: { spr: 'npc_duong', col: '#c0304a' }, santree: { spr: 'npc_santree', col: '#5fcf5a' } };
+  function pop(x, y, s, col) { Q.G.pops.push({ x, y, s, col: col || '#fff', t: 1.3 }); }
+  function spawnAllies() {
+    const P = Q.P, G = Q.G;
+    G.allies = ['quan', 'hoang', 'duong', 'santree'].map((id, i) => ({ id, x: P.x + (i % 2 ? 30 : -30) - i * 8, y: P.y - 20, i, cd: 1 + i * 0.7, cd2: 5 + i * 3, t: 0, f: 1, dashT: 0 }));
+    for (const a of G.allies) { emit(a.x, a.y, 20, { col: [ALLY[a.id].col, '#fff'], sp0: 30, sp1: 110 }); addRing(a.x, a.y, ALLY[a.id].col, 44, 0.5); }
+    Snd.play('relic'); Q.msg = save.lang === 'vi' ? 'Bốn người bạn gia nhập trận chiến!' : 'Four friends join the fight!'; Q.msgT = 4;
+  }
+  function updateAllies(dt) {
+    const G = Q.G, P = Q.P; if (!G.allies || !G.allies.length) return;
+    const base = baseDmg();
+    for (const a of G.allies) {
+      a.t += dt; a.cd -= dt; a.cd2 -= dt; if (a.dashT > 0) a.dashT -= dt;
+      const tx = P.x + 4 + (a.i % 2 ? 1 : -1) * (22 + a.i * 13), k = 1 - Math.exp(-5 * dt);
+      if (a.dashT <= 0) { a.x += (tx - a.x) * k; a.y += (P.y + P.h - a.y) * (1 - Math.exp(-12 * dt)); }
+      if (Math.abs(tx - a.x) > 200) { a.x = tx; a.y = P.y + P.h; }
+      const foe = nearestFoe(a.x, a.y - 12, 320); if (foe) a.f = foe.x + foe.w / 2 < a.x ? -1 : 1; else a.f = P.face;
+      const fx = foe ? foe.x + foe.w / 2 : 0, fy = foe ? foe.y + foe.h / 2 : 0;
+      if (a.id === 'quan') {
+        if (foe && a.cd <= 0) { a.cd = 2.2; Snd.play('zap'); shootG({ x: a.x, y: a.y - 20, vx: a.f * 130, vy: -50, home: true, life: 2.4, dmg: 3 + Math.floor(base / 2), sz: 3, col: '#a98bff', shape: 'orb', quiet: true, trail: '#a98bff' }); }
+        if (foe && a.cd2 <= 0) { a.cd2 = 15; pop(a.x, a.y - 34, save.lang === 'vi' ? 'BÃO SÁCH!' : 'BOOK STORM!', '#a98bff'); for (let n = 0; n < 6; n++) later(n * 0.12, () => shootG({ x: a.x, y: a.y - 22, vx: (n % 2 ? 1 : -1) * rr(60, 140), vy: -rr(60, 140), home: true, life: 2.4, dmg: 3 + Math.floor(base / 2), sz: 3, col: '#cdb8ff', shape: 'orb', quiet: true, trail: '#a98bff' })); }
+      } else if (a.id === 'hoang') {
+        if (foe && a.cd <= 0) { a.cd = 3.4; a.dashT = 0.4; a.x = fx - a.f * 18; a.y = foe.y + foe.h; Snd.play('clang'); dmgFoe(foe, 6 + base, true); for (let n = 0; n < 8; n++) emit(fx + rr(-10, 10), fy + rr(-10, 10), 1, { col: ['#e0453a', '#fff'], sp0: 30, sp1: 110 }); addRing(fx, fy, '#e0453a', 36, 0.3); }
+        if (foe && a.cd2 <= 0) { a.cd2 = 14; pop(a.x, a.y - 34, save.lang === 'vi' ? 'CHÉM BÓNG!' : 'SHADOW FLURRY!', '#e0453a'); for (let n = 0; n < 5; n++) later(n * 0.14, () => { const t2 = nearestFoe(a.x, a.y - 12, 320); if (!t2) return; a.dashT = 0.2; a.x = t2.x + t2.w / 2 - (n % 2 ? -16 : 16); a.y = t2.y + t2.h; Snd.play('clang'); dmgFoe(t2, 4 + Math.floor(base / 2), true, true); emit(t2.x + t2.w / 2, t2.y + t2.h / 2, 8, { col: ['#e0453a', '#fff'], sp0: 30, sp1: 110 }); }); }
+      } else if (a.id === 'duong') {
+        if (foe && a.cd <= 0) { a.cd = 4; Snd.play('flap'); for (let n = 0; n < 4; n++) shootG({ x: a.x, y: a.y - 20, vx: (n % 2 ? 1 : -1) * rr(40, 110), vy: -rr(60, 130), home: true, life: 2.2, dmg: 2 + Math.floor(base / 3), sz: 2, col: '#c07bff', shape: 'bat', quiet: true }); }
+        if (foe && a.cd2 <= 0) { a.cd2 = 14; pop(a.x, a.y - 34, save.lang === 'vi' ? 'HÚT MÁU!' : 'BLOOD DRAIN!', '#e0453a'); dmgFoe(foe, 5 + Math.floor(base / 2), true); if (P.hp < maxHP()) { P.hp++; Snd.play('heart'); } for (let n = 0; n < 10; n++) emit(fx + rr(-8, 8), fy + rr(-8, 8), 1, { col: ['#e0453a', '#c0304a'], sp0: 30, sp1: 90, vy: -30 }); }
+      } else if (a.id === 'santree') {
+        if (foe && a.cd <= 0) { a.cd = 5.5; Snd.play('crumble'); dmgFoe(foe, 4 + Math.floor(base / 2), true); foe.slowT = Math.max(foe.slowT || 0, 3); for (let n = 0; n < 12; n++) emit(fx + rr(-14, 14), foe.y + foe.h, 1, { col: ['#5fcf5a', '#2b8a3e', '#8a6a44'], sp0: 20, sp1: 80, vy: -rr(30, 90) }); }
+        if (a.cd2 <= 0) { a.cd2 = 17; pop(a.x, a.y - 34, save.lang === 'vi' ? 'LÁ CHẮN XANH!' : 'EVERGREEN!', '#5fcf5a'); P.shield = true; if (P.hp < maxHP()) { P.hp++; Snd.play('heart'); } emit(P.x + 4, P.y + 7, 16, { col: ['#5fcf5a', '#fff', '#ffd34e'], sp0: 20, sp1: 80 }); }
+      }
+    }
+  }
+  function drawAllies(camX, camY) {
+    const G = Q.G; if (!G.allies) return;
+    for (const a of G.allies) {
+      const x = Math.round(a.x - camX), y = Math.round(a.y - camY), hop = Math.abs(Q.P.vx) > 20 ? -Math.abs(Math.sin(a.t * 11 + a.i)) * 2 : Math.sin(a.t * 3 + a.i) * 0.6;
+      g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(x - 6, y - 1, 12, 2);
+      drawSpr(g, npcSpr(ALLY[a.id].spr), x, Math.round(y + hop), a.f < 0);
+      g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x, y - 10, 0, x, y - 10, 22); gr.addColorStop(0, hexA(ALLY[a.id].col, 0.18)); gr.addColorStop(1, hexA(ALLY[a.id].col, 0)); g.fillStyle = gr; g.fillRect(x - 22, y - 32, 44, 44); g.globalCompositeOperation = 'source-over';
     }
   }
 
@@ -2411,7 +2689,7 @@
   function updatePuzzles(dt) {
     const P = Q.P, pc = { x: P.x + 4, y: P.y + 7 };
     Q.nearPz = null;
-    updateTrials(dt); updateDragonEnc();
+    updateTrials(dt); updateDragonEnc(); updateMiniEnc();
     for (const pz of Q.pz) {
       if (pz.type === 'rune') {
         const on = P.onGround && P.x + P.w > pz.x - 8 && P.x < pz.x + 8 && Math.abs(P.y + P.h - pz.y) < 4;
@@ -2424,8 +2702,9 @@
     for (const gd of Q.gates) {
       if (!gd.open && gd.need === 'key') {
         if (Math.abs(pc.x - (gd.x * TS + 8)) < 16) {
-          if (P.keys > 0) { P.keys--; openGate(gd); Snd.play('key'); }
-          else if (!Q.keyMsgT || Q.t - Q.keyMsgT > 3) { Q.keyMsgT = Q.t; Q.msg = T('needkey'); Q.msgT = 2.5; }
+          const need = gd.keys || 1;
+          if (P.keys >= need) { P.keys -= need; openGate(gd); Snd.play('key'); }
+          else if (!Q.keyMsgT || Q.t - Q.keyMsgT > 3) { Q.keyMsgT = Q.t; Q.msg = need > 1 ? (save.lang === 'vi' ? 'Cần 2 chìa khóa! Chìa còn lại nằm rất xa phía sau bạn...' : 'Two keys needed! The other one lies far behind you...') : T('needkey'); Q.msgT = 3.5; }
         }
       } else if (gd.open && gd.need === 'timed') {
         gd.timer -= dt;
@@ -2455,7 +2734,7 @@
       if (gd.open && gd.need !== 'timed') continue;
       const gx = Math.round(gd.x * TS - camX + 8), gy2 = Math.round((gd.y1 - 3) * TS - camY);
       if (gx < -20 || gx > VW + 20) continue;
-      if (gd.need === 'key') drawSpr(g, icon('key'), gx, gy2, false);
+      if (gd.need === 'key') { drawSpr(g, icon('key'), gx, gy2, false); if (gd.keys > 1) { drawSpr(g, icon('key'), gx, gy2 - 12, false); txt('x' + gd.keys, gx + 10, gy2 - 6, { size: 6, col: '#ffd34e' }); } }
       else if (gd.need === 'lever' || gd.need === 'timed') {
         drawSpr(g, icon('lever', gd.open ? 1 : 0), gx, gy2, false);
         if (gd.need === 'lever' && gd.count > 1) txt(gd.levers + '/' + gd.count, gx, gy2 + 6, { al: 'center', size: 6 });
@@ -2628,6 +2907,7 @@
     drawPuzzles(camX, camY);
     drawFps(camX, camY);
     for (const e of Q.ents) drawEnemy(e, camX, camY);
+    if (Q.syFig) { const f = Q.syFig; drawSpr(g, npcSpr('npc_sy'), Math.round(f.x - camX), Math.round(f.y - camY + Math.sin(Q.t * 2) * 1.5), false, false, 1.3, 1.3); }
     if (Q.boss && Q.boss.st !== 'sleep' || (Q.boss && Q.li === 6)) drawBoss(camX, camY);
     drawDragon(camX, camY);
     drawFx(camX, camY);
@@ -2715,7 +2995,7 @@
     if (e.landT > 0) { const k = e.landT / 0.2; sy *= 1 - 0.3 * k; sx *= 1 + 0.25 * k; }
     if (e.kickT > 0) { const k = e.kickT / 0.15; sx *= 1 + 0.15 * k; ox -= e.dir * 2.5 * k; }
     if (e.hitT > 0) { const k = e.hitT / 0.18; sx *= 1 + 0.25 * k; sy *= 1 - 0.2 * k; ox += (Math.random() - 0.5) * 2 * k; }
-    if (e.spawnT > 0) { const k = 1 - e.spawnT / 0.4, os = 1 + Math.sin(k * Math.PI) * 0.25; sx *= (0.2 + 0.8 * k) * os; sy *= (0.2 + 0.8 * k) * os; al = k; if (Math.random() < 0.5) emit(e.x + e.w / 2, e.y + e.h / 2, 1, { col: ['#fff', Q.B.proj], sp0: 10, sp1: 40, grav: 0, l0: 0.2, l1: 0.4 }); }
+    if (e.spawnT > 0) { const k = 1 - e.spawnT / 0.4, os = 1 + Math.sin(k * Math.PI) * 0.25; sx *= (0.2 + 0.8 * k) * os; sy *= (0.2 + 0.8 * k) * os; al = k; if (Math.random() < 0.5) emit(e.x + e.w / 2, e.y + e.h / 2, 1, { col: ['#fff', bpc()], sp0: 10, sp1: 40, grav: 0, l0: 0.2, l1: 0.4 }); }
     const flash = e.flash > 0 || (e.st === 'wind' && Math.floor(t * 20) % 2 === 0);
     const k0 = e.sc || 1;
     if (e.v === 'elite') { g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35 + Math.sin(t * 5) * 0.12; disc(g, Math.round(x), Math.round(bot - e.h / 2), Math.round(e.w * 0.8), '#c02030'); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
@@ -2741,10 +3021,10 @@
     g.fillStyle = 'rgba(0,0,0,.32)'; g.fillRect(x - (sw >> 1), gyy - 1, sw, 3);
     if (c.eclipse) { g.globalAlpha = 0.25 + Math.sin(b.t * 3) * 0.1; disc(g, x, bot - 40, 40, '#7a4cff'); g.globalAlpha = 1; }
     const P = bossPose(b), tele = b.st === 'tele' && Math.floor(b.t * 18) % 2 === 0, bob = c.eclipse ? Math.round(Math.sin(b.t * 3) * 3) : 0;
-    if (P.circle) drawCircle(x, gyy - 2, Math.round(b.w * 0.8) + 10, Q.B.proj, Q.t);
+    if (P.circle) drawCircle(x, gyy - 2, Math.round(b.w * 0.8) + 10, bpc(), Q.t);
     if (P.aura && P.aura[1] > 0.02) drawAura(x, bot - (b.h >> 1), Math.round(b.h * 0.9), P.aura[0].length === 7 ? P.aura[0] : '#ff9a2a', P.aura[1]);
     if (b.st === 'evade') { g.globalAlpha = 0.35; drawSprT(g, b.spr, x - b.ed * 14, bot, b.dir < 0, false, 1, 1, 0, 0.35); g.globalAlpha = 1; }
-    if (b.sk === 'charge' && b.st === 'act') { g.globalAlpha = 0.25; drawSprT(g, b.spr, x - b.dir * 12, bot, b.dir < 0, false, 1.1, 0.92, b.dir * 0.2, 0.25); drawSprT(g, b.spr, x - b.dir * 24, bot, b.dir < 0, false, 1.05, 0.95, b.dir * 0.2, 0.15); g.globalAlpha = 1; }
+    if ((b.sk === 'charge' || b.sk === 'rush') && b.st === 'act') { g.globalAlpha = 0.25; drawSprT(g, b.spr, x - b.dir * 12, bot, b.dir < 0, false, 1.1, 0.92, b.dir * 0.2, 0.25); drawSprT(g, b.spr, x - b.dir * 24, bot, b.dir < 0, false, 1.05, 0.95, b.dir * 0.2, 0.15); g.globalAlpha = 1; }
     let al = P.al; if (b.invul > 0 && Math.floor(Q.t * 20) % 2 === 0) al = Math.min(al, 0.45);
     drawSprT(g, b.spr, x + P.ox, bot + bob + P.oy, b.dir < 0, b.flash > 0 || tele || b.revT > 0, P.sx, P.sy, P.rot, al);
     if (b.cloak && Math.random() < 0.5) { g.fillStyle = Math.random() < 0.5 ? '#a15be0' : '#fff'; g.fillRect(x + Math.round(rr(-b.w / 2, b.w / 2)), bot - Math.round(rr(0, b.h)), 1, 2); }
@@ -2908,7 +3188,7 @@
       g.fillStyle = '#5a1020'; g.fillRect(x, y, w, 5);
       g.fillStyle = '#e0453a'; g.fillRect(x, y, Math.max(0, w * b.hp / b.max), 5);
       g.fillStyle = '#ff9a8a'; g.fillRect(x, y, Math.max(0, w * b.hp / b.max), 1);
-      txt(LN(b.cfg.name) + (b.cfg.armor > 0 ? '   [' + Math.round(b.cfg.armor * 100) + '% ' + (save.lang === 'vi' ? 'giáp' : 'armor') + ']' : ''), VW / 2, y + 14, { al: 'center', size: 8 });
+      txt(LN(b.cfg.name) + (b.forms ? '  [' + (b.fi + 1) + '/' + b.forms.length + ']' : '') + (b.cfg.armor > 0 ? '   [' + Math.round(b.cfg.armor * 100) + '% ' + (save.lang === 'vi' ? 'giáp' : 'armor') + ']' : ''), VW / 2, y + 14, { al: 'center', size: 8 });
     }
     drawGearHUD();
     if (Q.msgT > 0 && Q.msg && Q.state === 'play') txt(Q.msg, VW / 2, VH - 14, { al: 'center', size: 7, alpha: Math.min(1, Q.msgT) });
@@ -2944,12 +3224,12 @@
       for (let i = 0; i < 7; i++) { const ic = icon('r' + i); g.globalAlpha = save.relics[i] ? 1 : 0.2; g.drawImage(ic.c, VW / 2 - 7 * 13 + i * 26 + 4, 172); }
       g.globalAlpha = 1;
     } else if (st === 'talk') {
-      const tk = Q.talk, sp = npcSpr(tk.npc.spr);
+      const tk = Q.talk, cur = (tk.lines[tk.i] && tk.lines[tk.i].w && NPCS[tk.lines[tk.i].w]) || tk.npc, sp = npcSpr(cur.spr);
       g.fillStyle = 'rgba(8,6,20,.93)'; g.fillRect(8, 148, VW - 16, 62);
       g.fillStyle = '#ffd34e'; g.fillRect(8, 148, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1); g.fillRect(8, 148, 1, 62); g.fillRect(VW - 9, 148, 1, 62);
       g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(14, 154, 44, 50);
       drawSpr(g, sp, 36, 204, false, false, 2, 2);
-      txt(LN(tk.npc.name), 66, 158, { size: 8, col: '#ffd34e', bold: true });
+      txt(LN(cur.name), 66, 158, { size: 8, col: '#ffd34e', bold: true });
       const line = tk.lines[tk.i][save.lang], n = Math.floor(tk.t * 45);
       wrapText(line.substr(0, n), 62).forEach((l, i) => txt(l, 66, 173 + i * 11, { size: 7 }));
       if (n >= line.length) txt('>', VW - 18, 200, { size: 8, col: '#ffd34e', alpha: 0.5 + 0.5 * Math.sin(Q.stateT * 8 + Q.t * 8) });
@@ -3537,7 +3817,7 @@
   function startCut() { cut = { t: 0, phase: 'walk', i: 0, lt: 0, pt: 0, fl: 0, shake: 0, thun: false, lastBlip: 0 }; Q = null; Snd.music('devil', DEVIL_MUSIC); if (cutSkip) { cutSkip = false; cut.phase = 'devil'; cut.t = 4; cut.fl = 0.5; cut.shake = 0.5; Snd.play('thunder'); cutLineStart(); } }
   function cutLineStart() {
     const ln = CUT[cutLevel][cut.i];
-    if (ln.w === 'quoc') Snd.devilRoar(ln.shout ? 1 : 0.55); else if (ln.w === 'imp') Snd.creature('imp', 'alert'); else Snd.blip('shorty');
+    if (ln.w === 'quoc') Snd.devilRoar(ln.shout ? 1 : 0.55); else if (ln.w === 'imp') Snd.creature('imp', 'alert'); else if (ln.w === 'sy') { Snd.blip('sy'); Snd.whisper(); } else Snd.blip('shorty');
     if (ln.shout) { cut.shake = 0.55; cut.fl = 0.3; if (Math.random() < 0.5) Snd.play('thunder'); }
   }
   function updateCut(dt) {
@@ -3551,7 +3831,7 @@
     }
     c.pt += dt; c.lt += dt; if (c.fl > 0) c.fl -= dt; if (c.shake > 0) c.shake -= dt;
     const lines = CUT[cutLevel], ln = lines[c.i], txtL = ln[save.lang], n0 = Math.floor((c.lt - dt) * 38), n1 = Math.min(txtL.length, Math.floor(c.lt * 38));
-    for (let k = n0 + 1; k <= n1; k++) if (k % (ln.w === 'quoc' ? 3 : 2) === 0 && /\S/.test(txtL[k - 1] || ' ')) Snd.blip(ln.w === 'imp' ? 'fairy' : (ln.w === 'quoc' ? 'quoc' : 'shorty'));
+    for (let k = n0 + 1; k <= n1; k++) if (k % (ln.w === 'quoc' ? 3 : 2) === 0 && /\S/.test(txtL[k - 1] || ' ')) Snd.blip(ln.w === 'imp' ? 'fairy' : (ln.w === 'quoc' ? 'quoc' : (ln.w === 'sy' ? 'sy' : 'shorty')));
     if (act.okP) {
       if (c.lt * 38 < txtL.length) c.lt = 999;
       else { c.i++; c.lt = 0; if (c.i >= lines.length) { toScene('map'); c.i = lines.length - 1; c.lt = 999; } else cutLineStart(); }
@@ -3581,7 +3861,7 @@
     if (speak) { const e1 = g.createRadialGradient(VW / 2 - 13 + ox, 76 + rise + oy, 0, VW / 2 - 13 + ox, 76 + rise + oy, 22); e1.addColorStop(0, 'rgba(255,200,60,.55)'); e1.addColorStop(1, 'rgba(255,200,60,0)'); g.fillStyle = e1; g.fillRect(VW / 2 - 40, 50 + rise, 80, 50); const e2 = g.createRadialGradient(VW / 2 + 13 + ox, 76 + rise + oy, 0, VW / 2 + 13 + ox, 76 + rise + oy, 22); e2.addColorStop(0, 'rgba(255,200,60,.55)'); e2.addColorStop(1, 'rgba(255,200,60,0)'); g.fillStyle = e2; g.fillRect(VW / 2 - 14, 50 + rise, 80, 50); }
     g.globalCompositeOperation = 'source-over';
     g.globalAlpha = ln.w === 'shorty' ? 1 : 0.55; drawSpr(g, npcSpr('npc_shorty'), 62, 150 + Math.round(Math.sin(c.pt * 3)), false, false, 2, 2);
-    g.globalAlpha = ln.w === 'imp' ? 1 : 0.55; drawSpr(g, getSprite('imp'), VW - 62, 150 + Math.round(Math.sin(c.pt * 4)), true, false, 3, 3); g.globalAlpha = 1;
+    if (cutLevel >= 2) { g.globalAlpha = ln.w === 'sy' ? 1 : 0.55; drawSpr(g, npcSpr('npc_sy'), VW - 62, 152 + Math.round(Math.sin(c.pt * 3)), true, false, 2, 2); g.globalAlpha = 1; } else { g.globalAlpha = ln.w === 'imp' ? 1 : 0.55; drawSpr(g, getSprite('imp'), VW - 62, 150 + Math.round(Math.sin(c.pt * 4)), true, false, 3, 3); g.globalAlpha = 1; }
     if (c.fl > 0) { g.fillStyle = 'rgba(255,255,255,' + Math.min(0.8, c.fl * 2) + ')'; g.fillRect(0, 0, VW, VH); }
     g.fillStyle = 'rgba(0,0,0,.82)'; g.fillRect(8, 152, VW - 16, 58); g.fillStyle = sp.col; g.fillRect(8, 152, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1);
     txt(LN(sp.name), 18, 162, { size: 8, col: sp.col, bold: true });
@@ -3644,5 +3924,5 @@
   enterScene('title');
   requestAnimationFrame(frame);
   if (DEMO) { save.leek = true; save.cleared = [0]; save.inv.own = ['iron', 'leek']; save.inv.w = ['leek', null]; save.inv.armor = null; save.inv.pet = null; save.ammo = { dagger: 9, bomb: 3, flask: 3 }; startLevel(0); Q.state = 'play'; Q.msg = 'LEEK DEMO: J / click = swing (3 light beams). Hit = heal + stun. Under 15% HP = leek tornado.'; Q.msgT = 12; }
-  if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, hurtBoss, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();

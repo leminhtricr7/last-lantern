@@ -1,0 +1,76 @@
+  // ===================== MULTI-FORM BOSSES, MINI-BOSS ARENAS, CAMEOS =====================
+  function makeFormBoss(forms, cx, gyPx, extra) {
+    const c = forms[0], hp = Math.round(c.hp * (1 + 0.02 * totalShards()));
+    return Object.assign({ isBoss: true, forms, fi: 0, cfg: c, spr: formSprite(c.spr), x: cx - c.w / 2, y: gyPx - c.h, w: c.w, h: c.h, vx: 0, vy: 0, hp, max: hp, dir: -1, st: 'sleep', timer: 0, flash: 0, t: 0, sk: null, atkSk: null, lastSk: null, onGround: false, noOneWay: true, n: 0, phase: 0, shield: 0, evCd: 1, invul: 0, hide: false, closeT: 0, fury: 1, armor: c.armor }, extra || {});
+  }
+  function applyForm(b, idx) {
+    const c = b.forms[idx], cx = b.x + b.w / 2, bot = b.y + b.h, hp = Math.round(c.hp * (1 + 0.02 * totalShards()));
+    b.fi = idx; b.cfg = c; b.spr = formSprite(c.spr); b.w = c.w; b.h = c.h; b.x = cx - b.w / 2; b.y = bot - b.h - 2;
+    b.hp = b.max = hp; b.armor = c.armor; b.phase = 0; b.t1 = b.t2 = 0; b.st = 'rec'; b.timer = 1.1; b.invul = 1.8; b.sk = null; b.atkSk = null; b.shield = 0; b.guard = 0; b.cloak = false; b.hide = false; b.vx = 0; b.vy = 0;
+    Q.shake = 1; Q.freeze = 0.1; Snd.creature(Q.li, 'alert', true); Snd.play('boom');
+    emit(b.x + b.w / 2, b.y + b.h / 2, 50, { col: [bpc(), '#fff', '#ffd34e'], sp0: 40, sp1: 180 }); addRing(b.x + b.w / 2, b.y + b.h, bpc(), 110, 0.7);
+    Q.msg = LN(c.name); Q.msgT = 3;
+  }
+  function nextForm(b) {
+    if (!b.forms || b.fi >= b.forms.length - 1) return false;
+    const idx = b.fi + 1;
+    b.hp = 1; b.invul = 99; Q.projs.length = 0; Q.zones.length = 0; cleanupCells(); Q.windT = 0; Q.darkBoost = 0;
+    Q.ents.forEach(e => { if (!e.dead) { e.dead = true; emit(e.x, e.y, 8, { col: '#fff' }); } });
+    Snd.play('boom'); Q.shake = 1;
+    emit(b.x + b.w / 2, b.y + b.h / 2, 40, { col: ['#fff', '#ffd34e', bpc()], sp0: 30, sp1: 160 });
+    const who = b.who || 'quoc', lines = (FORM_LINES[b.id] || {})[idx];
+    if (b.id === 'quoc' && idx === 2) startScripted('quoc', ALLY_STORY, () => { applyForm(b, idx); spawnAllies(); });
+    else if (lines) startScripted(who, lines, () => applyForm(b, idx));
+    else applyForm(b, idx);
+    return true;
+  }
+  function miniDeath(b) {
+    const m = b.mini; b.dead = true; b.hp = 0; Q.freeze = 0.2; Q.shake = 1; Snd.play('boom'); Snd.stop();
+    Q.projs.length = 0; Q.zones.length = 0; cleanupCells(); Q.windT = 0; Q.darkBoost = 0;
+    Q.ents.forEach(e => { if (!e.dead) { e.dead = true; emit(e.x, e.y, 10, { col: '#fff' }); } });
+    for (let i = 0; i < 5; i++) later(i * 0.18, () => { Snd.play('boom'); emit(b.x + rr(0, b.w), b.y + rr(0, b.h), 26, { col: ['#fff', '#ffd34e', bpc()], sp0: 30, sp1: 150 }); });
+    later(1.3, () => startScripted(m.who, MINI[m.who].outro, () => finishMini(b)));
+  }
+  function finishMini(b) {
+    const m = b.mini, L = Q.L;
+    for (let y = 0; y < m.gy; y++) { L.grid[y][m.lw] = ' '; L.grid[y][m.rw] = ' '; }
+    Q.minisDone.add(m.id); const mm = Q.minis.find(o => o.id === m.id); if (mm) mm.state = 'done';
+    addGhost(b, 'out'); addRing(b.x + b.w / 2, b.y + b.h, bpc(), 90, 0.6);
+    Q.boss = Q.mainBoss; Q.mainBoss = null; L.arena = Q.mainArena; Q.mainArena = null; Q.arenaSealed = false; Q.bossDead = false; Q.bossDeadDone = false;
+    const cx = b.x + b.w / 2;
+    for (let i = 0; i < 2; i++) Q.items.push({ kind: 'heart', x: cx + (i - 0.5) * 16, y: b.y, id: -1, vy: -150, vx: (i - 0.5) * 40, ph: 0, drop: true });
+    for (let i = 0; i < 12; i++) Q.items.push({ kind: 'coin', x: cx + rr(-14, 14), y: b.y, id: -1, vy: -rr(100, 200), vx: rr(-60, 60), ph: 0, drop: true });
+    Snd.play('win'); Snd.music('lvl' + Q.li, Q.B.music); setEmo('happy', 2);
+  }
+  function beginMini(m) {
+    const L = Q.L, def = MINI[m.who];
+    Q.mainBoss = Q.boss; Q.mainArena = L.arena; L.arena = { x0: m.lw, x1: m.rw, gy: m.gy };
+    const b = makeFormBoss(def.forms, (m.lw + m.rw) / 2 * TS + 48, m.gy * TS, { id: m.who, who: m.who, mini: m });
+    b.st = 'intro'; b.timer = 0; Q.boss = b; Q.arenaSealed = true; Q.bossDead = false;
+    Q.state = 'bossintro'; Q.stateT = 0; Snd.music('boss', BOSS_MUSIC); setEmo('angry', 2.6); Snd.creature(Q.li, 'alert', true); Q.shake = 0.6;
+  }
+  function updateMiniEnc() {
+    const P = Q.P;
+    if (!Q.minis) return;
+    for (const m of Q.minis) {
+      if (m.state !== 'idle') continue;
+      if (P.x > m.trig * TS && P.x < m.rw * TS - 8 && P.onGround && Q.state === 'play' && !Q.arenaSealed) {
+        m.state = 'active';
+        for (let y = 0; y < m.gy; y++) { Q.L.grid[y][m.lw] = 'G'; Q.L.grid[y][m.rw] = 'G'; }
+        Snd.play('gate'); Q.shake = 0.8; setEmo('scared', 2);
+        startScripted(m.who, MINI[m.who].intro, () => beginMini(m));
+      }
+    }
+  }
+  // Mr Sy watches from a ledge on maps 3 and 5: he wakes the boss before the fight and speaks when it falls
+  function syPoof() { const f = Q.syFig; if (!f) return; emit(f.x, f.y - 12, 30, { col: ['#7ed957', '#2f7a4a', '#fff'], sp0: 20, sp1: 100 }); addRing(f.x, f.y, '#7ed957', 50, 0.5); Snd.play('poof'); Q.syFig = null; }
+  function syCameoPre() {
+    const cam = SY_CAMEO[Q.li], ar = Q.L.arena; if (!cam) return false;
+    Q.syFig = { x: (ar.x0 + 9) * TS, y: (ar.gy - 3) * TS }; emit(Q.syFig.x, Q.syFig.y - 12, 24, { col: ['#7ed957', '#fff'], sp0: 20, sp1: 90 }); Snd.play('poof');
+    startScripted('sy', cam.pre, () => { Q.state = 'bossintro'; Q.stateT = 0; });
+    return true;
+  }
+  function syCameoPost() {
+    const cam = SY_CAMEO[Q.li]; if (!cam || !Q.syFig) return;
+    later(1.6, () => { if (Q.state === 'play' && Q.syFig) startScripted('sy', cam.post, () => syPoof()); else syPoof(); });
+  }

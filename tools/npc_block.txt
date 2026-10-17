@@ -1,0 +1,32 @@
+  // ---------- the new cast: Mr Sy, Quoc, and the four helpers who appear on maps 2-5 ----------
+  Object.assign(NPCS, {
+    sy: { spr: 'npc_sy', name: { en: 'Mr Sy', vi: 'Mr Sy' } },
+    quoc: { spr: 'npc_quoc', name: { en: 'Quoc the Devil', vi: 'Quỷ Vương Quoc' } },
+    ember: { spr: 'hero_idle', name: { en: 'Ember', vi: 'Ember' } },
+    hoang: { spr: 'npc_hoang', name: { en: 'HoangKiller', vi: 'HoangKiller' } },
+    duong: { spr: 'npc_duong', name: { en: 'DuongDracular', vi: 'DuongDracular' } },
+    santree: { spr: 'npc_santree', name: { en: 'Santree', vi: 'Santree' } }
+  });
+  NPCS.sy.generic = [{ en: 'Hm.', vi: 'Hm.' }];
+  NPCS.quoc.generic = [{ en: 'GRRR!', vi: 'GRRR!' }];
+  NPCS.hoang.generic = [{ en: 'Whistle when you need me.', vi: 'Huýt sáo khi cần tôi nhé.' }];
+  NPCS.duong.generic = [{ en: 'Call, and the bats will answer.', vi: 'Hãy gọi, và lũ dơi sẽ đáp lời.' }];
+  NPCS.santree.generic = [{ en: 'Ho ho ho! Hope grows here.', vi: 'Ho ho ho! Hy vọng mọc ở đây.' }];
+  DLG[2] = Object.assign(DLG[2] || {}, { hoang: [
+    { en: 'Psst. Do not scream. I am HoangKiller. Yes, killer. Of boredom, mostly.', vi: 'Suỵt. Đừng la. Tôi là HoangKiller. Ừ, sát thủ. Chủ yếu là giết thời gian chán.' },
+    { en: 'I came into these caves for a rare crystal, and a very rude Golem chased me back out. We have history.', vi: 'Tôi vào hang này tìm một viên pha lê hiếm, và một Người Khổng Lồ rất thô lỗ đuổi tôi chạy ra. Tụi tôi có thù cũ.' },
+    { en: 'Wait... you are the lantern kid? The one who beat the Spider Queen with a LEEK? QuanSadBoy wrote me about you!', vi: 'Khoan... cậu là cậu bé cầm đèn? Người đã hạ Nữ Hoàng Nhện bằng một CÂY HÀNH? QuanSadBoy đã viết thư kể về cậu!' },
+    { en: 'Listen. When you face Quoc himself, I will find you. HoangKiller never misses a fight that matters.', vi: 'Nghe này. Khi cậu đối đầu với chính Quoc, tôi sẽ tìm cậu. HoangKiller không bao giờ bỏ lỡ một trận chiến quan trọng.' }
+  ] });
+  DLG[3] = Object.assign(DLG[3] || {}, { duong: [
+    { en: 'Ah... the Sun has fallen, so a vampire may walk the desert at noon. Irony is delicious.', vi: 'À... Mặt Trời đã rơi, nên một ma cà rồng có thể đi trên sa mạc giữa trưa. Sự trớ trêu thật ngon.' },
+    { en: 'I am Duong Dracular, count of nothing and keeper of a very large tomb. I was napping when the Pharaoh\\'s sand woke me.', vi: 'Ta là Duong Dracular, bá tước của hư vô và người giữ một ngôi mộ rất lớn. Ta đang ngủ trưa thì cát của Pharaoh đánh thức ta.' },
+    { en: 'You carry the Sun\\'s flame? ...I know you. QuanSadBoy\\'s letter said: "a boy with a lantern; protect him." Fascinating.', vi: 'Cậu mang ngọn lửa của Mặt Trời sao? ...Ta biết cậu. Thư của QuanSadBoy viết: "một cậu bé cầm đèn; hãy bảo vệ cậu ấy." Thú vị.' },
+    { en: 'I do not fight in daylight, usually. For you I will make an exception. Call, and my bats will answer.', vi: 'Thường thì ta không chiến đấu dưới ánh sáng. Vì cậu ta sẽ ngoại lệ. Hãy gọi, và lũ dơi của ta sẽ đáp lời.' }
+  ] });
+  DLG[4] = Object.assign(DLG[4] || {}, { santree: [
+    { en: 'HO HO HO! Do not mind me, I am a tree. A walking one. A... SANTREE! Hee!', vi: 'HO HO HO! Đừng bận tâm tôi, tôi là một cái cây. Một cây biết đi. Một... SANTREE! Hí!' },
+    { en: 'I was a seed in the north before Quoc\\'s winter. The Frost King froze my forest and I had to walk away. Walking is hard with roots.', vi: 'Tôi từng là một hạt giống ở phương bắc trước mùa đông của Quoc. Vua Băng đóng băng rừng của tôi và tôi phải bỏ đi. Đi bộ khó lắm khi có rễ.' },
+    { en: 'You are the one who melted the king? Duong\\'s bats told me! We trees talk. Mostly about you.', vi: 'Cậu là người đã làm tan chảy vị vua đó? Lũ dơi của Duong kể tôi nghe! Cây cối tụi tôi hay nói chuyện. Chủ yếu là về cậu.' },
+    { en: 'When the final night comes, Santree will plant itself right next to you. Presents optional. Hee hee!', vi: 'Khi đêm cuối cùng đến, Santree sẽ cắm rễ ngay cạnh cậu. Quà tặng không bắt buộc. Hí hí!' }
+  ] });

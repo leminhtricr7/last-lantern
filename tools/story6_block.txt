@@ -1,0 +1,100 @@
+  // ---------- final map: Shorty, Sy and Quoc (multi-form bosses) ----------
+  const FORMS = {
+    shorty: [
+      { name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' }, spr: 'shorty_h', w: 32, h: 46, hp: 380, armor: 0.15, smart: 0.75, sp: 34, minion: 'imp', proj: '#d58bff', skills: ['shoot', 'fan', 'teleport', 'jump', 'charge', 'guard'], skills2: ['clone', 'crossBeam', 'rush'] },
+      { name: { en: 'SHORTY, THE HAT BEAST', vi: 'SHORTY, QUÁI VẬT MŨ CAO' }, spr: 'shorty_m', w: 58, h: 68, hp: 620, armor: 0.3, smart: 0.55, sp: 26, minion: 'imp', proj: '#ff6a3a', skills: ['slam', 'sweep', 'lobs', 'summon', 'rain', 'erupt', 'rush'], skills2: ['roar', 'spin', 'crossBeam'], skills3: ['meteor', 'guard', 'shield'] }
+    ],
+    sy: [
+      { name: { en: 'Mr Sy', vi: 'Mr Sy' }, spr: 'sy_h', w: 32, h: 52, hp: 420, armor: 0.2, smart: 0.8, sp: 32, minion: 'shadewisp', proj: '#7ed957', skills: ['spit', 'lobs', 'curse', 'web', 'cloak', 'teleport'], skills2: ['dark', 'tornado', 'crossBeam'] },
+      { name: { en: 'SY, THE VENOM SERPENT', vi: 'SY, RẮN CHÚA ĐỘC' }, spr: 'sy_m', w: 70, h: 62, hp: 680, armor: 0.3, smart: 0.5, sp: 22, minion: 'spider', proj: '#7ed957', skills: ['breath', 'spit', 'lobs', 'wall', 'rain', 'charge', 'slam'], skills2: ['summon', 'curse', 'spin', 'tornado'], skills3: ['blizzard', 'shield', 'roar'] }
+    ],
+    quoc: [
+      { name: { en: 'Quoc - Shadow Imp', vi: 'Quoc - Tiểu Quỷ Bóng Tối' }, spr: 'quoc1', w: 24, h: 32, hp: 200, armor: 0.1, smart: 0.9, sp: 44, minion: 'imp', proj: '#ff6a3a', skills: ['jump', 'charge', 'shoot', 'rush', 'fan'], skills2: ['teleport', 'guard'] },
+      { name: { en: 'Quoc - Hellhound', vi: 'Quoc - Chó Địa Ngục' }, spr: 'quoc2', w: 50, h: 32, hp: 260, armor: 0.15, smart: 0.7, sp: 50, minion: 'imp', proj: '#ff6a3a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
+      { name: { en: 'Quoc - Chain Demon', vi: 'Quoc - Quỷ Xích' }, spr: 'quoc3', w: 38, h: 56, hp: 340, armor: 0.25, smart: 0.75, sp: 30, minion: 'imp', proj: '#ff3a5a', skills: ['slam', 'erupt', 'fan', 'crossBeam', 'teleport', 'shoot'], skills2: ['summon', 'spin'] },
+      { name: { en: 'Quoc - Warlord', vi: 'Quoc - Đại Tướng Quỷ' }, spr: 'quoc4', w: 50, h: 66, hp: 420, armor: 0.35, smart: 0.6, sp: 26, minion: 'eclipseclone', proj: '#cfd6e6', skills: ['shield', 'guard', 'sweep', 'lobs', 'charge', 'slam', 'meteor'], skills2: ['roar', 'erupt', 'crossBeam'] },
+      { name: { en: 'Quoc - Archdemon', vi: 'Quoc - Đại Quỷ Cánh' }, spr: 'quoc5', w: 68, h: 64, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffd34e', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
+      { name: { en: 'Quoc - Titan of Ash', vi: 'Quoc - Titan Tro Tàn' }, spr: 'quoc6', w: 76, h: 88, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
+      { name: { en: 'QUOC, THE ETERNAL ECLIPSE', vi: 'QUOC, NHẬT THỰC VĨNH CỬU' }, spr: 'quoc7', w: 62, h: 98, hp: 780, armor: 0.45, smart: 0.9, sp: 30, minion: 'ghost', eclipse: true, proj: '#d58bff', skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak', 'crossBeam', 'rush'], skills2: ['dark', 'clone', 'summon', 'roar', 'fan', 'lobs'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
+    ]
+  };
+  const MINI = {
+    shorty: { forms: FORMS.shorty,
+      intro: [
+        { en: 'Well, well. You made it all the way to the Citadel, little lantern-boy. I am done playing with trials.', vi: 'Chà chà. Cậu đã đến được tận Thành Trì, cậu bé cầm đèn. Ta chán trò thử thách rồi.' },
+        { w: 'ember', en: 'Mr Shorty... you do not have to do this. Quoc is only using you.', vi: 'Mr Shorty... ông không cần làm vậy. Quoc chỉ đang lợi dụng ông thôi.' },
+        { en: 'Using me?! He promised me a taller throne and a TALLER HAT! ...And I am short, not small. Come on!', vi: 'Lợi dụng ta?! Ngài hứa cho ta ngai vàng cao hơn và một chiếc MŨ CAO HƠN! ...Ta thấp chứ không nhỏ. Lại đây!' }
+      ],
+      outro: [
+        { en: 'My lord... Quoc... I only wanted to be... tall...', vi: 'Chủ nhân... Quoc... ta chỉ muốn được... cao thôi...' },
+        { en: '...Go on, lantern-boy. Sy waits ahead. He is not as kind as I was. Tee-hee... hee...', vi: '...Đi đi, cậu bé cầm đèn. Sy đang đợi phía trước. Hắn không tử tế như ta đâu. Hí hí... hí...' },
+        { w: 'ember', en: '(Shorty dissolves into a shower of top hats. For a moment Ember almost feels sorry for him.)', vi: '(Shorty tan thành một cơn mưa mũ cao. Trong thoáng chốc Ember suýt thấy thương hại hắn.)' }
+      ] },
+    sy: { forms: FORMS.sy,
+      intro: [
+        { en: 'Shorty fell? A pity. He was loud, but cheap. I am Sy. Quoc\\'s second hand, and the quieter one.', vi: 'Shorty gục rồi à? Tiếc thật. Hắn ồn ào nhưng rẻ tiền. Ta là Sy. Cánh tay thứ hai của Quoc, và là người kín tiếng hơn.' },
+        { w: 'ember', en: 'You were in the caves, and in the snow. You woke the Golem and the Frost King for me.', vi: 'Ông đã ở trong hang động, và cả trên tuyết. Ông đã đánh thức Người Khổng Lồ và Vua Băng cho tôi.' },
+        { en: 'Test subjects, boy. I wanted to see how bright your lantern really burns. Now I want to see how long it lasts against my venom.', vi: 'Vật thí nghiệm thôi, nhóc. Ta muốn xem đèn của nhóc thực sự cháy sáng đến đâu. Giờ ta muốn xem nó chịu nổi bao lâu trước nọc độc của ta.' }
+      ],
+      outro: [
+        { en: 'Ha... ha... even my venom... could not put you out.', vi: 'Ha... ha... ngay cả nọc độc của ta... cũng không dập được ngươi.' },
+        { en: 'Listen, boy. Quoc is not one monster. He is seven. Each one angrier than the last. Do not let your light flicker.', vi: 'Nghe này, nhóc. Quoc không phải một con quái vật. Hắn có bảy dạng. Dạng sau giận dữ hơn dạng trước. Đừng để ánh sáng của nhóc chập chờn.' },
+        { w: 'ember', en: '(Sy fades into green mist. The Citadel gate groans open. Only Quoc remains.)', vi: '(Sy tan vào làn sương xanh. Cổng Thành Trì rền rĩ mở ra. Chỉ còn lại Quoc.)' }
+      ] }
+  };
+  const FORM_LINES = {
+    shorty: { 1: [
+      { en: 'IMPOSSIBLE?! Then... Quoc\\'s gift... AWAKEN! I WILL BE TALL!! GRAAAH!!', vi: 'KHÔNG THỂ NÀO?! Vậy thì... món quà của Quoc... THỨC TỈNH! TA SẼ CAO LỚN!! GRAAAH!!' }
+    ] },
+    sy: { 1: [
+      { en: 'Your leek is amusing, boy. But venom spoils every blade. Behold, the true Sy!', vi: 'Cây hành của nhóc thật thú vị. Nhưng nọc độc làm hỏng mọi lưỡi kiếm. Chiêm ngưỡng Sy thực sự đi!' }
+    ] },
+    quoc: {
+      1: [{ en: 'A SPARK THAT BITES? HOW CUTE. LET LOOSE... MY HOUND!', vi: 'MỘT TIA LỬA BIẾT CẮN? DỄ THƯƠNG ĐẤY. THẢ RA... CON CHÓ CỦA TA!' }],
+      3: [{ en: 'ENOUGH!! I WILL NOT BE SHAMED IN MY OWN HOUSE! BEHOLD THE WARLORD!', vi: 'ĐỦ RỒI!! TA SẼ KHÔNG BỊ NHỤC NHÃ TRONG NHÀ CỦA CHÍNH MÌNH! CHIÊM NGƯỠNG ĐẠI TƯỚNG!' }],
+      4: [{ en: 'WINGS OF THE ARCHDEMON! THE SKY ITSELF WILL BURN!', vi: 'ĐÔI CÁNH CỦA ĐẠI QUỶ! CẢ BẦU TRỜI SẼ CHÁY!' }],
+      5: [{ en: 'I AM THE ASH OF EVERY VOLCANO! KNEEL!', vi: 'TA LÀ TRO TÀN CỦA MỌI NGỌN NÚI LỬA! QUỲ XUỐNG!' }],
+      6: [{ en: 'I AM THE ECLIPSE! THE END OF ALL LIGHT! GO DARK... FOREVER!!!', vi: 'TA LÀ NHẬT THỰC! SỰ KẾT THÚC CỦA MỌI ÁNH SÁNG! HÃY TỐI ĐEN... MÃI MÃI!!!' }]
+    }
+  };
+  const QUOC_PRE = [
+    { en: 'So... the little flame crawls into my house. You have burned my slimes, my kings, my titans...', vi: 'Thì ra... ngọn lửa nhỏ bò vào nhà ta. Ngươi đã thiêu slime của ta, vua của ta, titan của ta...' },
+    { w: 'ember', en: 'And I will burn the Eclipse too. Give back the Sun, Quoc!', vi: 'Và cháu sẽ thiêu cả Nhật Thực. Trả Mặt Trời lại đây, Quoc!' },
+    { en: 'GIVE IT BACK?! I SWALLOWED IT!! IT IS PART OF ME NOW! COME, LANTERNBEARER... TASTE MY SEVEN FACES!', vi: 'TRẢ LẠI SAO?! TA ĐÃ NUỐT NÓ!! NÓ LÀ MỘT PHẦN CỦA TA RỒI! LẠI ĐÂY, NGƯỜI MANG ĐÈN... NẾM THỬ BẢY KHUÔN MẶT CỦA TA!' }
+  ];
+  const ALLY_STORY = [
+    { w: 'quoc', en: 'THREE FACES, AND YOU STILL STAND?! THEN I WILL DROWN YOU IN SHADOW, LANTERN-BOY!', vi: 'BA KHUÔN MẶT MÀ NGƯƠI VẪN ĐỨNG ĐƯỢC SAO?! VẬY TA SẼ NHẤN CHÌM NGƯƠI TRONG BÓNG TỐI, CẬU BÉ CẦM ĐÈN!' },
+    { w: 'ember', en: '(coughing) ...I cannot keep this up. His power is too much...', vi: '(ho) ...Mình không trụ nổi nữa. Sức mạnh của hắn quá lớn...' },
+    { w: 'quan', en: 'EMBER!! Hold on! I read it in the Great Book of Embers: a Lanternbearer never fights alone!', vi: 'EMBER!! Cố lên! Mình đã đọc trong Đại Thư Tro Tàn: Người Mang Đèn không bao giờ chiến đấu một mình!' },
+    { w: 'ember', en: 'QuanSadBoy?! How did you get into the Citadel?!', vi: 'QuanSadBoy?! Làm sao cậu vào được Thành Trì?!' },
+    { w: 'hoang', en: 'Through the back door. HoangKiller is very good at back doors.', vi: 'Qua cửa sau. HoangKiller rất giỏi các cánh cửa sau.' },
+    { w: 'ember', en: 'HoangKiller! The one from the Crystal Caverns?', vi: 'HoangKiller! Người ở Hang Pha Lê đó sao?' },
+    { w: 'hoang', en: 'You beat the Golem that chased me. I never forget a debt... or a friend.', vi: 'Cậu đã hạ Người Khổng Lồ từng đuổi tôi. Tôi không bao giờ quên ơn... hay một người bạn.' },
+    { w: 'duong', en: 'And Duong Dracular could not miss such a splendid night. The Sun is whole, and a vampire may stand in daylight thanks to you, Ember. I owe you my afternoons.', vi: 'Và Duong Dracular sao có thể bỏ lỡ một đêm tuyệt vời thế này. Mặt Trời trọn vẹn, và một ma cà rồng được đứng dưới nắng là nhờ cậu, Ember. Ta nợ cậu những buổi chiều.' },
+    { w: 'santree', en: 'SANTREE IS HERE TOO! HO HO HO! Santree grows wherever there is hope! And there is a LOT of hope in this room!', vi: 'SANTREE CŨNG ĐÂY! HO HO HO! Santree mọc ở nơi nào có hy vọng! Và trong căn phòng này có RẤT NHIỀU hy vọng!' },
+    { w: 'ember', en: 'Everyone... why did you all come?', vi: 'Mọi người... sao tất cả lại đến đây?' },
+    { w: 'quan', en: 'Because we each heard the same news: a boy with a lantern is going to defeat the Eclipse. And we each decided, on our own, that you are not doing it alone.', vi: 'Vì ai trong chúng mình cũng nghe cùng một tin: có một cậu bé cầm đèn sẽ đánh bại Nhật Thực. Và mỗi người đều tự quyết định rằng cậu sẽ không làm điều đó một mình.' },
+    { w: 'quoc', en: 'A BOOKWORM, A KNIFE, A BAT AND A... CHRISTMAS TREE?! HAHAHA! I AM QUOC! LORD OF THE ECLIPSE!', vi: 'MỘT CON MỌT SÁCH, MỘT CON DAO, MỘT CON DƠI VÀ MỘT... CÂY THÔNG NOEL?! HAHAHA! TA LÀ QUOC! CHÚA TỂ NHẬT THỰC!' },
+    { w: 'ember', en: 'Then watch us, Quoc. TOGETHER!', vi: 'Vậy hãy xem chúng tôi, Quoc. CÙNG NHAU!' }
+  ];
+  const SY_CAMEO = {
+    2: {
+      pre: [
+        { en: 'Hm. The Golem is sleeping on the job. Allow me. *snaps fingers* ARISE, my little experiment!', vi: 'Hm. Người Khổng Lồ đang ngủ gật khi làm việc. Để ta. *búng tay* TRỖI DẬY, thí nghiệm bé nhỏ của ta!' },
+        { en: 'I am Sy, one of Quoc\\'s two hands. Do not worry, boy. I will not fight you today. Today... I only watch.', vi: 'Ta là Sy, một trong hai cánh tay của Quoc. Đừng lo, nhóc. Hôm nay ta sẽ không đánh nhau với nhóc. Hôm nay... ta chỉ xem.' }
+      ],
+      post: [
+        { en: 'Impressive. The Golem lasted longer than I bet. Keep the shiny dust, boy.', vi: 'Ấn tượng. Người Khổng Lồ trụ lâu hơn ta cược. Cứ giữ lấy bụi lấp lánh đi, nhóc.' },
+        { en: 'We will meet again at the Citadel. Bring your little leek.', vi: 'Chúng ta sẽ gặp lại ở Thành Trì. Nhớ mang theo cây hành bé nhỏ của nhóc.' }
+      ] },
+    4: {
+      pre: [
+        { en: 'The Frost King. A prince of ice. Quoc told me to wake him, but I like him better angry.', vi: 'Vua Băng. Một hoàng tử của băng giá. Quoc bảo ta đánh thức ông ta, nhưng ta thích ông ta khi nổi giận hơn.' },
+        { en: '*shatters the ice cage* WAKE UP, Majesty! A lantern has come to melt you!', vi: '*đập vỡ lồng băng* DẬY ĐI, Bệ hạ! Có một chiếc đèn đến để làm tan chảy ngài!' }
+      ],
+      post: [
+        { en: 'Tsk. He melted faster than my notes predicted. Quoc is very, very angry now.', vi: 'Chậc. Ông ta tan nhanh hơn ghi chép của ta dự đoán. Quoc đang rất, rất giận.' },
+        { en: 'Run along, little flame. I will tell him you said hello.', vi: 'Đi đi, ngọn lửa nhỏ. Ta sẽ nói với hắn là nhóc gửi lời chào.' }
+      ] }
+  };
+  const bpc = () => (Q && Q.boss && Q.boss.cfg && Q.boss.cfg.proj) || Q.B.proj;

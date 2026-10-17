@@ -70,7 +70,7 @@ const BIOMES = [
     proj: '#ff9a2a', movers: true, traps: ['jets', 'rockfall', 'saw'], trapStyle: 'dark'
   },
   { // 7
-    id: 'citadel', seed: 77, len: 560, hazard: 'spikes', dark: 0.5, sun: false, stars: true, particles: 'motes',
+    id: 'citadel', seed: 77, len: 720, hazard: 'spikes', dark: 0.5, sun: false, stars: true, particles: 'motes',
     name: { en: 'Shadow Citadel', vi: 'Thành Trì Bóng Tối' }, sub: { en: 'The Eclipse waits at the top', vi: 'Nhật Thực đang đợi trên đỉnh' },
     sky: ['#06040f', '#150a2a', '#2a1450', '#4a2a7a'], far: '#1a1030', mid: '#0e0820', style: 'citadel', tree: ['#000', '#000'],
     ground: { top: '#7a6aae', topDark: '#3a2f66', topLight: '#a89add', body: '#2a2248', dark: '#1a1430', light: '#463a78' },
@@ -89,9 +89,9 @@ const TITLE_MUSIC = { root: 60, scale: [0, 2, 4, 7, 9], bpm: 78, wave: 'triangle
 const NPC_PLAN = {
   0: { start: ['lila'], cps: ['fairy'] },
   1: { start: ['bram'], cps: ['gob', 'quan', 'wizard'] },
-  2: { cps: ['quan', 'smith', 'wizard'] },
-  3: { start: ['bram'], cps: ['gob', 'lyra', 'smith'] },
-  4: { cps: ['angel', 'smith'] },
+  2: { cps: ['quan', 'hoang', 'smith', 'wizard'] },
+  3: { start: ['bram'], cps: ['gob', 'duong', 'lyra', 'smith'] },
+  4: { cps: ['angel', 'santree', 'smith'] },
   5: { cps: ['gob', 'lyra', 'smith'] },
   6: { cps: ['wizard'], pre: ['lila', 'angel', 'bram', 'quan', 'lyra', 'fairy'] }
 };
@@ -103,7 +103,7 @@ const PUZZLES = {
   3: ['timed', 'key', 'bombwall'],
   4: ['seqtorch', 'multilever', 'timed'],
   5: ['dragon6', 'timed', 'bombwall', 'trial', 'seqtorch', 'key'],
-  6: ['runes', 'seqtorch', 'trial', 'multilever', 'timed']
+  6: ['runes', 'fetch', 'seqtorch', 'trial', 'shorty', 'multilever', 'fetch', 'timed', 'trial', 'sy']
 };
 const TRIAL_WAVES = { 0: 2, 2: 3, 5: 4, 6: 5 };
 
@@ -112,7 +112,7 @@ function genLevel(li) {
   const R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
   const H = 15, W = B.len + 70;
   const grid = []; for (let y = 0; y < H; y++) grid.push(new Array(W).fill(' '));
-  const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], dragons: [], dark: [], creep: [], id: 0 };
+  const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], dragons: [], minis: [], dark: [], creep: [], id: 0 };
   const set = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) grid[y][x] = c; };
   const col = (x, top) => { for (let y = top; y < H; y++) grid[y][x] = (B.ice && rnd() < 0.55) ? 'I' : '#'; };
   const solidCol = (x, top) => { for (let y = top; y < H; y++) grid[y][x] = '#'; };
@@ -148,14 +148,14 @@ function genLevel(li) {
     for (let i = 0; i < n; i++) col(x + i, gy);
     for (let i = 0; i < n; i++) if (rnd() < 0.2) L.decor.push({ x: (x + i) * TS + R(0, 8), y: gy * TS, k: R(0, B.decor.length - 1) });
     if (!o.safe && n >= 5) {
-      const cnt = rnd() < 0.78 + d * 0.2 ? 1 + (d > 0.45 && rnd() < 0.6 ? 1 : 0) + (d > 0.8 && rnd() < 0.5 ? 1 : 0) + (n >= 9 && rnd() < 0.7 ? 1 : 0) + (li >= 2 && rnd() < 0.35 ? 1 : 0) : 0;
+      const cnt = rnd() < 0.78 + d * 0.2 ? (li === 6 ? 1 : 0) + 1 + (d > 0.45 && rnd() < 0.6 ? 1 : 0) + (d > 0.8 && rnd() < 0.5 ? 1 : 0) + (n >= 9 && rnd() < 0.7 ? 1 : 0) + (li >= 2 && rnd() < 0.35 ? 1 : 0) : 0;
       for (let c = 0; c < cnt; c++) addEnemy(x + R(2, n - 2), gy);
     }
     if (o.cp) { L.checkpoints.push({ x: (x + 2) * TS + 8, y: gy * TS, id: L.id++ }); }
     if (o.heart) spawn('heart', x + (n >> 1), gy - 2);
     if (rnd() < 0.6 && n >= 5) coinsLine(x + R(1, n - 4), gy - 2, R(3, 4));
     if (rnd() < 0.13 && n >= 5) spawn('pk', x + R(1, n - 2), gy, { what: pickWhat() });
-    if (!o.safe && n >= 8 && B.traps && rnd() < 0.3 + d * 0.3) placeTrap(B.traps[R(0, B.traps.length - 1)], x, n);
+    if (!o.safe && n >= 8 && B.traps && rnd() < 0.3 + d * 0.3 + (li === 6 ? 0.25 : 0)) placeTrap(B.traps[R(0, B.traps.length - 1)], x, n);
     x += n;
   }
   function pickWhat() { const r = rnd(); return r < 0.45 ? 'dagger' : (r < 0.75 ? 'bomb' : 'flask'); }
@@ -254,7 +254,35 @@ function genLevel(li) {
     for (let i = 0; i < 4; i++) { set(x0 + 16 + i, gy - 4, '='); set(x0 + 30 + i, gy - 4, '='); }
     spawn('heart', x0 + 4, gy - 2);
   }
+  function pMini(who) { // Mr Shorty / Mr Sy duel: sealed arena, resolved in game.js
+    const n = 54, x0 = pzFlat(n);
+    L.minis.push({ id: L.id++, who, lw: x0 + 8, rw: x0 + n - 6, trig: x0 + 11, gy });
+    for (let i = 0; i < 4; i++) { set(x0 + 17 + i, gy - 4, '='); set(x0 + 33 + i, gy - 4, '='); }
+    spawn('heart', x0 + 4, gy - 2);
+  }
+  function pFetch() { // back-and-forth: the gate needs TWO keys; one lies in this room, the other far behind you
+    const n = 42, x0 = pzFlat(n);
+    gateAt(x0 + n - 5, 'key', { keys: 2 });
+    ledges(x0, [[8, 2, 3], [12, 4, 3]]); spawn('key', x0 + 13, gy - 4, {});
+    pzGuards(x0, n, 3);
+    if (B.traps) placeTrap(B.traps[R(0, B.traps.length - 1)], x0 + 14, 14);
+    let kx = -1;
+    for (let tx = x0 - 34; tx > x0 - 100 && kx < 0; tx--) {
+      if (tx < 16) break;
+      let top = -1; for (let yy = 5; yy < H - 2; yy++) if (grid[yy][tx] === '#') { top = yy; break; }
+      if (top < 7) continue;
+      let ok = true; for (let dx = -2; dx <= 2 && ok; dx++) { const c = grid[top][tx + dx], a1 = grid[top - 1][tx + dx], a2 = grid[top - 2][tx + dx]; if (c !== '#' || a1 !== ' ' || a2 !== ' ') ok = false; }
+      if (ok) kx = tx;
+    }
+    if (kx >= 0) {
+      let top = 0; for (let yy = 5; yy < H - 2; yy++) if (grid[yy][kx] === '#') { top = yy; break; }
+      spawn('key', kx, top, {}); spawn('turret', kx + 6, top, { dir: -1 }); coinsLine(kx - 3, top - 2, 3);
+      const t = pick(); if (!FLY.has(t)) { spawn(t, kx + 2, top, { v: 'elite' }); }
+    }
+  }
   function runPuzzle(t) {
+    if (t === 'fetch') { pFetch(); return; }
+    if (t === 'shorty' || t === 'sy') { pMini(t); return; }
     if (t === 'rescue') { pRescue(); return; }
     if (t === 'trial') { pTrial(); return; }
     if (t === 'dragon') { pDragon('young'); return; }
@@ -415,7 +443,7 @@ function genLevel(li) {
     else if (r < 0.60) drop();
     else if (r < 0.78) patrol();
     else if (r < 0.81 && li >= 2) { if (rnd() < 0.5 || !B.movers) mover(); else mover2(); }
-    else if (r < 0.95) { if (li >= 1 && rnd() < 0.4) arena(); else trapRun(); }
+    else if (r < 0.95) { if (li >= 1 && rnd() < (li === 6 ? 0.65 : 0.4)) arena(); else trapRun(); }
     else flat(R(6, 10));
   }
   { const ax = x; flat(plan.pre ? 16 : 8, { safe: true, cp: true, heart: true }); (plan.pre || []).forEach((w, i) => spawn('npc', ax + 3 + i * 2, gy, { who: w })); }

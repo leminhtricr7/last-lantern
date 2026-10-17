@@ -84,6 +84,16 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **Princess Lyra follows you through map 2.** After you beat map 2 the story moves to **Castle Aurelia**: the crowd cheers, King Aurelius asks you to defeat the guardians, you agree, and a golden egg hatches into a free **Baby Dragon pet** (+500 gold, +20 gems). Plays once per save.
 - **After map 1:** Ember rides a horse home with Lyra - a short, shy romance scene - before the devil cutscene.
 
+## The final story (maps 3-7)
+
+- **Mr Sy** (Quoc's second minion) shows up on maps 3 and 5: he wakes the boss for you, then speaks when it falls and vanishes. He also joins Quoc's angry cutscenes.
+- **The four helpers** are met by chance on maps 2-5: **QuanSadBoy** (map 2), **HoangKiller** (map 3), **DuongDracular** (map 4), **Santree** (map 5). Each has heard of the lantern boy and promises to help.
+- **Map 7 (Shadow Citadel)** is longer and full of monsters, traps and new back-and-forth puzzles (gates that need TWO keys - one lies far behind you). Then:
+  1. **Mr Shorty Phong** duel: human form, then he turns into a hat-wearing monster.
+  2. More trials and story, then **Mr Sy** duel: plague-doctor form, then a giant venom serpent.
+  3. **Quoc, the Eternal Eclipse** - **7 forms** (Shadow Imp, Hellhound, Chain Demon, Warlord, Archdemon, Titan of Ash, Eternal Eclipse), each with its own look and skills. When form 3 begins, QuanSadBoy, HoangKiller, DuongDracular and Santree join the fight with their own skills.
+- Code: `src/foes.js` (all new art), forms/dialogue tables near `FORMS`/`MINI` in `src/game.js`.
+
 ## Bosses, dragon & difficulty
 
 - **Boss fights are long** (roughly 1-3 minutes each, longer later), have **armor** (bombs and flames pierce it), **dodge** your attacks and use their own signature skills:
