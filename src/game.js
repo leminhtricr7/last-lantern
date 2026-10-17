@@ -2069,6 +2069,7 @@
     Q.talk = { it, npc: NPCS[it.who], lines: d, i: 0, t: 0 }; Q.state = 'talk'; Snd.blip(it.who); Q.P.vx = 0;
   }
   function startScripted(who, lines, after) {
+    if (coop && coop.role === 'host') { lines = teamLines(lines, who); if (who === 'ember' && lines[0]) who = lines[0].w; }
     Q.talk = { it: { who }, npc: NPCS[who], lines, i: 0, t: 0, after, cine: true }; Q.state = 'talk'; Snd.blip(who); Q.P.vx = 0;
   }
   function giveGift(gf) {
@@ -3047,7 +3048,7 @@
       else if (Q.stateT > 0.8 && act.backP) { if (coop) coopBackToLobby(); else toScene('map'); }
       return;
     }
-    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (coop) { coopBackToLobby(); return; } if (Q.li >= 6) toScene('ending'); else if (Q.li === 0 && !save.ride) toScene('ride'); else if (Q.li === 1 && !save.castle) toScene('castle'); else { cutLevel = Q.li; mapSel = Math.min(6, Q.li + 1); toScene('cutscene'); } } return; }
+    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (coop) { if (Q.li >= 6 && !Q.endShown) { Q.endShown = true; startScripted('narr', COOP_END, () => coopBackToLobby()); return; } coopBackToLobby(); return; } if (Q.li >= 6) toScene('ending'); else if (Q.li === 0 && !save.ride) toScene('ride'); else if (Q.li === 1 && !save.castle) toScene('castle'); else { cutLevel = Q.li; mapSel = Math.min(6, Q.li + 1); toScene('cutscene'); } } return; }
     // play / bossintro
     if (act.pauseP && st === 'play') { Q.state = 'pause'; Q.menu = 0; return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
@@ -3475,8 +3476,8 @@
       for (let i = 0; i < 7; i++) { const ic = icon('r' + i); g.globalAlpha = save.relics[i] ? 1 : 0.2; g.drawImage(ic.c, VW / 2 - 7 * 13 + i * 26 + 4, 172); }
       g.globalAlpha = 1;
     } else if (st === 'talk') {
-      const tk = Q.talk, ln0 = tk.lines[tk.i] || {}, who = ln0.w || tk.it.who, cur = (ln0.w && NPCS[ln0.w]) || tk.npc, sp = cur.spr ? npcSpr(cur.spr) : null;
-      const col = who.indexOf('boss') === 0 ? '#ff7a7a' : (SPEAKER_COL[who] || '#ffd34e');
+      const tk = Q.talk, ln0 = tk.lines[tk.i] || {}, who = ln0.w || tk.it.who, cur = (ln0.w && NPCS[ln0.w]) || tk.npc, sp = cur.hero ? getSprite('hero_idle', HERO[cur.hero].sw, 0) : (cur.spr ? npcSpr(cur.spr) : null);
+      const col = who.indexOf('h_') === 0 && HERO[who.slice(2)] ? HERO_CLS[HERO[who.slice(2)].cls].col : who.indexOf('boss') === 0 ? '#ff7a7a' : (SPEAKER_COL[who] || '#ffd34e');
       if (tk.cine) { const k = Math.min(1, Q.stateT * 3); g.fillStyle = '#000'; g.fillRect(0, 0, VW, Math.round(20 * k)); g.fillRect(0, VH - Math.round(5 * k), VW, 5); }
       const X = 6, Y = 145, W = VW - 12, H = 64, box = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, 1); g.fillRect(x, y + h - 1, w, 1); g.fillRect(x, y, 1, h); g.fillRect(x + w - 1, y, 1, h); };
       g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(X + 3, Y + 3, W, H);
@@ -3490,7 +3491,7 @@
         g.fillStyle = '#120e22'; g.fillRect(PX, PY, PW, PH);
         { const gr = g.createRadialGradient(PX + PW / 2, PY + PH * 0.6, 2, PX + PW / 2, PY + PH * 0.6, 34); gr.addColorStop(0, hexA(col, 0.35)); gr.addColorStop(1, hexA(col, 0)); g.fillStyle = gr; g.fillRect(PX, PY, PW, PH); }
         g.save(); g.beginPath(); g.rect(PX, PY, PW, PH); g.clip();
-        const sc = Math.min(2.5, (PH - 4) / sp.h, (PW - 4) / sp.w); drawSpr(g, sp, PX + PW / 2, PY + PH - 1, false, false, sc, sc);
+        const sc = Math.min(2.5, (PH - 4) / sp.h, (PW - 4) / sp.w); if (cur.hero) drawHeroAt(cur.hero, PX + PW / 2, PY + PH + 6, 1, Math.floor(Q.t * 3) % 2, 2.4); else drawSpr(g, sp, PX + PW / 2, PY + PH - 1, false, false, sc, sc);
         g.restore();
         box(PX - 1, PY - 1, PW + 2, PH + 2, col); box(PX - 2, PY - 2, PW + 4, PH + 4, '#5a4210');
         tx = PX + PW + 10;
@@ -4613,6 +4614,81 @@
       else if (d.t === 'busy') coopLeave(cvs('That room is already playing. Try again later.', 'Phòng đang chơi. Hãy thử lại sau.'));
     }
   });
+  // ---------- the co-op story: a one-minute opening, a team beat on every map, Ember's lines shared by the team, an ending ----------
+  for (const h of HEROES) NPCS['h_' + h.id] = { hero: h.id, name: h.name };
+  const L2 = (w, en, vi) => ({ w, en, vi });
+  const HERO_HELLO = {
+    war: ['I am {n}. My sword has waited a long time for a fight worth having.', 'Ta là {n}. Thanh kiếm này đã chờ rất lâu cho một trận đánh xứng đáng.'],
+    mage: ['{n}, at your service. The stars whispered your names to me last night.', '{n} xin có mặt. Đêm qua các vì sao đã thì thầm tên các bạn cho ta nghe.'],
+    rng: ['{n} here. I can hit a firefly at a hundred paces. Just point me at the monsters.', '{n} đây. Một trăm bước vẫn bắn trúng đom đóm. Cứ chỉ quái vật cho tôi.'],
+    tank: ['I am {n}. Stand behind me, and nothing will ever reach you.', 'Ta là {n}. Cứ đứng sau lưng ta, không gì chạm được tới các bạn.'],
+    sin: ['...{n}. I work best in the shadows. Lucky for us, there are plenty of them.', '...{n}. Ta làm việc tốt nhất trong bóng tối. May cho chúng ta, bóng tối thì đầy.'],
+    sup: ['Hi, I am {n}! If anyone gets hurt, come straight to me, okay?', 'Chào mọi người, mình là {n}! Ai bị thương thì chạy lại chỗ mình nhé!']
+  };
+  // {p0} {p1}... = the heroes of player 1, 2... (wrapping around when the team is smaller)
+  const COOP_INTRO = [
+    L2('narr', 'Long ago, the Sun hung whole above the kingdom of Lumen, and no night lasted longer than a lullaby.', 'Ngày xưa, Mặt Trời còn nguyên vẹn trên vương quốc Lumen, và chẳng đêm nào dài hơn một bài hát ru.'),
+    L2('narr', 'Then Quoc the Devil reached into the sky and tore the Sun into seven burning fragments.', 'Rồi Quỷ Vương Quoc vươn tay lên trời, xé Mặt Trời thành bảy mảnh rực cháy.'),
+    L2('narr', 'Darkness poured over the land. Fields froze, rivers fell silent, and monsters crawled out of every shadow.', 'Bóng tối tràn khắp nơi. Đồng ruộng đóng băng, sông ngòi im bặt, quái vật bò ra từ mọi góc tối.'),
+    L2('narr', 'In the last lit village, an old lantern began to glow on its own... and its light flew out in every direction.', 'Ở ngôi làng cuối cùng còn ánh sáng, một chiếc đèn lồng cũ bỗng tự phát sáng... và ánh sáng của nó bay đi muôn hướng.'),
+    L2('narr', 'It searched the whole kingdom for hearts brave enough to answer. Tonight, it found {N} of them.', 'Nó lục tìm khắp vương quốc những trái tim đủ dũng cảm để đáp lời. Đêm nay, nó tìm thấy {N} người.'),
+    '{hello}',
+    L2('narr', 'The lantern settled among them, warm as a heartbeat, and showed them seven roads, seven monsters, seven pieces of the Sun.', 'Chiếc đèn lồng đáp xuống giữa họ, ấm như một nhịp tim, và chỉ cho họ bảy con đường, bảy con quái vật, bảy mảnh Mặt Trời.'),
+    L2('quoc', 'More of them? Fine. Come, little candles. My darkness has room for all of you.', 'Thêm mấy đứa nữa à? Được thôi. Lại đây, những ngọn nến bé nhỏ. Bóng tối của ta đủ chỗ cho tất cả các ngươi.'),
+    L2('{p0}', 'Did everyone hear that? Good. Now he knows we are coming.', 'Mọi người nghe thấy chứ? Tốt. Giờ hắn biết tụi mình đang tới rồi đó.'),
+    L2('{p1}', 'Stay close. If one of us falls, the others pick them back up.', 'Đi sát nhau nhé. Ai ngã xuống thì những người còn lại kéo người đó dậy.'),
+    L2('narr', '(Stand next to a fallen friend to bring them back faster. In this story, no one is left in the dark.)', '(Đứng cạnh đồng đội bị gục để hồi sinh họ nhanh hơn. Trong câu chuyện này, không ai bị bỏ lại trong bóng tối.)'),
+    L2('{plast}', 'Then let us go and take our Sun back. Together!', 'Vậy thì đi lấy lại Mặt Trời của chúng ta thôi. Cùng nhau!'),
+    L2('narr', 'And so the journey began...', 'Và thế là cuộc hành trình bắt đầu...')
+  ];
+  const COOP_MAP = {
+    0: [L2('narr', 'The Verdant Meadow. The first fragment fell here, and the slimes have been acting strange ever since.', 'Đồng Cỏ Xanh. Mảnh đầu tiên rơi xuống đây, và lũ slime cứ hành xử kỳ lạ từ hôm đó.'),
+        L2('{p0}', 'Slimes? That is our first monster? I was hoping for something scarier.', 'Slime á? Quái đầu tiên là slime hả? Tưởng phải đáng sợ hơn chứ.'),
+        L2('{p1}', 'Please do not jinx it.', 'Làm ơn đừng nói gở.')],
+    1: [L2('narr', 'The Whispering Forest. High in the webs above, eight red eyes are watching the team.', 'Rừng Thì Thầm. Trên những tấm tơ cao kia, tám con mắt đỏ đang dõi theo cả nhóm.'),
+        L2('{p1}', 'Everyone hates spiders, right? ...Right?', 'Ai cũng ghét nhện mà, đúng không? ...Đúng không?'),
+        L2('{p0}', 'Burn the webs, free the light, find the princess. Let us move.', 'Đốt tơ, giải phóng ánh sáng, tìm công chúa. Đi thôi.')],
+    2: [L2('narr', 'The Crystal Caverns. Down here, the only light is the light you carry with you.', 'Hang Pha Lê. Dưới này, ánh sáng duy nhất là thứ các bạn tự mang theo.'),
+        L2('{p0}', 'Stay near the lanterns. If you get lost, shout my name.', 'Đi gần đèn nhé. Ai lạc thì hét tên tôi.'),
+        L2('{p1}', 'If I get lost, I am blaming the bats.', 'Nếu tôi lạc thì là tại lũ dơi.')],
+    3: [L2('narr', 'The Endless Desert. Under the sand, an old Pharaoh guards a fragment like his last treasure.', 'Sa Mạc Bất Tận. Dưới lớp cát, một Pharaoh già canh giữ mảnh Mặt Trời như báu vật cuối cùng.'),
+        L2('{p1}', 'So hot... whose idea was it to wear armour in a desert?', 'Nóng quá... ai bày ra vụ mặc giáp đi sa mạc vậy?'),
+        L2('{p0}', 'Drink water, dodge the mummies, win. Simple plan.', 'Uống nước, né xác ướp, thắng. Kế hoạch đơn giản.')],
+    4: [L2('narr', 'The Frozen Peaks. A king made of ice has forgotten what warmth feels like.', 'Đỉnh Núi Băng Giá. Một vị vua bằng băng đã quên mất hơi ấm là gì.'),
+        L2('{p0}', 'Then we will remind him. All of us, at the same time.', 'Vậy tụi mình nhắc lại cho ông ta. Tất cả cùng một lúc.')],
+    5: [L2('narr', 'The Volcano. Ignarok the fire dragon sleeps on the sixth fragment, and the mountain breathes with him.', 'Núi Lửa. Rồng lửa Ignarok ngủ trên mảnh thứ sáu, và cả ngọn núi thở theo nó.'),
+        L2('{p1}', 'Good news: it is warm. Bad news: everything else.', 'Tin vui: ở đây ấm. Tin buồn: mọi thứ còn lại.'),
+        L2('{p0}', 'Six fragments. Only one left after this. Nobody stops now!', 'Sáu mảnh rồi. Xong chỗ này chỉ còn một. Không ai được dừng lại!')],
+    6: [L2('narr', 'The Shadow Citadel. Every stone whispers one name: Quoc.', 'Thành Trì Bóng Đêm. Từng phiến đá đều thì thầm một cái tên: Quoc.'),
+        L2('quoc', 'So the candles came together. How touching. I will snuff you out one by one.', 'Vậy là lũ nến kéo nhau tới đủ cả. Cảm động thật. Ta sẽ thổi tắt từng đứa một.'),
+        L2('{p0}', 'Not one by one. All of us. At once.', 'Không phải từng người. Tất cả. Cùng một lúc.'),
+        L2('{plast}', 'For the Sun!', 'Vì Mặt Trời!')]
+  };
+  const COOP_END = [
+    L2('narr', 'The seventh fragment fell into many hands at once, and the Sun remembered how to shine.', 'Mảnh thứ bảy rơi vào nhiều bàn tay cùng một lúc, và Mặt Trời nhớ lại cách tỏa sáng.'),
+    L2('narr', 'Across the kingdom, the long night ended. People stepped out of their homes and looked up, laughing and crying at the same time.', 'Khắp vương quốc, đêm dài đã kết thúc. Mọi người bước ra khỏi nhà, ngước lên trời, vừa cười vừa khóc.'),
+    L2('{p0}', 'We... actually did it.', 'Tụi mình... làm được thật rồi.'),
+    L2('{p1}', 'Of course we did. Nobody fights alone on this team.', 'Đương nhiên rồi. Trong đội này không ai phải chiến đấu một mình.'),
+    L2('narr', 'The old lantern dimmed, its work done. But if the dark ever creeps back, it knows exactly who to call.', 'Chiếc đèn lồng cũ dịu lại, nhiệm vụ đã xong. Nhưng nếu bóng tối có quay lại, nó biết chính xác phải gọi ai.'),
+    L2('narr', 'THE END. Thank you for playing together!', 'HẾT. Cảm ơn các bạn đã chơi cùng nhau!')
+  ];
+  // turn a script into the team's version: {pN} becomes a player's hero, Ember's lines go round the team, narration says "the heroes"
+  function teamLines(lines, who) {
+    const pl = (Q && Q.players && Q.players.length) ? Q.players : [Q.P]; let k = 0;
+    const hid = i => 'h_' + (pl[((i % pl.length) + pl.length) % pl.length].hero || 'ember');
+    const fixT = (t, vi) => vi ? t.replace(/Ember/g, 'nhóm anh hùng').replace(/(cậu|anh) (?=bước|đi)/g, 'họ ') : t.replace(/Ember's/g, "the heroes'").replace(/\bEmber\b/g, 'the heroes').replace(/\b(He|he) (walks|smiles|looks)/g, (m, a, v) => (a === 'He' ? 'They ' : 'they ') + v.replace(/s$/, ''));
+    const out = [];
+    for (const l of lines) {
+      if (l === '{hello}') { pl.forEach((p, i) => { const h = HERO[p.hero] || HERO.ember, t = HERO_HELLO[h.cls]; out.push({ w: 'h_' + h.id, en: t[0].replace('{n}', h.name.en), vi: t[1].replace('{n}', h.name.vi) }); }); continue; }
+      const o = Object.assign({}, l); let w = o.w || who;
+      if (w === '{plast}') w = hid(pl.length - 1); else if (/^\{p\d\}$/.test(w)) w = hid(+w[2]);
+      else if (w === 'ember') w = hid(k++);
+      if (w === 'narr') { o.en = fixT(o.en, false); o.vi = fixT(o.vi, true); }
+      o.en = o.en.replace('{N}', pl.length); o.vi = o.vi.replace('{N}', pl.length);
+      o.w = w; out.push(o);
+    }
+    return out;
+  }
   function coopStart() {
     const li = coopUI.li; startLevel(li); Q.state = 'intro';
     coop.seen = {}; coop.last = new Map(); coop.vlast = {}; coop.grid = []; coop.nid = 0;
@@ -4626,6 +4702,8 @@
     }
     Q.players.sort((a, b) => a.slot - b.slot);
     NET.send({ t: 'start', li });
+    const intro = !coop.introDone; coop.introDone = true;
+    startScripted('narr', (intro ? COOP_INTRO : []).concat(COOP_MAP[li] || []), null);
   }
   function coopJoin(code) { coopUI.ph = 'code'; coopUI.code = code.toUpperCase(); coopInit('client'); coopUI.msg = cvs('Connecting...', 'Đang kết nối...'); coopUI.msgBad = false; NET.join(coopUI.code); Snd.play('ok'); }
   const roomLink = () => location.origin + location.pathname + '?room=' + (coopUI.code || '');
