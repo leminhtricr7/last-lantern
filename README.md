@@ -94,6 +94,13 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
   3. **Quoc, the Dark Lord** (spiked bone crown, black spiked armour, ragged cape, red eyes) - **8 stages**: form 0 the Dark Lord himself, then 7 monster forms (Dark Imp, Hellhound, Chained Demon, Iron General, Winged Archdemon, Ashen Titan, Eternal Eclipse), each with its own look and skills. When form 3 (the Chained Demon) begins, QuanSadBoy, HoangKiller, DuongDracular and Santree join the fight with their own skills.
 - Code: `src/foes.js` (all new art), forms/dialogue tables near `FORMS`/`MINI` in `src/game.js`.
 
+## The movie (story placement)
+
+- Opening story -> long map-1 intro -> each map: intro pages on first visit, a **mid-way story beat at the 2nd lantern**, NPC meetings, **the boss speaks before the fight and gives its last words after** (with cinematic black bars) -> after map 1 the horse ride, after map 2 the castle -> Quoc's rage scene after every map -> final map duels -> Quoc's 8 stages -> Quoc's last words -> long ending.
+- **Every boss can roar**: it stands still, the screen shakes, and anyone close loses a heart and is knocked back.
+- **Each of Quoc's forms drags you into its own world**: Shadow Void, Hellfire Plains, Chain Dungeon, Iron Fortress, Storm Above the Clouds, Ashen Wasteland, Eclipse Void.
+- Shortcut for checking the boss: open the game with `?quoc=N` (N = 0-7).
+
 ## Bosses, dragon & difficulty
 
 - **Boss fights are long** (roughly 1-3 minutes each, longer later), have **armor** (bombs and flames pierce it), **dodge** your attacks and use their own signature skills:

@@ -1,0 +1,73 @@
+  // ---------- the movie: every boss speaks before and after its fight, and every map has a mid-way story beat ----------
+  BOSS.forEach((c, i) => { NPCS['boss' + i] = { spr: 'boss:' + i, name: c.name }; });
+  const BOSS_LINES = {
+    0: { pre: [
+        { en: 'BLORP! You squashed my children! I am the KING of this meadow!', vi: 'BLORP! Ngươi dám đè bẹp con của ta! Ta là VUA của đồng cỏ này!' },
+        { w: 'ember', en: 'Give back the fragment of the Sun. It does not belong to you.', vi: 'Trả mảnh Mặt Trời lại đây. Nó không thuộc về ngươi.' },
+        { en: 'This shiny thing? It tastes like sunshine. MINE! BLOOORP!', vi: 'Cái thứ lấp lánh này à? Nó có vị như nắng. CỦA TA! BLOOORP!' }
+      ], post: [
+        { en: 'Blorp... so... warm...', vi: 'Blorp... ấm... quá...' },
+        { w: 'narr', en: 'The first fragment glows in Ember\'s hands. Far away, in a castle of ash, a dark laugh suddenly stops.', vi: 'Mảnh vỡ đầu tiên rực sáng trong tay Ember. Ở nơi xa, trong tòa lâu đài tro tàn, một tràng cười đen tối bỗng im bặt.' }
+      ] },
+    1: { pre: [
+        { en: 'Little moth... drawn to its own light. My webs have waited for you.', vi: 'Con thiêu thân bé nhỏ... bị chính ánh sáng của mình dẫn lối. Tơ của ta đã chờ ngươi từ lâu.' },
+        { w: 'ember', en: 'Your webs are full of stolen light. I am taking it back.', vi: 'Tơ của ngươi đầy ánh sáng bị đánh cắp. Ta sẽ lấy lại nó.' }
+      ], post: [
+        { en: 'My children... will spin... in the dark... forever...', vi: 'Các con ta... sẽ giăng tơ... trong bóng tối... mãi mãi...' },
+        { w: 'narr', en: 'The webs fall like dead leaves. For the first time in days, moonlight reaches the forest floor.', vi: 'Những tấm tơ rơi xuống như lá úa. Lần đầu tiên sau nhiều ngày, ánh trăng chạm tới mặt đất của khu rừng.' }
+      ] },
+    2: { pre: [
+        { en: 'INTRUDER. CRYSTAL. PROTECT. CRUSH.', vi: 'KẺ XÂM NHẬP. PHA LÊ. BẢO VỆ. NGHIỀN NÁT.' },
+        { w: 'ember', en: 'It is only following orders... I am sorry, big guy.', vi: 'Nó chỉ làm theo lệnh thôi... Xin lỗi nhé, anh bạn to xác.' }
+      ], post: [
+        { en: 'Light... remembers... me...', vi: 'Ánh sáng... còn nhớ... ta...' },
+        { w: 'narr', en: 'One by one, the crystals of the caverns flicker back to life.', vi: 'Từng viên một, pha lê trong hang động le lói sáng trở lại.' }
+      ] },
+    3: { pre: [
+        { en: 'KNEEL, child of the Sun! In my desert, even the Sun bows to ME!', vi: 'QUỲ XUỐNG, đứa con của Mặt Trời! Trên sa mạc của ta, ngay cả Mặt Trời cũng phải cúi đầu trước TA!' },
+        { w: 'ember', en: 'The Sun does not bow. It rises.', vi: 'Mặt Trời không cúi đầu. Nó mọc lên.' }
+      ], post: [
+        { en: 'My tomb... was so... quiet...', vi: 'Lăng mộ của ta... từng thật... yên tĩnh...' },
+        { w: 'narr', en: 'The sandstorm dies. Under the stars, the dunes look almost peaceful.', vi: 'Bão cát lặng đi. Dưới bầu trời sao, những đụn cát trông gần như bình yên.' }
+      ] },
+    4: { pre: [
+        { en: 'Who dares bring FIRE into my halls? ...I have been cold so long that I forgot what warmth feels like.', vi: 'Kẻ nào dám mang LỬA vào cung điện của ta? ...Ta đã lạnh quá lâu, đến mức quên mất hơi ấm là gì.' },
+        { w: 'ember', en: 'Then let me remind you.', vi: 'Vậy để ta nhắc lại cho ngươi.' }
+      ], post: [
+        { en: 'Warm... it is... warm... thank you... little flame...', vi: 'Ấm... thật... ấm... cảm ơn... ngọn lửa nhỏ...' },
+        { w: 'narr', en: 'For the first time in a hundred years, the Frost King smiles. Then he melts into a quiet spring rain.', vi: 'Lần đầu tiên sau trăm năm, Vua Băng mỉm cười. Rồi ông tan thành một cơn mưa xuân lặng lẽ.' }
+      ] },
+    5: { pre: [
+        { en: 'I AM THE MOUNTAIN\'S HEART! YOUR LITTLE LANTERN IS A SPARK IN MY FURNACE!', vi: 'TA LÀ TRÁI TIM CỦA NGỌN NÚI! CHIẾC ĐÈN BÉ NHỎ CỦA NGƯƠI CHỈ LÀ MỘT TIA LỬA TRONG LÒ RÈN CỦA TA!' },
+        { w: 'ember', en: 'Sparks are how every fire begins.', vi: 'Mọi ngọn lửa đều bắt đầu từ một tia lửa.' }
+      ], post: [
+        { en: 'The mountain... grows... quiet...', vi: 'Ngọn núi... đang... lặng đi...' },
+        { w: 'narr', en: 'Six fragments now. They hum together like a choir. Only one remains, in the Shadow Citadel.', vi: 'Giờ đã có sáu mảnh. Chúng ngân lên cùng nhau như một dàn đồng ca. Chỉ còn một mảnh, trong Thành Trì Bóng Đêm.' }
+      ] },
+    6: { post: [
+        { w: 'quoc', en: 'Impossible... a little flame... and a handful of... friends...', vi: 'Không thể nào... một ngọn lửa nhỏ... và một nhúm... bạn bè...' },
+        { w: 'quoc', en: 'The Sun... it burns... so bright...', vi: 'Mặt Trời... nó cháy... sáng quá...' },
+        { w: 'ember', en: 'It always did, Quoc. You were just standing in front of it.', vi: 'Nó vẫn luôn sáng như vậy, Quoc. Chỉ là ngươi đứng chắn trước nó thôi.' },
+        { w: 'narr', en: 'The Eclipse cracks like old glass. The seventh fragment falls, warm and bright, into Ember\'s hands.', vi: 'Nhật Thực nứt vỡ như tấm kính cũ. Mảnh thứ bảy rơi xuống, ấm áp và rực sáng, vào tay Ember.' }
+      ] }
+  };
+  const MID_STORY = {
+    0: [{ w: 'ember', en: 'These slimes are acting strange... like something is pulling their strings.', vi: 'Lũ slime này lạ quá... như có ai đó đang giật dây chúng.' },
+        { w: 'narr', en: 'Far away, a girl\'s song drifts over the hills. Ember walks a little faster.', vi: 'Ở nơi xa, tiếng hát của một cô gái vọng qua những ngọn đồi. Ember bước nhanh hơn một chút.' }],
+    1: [{ w: 'ember', en: 'The forest is too quiet. Even the owls have stopped hooting.', vi: 'Khu rừng yên ắng quá. Đến cả lũ cú cũng thôi kêu.' },
+        { w: 'lyra', en: '(Lyra squeezes his hand) It is all right. I am here. Sing with me if you are scared.', vi: '(Lyra nắm chặt tay cậu) Không sao đâu. Có mình ở đây. Nếu sợ thì hát cùng mình nhé.' }],
+    2: [{ w: 'ember', en: 'So dark... my lantern feels heavier down here.', vi: 'Tối quá... chiếc đèn như nặng hơn khi xuống tới đây.' },
+        { w: 'narr', en: 'Deep inside the crystals, something watches him pass. A green glint. A thin smile.', vi: 'Sâu bên trong những viên pha lê, có thứ gì đó dõi theo cậu. Một tia sáng xanh. Một nụ cười mỏng.' }],
+    3: [{ w: 'ember', en: 'Sand everywhere... and that heat. Duong said the Pharaoh hates visitors.', vi: 'Cát ở khắp nơi... và cái nóng này. Duong nói Pharaoh ghét khách lạ lắm.' },
+        { w: 'narr', en: 'Under the dunes, old bones shift in their sleep.', vi: 'Dưới những đụn cát, những bộ xương cổ trở mình trong giấc ngủ.' }],
+    4: [{ w: 'ember', en: 'So cold my fingers hurt. Santree walked all the way from here?', vi: 'Lạnh đến buốt cả ngón tay. Santree đã đi bộ từ tận đây sao?' },
+        { w: 'narr', en: 'The wind carries a sad, frozen song from the castle on the peak.', vi: 'Cơn gió mang theo một khúc ca buồn, đóng băng, từ tòa lâu đài trên đỉnh núi.' }],
+    5: [{ w: 'narr', en: 'The air burns. The ground shakes. Somewhere above the smoke, huge wings beat.', vi: 'Không khí bỏng rát. Mặt đất rung chuyển. Đâu đó trên làn khói, những đôi cánh khổng lồ vỗ mạnh.' },
+        { w: 'ember', en: 'Ignarok... I know you are here.', vi: 'Ignarok... ta biết ngươi đang ở đây.' }],
+    6: [{ w: 'narr', en: 'The Shadow Citadel. Every stone whispers one name: Quoc.', vi: 'Thành Trì Bóng Đêm. Từng phiến đá đều thì thầm một cái tên: Quoc.' },
+        { w: 'ember', en: 'Lyra, Lila, the King... everyone. This is for you.', vi: 'Lyra, Lila, nhà vua... tất cả mọi người. Lần này là vì các bạn.' }]
+  };
+  // the worlds Quoc drags you into, one for each of his forms
+  const FORM_SCENES = [null,
+    { en: 'the Shadow Void', vi: 'Hư Không Bóng Tối' }, { en: 'the Hellfire Plains', vi: 'Đồng Bằng Lửa Ngục' }, { en: 'the Chain Dungeon', vi: 'Ngục Tối Xiềng Xích' },
+    { en: 'the Iron Fortress', vi: 'Pháo Đài Sắt' }, { en: 'the Storm Above the Clouds', vi: 'Bão Tố Trên Mây' }, { en: 'the Ashen Wasteland', vi: 'Hoang Mạc Tro Tàn' }, { en: 'the Eclipse Void', vi: 'Hư Không Nhật Thực' }];

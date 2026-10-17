@@ -386,6 +386,7 @@
     sy: { spr: 'npc_sy', name: { en: 'Mr Sy', vi: 'Mr Sy' } },
     quoc: { spr: 'npc_quoc', name: { en: 'Quoc the Devil', vi: 'Quỷ Vương Quoc' } },
     ember: { spr: 'hero_idle', name: { en: 'Ember', vi: 'Ember' } },
+    narr: { spr: null, name: { en: 'Story', vi: 'Kể chuyện' } },
     hoang: { spr: 'npc_hoang', name: { en: 'HoangKiller', vi: 'HoangKiller' } },
     duong: { spr: 'npc_duong', name: { en: 'DuongDracular', vi: 'DuongDracular' } },
     santree: { spr: 'npc_santree', name: { en: 'Santree', vi: 'Santree' } }
@@ -765,7 +766,83 @@
         { en: 'Run along, little flame. I will tell him you said hello.', vi: 'Đi đi, ngọn lửa nhỏ. Ta sẽ nói với hắn là nhóc gửi lời chào.' }
       ] }
   };
+  // every boss can roar
+  [].concat(BOSS, FORMS.shorty, FORMS.sy, FORMS.quoc).forEach(c => { if (c.skills.indexOf('roar') < 0) c.skills.push('roar'); });
   const bpc = () => (Q && Q.boss && Q.boss.cfg && Q.boss.cfg.proj) || Q.B.proj;
+
+  // ---------- the movie: every boss speaks before and after its fight, and every map has a mid-way story beat ----------
+  BOSS.forEach((c, i) => { NPCS['boss' + i] = { spr: 'boss:' + i, name: c.name }; });
+  const BOSS_LINES = {
+    0: { pre: [
+        { en: 'BLORP! You squashed my children! I am the KING of this meadow!', vi: 'BLORP! Ngươi dám đè bẹp con của ta! Ta là VUA của đồng cỏ này!' },
+        { w: 'ember', en: 'Give back the fragment of the Sun. It does not belong to you.', vi: 'Trả mảnh Mặt Trời lại đây. Nó không thuộc về ngươi.' },
+        { en: 'This shiny thing? It tastes like sunshine. MINE! BLOOORP!', vi: 'Cái thứ lấp lánh này à? Nó có vị như nắng. CỦA TA! BLOOORP!' }
+      ], post: [
+        { en: 'Blorp... so... warm...', vi: 'Blorp... ấm... quá...' },
+        { w: 'narr', en: 'The first fragment glows in Ember\'s hands. Far away, in a castle of ash, a dark laugh suddenly stops.', vi: 'Mảnh vỡ đầu tiên rực sáng trong tay Ember. Ở nơi xa, trong tòa lâu đài tro tàn, một tràng cười đen tối bỗng im bặt.' }
+      ] },
+    1: { pre: [
+        { en: 'Little moth... drawn to its own light. My webs have waited for you.', vi: 'Con thiêu thân bé nhỏ... bị chính ánh sáng của mình dẫn lối. Tơ của ta đã chờ ngươi từ lâu.' },
+        { w: 'ember', en: 'Your webs are full of stolen light. I am taking it back.', vi: 'Tơ của ngươi đầy ánh sáng bị đánh cắp. Ta sẽ lấy lại nó.' }
+      ], post: [
+        { en: 'My children... will spin... in the dark... forever...', vi: 'Các con ta... sẽ giăng tơ... trong bóng tối... mãi mãi...' },
+        { w: 'narr', en: 'The webs fall like dead leaves. For the first time in days, moonlight reaches the forest floor.', vi: 'Những tấm tơ rơi xuống như lá úa. Lần đầu tiên sau nhiều ngày, ánh trăng chạm tới mặt đất của khu rừng.' }
+      ] },
+    2: { pre: [
+        { en: 'INTRUDER. CRYSTAL. PROTECT. CRUSH.', vi: 'KẺ XÂM NHẬP. PHA LÊ. BẢO VỆ. NGHIỀN NÁT.' },
+        { w: 'ember', en: 'It is only following orders... I am sorry, big guy.', vi: 'Nó chỉ làm theo lệnh thôi... Xin lỗi nhé, anh bạn to xác.' }
+      ], post: [
+        { en: 'Light... remembers... me...', vi: 'Ánh sáng... còn nhớ... ta...' },
+        { w: 'narr', en: 'One by one, the crystals of the caverns flicker back to life.', vi: 'Từng viên một, pha lê trong hang động le lói sáng trở lại.' }
+      ] },
+    3: { pre: [
+        { en: 'KNEEL, child of the Sun! In my desert, even the Sun bows to ME!', vi: 'QUỲ XUỐNG, đứa con của Mặt Trời! Trên sa mạc của ta, ngay cả Mặt Trời cũng phải cúi đầu trước TA!' },
+        { w: 'ember', en: 'The Sun does not bow. It rises.', vi: 'Mặt Trời không cúi đầu. Nó mọc lên.' }
+      ], post: [
+        { en: 'My tomb... was so... quiet...', vi: 'Lăng mộ của ta... từng thật... yên tĩnh...' },
+        { w: 'narr', en: 'The sandstorm dies. Under the stars, the dunes look almost peaceful.', vi: 'Bão cát lặng đi. Dưới bầu trời sao, những đụn cát trông gần như bình yên.' }
+      ] },
+    4: { pre: [
+        { en: 'Who dares bring FIRE into my halls? ...I have been cold so long that I forgot what warmth feels like.', vi: 'Kẻ nào dám mang LỬA vào cung điện của ta? ...Ta đã lạnh quá lâu, đến mức quên mất hơi ấm là gì.' },
+        { w: 'ember', en: 'Then let me remind you.', vi: 'Vậy để ta nhắc lại cho ngươi.' }
+      ], post: [
+        { en: 'Warm... it is... warm... thank you... little flame...', vi: 'Ấm... thật... ấm... cảm ơn... ngọn lửa nhỏ...' },
+        { w: 'narr', en: 'For the first time in a hundred years, the Frost King smiles. Then he melts into a quiet spring rain.', vi: 'Lần đầu tiên sau trăm năm, Vua Băng mỉm cười. Rồi ông tan thành một cơn mưa xuân lặng lẽ.' }
+      ] },
+    5: { pre: [
+        { en: 'I AM THE MOUNTAIN\'S HEART! YOUR LITTLE LANTERN IS A SPARK IN MY FURNACE!', vi: 'TA LÀ TRÁI TIM CỦA NGỌN NÚI! CHIẾC ĐÈN BÉ NHỎ CỦA NGƯƠI CHỈ LÀ MỘT TIA LỬA TRONG LÒ RÈN CỦA TA!' },
+        { w: 'ember', en: 'Sparks are how every fire begins.', vi: 'Mọi ngọn lửa đều bắt đầu từ một tia lửa.' }
+      ], post: [
+        { en: 'The mountain... grows... quiet...', vi: 'Ngọn núi... đang... lặng đi...' },
+        { w: 'narr', en: 'Six fragments now. They hum together like a choir. Only one remains, in the Shadow Citadel.', vi: 'Giờ đã có sáu mảnh. Chúng ngân lên cùng nhau như một dàn đồng ca. Chỉ còn một mảnh, trong Thành Trì Bóng Đêm.' }
+      ] },
+    6: { post: [
+        { w: 'quoc', en: 'Impossible... a little flame... and a handful of... friends...', vi: 'Không thể nào... một ngọn lửa nhỏ... và một nhúm... bạn bè...' },
+        { w: 'quoc', en: 'The Sun... it burns... so bright...', vi: 'Mặt Trời... nó cháy... sáng quá...' },
+        { w: 'ember', en: 'It always did, Quoc. You were just standing in front of it.', vi: 'Nó vẫn luôn sáng như vậy, Quoc. Chỉ là ngươi đứng chắn trước nó thôi.' },
+        { w: 'narr', en: 'The Eclipse cracks like old glass. The seventh fragment falls, warm and bright, into Ember\'s hands.', vi: 'Nhật Thực nứt vỡ như tấm kính cũ. Mảnh thứ bảy rơi xuống, ấm áp và rực sáng, vào tay Ember.' }
+      ] }
+  };
+  const MID_STORY = {
+    0: [{ w: 'ember', en: 'These slimes are acting strange... like something is pulling their strings.', vi: 'Lũ slime này lạ quá... như có ai đó đang giật dây chúng.' },
+        { w: 'narr', en: 'Far away, a girl\'s song drifts over the hills. Ember walks a little faster.', vi: 'Ở nơi xa, tiếng hát của một cô gái vọng qua những ngọn đồi. Ember bước nhanh hơn một chút.' }],
+    1: [{ w: 'ember', en: 'The forest is too quiet. Even the owls have stopped hooting.', vi: 'Khu rừng yên ắng quá. Đến cả lũ cú cũng thôi kêu.' },
+        { w: 'lyra', en: '(Lyra squeezes his hand) It is all right. I am here. Sing with me if you are scared.', vi: '(Lyra nắm chặt tay cậu) Không sao đâu. Có mình ở đây. Nếu sợ thì hát cùng mình nhé.' }],
+    2: [{ w: 'ember', en: 'So dark... my lantern feels heavier down here.', vi: 'Tối quá... chiếc đèn như nặng hơn khi xuống tới đây.' },
+        { w: 'narr', en: 'Deep inside the crystals, something watches him pass. A green glint. A thin smile.', vi: 'Sâu bên trong những viên pha lê, có thứ gì đó dõi theo cậu. Một tia sáng xanh. Một nụ cười mỏng.' }],
+    3: [{ w: 'ember', en: 'Sand everywhere... and that heat. Duong said the Pharaoh hates visitors.', vi: 'Cát ở khắp nơi... và cái nóng này. Duong nói Pharaoh ghét khách lạ lắm.' },
+        { w: 'narr', en: 'Under the dunes, old bones shift in their sleep.', vi: 'Dưới những đụn cát, những bộ xương cổ trở mình trong giấc ngủ.' }],
+    4: [{ w: 'ember', en: 'So cold my fingers hurt. Santree walked all the way from here?', vi: 'Lạnh đến buốt cả ngón tay. Santree đã đi bộ từ tận đây sao?' },
+        { w: 'narr', en: 'The wind carries a sad, frozen song from the castle on the peak.', vi: 'Cơn gió mang theo một khúc ca buồn, đóng băng, từ tòa lâu đài trên đỉnh núi.' }],
+    5: [{ w: 'narr', en: 'The air burns. The ground shakes. Somewhere above the smoke, huge wings beat.', vi: 'Không khí bỏng rát. Mặt đất rung chuyển. Đâu đó trên làn khói, những đôi cánh khổng lồ vỗ mạnh.' },
+        { w: 'ember', en: 'Ignarok... I know you are here.', vi: 'Ignarok... ta biết ngươi đang ở đây.' }],
+    6: [{ w: 'narr', en: 'The Shadow Citadel. Every stone whispers one name: Quoc.', vi: 'Thành Trì Bóng Đêm. Từng phiến đá đều thì thầm một cái tên: Quoc.' },
+        { w: 'ember', en: 'Lyra, Lila, the King... everyone. This is for you.', vi: 'Lyra, Lila, nhà vua... tất cả mọi người. Lần này là vì các bạn.' }]
+  };
+  // the worlds Quoc drags you into, one for each of his forms
+  const FORM_SCENES = [null,
+    { en: 'the Shadow Void', vi: 'Hư Không Bóng Tối' }, { en: 'the Hellfire Plains', vi: 'Đồng Bằng Lửa Ngục' }, { en: 'the Chain Dungeon', vi: 'Ngục Tối Xiềng Xích' },
+    { en: 'the Iron Fortress', vi: 'Pháo Đài Sắt' }, { en: 'the Storm Above the Clouds', vi: 'Bão Tố Trên Mây' }, { en: 'the Ashen Wasteland', vi: 'Hoang Mạc Tro Tàn' }, { en: 'the Eclipse Void', vi: 'Hư Không Nhật Thực' }];
 
   // ---------- caches ----------
   const tileCache = {}, bgCache = {};
@@ -1031,7 +1108,7 @@
     Snd.creature(Q.li, 'alert', true); Snd.music('boss', BOSS_MUSIC); setEmo('angry', 2.6);
     Q.shake = 0.6;
     if (Q.li === 6) startScripted('quoc', QUOC_PRE, () => { Q.state = 'bossintro'; Q.stateT = 0; });
-    else syCameoPre();
+    else bossPre();
   }
   function unseal() { const L = Q.L, ar = L.arena; for (let y = 0; y < ar.gy; y++) L.grid[y][ar.x0 + 1] = ' '; }
 
@@ -1263,7 +1340,7 @@
       Q.projs.length = 0;
       const ar = Q.L.arena;
       Q.items.push({ kind: 'frag', x: clamp(b.x + b.w / 2, (ar.x0 + 5) * TS, (ar.x1 - 5) * TS), y: ar.gy * TS - 22, id: -1, ph: 0 });
-      syCameoPost();
+      bossPost();
     }
   }
   function updateBossDeath(dt) {
@@ -1395,6 +1472,12 @@
     Q.shake = 1; Q.freeze = 0.1; Snd.creature(Q.li, 'alert', true); Snd.play('boom');
     emit(b.x + b.w / 2, b.y + b.h / 2, 50, { col: [bpc(), '#fff', '#ffd34e'], sp0: 40, sp1: 180 }); addRing(b.x + b.w / 2, b.y + b.h, bpc(), 110, 0.7);
     Q.msg = LN(c.name); Q.msgT = 3;
+    if (b.id === 'quoc' && FORM_SCENES[idx]) {
+      const P = Q.P, ar = Q.L.arena; P.x = (ar.x0 + 4) * TS; P.y = (ar.gy - 1) * TS - P.h; P.vx = P.vy = 0; P.inv = Math.max(P.inv, 1.5);
+      Q.G.flash = 0.6; Snd.play('thunder'); Snd.whisper();
+      for (const a of Q.G.allies || []) { a.x = P.x - 10; a.y = P.y + P.h; }
+      Q.msg = (save.lang === 'vi' ? 'Quoc kéo bạn vào ' : 'Quoc drags you into ') + LN(FORM_SCENES[idx]) + '!'; Q.msgT = 4;
+    }
   }
   function nextForm(b) {
     if (!b.forms || b.fi >= b.forms.length - 1) return false;
@@ -1458,6 +1541,61 @@
   function syCameoPost() {
     const cam = SY_CAMEO[Q.li]; if (!cam || !Q.syFig) return;
     later(1.6, () => { if (Q.state === 'play' && Q.syFig) startScripted('sy', cam.post, () => syPoof()); else syPoof(); });
+  }
+
+  // the worlds Quoc drags you into (one per form)
+  function drawFormScene(fi) {
+    const t = Q.t, grad = (a, b) => { const gr = g.createLinearGradient(0, 0, 0, VH); gr.addColorStop(0, a); gr.addColorStop(1, b); g.fillStyle = gr; g.fillRect(0, 0, VW, VH); };
+    if (fi === 1) { // shadow void: drifting smoke and blinking eyes
+      grad('#05040a', '#1a0f2e');
+      for (let i = 0; i < 14; i++) { const x = (i * 61 + t * (6 + i % 4)) % (VW + 60) - 30, y = 30 + (i * 37) % 140; g.globalAlpha = 0.14; disc(g, Math.round(x), y, 18 + (i % 3) * 8, '#5a2d8f'); }
+      g.globalAlpha = 1;
+      for (let i = 0; i < 9; i++) { if (Math.sin(t * 0.7 + i * 2.1) < -0.6) continue; const x = (i * 97) % VW, y = 24 + (i * 53) % 110; g.fillStyle = '#ff3a5a'; g.fillRect(x, y, 2, 1); g.fillRect(x + 5, y, 2, 1); }
+    } else if (fi === 2) { // hellfire plains
+      grad('#2a0500', '#a02a0a');
+      for (let i = 0; i < 26; i++) { const x = i * 16 - 8, h = 22 + Math.sin(t * 6 + i * 1.7) * 6 + (i % 3) * 8; g.fillStyle = i % 2 ? '#ff6a1a' : '#ffb02a'; g.beginPath(); g.moveTo(x, 150); g.lineTo(x + 8, 150 - h); g.lineTo(x + 16, 150); g.fill(); }
+      g.fillStyle = '#2a0802'; g.fillRect(0, 148, VW, VH);
+      for (let i = 0; i < 30; i++) { const x = (i * 47) % VW, y = VH - ((t * (20 + i % 7 * 6) + i * 31) % VH); g.fillStyle = i % 2 ? '#ffd34e' : '#ff7a2a'; g.fillRect(x, Math.round(y), 1, 2); }
+    } else if (fi === 3) { // chain dungeon
+      grad('#0e0c14', '#24202e');
+      g.fillStyle = '#1a1722'; for (let y = 0; y < 150; y += 10) for (let x = ((y / 10) % 2) * 12; x < VW; x += 24) g.fillRect(x, y, 22, 8);
+      g.fillStyle = '#5a5a6a'; for (let i = 0; i < 8; i++) { const cx = 20 + i * 50, sw = Math.sin(t * 1.5 + i) * 6; for (let k = 0; k < 14; k++) g.fillRect(Math.round(cx + sw * k / 14), k * 7, 3, 5); }
+      for (const x of [60, 200, 330]) { g.globalAlpha = 0.25 + Math.sin(t * 9 + x) * 0.08; disc(g, x, 60, 18, '#ff7a2a'); g.globalAlpha = 1; g.fillStyle = '#ffd34e'; g.fillRect(x - 1, 56, 3, 6); }
+    } else if (fi === 4) { // iron fortress
+      grad('#3a3f50', '#1a1c26');
+      g.fillStyle = '#14161e'; g.fillRect(0, 96, VW, 60); for (let x = 0; x < VW; x += 20) g.fillRect(x, 88, 12, 8);
+      for (const x of [40, 180, 320]) { g.fillRect(x, 50, 34, 60); for (let k = 0; k < 4; k++) g.fillRect(x + k * 10, 42, 6, 8); g.fillStyle = '#a02a2a'; g.fillRect(x + 16, 20 + Math.sin(t * 3 + x) * 1, 1, 30); g.beginPath(); g.moveTo(x + 17, 20); g.lineTo(x + 30 + Math.sin(t * 4 + x) * 3, 26); g.lineTo(x + 17, 32); g.fill(); g.fillStyle = '#14161e'; }
+      g.fillStyle = '#ffb02a'; for (let i = 0; i < 10; i++) g.fillRect(50 + i * 33, 110, 2, 3);
+    } else if (fi === 5) { // storm above the clouds
+      grad('#0a0e24', '#2a2e52');
+      for (let i = 0; i < 12; i++) { const x = (i * 71 - t * 14) % (VW + 80); g.globalAlpha = 0.5; disc(g, Math.round(x < -40 ? x + VW + 80 : x), 40 + (i % 4) * 22, 26, '#1a1c3a'); } g.globalAlpha = 1;
+      g.fillStyle = '#6a6e9a'; for (let i = 0; i < 18; i++) disc(g, i * 24, 150 + (i % 2) * 4, 14, '#3a3e66');
+      if (Math.sin(t * 1.9) > 0.93) { g.globalAlpha = 0.35; g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); const bx = 60 + (Math.floor(t) * 113) % 260; g.moveTo(bx, 0); for (let k = 1; k < 7; k++) g.lineTo(bx + ((k * 29) % 22) - 11, k * 22); g.stroke(); }
+      g.fillStyle = 'rgba(170,190,255,.45)'; for (let i = 0; i < 50; i++) g.fillRect((i * 43 + t * 40) % VW, (i * 31 + t * 260) % VH, 1, 5);
+    } else if (fi === 6) { // ashen wasteland
+      grad('#1a0606', '#5a1a0a');
+      for (const [x, h] of [[30, 70], [150, 100], [290, 80], [380, 60]]) { g.fillStyle = '#1a0a08'; g.beginPath(); g.moveTo(x - h, 150); g.lineTo(x, 150 - h); g.lineTo(x + h, 150); g.fill(); g.globalAlpha = 0.5 + Math.sin(t * 4 + x) * 0.2; disc(g, x, 150 - h, 6, '#ff6a1a'); g.globalAlpha = 1; }
+      g.fillStyle = 'rgba(200,190,190,.55)'; for (let i = 0; i < 40; i++) g.fillRect((i * 37 + Math.sin(t + i) * 8) % VW, (i * 23 + t * 18) % VH, 1, 1);
+    } else if (fi === 7) { // eclipse void
+      grad('#020108', '#0e0620');
+      for (let i = 0; i < 70; i++) { g.fillStyle = i % 5 ? '#6a5a9a' : '#fff'; g.fillRect((i * 97) % VW, (i * 53) % 150, 1, 1); }
+      const cx = VW * 0.68, cy = 62;
+      for (let i = 0; i < 24; i++) { const a = i / 24 * 6.283 + t * 0.3; g.strokeStyle = i % 2 ? '#d58bff' : '#ffffff'; g.globalAlpha = 0.6; g.lineWidth = 1; g.beginPath(); g.moveTo(cx + Math.cos(a) * 44, cy + Math.sin(a) * 44); g.lineTo(cx + Math.cos(a) * (60 + (i % 3) * 8), cy + Math.sin(a) * (60 + (i % 3) * 8)); g.stroke(); }
+      g.globalAlpha = 1; disc(g, cx, cy, 44, '#b88aff'); disc(g, cx, cy, 40, '#050309');
+    }
+  }
+  function bossPre() {
+    const cam = SY_CAMEO[Q.li], ar = Q.L.arena, bl = BOSS_LINES[Q.li]; let lines = [];
+    if (cam) { Q.syFig = { x: (ar.x0 + 9) * TS, y: (ar.gy - 3) * TS }; emit(Q.syFig.x, Q.syFig.y - 12, 24, { col: ['#7ed957', '#fff'], sp0: 20, sp1: 90 }); Snd.play('poof'); lines = cam.pre.map(l => Object.assign({ w: 'sy' }, l)); }
+    if (bl && bl.pre) lines = lines.concat(bl.pre.map(l => Object.assign({ w: 'boss' + Q.li }, l)));
+    if (lines.length) startScripted('boss' + Q.li, lines, () => { Q.state = 'bossintro'; Q.stateT = 0; });
+  }
+  function bossPost() {
+    const cam = SY_CAMEO[Q.li], bl = BOSS_LINES[Q.li];
+    let lines = bl && bl.post ? bl.post.map(l => Object.assign({ w: 'boss' + Q.li }, l)) : [];
+    if (cam && Q.syFig) lines = lines.concat(cam.post.map(l => Object.assign({ w: 'sy' }, l)));
+    if (!lines.length) return;
+    later(1.6, () => { if (Q.state === 'play') startScripted(lines[0].w, lines, () => syPoof()); else syPoof(); });
   }
 
   // ===================== BOSS AI =====================
@@ -1540,7 +1678,7 @@
         if (b.ph === 0 && b.vy > 0) { b.ph = 1; b.vy = 540; Snd.play('whoosh'); }
         if (b.ph === 1 && b.onGround) { shockwave(b); const c = bc(b); for (let i = 1; i <= 4; i++) for (const sg of [-1, 1]) { const x = arenaClamp(c.x + sg * i * 24); addZone({ type: 'spike', x: x - 7, y: groundYAt(x) - 30, w: 14, h: 30, tel: 0.15 + i * 0.08, life: 0.4 }); } return true; }
       } },
-    roar: { tele: 0.6, start(b) { Q.shake = 0.9; Snd.creature(Q.li, 'alert', true); const c = bc(b); addRing(c.x, b.y + b.h, bpc(), 95, 0.7); shockwave(b, true); b.kick = 0.16; b.skT = 1.0; b.rt = 0; }, upd(b, dt) { b.skT -= dt; b.rt -= dt; if (b.rt <= 0 && b.skT > 0.3) { b.rt = 0.28; addRing(b.x + b.w / 2, b.y + b.h, bpc(), 70, 0.5); } return b.skT <= 0; } },
+    roar: { tele: 0.7, start(b) { b.skT = 1.5; b.rt = 0; b.hitDone = false; b.vx = 0; const c = bc(b); addRing(c.x, b.y + b.h, bpc(), 110, 0.8); if (b.id === 'quoc') Snd.devilRoar(1); else Snd.creature(Q.li, 'alert', true); Snd.play('boom'); }, upd(b, dt) { b.skT -= dt; b.rt -= dt; Q.shake = Math.max(Q.shake, 0.55); const c = bc(b), P = Q.P; if (b.rt <= 0 && b.skT > 0.2) { b.rt = 0.22; addRing(c.x, b.y + b.h * 0.5, bpc(), 60 + Math.random() * 40, 0.45); emit(c.x + rr(-b.w / 2, b.w / 2), b.y + rr(0, b.h * 0.5), 6, { col: ['#fff', bpc()], sp0: 30, sp1: 110 }); } if (!b.hitDone && b.skT < 1.2) { b.hitDone = true; if (Math.hypot(P.x + 4 - c.x, P.y + 7 - c.y) < b.w / 2 + 64) { hurtPlayer(1, c.x); P.vx = (P.x + 4 < c.x ? -1 : 1) * 190; P.vy = -150; } } return b.skT <= 0; } },
     guard: { tele: 0.4, start(b) { b.guard = 3; b.skT = 3; b.recAfter = 0.4; Snd.play('gate'); addRing(b.x + b.w / 2, b.y + b.h, '#6ee7f2', 50, 0.5); }, upd: wait },
     cloak: { tele: 0.5, start(b) { b.cloak = true; b.skT = 3.0; b.ph = 0; addGhost(b, 'out'); Snd.whisper(); Snd.play('poof'); },
       upd(b, dt) {
@@ -1685,6 +1823,7 @@
     if (b.squashT > 0) { const k = b.squashT / 0.22; sy *= 1 - 0.32 * k; sx *= 1 + 0.28 * k; }
     if (b.kick > 0) { const k = b.kick / 0.16; sx *= 1 + 0.12 * k; ox -= dir * 3 * k; }
     if (b.cloak) al = 0.1 + 0.07 * Math.sin(t * 9);
+    if (b.st === 'act' && b.sk === 'roar') { sy *= 1.08; sx *= 1.06; ox += (Math.random() - 0.5) * 3; aura = [bpc(), 0.6]; }
     if (b.guard > 0) { sx *= 1.05; sy *= 0.94; }
     return { sx, sy, rot, ox, oy, al, aura, circle };
   }
@@ -1903,7 +2042,7 @@
     Q.talk = { it, npc: NPCS[it.who], lines: d, i: 0, t: 0 }; Q.state = 'talk'; Snd.blip(it.who); Q.P.vx = 0;
   }
   function startScripted(who, lines, after) {
-    Q.talk = { it: { who }, npc: NPCS[who], lines, i: 0, t: 0, after }; Q.state = 'talk'; Snd.blip(who); Q.P.vx = 0;
+    Q.talk = { it: { who }, npc: NPCS[who], lines, i: 0, t: 0, after, cine: true }; Q.state = 'talk'; Snd.blip(who); Q.P.vx = 0;
   }
   function giveGift(gf) {
     for (const k in gf) Q.P.ammo[k] += gf[k];
@@ -1924,7 +2063,7 @@
     const tk = Q.talk; tk.t += dt;
     const full = tk.lines[tk.i][save.lang].length;
     { const ln = tk.lines[tk.i][save.lang], n0 = Math.floor((tk.t - dt) * 45), n1 = Math.min(ln.length, Math.floor(tk.t * 45));
-      for (let k = n0 + 1; k <= n1; k++) if (k % 2 === 0 && /\S/.test(ln[k - 1] || ' ')) Snd.blip(tk.lines[tk.i].w || tk.it.who); }
+      for (let k = n0 + 1; k <= n1; k++) if (k % 2 === 0 && /\S/.test(ln[k - 1] || ' ')) { const sw = tk.lines[tk.i].w || tk.it.who; if (sw.indexOf('boss') === 0) Snd.creature(Q.li, 'idle', true, 0.7); else if (sw !== 'narr') Snd.blip(sw); } }
     if (act.okP || act.talkP || act.atkP) {
       if (tk.t * 45 < full) tk.t = 999;
       else { tk.i++; tk.t = 0; Snd.play('select'); if (tk.i >= tk.lines.length) endTalk(); }
@@ -2069,7 +2208,7 @@
         if (Math.abs(it.x - pc.x) < 26 && Math.abs(it.y - pc.y) < 30) Q.nearNpc = it;
       } else if (it.kind === 'cp') {
         if (!it.lit && Math.abs(it.x - pc.x) < 14 && Math.abs(it.y - pc.y) < 30) {
-          Q.items.forEach(o => { if (o.kind === 'cp') o.lit = false; }); it.lit = true; Q.cp = { x: it.x, y: it.y, id: it.id }; Snd.play('checkpoint'); emit(it.x, it.y - 12, 16, { col: ['#ffd34e', '#fff'], sp0: 15, sp1: 70 });
+          Q.items.forEach(o => { if (o.kind === 'cp') o.lit = false; }); it.lit = true; Q.cpCount = (Q.cpCount || 0) + 1; if (Q.cpCount === 2 && MID_STORY[Q.li] && !Q.midDone) { Q.midDone = true; later(0.6, () => { if (Q.state === 'play') startScripted('ember', MID_STORY[Q.li], null); }); } Q.cp = { x: it.x, y: it.y, id: it.id }; Snd.play('checkpoint'); emit(it.x, it.y - 12, 16, { col: ['#ffd34e', '#fff'], sp0: 15, sp1: 70 });
           if (P.hp < maxHP()) { P.hp = maxHP(); }
         }
       } else if (it.kind === 'frag') {
@@ -2429,6 +2568,7 @@
       g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke(); g.globalAlpha = 1;
     }
     for (const p of G.pops) txt(p.s, Math.round(p.x - camX), Math.round(p.y - camY - (1.3 - p.t) * 10), { al: 'center', size: 7, col: p.col, bold: true, alpha: Math.min(1, p.t * 2) });
+    if (G.flash > 0 && Q.state !== 'play') G.flash -= 0.02; // keep fading during dialogue / boss intro
     if (G.flash > 0) { g.globalAlpha = Math.min(0.55, G.flash * 1.6); g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
     if (G.slowT > 0) { g.globalAlpha = 0.1 + 0.05 * Math.sin(Q.t * 6); g.fillStyle = '#ffd34e'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
   }
@@ -2885,6 +3025,7 @@
       const y = Math.round(ly.anchor === 'top' ? ly.y - camY * 0.1 + 24 * 0.1 : ly.y + (24 - cam.y) * ly.f);
       g.drawImage(ly.c, Math.round(ox), y); g.drawImage(ly.c, Math.round(ox) + 512, y);
     }
+    if (Q.li === 6 && Q.boss && Q.boss.id === 'quoc' && Q.arenaSealed && Q.boss.fi > 0) drawFormScene(Q.boss.fi);
     const tx0 = Math.floor(camX / TS), tx1 = Math.floor((camX + VW) / TS), ty0 = Math.floor(camY / TS), ty1 = Math.floor((camY + VH) / TS);
     const lf = Math.floor(Q.t * 6 + (Q.time || 0) * 0) % 4;
     for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) {
@@ -3258,11 +3399,12 @@
       for (let i = 0; i < 7; i++) { const ic = icon('r' + i); g.globalAlpha = save.relics[i] ? 1 : 0.2; g.drawImage(ic.c, VW / 2 - 7 * 13 + i * 26 + 4, 172); }
       g.globalAlpha = 1;
     } else if (st === 'talk') {
-      const tk = Q.talk, cur = (tk.lines[tk.i] && tk.lines[tk.i].w && NPCS[tk.lines[tk.i].w]) || tk.npc, sp = npcSpr(cur.spr);
+      const tk = Q.talk, cur = (tk.lines[tk.i] && tk.lines[tk.i].w && NPCS[tk.lines[tk.i].w]) || tk.npc, sp = cur.spr ? npcSpr(cur.spr) : null;
+      if (tk.cine) { const k = Math.min(1, Q.stateT * 3); g.fillStyle = '#000'; g.fillRect(0, 0, VW, Math.round(20 * k)); g.fillRect(0, VH - Math.round(8 * k), VW, 8); }
       g.fillStyle = 'rgba(8,6,20,.93)'; g.fillRect(8, 148, VW - 16, 62);
       g.fillStyle = '#ffd34e'; g.fillRect(8, 148, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1); g.fillRect(8, 148, 1, 62); g.fillRect(VW - 9, 148, 1, 62);
       g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(14, 154, 44, 50);
-      drawSpr(g, sp, 36, 204, false, false, 2, 2);
+      if (sp) { const sc = Math.min(2, 46 / sp.h, 42 / sp.w); drawSpr(g, sp, 36, 203, false, false, sc, sc); }
       txt(LN(cur.name), 66, 158, { size: 8, col: '#ffd34e', bold: true });
       const line = tk.lines[tk.i][save.lang], n = Math.floor(tk.t * 45);
       wrapText(line.substr(0, n), 62).forEach((l, i) => txt(l, 66, 173 + i * 11, { size: 7 }));

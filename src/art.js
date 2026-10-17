@@ -872,6 +872,7 @@ const NPC_PAINT = {
   }]
 };
 function npcSpr(name) {
+  if (name && name.indexOf('boss:') === 0) return bossSprite(+name.slice(5));
   if (!NPC_PAINT[name]) return getSprite(name);
   const key = 'np_' + name;
   if (!_cache[key]) { const d = NPC_PAINT[name]; _cache[key] = paint(d[0], d[1], d[2]); }
