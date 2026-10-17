@@ -145,6 +145,7 @@ const Snd = (() => {
   // evt: idle | alert | hurt | die | attack
   function creature(kind, evt, boss, volf, pit) {
     if (!ac) return;
+    if (boss && (kind === 7 || kind === 8 || kind === 9)) { monster(kind, evt, volf); return; }
     const key = boss ? 'b' + kind : CMAP[kind];
     const b = CV[key]; if (!b) return;
     const now = ac.currentTime, lk = key + (evt === 'idle' ? 'i' : '');
@@ -207,6 +208,19 @@ const Snd = (() => {
     };
     mk('sawtooth', f, f * 0.72, 0.5, 6, 9); mk('sawtooth', f * 2.02, f * 1.5, 0.28, 14, 13); mk('square', f * 0.5, f * 0.38, 0.4, 0, 0);
     noise(dur, 0.1 * (vol || 1), 250, t, sfxG);
+  }
+  // horror voices for the deep bosses: 7 Spore Queen (wet hiss + gurgle), 8 Kraken (abyssal growl + bubbles), 9 Gravemaw (grinding rumble + screech)
+  function monster(kind, evt, volf) {
+    if (!ac) return; const t = ac.currentTime, v = volf === undefined ? 1 : volf, long = evt === 'alert' || evt === 'roar', ws = getDevilFx();
+    const dur = long ? 1.6 : (evt === 'attack' ? 0.7 : (evt === 'hurt' ? 0.22 : 0.5));
+    const osc = (type, f0, f1, vol, wob, wobHz, d, dest, delay) => { const st = t + (delay || 0), o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.setValueAtTime(f0, st); o.frequency.exponentialRampToValueAtTime(Math.max(18, f1), st + (d || dur));
+      if (wob) { const l = ac.createOscillator(), lg = ac.createGain(); l.frequency.value = wobHz; lg.gain.value = wob; l.connect(lg); lg.connect(o.frequency); l.start(st); l.stop(st + (d || dur) + 0.05); }
+      g.gain.setValueAtTime(0.0001, st); g.gain.exponentialRampToValueAtTime(vol * v, st + Math.min(0.12, (d || dur) * 0.3)); g.gain.exponentialRampToValueAtTime(0.001, st + (d || dur));
+      o.connect(g); g.connect(dest || ws); o.start(st); o.stop(st + (d || dur) + 0.05); };
+    const bubbles = (n, f) => { for (let i = 0; i < n; i++) osc('sine', f * (0.8 + Math.random() * 0.8), f * 2.2, 0.05, 0, 0, 0.06, sfxG, i * (dur / n) + Math.random() * 0.05); };
+    if (kind === 7) { noise(dur, 0.16 * v, 2500, t, sfxG); osc('sawtooth', 96, 60, 0.35, 9, 7); osc('triangle', 190, 140, 0.18, 30, 11); if (long || evt === 'attack') bubbles(long ? 14 : 6, 180); }
+    else if (kind === 8) { osc('sawtooth', 44, 28, 0.55, 5, 4); osc('square', 88, 50, 0.3, 8, 6); osc('sine', 150, 70, 0.28, 0, 0, dur * 1.1, sfxG); noise(dur, 0.08 * v, 180, t, sfxG); bubbles(long ? 20 : 8, 120); }
+    else { osc('sawtooth', 52, 34, 0.5, 22, 18); noise(dur, 0.2 * v, 90, t, sfxG); if (long || evt === 'attack') osc('sawtooth', 1100, 420, 0.12, 60, 23, dur * 0.7, ws, dur * 0.15); }
   }
   function devilRoar(power) {
     if (!ac) return; const p = power === undefined ? 1 : power;
@@ -299,5 +313,5 @@ const Snd = (() => {
     // ---- riser in the last two bars of the build ----
     if (sec === 7 && s === 0) { const o = ac.createOscillator(), gn = ac.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(2400, t + spb * 16); gn.gain.setValueAtTime(0.02, t); gn.gain.linearRampToValueAtTime(0.12, t + spb * 16); o.connect(gn); gn.connect(leadBus); o.start(t); o.stop(t + spb * 16 + 0.05); }
   }
-  return { init, play, creature, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, setVol, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
+  return { init, play, creature, monster, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, setVol, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
 })();

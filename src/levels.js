@@ -92,7 +92,7 @@ const BIOMES = [
     proj: '#c8f0a0', traps: ['turret', 'spiketrap'], trapStyle: 'wood'
   },
   { // 9 (play order 8)
-    id: 'ocean', seed: 99, len: 560, hazard: 'spikes', dark: 0.3, sun: false, water: true, particles: 'bubbles',
+    id: 'ocean', seed: 99, len: 560, deep: 10, arenaW: 66, zoom: 0.6, hazard: 'spikes', dark: 0.3, sun: false, water: true, particles: 'bubbles',
     name: { en: 'Sunken Deep', vi: 'Đại Dương Sâu Thẳm' }, sub: { en: 'Hold your breath - the sea is listening', vi: 'Nín thở nhé - biển cả đang lắng nghe' },
     sky: ['#02101e', '#06243e', '#0a4a6a', '#1a7a9a'], far: '#063050', mid: '#042238', style: 'ocean', tree: ['#0a5a4a', '#1a8a6a'],
     ground: { top: '#e8d8a0', topDark: '#b8a070', topLight: '#fff0c0', body: '#2a4a6a', dark: '#1a3048', light: '#3a6a8a' },
@@ -103,7 +103,7 @@ const BIOMES = [
     proj: '#6ee7f2', traps: ['rockfall', 'saw'], trapStyle: 'dark'
   },
   { // 10 (play order 9)
-    id: 'tunnels', seed: 111, len: 580, hazard: 'spikes', dark: 0.62, sun: false, particles: 'drips',
+    id: 'tunnels', seed: 111, len: 580, deep: 14, arenaW: 52, zoom: 0.72, hazard: 'spikes', dark: 0.62, sun: false, particles: 'drips',
     name: { en: 'Deepdig Tunnels', vi: 'Đường Hầm Sâu' }, sub: { en: 'The ground has teeth, and it is hungry', vi: 'Mặt đất có răng, và nó đang đói' },
     sky: ['#0a0806', '#1a140e', '#2a2016', '#3a2c1e'], far: '#1e1610', mid: '#140e0a', style: 'tunnel', tree: ['#000', '#000'],
     ground: { top: '#8a6a4a', topDark: '#5a4430', topLight: '#b08a60', body: '#3a2a1c', dark: '#241a10', light: '#52402c' },
@@ -153,7 +153,7 @@ const TRIAL_WAVES = { 0: 2, 2: 3, 5: 4, 6: 5 };
 function genLevel(li) {
   const B = BIOMES[li], rnd = mulberry32(9001 + li * 7919), lv = LDIFF(li);
   const R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
-  const H = 15, W = B.len + 100;
+  let H = 15; const W = B.len + 100;
   const grid = []; for (let y = 0; y < H; y++) grid.push(new Array(W).fill(' '));
   const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], dragons: [], minis: [], dark: [], creep: [], id: 0 };
   const set = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) grid[y][x] = c; };
@@ -499,17 +499,28 @@ function genLevel(li) {
       L.dark.push(z);
       for (let tx = z.x0; tx < z.x1; tx += R(3, 6)) { const gr = groundRow(tx); if (grid[gr - 1][tx] === ' ') L.creep.push({ x: tx * TS + R(2, 12), y: gr * TS, k: R(0, 3) }); }
     } }
-  const ax0 = x, AW = li === 6 ? 48 : 44;   // every boss arena is wide, with platforms on three floors to jump up and dodge
-  L.arena = { x0: ax0, x1: ax0 + AW, gy: 10 };
-  for (let i = 0; i < AW; i++) col(ax0 + i, 10);
-  for (let i = 0; i < AW; i++) solidCol(ax0 + i, 10);
+  // the Sunken Deep and the Deepdig Tunnels end in a huge cavern far below: the world gets deeper and you drop into it
+  if (B.deep) { for (let k = 0; k < B.deep; k++) grid.push(grid[H - 1].map(c => (c === ' ' ? ' ' : '#'))); H += B.deep; L.H = H; }
+  const ax0 = x, AW = B.arenaW || (li === 6 ? 48 : 44), AG = B.deep ? H - 3 : 10;   // every boss arena is wide, with platforms on several floors
+  L.arena = { x0: ax0, x1: ax0 + AW, gy: AG };
+  for (let i = 0; i < AW; i++) col(ax0 + i, AG);
+  for (let i = 0; i < AW; i++) solidCol(ax0 + i, AG);
   for (let y = 0; y < H; y++) { set(ax0 + AW, y, '#'); set(ax0 + AW + 1, y, '#'); }
-  const PLATS = li === 6 ? [[7, 5, 9], [7, 17, 21], [7, 29, 33], [7, 40, 44], [5, 11, 15], [5, 23, 27], [5, 34, 38], [3, 19, 23], [3, 30, 33]]
-    : li % 2 ? [[7, 5, 9], [7, 16, 20], [7, 27, 31], [7, 37, 40], [5, 10, 14], [5, 21, 25], [5, 32, 35], [3, 15, 18], [3, 26, 29]]
-    : [[7, 6, 10], [7, 18, 22], [7, 30, 34], [5, 12, 16], [5, 24, 28], [5, 36, 39], [3, 8, 11], [3, 19, 23], [3, 31, 34]];
-  PLATS.forEach(p => { for (let xx = p[1]; xx <= p[2]; xx++) set(ax0 + xx, p[0], '='); });
-  L.checkpoints.push({ x: (ax0 - 4) * TS, y: 10 * TS, id: L.id++ });
-  L.spawns.push({ id: L.id++, type: 'boss', x: (ax0 + AW - 7) * TS, y: 10 * TS });
+  if (B.deep) {   // the hole: the ground just before the arena opens into a long drop
+    for (let i = 1; i <= 6; i++) { for (let y = 0; y < AG; y++) set(ax0 - i, y, ' '); solidCol(ax0 - i, AG); }
+    for (let i = 7; i <= 8; i++) for (let y = 11; y < AG; y++) set(ax0 - i, y, '#');
+    const rows = AG - 10;
+    for (let k = 0; k < 6; k++) { const r = 10 + Math.round(rows * (k + 1) / 7), x0 = 3 + ((k * 13) % (AW - 12)); for (let xx = x0; xx < x0 + 6; xx++) set(ax0 + xx, r, '='); }
+    for (let k = 0; k < 5; k++) { const r = AG - 3 - (k % 2) * 3, x0 = 6 + k * Math.floor((AW - 12) / 5); for (let xx = x0; xx < x0 + 5; xx++) set(ax0 + xx, r, '='); }
+    L.checkpoints.push({ x: (ax0 - 10) * TS, y: 10 * TS, id: L.id++ });
+  } else {
+    const PLATS = li === 6 ? [[7, 5, 9], [7, 17, 21], [7, 29, 33], [7, 40, 44], [5, 11, 15], [5, 23, 27], [5, 34, 38], [3, 19, 23], [3, 30, 33]]
+      : li % 2 ? [[7, 5, 9], [7, 16, 20], [7, 27, 31], [7, 37, 40], [5, 10, 14], [5, 21, 25], [5, 32, 35], [3, 15, 18], [3, 26, 29]]
+      : [[7, 6, 10], [7, 18, 22], [7, 30, 34], [5, 12, 16], [5, 24, 28], [5, 36, 39], [3, 8, 11], [3, 19, 23], [3, 31, 34]];
+    PLATS.forEach(p => { for (let xx = p[1]; xx <= p[2]; xx++) set(ax0 + xx, p[0], '='); });
+    L.checkpoints.push({ x: (ax0 - 4) * TS, y: 10 * TS, id: L.id++ });
+  }
+  L.spawns.push({ id: L.id++, type: 'boss', x: (ax0 + AW - 10) * TS, y: AG * TS });
   L.endX = (ax0 + AW) * TS;
   // ground step safety: if the pre-arena ground is not at row 10 build ramp
   { const rn = mulberry32(777 + li * 131), endX = (L.arena ? L.arena.x0 : W) - 8, nooks = [];

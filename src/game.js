@@ -1,10 +1,12 @@
 'use strict';
 // ============================== LAST LANTERN ==============================
 (function () {
+  const BVW = BASE_VW, BVH = BASE_VH;
+  let VW = BVW, VH = BVH;   // the world view; widened while the camera zooms out (huge sea cave, deep pit)
   const cv = document.getElementById('game'), ctx = cv.getContext('2d');
   const buf = document.createElement('canvas'); buf.width = VW; buf.height = VH;
   const g = buf.getContext('2d');
-  const lightC = document.createElement('canvas'); lightC.width = VW; lightC.height = VH;
+  const lightC = document.createElement('canvas'); lightC.width = Math.ceil(VW / 0.55); lightC.height = Math.ceil(VH / 0.55);
   const lg = lightC.getContext('2d');
   const FONT = "'LLPixel','VT323','Pixelify Sans','Consolas','Courier New',monospace";
   let scale = 3, offX = 0, offY = 0;
@@ -1342,6 +1344,7 @@
   function hurtBoss(b, dmg, pierce, quiet) {
     if (b.isDragon) return hurtDragon(b, dmg, pierce, quiet);
     if (b.hide || b.st === 'intro' || b.st === 'sleep' || b.invul > 0 || b.dead) return;
+    b.lastHit = Q.t;
     if (b.shield > 0) {
       if (!pierce) { Snd.play('hit'); b.flash = 0.04; emit(b.x + b.w / 2, b.y + b.h / 2, 5, { col: ['#6ee7f2', '#fff'], sp0: 40, sp1: 110 }); return; }
       b.shield = 0; b.st = 'stun'; b.stunT = 2.2; b.sk = null; dmg *= 1.5; Q.msg = save.lang === 'vi' ? 'Khiên vỡ! Nó choáng!' : 'Shield broken! It is stunned!'; Q.msgT = 3; Snd.play('explode');
@@ -1754,6 +1757,21 @@
     b.fury = 1 + (1 - b.hp / (b.max || b.hp)) * 0.7;
     if (b.morph) { morphTick(b, dt); return; }
     if (b.st === 'sleep') return;
+    if (b.st !== 'intro' && !b.morph) {
+      if (b.lastHit === undefined) b.lastHit = Q.t;
+      if (Q.t - b.lastHit > 30 && b.max && b.hp < b.max) {
+        b.hp = Math.min(b.max, b.hp + b.max * 0.015 * dt); b.regT = (b.regT || 0) - dt;
+        if (Math.random() < 0.3) emit(b.x + rr(0, b.w), b.y + rr(0, b.h), 1, { col: ['#7ed957', '#d8ff9a', '#fff'], sp0: 5, sp1: 20, grav: -40, l0: 0.4, l1: 0.8 });
+        if (b.regT <= 0) { b.regT = 2; pop(b.x + b.w / 2, b.y - 8, save.lang === 'vi' ? 'BOSS ĐANG HỒI MÁU!' : 'THE BOSS IS HEALING!', '#7ed957'); }
+      }
+      if (b.cfg.art) {
+        b.growlT = (b.growlT === undefined ? 3 : b.growlT) - dt; if (b.growlT <= 0) { b.growlT = rr(4, 7); Snd.creature(Q.li, 'idle', true, 0.8); }
+        const cxm2 = b.x + b.w / 2;
+        if (b.cfg.art === 'shroom' && Math.random() < 0.25) emit(cxm2 + rr(-b.w / 2, b.w / 2), b.y + rr(0, b.h * 0.3), 1, { col: ['#c8f0a0', '#c07bff', '#a4ffc0'], sp0: 3, sp1: 14, grav: -18, l0: 0.8, l1: 1.6 });
+        else if (b.cfg.art === 'kraken' && Math.random() < 0.3) emit(cxm2 + rr(-b.w / 3, b.w / 3), b.y + rr(b.h * 0.2, b.h * 0.6), 1, { col: ['#bfeaff', '#fff'], sp0: 3, sp1: 10, grav: -60, l0: 0.8, l1: 1.6 });
+        else if (b.cfg.art === 'worm' && Math.random() < 0.2) emit(cxm2 + rr(-b.w / 2, b.w / 2), b.y + b.h - 4, 1, { col: ['#8a6a4a', '#5a4430'], sp0: 10, sp1: 40, vy: -40, grav: 300, l0: 0.4, l1: 0.8 });
+      }
+    }
     if (b.st === 'intro') { b.timer += dt; if (b.timer > 2.2) { b.st = 'wait'; b.timer = 0.8; Q.state = 'play'; } return; }
     const pct = b.hp / b.max, ph = pct < 0.33 ? 2 : (pct < 0.66 ? 1 : 0);
     if (ph > b.phase) { b.phase = ph; b.invul = 1.0; Q.shake = 0.8; Snd.creature(Q.li, 'alert', true); emit(b.x + b.w / 2, b.y + b.h / 2, 30, { col: ['#fff', bpc()], sp0: 40, sp1: 160 }); Q.msg = save.lang === 'vi' ? 'Boss nổi điên!' : 'The boss is enraged!'; Q.msgT = 3; }
@@ -1867,6 +1885,11 @@
     if (b.morph) { const mt = b.morph.t, k = mt < 1.1 ? 1 - 0.8 * (mt / 1.1) : 0.2 + 0.8 * Math.min(1, (mt - 1.1) / 0.8); sx *= k; sy *= k; if (mt < 1.1) { rot += Math.sin(mt * 40) * 0.1; ox += (Math.random() - 0.5) * 4; } aura = ['#a15be0', 0.9]; circle = true; }
     if (b.st === 'act' && b.sk === 'roar') { sy *= 1.08; sx *= 1.06; ox += (Math.random() - 0.5) * 3; aura = [bpc(), 0.6]; }
     if (b.guard > 0) { sx *= 1.05; sy *= 0.94; }
+    // living creatures: the mushroom sways and breathes, the kraken floats and pulses, the worm writhes
+    const art = b.cfg.art, mv = b.moveT > 0 || b.st === 'evade';
+    if (art === 'shroom') { rot += Math.sin(t * (mv ? 8 : 1.6)) * (mv ? 0.08 : 0.045); sy *= 1 + 0.04 * Math.sin(t * 2.1); sx *= 1 - 0.03 * Math.sin(t * 2.1); if (mv) oy -= Math.abs(Math.sin(t * 8)) * 2.5; }
+    else if (art === 'kraken') { oy += Math.sin(t * 1.8) * 5 - 3; rot += Math.sin(t * 1.2) * 0.04; sx *= 1 + 0.05 * Math.sin(t * (mv ? 6 : 2.4)); sy *= 1 - 0.035 * Math.sin(t * (mv ? 6 : 2.4)); }
+    else if (art === 'worm') { rot += Math.sin(t * (mv ? 7 : 3)) * 0.09; sx *= 1 + 0.06 * Math.sin(t * (mv ? 12 : 6)); sy *= 1 - 0.05 * Math.sin(t * (mv ? 12 : 6) + 1); }
     return { sx, sy, rot, ox, oy, al, aura, circle };
   }
 
@@ -2389,6 +2412,7 @@
   // ---- melee ----
   function doSwing(it) {
     const P = Q.P, st = it.st, f = P.face;
+    if (Q.B.water && !P.onGround) { P.vx += f * 70; if (act.up) P.vy = Math.min(P.vy, -90); emit(P.x + 4, P.y + 7, 6, { col: ['#bfeaff', '#fff'], sp0: 10, sp1: 40, vx: -f * 40, grav: -40 }); }
     P.sw = it; P.atk = 0.2; P.atkCd = 0.27 * (st.cd || 1); P.atkHit = new Set(); P.atkDown = !P.onGround && act.down;
     Snd.play('slash'); if (Math.random() < 0.6) Snd.hero('attack');
     if (hasRelic(5) && !P.atkDown) { Snd.play('flame'); Q.fps.push({ t: 'wave', x: P.x + 4 + f * 10, y: P.y + 7, vx: f * 150, vy: 0, g: 0, life: 0.55, hit: new Set() }); }
@@ -3052,6 +3076,11 @@
     }
   }
   function updateCam(dt) {
+    { const L = Q.L, B = Q.B, tz = B.zoom && !Q.bossDead && L.arena && Q.P.x > (L.arena.x0 - 9) * TS ? B.zoom : 1; Q.zoom = (Q.zoom || 1) + (tz - (Q.zoom || 1)) * Math.min(1, dt * 2.2); if (Math.abs(Q.zoom - tz) < 0.002) Q.zoom = tz; }
+    VW = BVW / (Q.zoom || 1); VH = BVH / (Q.zoom || 1);
+    try { updateCam0(dt); } finally { VW = BVW; VH = BVH; }
+  }
+  function updateCam0(dt) {
     const P = (coop && Q.P.down && Q.players && Q.players.find(p => !p.down)) || Q.P, L = Q.L, k = 1 - Math.exp(-6 * dt);
     let tx = P.x + P.w / 2 - VW / 2 + P.face * 22, ty = P.y - VH * 0.58;
     let minX = 0, maxX = Math.max(0, L.endX + 8 - VW);
@@ -3139,13 +3168,13 @@
   function drawWorld() {
     const L = Q.L, B = Q.B, cam = Q.cam, ts = Q.ts;
     const camX = Math.round(cam.x), camY = Math.round(cam.y);
-    g.drawImage(Q.bg.sky, 0, 0);
+    g.drawImage(Q.bg.sky, 0, 0, VW, VH);
     drawSun();
     drawSkyLife(camX, camY);
     if (Q.wishT > 0) drawWishDragon();
     for (const ly of Q.bg.layers) {
       let ox = -((cam.x * ly.f) % 512); if (ox > 0) ox -= 512;
-      const y = Math.round(ly.anchor === 'top' ? ly.y - camY * 0.1 + 24 * 0.1 : ly.y + (24 - cam.y) * ly.f);
+      const y = Math.round(ly.anchor === 'top' ? ly.y - camY * 0.1 + 24 * 0.1 : ly.y + (24 - cam.y) * ly.f + (VH - BVH) + Math.max(0, cam.y - (Q.L.H - 15) * TS) * 0);
       g.drawImage(ly.c, Math.round(ox), y); g.drawImage(ly.c, Math.round(ox) + 512, y);
     }
     { const hz = g.createLinearGradient(0, VH * 0.42, 0, VH); hz.addColorStop(0, hexA(B.sky[2], 0)); hz.addColorStop(1, hexA(B.sky[2], B.dark > 0.5 ? 0.1 : 0.22)); g.fillStyle = hz; g.fillRect(0, VH * 0.42, VW, VH * 0.58); }
@@ -3334,6 +3363,7 @@
   function drawBoss(camX, camY) {
     const b = Q.boss; if (b.dead && Q.t % 0.1 > 0.05) return;
     { const fr = bossFrame(b); if (fr) b.spr = fr; }
+    if (typeof BOSS_IMG !== 'undefined' && BOSS_IMG[Q.li] && b.cfg === BOSS[Q.li]) b.spr = BOSS_IMG[Q.li];
     const c = b.cfg, x = Math.round(b.x + b.w / 2 - camX), bot = Math.round(b.y + b.h - camY), gyy = Math.round(Q.L.arena.gy * TS - camY);
     if (b.hide) {
       if (b.sk === 'burrow' && b.ph === 1) {
@@ -3356,7 +3386,7 @@
     if (b.st === 'evade') { g.globalAlpha = 0.35; drawSprT(g, b.spr, x - b.ed * 14, bot, b.dir < 0, false, 1, 1, 0, 0.35); g.globalAlpha = 1; }
     if ((b.sk === 'charge' || b.sk === 'rush') && b.st === 'act') { g.globalAlpha = 0.25; drawSprT(g, b.spr, x - b.dir * 12, bot, b.dir < 0, false, 1.1, 0.92, b.dir * 0.2, 0.25); drawSprT(g, b.spr, x - b.dir * 24, bot, b.dir < 0, false, 1.05, 0.95, b.dir * 0.2, 0.15); g.globalAlpha = 1; }
     let al = P.al; if (b.invul > 0 && Math.floor(Q.t * 20) % 2 === 0) al = Math.min(al, 0.45);
-    drawSprT(g, b.spr, x + P.ox, bot + bob + P.oy, b.dir < 0, b.flash > 0 || tele || b.revT > 0, P.sx, P.sy, P.rot, al);
+    drawSprT(g, b.spr, x + P.ox, bot + bob + P.oy, b.dir < 0, b.flash > 0 || tele || b.revT > 0, P.sx * (c.artScale || 1), P.sy * (c.artScale || 1), P.rot, al);
     if (b.cloak && Math.random() < 0.5) { g.fillStyle = Math.random() < 0.5 ? '#a15be0' : '#fff'; g.fillRect(x + Math.round(rr(-b.w / 2, b.w / 2)), bot - Math.round(rr(0, b.h)), 1, 2); }
     if (b.shield > 0) { g.globalAlpha = 0.35 + Math.sin(Q.t * 12) * 0.12; disc(g, x, bot - (b.h >> 1), Math.round(b.h * 0.62), '#6ee7f2'); g.globalAlpha = 1; g.fillStyle = '#fff'; g.fillRect(x - 1, bot - b.h - 8, 3, 3); }
     if (b.guard > 0) { g.globalAlpha = 0.5; g.strokeStyle = '#cfd6e6'; g.lineWidth = 2; g.strokeRect(x - (b.w >> 1) - 3, bot - b.h - 3, b.w + 6, b.h + 4); g.globalAlpha = 1; for (let i = 0; i < 3; i++) { const a = Q.t * 5 + i * 2.1; g.fillStyle = '#fff'; g.fillRect(Math.round(x + Math.cos(a) * (b.w / 2 + 4)), Math.round(bot - (b.h >> 1) + Math.sin(a) * (b.h / 2)), 2, 2); } }
@@ -3419,12 +3449,15 @@
     if (Q.state === 'dead') return;
     if (P.inv > 0 && P.dash <= 0 && Math.floor(P.inv * 20) % 2 === 0) return;
     const x = Math.round(P.x + P.w / 2 - camX), bot = Math.round(P.y + P.h - camY);
+    const swim = Q.B.water && !P.onGround;
+    if (swim) { const rot = clamp(-P.vy / 320, -0.45, 0.45) * P.face + (P.atk > 0 ? P.face * 0.15 : 0); g.save(); g.translate(x, bot - 10); g.rotate(rot); g.translate(-x, -(bot - 10)); }
     const hh = P.hero && HERO[P.hero]; let av = hh || armorVis(save.inv.armor);
     if (!hh && !coop && (save.cos.aura || save.cos.wings)) av = Object.assign({ sw: {} }, av || {}, save.cos.aura ? { aura: '#ffd34e' } : {}, save.cos.wings && !(av && av.wings) ? { wings: 'dragon' } : {});
     const swp = av ? av.sw : {};
     if (av) drawArmorBack(av, x, bot);
     let spr;
-    if (!P.onGround) spr = getSprite(P.vy < 0 ? 'hero_jump' : 'hero_fall', swp, 0);
+    if (swim) spr = getSprite('hero_run', swp, Math.floor(P.anim * (P.vy < -20 ? 14 : 7)) % 4);
+    else if (!P.onGround) spr = getSprite(P.vy < 0 ? 'hero_jump' : 'hero_fall', swp, 0);
     else if (Math.abs(P.vx) > 15) spr = getSprite('hero_run', swp, Math.floor(P.anim * 12) % 4);
     else spr = getSprite('hero_idle', swp, Math.floor(P.anim * 3) % 2);
     const bob = 0;
@@ -3440,6 +3473,7 @@
     if (sw) drawHeldSword(sw, x, bot);
     if (av) drawArmorFront(av, x, bot);
     if (hh && hh.hat) drawHat(hh, x, bot, P.face);
+    if (swim) g.restore();
     if (coop) drawCoopTag(P, x, bot);
   }
   function drawLighting() {
@@ -3542,7 +3576,9 @@
     g.save();
     const sh = Q.shake > 0 ? Q.shake * 8 : 0;
     if (sh > 0) g.translate(Math.round(rr(-sh, sh)), Math.round(rr(-sh, sh)));
-    drawWorld(); drawFog(); drawLighting(); drawCreepEyes(Math.round(Q.cam.x), Math.round(Q.cam.y)); drawWeather(); drawGrade(); drawGearTop(Math.round(Q.cam.x), Math.round(Q.cam.y));
+    { const z = Q.zoom || 1; if (z !== 1) { VW = BVW / z; VH = BVH / z; g.save(); g.scale(z, z); }
+      try { drawWorld(); drawFog(); drawLighting(); drawCreepEyes(Math.round(Q.cam.x), Math.round(Q.cam.y)); drawWeather(); drawGrade(); drawGearTop(Math.round(Q.cam.x), Math.round(Q.cam.y)); }
+      finally { if (z !== 1) { g.restore(); VW = BVW; VH = BVH; } } }
     g.restore();
     if (Q.state !== 'talk') drawHUD();
     if (coop && Q.state !== 'talk') drawCoopHUD();
@@ -5047,9 +5083,9 @@
   });
   ['mosquito', 'piranha'].forEach(t => FLY.add(t));
   BOSS.push(
-    { name: { en: 'Spore Queen', vi: 'Nữ Hoàng Bào Tử' }, w: 40, h: 46, hp: 600, armor: 0.3, smart: 0.55, sp: 24, minion: 'bogslime', proj: '#c8f0a0', skills: ['goo', 'shoot', 'summon', 'rain', 'jump', 'spin'], skills2: ['slam', 'roar', 'erupt'] },
-    { name: { en: 'Abyssal Kraken', vi: 'Thủy Quái Kraken' }, w: 52, h: 44, hp: 660, armor: 0.3, smart: 0.6, sp: 22, minion: 'piranha', proj: '#6ee7f2', skills: ['erupt', 'shoot', 'rain', 'charge', 'summon', 'fan'], skills2: ['spin', 'roar', 'slam'] },
-    { name: { en: 'Gravemaw the Great Worm', vi: 'Sâu Khổng Lồ Gravemaw' }, w: 44, h: 44, hp: 720, armor: 0.35, smart: 0.6, sp: 28, minion: 'mole', proj: '#c8a070', skills: ['burrow', 'burrow', 'charge', 'rain', 'summon'], skills2: ['burrow', 'slam', 'roar'] }
+    { name: { en: 'Spore Queen', vi: 'Nữ Hoàng Bào Tử' }, art: 'shroom', w: 64, h: 88, hp: 600, armor: 0.3, smart: 0.55, sp: 24, minion: 'bogslime', proj: '#c8f0a0', skills: ['goo', 'shoot', 'summon', 'rain', 'jump', 'spin'], skills2: ['slam', 'roar', 'erupt'] },
+    { name: { en: 'Abyssal Kraken', vi: 'Thủy Quái Kraken' }, art: 'kraken', artScale: 1.35, w: 170, h: 150, hp: 660, armor: 0.3, smart: 0.6, sp: 22, minion: 'piranha', proj: '#6ee7f2', skills: ['erupt', 'shoot', 'rain', 'charge', 'summon', 'fan'], skills2: ['spin', 'roar', 'slam'] },
+    { name: { en: 'Gravemaw the Great Worm', vi: 'Sâu Khổng Lồ Gravemaw' }, art: 'worm', artScale: 1.15, w: 84, h: 108, hp: 720, armor: 0.35, smart: 0.6, sp: 28, minion: 'mole', proj: '#c8a070', skills: ['burrow', 'burrow', 'charge', 'rain', 'summon'], skills2: ['burrow', 'slam', 'roar'] }
   );
   // the worm hides under the ground, rumbles under a hero for a moment, then bursts out - move away in time!
   BS.burrow = {
@@ -5306,7 +5342,7 @@
   function drawGrade() {
     const gr = GRADE[Q.B.id];
     if (gr) { g.globalCompositeOperation = 'soft-light'; g.globalAlpha = gr[1] * 3; g.fillStyle = gr[0]; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
-    if (!vignette) { const [c, x] = mkCanvas(VW, VH), v = x.createRadialGradient(VW / 2, VH / 2, VH * 0.35, VW / 2, VH / 2, VW * 0.62); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.42)'); x.fillStyle = v; x.fillRect(0, 0, VW, VH); vignette = c; }
+    if (!vignette || vignette.width !== Math.ceil(VW)) { const [c, x] = mkCanvas(Math.ceil(VW), Math.ceil(VH)), v = x.createRadialGradient(VW / 2, VH / 2, VH * 0.35, VW / 2, VH / 2, VW * 0.62); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.42)'); x.fillStyle = v; x.fillRect(0, 0, VW, VH); vignette = c; }
     g.drawImage(vignette, 0, 0);
   }
   // the green wish dragon winding across the sky

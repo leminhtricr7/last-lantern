@@ -34,3 +34,10 @@ loadQuocArt();
   const painted = devilSprite;
   devilSprite = function (roar) { const s = QUOC_IMG[roar ? 'portrait_roar' : 'portrait_smirk']; return s || painted(roar); };
 }
+
+// the Spore Queen, the Kraken and Gravemaw from the artist's sheet (cut by tools/cut_bosses.py), keyed by map index
+const BOSS_IMG = {};
+(function () {
+  const L = { 7: 'sporequeen', 8: 'kraken', 9: 'gravemaw' };
+  for (const k in L) { const img = new Image(); img.onload = () => { BOSS_IMG[k] = imgSprite(img, 0, 0, img.width, img.height); }; img.src = 'assets/bosses/' + L[k] + '.png'; }
+})();

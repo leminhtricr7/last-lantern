@@ -1,6 +1,7 @@
 'use strict';
 // ============ PIXEL ART (all generated in code: sprites, tiles, backgrounds) ============
 const VW = 384, VH = 216, TS = 16;
+const BASE_VW = VW, BASE_VH = VH;
 
 function mulberry32(a) {
   return function () {
