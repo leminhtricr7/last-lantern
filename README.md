@@ -76,10 +76,10 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 ## Shop, inventory & gear
 
 - Open the **Shop & Inventory** from the title menu or press **B** on the world map. Tabs: Swords, Armor, Pets, Weapons, Inventory, Top-up.
-- **100 items** (25 each of swords, armors, pets, special weapons). While testing, the shop is FREE (`SHOP_FREE = true` in `src/game.js`; set it to false before selling). The pricier, the prettier and the more special. Pay with **gold** (coins you collect; every cleared level also pays a bonus) or **gems**.
+- **100 items** (25 each of swords, armors, pets, special weapons). The weapon shop is **free** for everyone (`SHOP_FREE = true` in `src/game.js`; set it to `false` to charge gold/gems). The pricier, the prettier and the more special. Pay with **gold** (coins you collect; every cleared level also pays a bonus) or **gems**.
 - Selecting an item shows a card: what it does and how to use it. You can equip **2 weapons** (slot 1 = J / left-click, slot 2 = H / middle-click / gamepad LT / touch H), **1 armor** and **1 pet**. At least one sword must stay equipped.
 - Swords: burn, freeze, poison, chain lightning, lifesteal, crits, boss damage, beams, black holes. Armors: more hearts, damage reduction, dodge, thorns, auto-shield, regen, revive. Pets: coin magnet, biting, healing, shielding, fireballs, projectile blocking, revive... Special weapons include bows, wands, meteors, a black hole, a time-slowing hourglass, the **Staff of the Thunder God** (a god appears and smites enemies) and the **Dragon Horn**.
-- **Top-up is in TEST MODE** (`TOPUP_TEST = true` in `src/game.js`): it gives free gems. Before selling, replace `topUp()` with a real payment flow.
+- The **Top-up** tab is hidden (`TOPUP_ENABLED = false`): no real-money payment is connected. Gold from levels still works if you turn `SHOP_FREE` off.
 - Catalog and item art: `src/items.js`. Music is a chiptune EDM engine in `src/audio.js` (BPM is derived from each level's music definition).
 - **Princess Lyra follows you through map 2.** After you beat map 2 the story moves to **Castle Aurelia**: the crowd cheers, King Aurelius asks you to defeat the guardians, you agree, and a golden egg hatches into a free **Baby Dragon pet** (+500 gold, +20 gems). Plays once per save. Before Ember leaves, Lyra gives him a shy kiss on the cheek and runs into the castle; Quoc's rage scene that follows has its own stormy backdrop.
 - **After map 1:** Ember rides a horse home with Lyra - a short, shy romance scene - before the devil cutscene.
@@ -105,7 +105,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **Mr Shorty's trials** (maps 1, 3, 6, 7) now mix waves of monsters with a torch puzzle; reinforcements keep coming until you solve it.
 - **Every map has pitch-black stretches** with glowing eyes, watching shadows, fog, skulls and whispers.
 - **Ember shows emotions** (happy, angry, hurt, crying when almost dead).
-- **Test mode:** `UNLOCK_ALL = true` in `src/game.js` unlocks every map. Set it to `false` for release so each win unlocks the next map.
+- **Progression:** each boss you beat unlocks the next map (`UNLOCK_ALL` in `src/game.js` is `false`; set it to `true` to unlock every map for testing).
 
 ## Project layout
 

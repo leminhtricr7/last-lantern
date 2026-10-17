@@ -55,7 +55,7 @@
   const maxHP = () => 3 + Math.floor(totalShards() / 3) + (hasRelic(0) ? 2 : 0) + armHP();
   const baseDmg = () => 1 + Math.floor(totalShards() / 7) + (hasRelic(1) ? 1 : 0) + ((ITEM[save.inv.pet] || { st: {} }).st.role === 'rainbow' ? 1 : 0);
   const swordDmg = () => baseDmg() + save.inv.w.reduce((m, id) => (ITEM[id] && ITEM[id].type === 'sword' ? Math.max(m, ITEM[id].st.dmg || 0) : m), 0);
-  const UNLOCK_ALL = true; // set to false for release: then each win unlocks the next map
+  const UNLOCK_ALL = false; // set to false for release: then each win unlocks the next map
   const maxPlayable = () => UNLOCK_ALL ? 6 : save.cleared.length ? Math.min(6, Math.max.apply(null, save.cleared) + 1) : 0;
   const sunPower = () => save.cleared.length / 7;
   Snd.setVol(save.vol);
@@ -3309,10 +3309,11 @@
   // TEST MODE: top-up gives free gems so you can try the economy. For release, replace topUp() with a real
   // payment (Steam microtransactions via your server) and set TOPUP_TEST = false.
   const TOPUP_TEST = true;
-  SHOP_SHOW_STORY = true; // TEST BUILD: the Leek Blade can be taken from the shop without rescuing Lyra
-  const SHOP_FREE = true; // TEST BUILD: everything in the shop is free. Set to false before selling the game.
+  SHOP_SHOW_STORY = false; // the Leek Blade is Lyra's gift: rescue her on map 1 (set true to list it in the shop)
+  const SHOP_FREE = true; // the weapon shop is FREE for everyone (set false to charge gold/gems)
   const TOPUP_PACKS = [{ gems: 60, vnd: '20.000đ', usd: '$0.99' }, { gems: 330, vnd: '99.000đ', usd: '$4.99' }, { gems: 700, vnd: '199.000đ', usd: '$9.99' }, { gems: 1500, vnd: '399.000đ', usd: '$19.99' }, { gems: 4000, vnd: '999.000đ', usd: '$49.99' }];
-  const SH_TABS = [['sword', { en: 'Swords', vi: 'Kiếm' }], ['armor', { en: 'Armor', vi: 'Giáp' }], ['pet', { en: 'Pets', vi: 'Thú cưng' }], ['wpn', { en: 'Weapons', vi: 'Vũ khí' }], ['bag', { en: 'Inventory', vi: 'Kho đồ' }], ['topup', { en: 'Top-up', vi: 'Nạp' }]];
+  const TOPUP_ENABLED = false; // no real-money payments are connected, so the Top-up tab is hidden
+  const SH_TABS = [['sword', { en: 'Swords', vi: 'Kiếm' }], ['armor', { en: 'Armor', vi: 'Giáp' }], ['pet', { en: 'Pets', vi: 'Thú cưng' }], ['wpn', { en: 'Weapons', vi: 'Vũ khí' }], ['bag', { en: 'Inventory', vi: 'Kho đồ' }], ['topup', { en: 'Top-up', vi: 'Nạp' }]].filter(t => t[0] !== 'topup' || TOPUP_ENABLED);
   const TYPE_NAME = { sword: { en: 'Sword', vi: 'Kiếm' }, armor: { en: 'Armor', vi: 'Giáp' }, pet: { en: 'Pet', vi: 'Thú cưng' }, wpn: { en: 'Special weapon', vi: 'Vũ khí đặc biệt' } };
   const sv = (en, vi) => save.lang === 'vi' ? vi : en;
   let shopTab = 0, shopIdx = 0, shopFrom = 'title', shopCard = null, shopMsg = '', shopMsgT = 0, shopBad = false;
