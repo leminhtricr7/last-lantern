@@ -65,13 +65,22 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 
 ## Story characters
 
-- **Lyra Blue** (songstress, map 1) is locked in a cage guarded by monsters. Defeat the guards, free her, and she gives you her **glowing Leek Blade** - your new sword
+- **Princess Lyra** (map 1) is locked in a cage guarded by monsters. Defeat the guards, free her, and she gives you her **glowing Leek Blade** - your new sword
   (+1 damage, longer reach, green glow and sparkles). She cheers you on in maps 4, 6 and 7 (restores your hearts).
 - **Mr Shorty Phong** (villain) forces a **Trial** on you in maps 2, 4, 6 and 7: the arena seals and waves of monsters spawn; survive to win hearts, coins and a bomb.
 - **QuanSadBoy** (sad bookworm wizard) helps a lot in maps 2 and 3 with advice and free supplies.
 - **Quoc the Devil** - after every map the screen darkens and you see the giant devil screaming at his minions (Shorty and an imp). Press Enter to advance.
 
 > Mr Shorty Phong, QuanSadBoy and Quoc are named after real friends who agreed to appear in the game - keep that permission in writing if you sell it.
+
+## Shop, inventory & gear
+
+- Open the **Shop & Inventory** from the title menu or press **B** on the world map. Tabs: Swords, Armor, Pets, Weapons, Inventory, Top-up.
+- **60 items** (15 each of swords, armors, pets, special weapons). The pricier, the prettier and the more special. Pay with **gold** (coins you collect; every cleared level also pays a bonus) or **gems**.
+- Selecting an item shows a card: what it does and how to use it. You can equip **2 weapons** (slot 1 = J / left-click, slot 2 = H / middle-click / gamepad LT / touch H), **1 armor** and **1 pet**. At least one sword must stay equipped.
+- Swords: burn, freeze, poison, chain lightning, lifesteal, crits, boss damage, beams, black holes. Armors: more hearts, damage reduction, dodge, thorns, auto-shield, regen, revive. Pets: coin magnet, biting, healing, shielding, fireballs, projectile blocking, revive... Special weapons include bows, wands, meteors, a black hole, a time-slowing hourglass, the **Staff of the Thunder God** (a god appears and smites enemies) and the **Dragon Horn**.
+- **Top-up is in TEST MODE** (`TOPUP_TEST = true` in `src/game.js`): it gives free gems. Before selling, replace `topUp()` with a real payment flow.
+- Catalog and item art: `src/items.js`. Music is a chiptune EDM engine in `src/audio.js` (BPM is derived from each level's music definition).
 
 ## Bosses, dragon & difficulty
 
