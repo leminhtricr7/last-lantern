@@ -160,3 +160,13 @@ NPC_PAINT.npc_santree = [22, 32, P => { // Santree: a walking pine with a Santa 
   P.px(5, 22, '#ffd34e'); P.px(16, 21, '#6ee7f2'); P.px(11, 25, '#ff7fb0'); P.px(7, 26, '#ffd34e');
   P.both(() => { P.line(3, 17, -1 + 1, 24, '#5a3a22', 2); });
 }];
+
+// ---------------- the Star Gem trader: a hooded traveller with a huge backpack and a gem lantern ----------------
+NPC_PAINT.npc_trader = [22, 28, P => {
+  P.rect(1, 6, 9, 16, '#8a5a34'); P.rect(2, 7, 7, 14, '#a87442'); P.rect(1, 11, 9, 2, '#5e3b22'); P.rect(3, 3, 5, 4, '#6a4a2a'); P.rect(4, 2, 3, 2, '#c8964a');
+  P.ell(14, 7, 6, 6, '#3a2a5a'); P.ell(14, 8, 4, 4, '#f2c394'); P.px(13, 8, 'k'); P.px(16, 8, 'k'); P.rect(12, 11, 5, 1, '#d8d0c0'); P.rect(11, 12, 7, 2, '#d8d0c0');
+  P.tri(14, 0, 8, 7, 20, 7, '#4a3a7a'); P.px(14, 1, '#ffd34e');
+  P.rect(9, 13, 11, 10, '#4a3a7a'); P.rect(10, 13, 9, 2, '#6a5aa0'); P.rect(9, 17, 11, 1, '#ffd34e');
+  P.rect(19, 14, 2, 6, '#4a3a7a'); P.rect(20, 18, 1, 4, '#5a3a22'); P.rect(18, 21, 4, 4, '#2a2040'); P.rect(19, 22, 2, 2, '#c07bff'); P.px(19, 22, '#fff');
+  P.rect(10, 23, 3, 5, '#2a2040'); P.rect(16, 23, 3, 5, '#2a2040');
+}];

@@ -87,13 +87,13 @@ const DEVIL_MUSIC = { root: 38, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 68, wave: 's
 const TITLE_MUSIC = { root: 60, scale: [0, 2, 4, 7, 9], bpm: 78, wave: 'triangle', prog: [0, 5, 3, 7], seed: 2, density: 0.4, drums: true };
 
 const NPC_PLAN = {
-  0: { start: ['lila'], cps: ['fairy'] },
-  1: { start: ['bram'], cps: ['gob', 'quan', 'wizard'] },
-  2: { cps: ['quan', 'hoang', 'smith', 'wizard'] },
-  3: { start: ['bram'], cps: ['gob', 'duong', 'lyra', 'smith'] },
-  4: { cps: ['angel', 'santree', 'smith'] },
-  5: { cps: ['gob', 'lyra', 'smith'] },
-  6: { cps: ['wizard'], pre: ['lila', 'angel', 'bram', 'quan', 'lyra', 'fairy'] }
+  0: { start: ['lila', 'trader'], cps: ['fairy'] },
+  1: { start: ['bram', 'trader'], cps: ['gob', 'quan', 'wizard'] },
+  2: { start: ['trader'], cps: ['quan', 'hoang', 'smith', 'wizard'] },
+  3: { start: ['bram', 'trader'], cps: ['gob', 'duong', 'lyra', 'smith'] },
+  4: { start: ['trader'], cps: ['angel', 'santree', 'smith'] },
+  5: { start: ['trader'], cps: ['gob', 'lyra', 'smith'] },
+  6: { start: ['trader'], cps: ['wizard'], pre: ['lila', 'angel', 'bram', 'quan', 'lyra', 'fairy'] }
 };
 // puzzles per map, easy -> hard
 const PUZZLES = {
@@ -469,5 +469,13 @@ function genLevel(li) {
   L.spawns.push({ id: L.id++, type: 'boss', x: (ax0 + AW - 7) * TS, y: 10 * TS });
   L.endX = (ax0 + AW) * TS;
   // ground step safety: if the pre-arena ground is not at row 10 build ramp
+  { const cand = [];
+    for (let x = 12; x < (L.arena ? L.arena.x0 - 4 : W - 10); x++) for (let y = 2; y <= 7; y++) if (L.grid[y][x] === '=' && L.grid[y - 1][x] === ' ' && L.grid[y - 2] && L.grid[y - 2][x] === ' ') cand.push([x, y]);
+    const rr2 = mulberry32(5150 + li * 97), picks = [];
+    for (let k = 0; k < 4; k++) {
+      const seg = (L.arena ? L.arena.x0 : W) / 4, inSeg = cand.filter(c => c[0] >= seg * k && c[0] < seg * (k + 1));
+      const c = inSeg.length ? inSeg[Math.floor(rr2() * inSeg.length)] : [Math.floor(seg * k + seg * 0.6), 9];
+      picks.push(c); L.spawns.push({ id: L.id++, type: 'rare', k, x: c[0] * TS + TS / 2, y: (c[1] - 1) * TS + 4 });
+    } }
   return L;
 }

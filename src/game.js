@@ -39,6 +39,9 @@
   const writeSave = () => { if (DEMO || inSwap) return; try { localStorage.setItem(SAVEKEY, JSON.stringify(save)); } catch (e) { } };
   if (!Array.isArray(save.relics) || save.relics.length < 7) save.relics = [0, 0, 0, 0, 0, 0, 0];
   if (!save.ammo) save.ammo = { dagger: 0, bomb: 0, flask: 0 };
+  save.rare = save.rare | 0; if (!save.rareGot || typeof save.rareGot !== 'object') save.rareGot = {};
+  save.bonusHP = save.bonusHP | 0; save.bonusDmg = save.bonusDmg | 0; if (!save.cos || typeof save.cos !== 'object') save.cos = {};
+  if (!Array.isArray(save.heroUnlock)) save.heroUnlock = [];
   save.leek = !!save.leek;
   if (!save.inv || typeof save.inv !== 'object') save.inv = {};
   save.inv.own = Array.isArray(save.inv.own) ? save.inv.own.filter(id => ITEM[id]) : [];
@@ -53,9 +56,9 @@
   const totalShards = () => Object.keys(save.shards).reduce((a, k) => a + save.shards[k].filter(Boolean).length, 0);
   const hasRelic = i => !!save.relics[i];
   const armHP = () => { const a = ITEM[save.inv.armor]; return a ? (a.st.hp || 0) : 0; };
-  const baseHP = () => 3 + Math.floor(totalShards() / 3) + (hasRelic(0) ? 2 : 0) + armHP();
+  const baseHP = () => 3 + Math.floor(totalShards() / 3) + (hasRelic(0) ? 2 : 0) + armHP() + (save.bonusHP | 0);
   const maxHP = () => (coop && Q && Q.P && Q.P.mhp) || baseHP();
-  const baseDmg = () => Math.max(1, (Q && Q.P && Q.P.hdmg || 0) + (Q && Q.G && Q.G.powerT > 0 ? 2 : 0) + 1 + Math.floor(totalShards() / 7) + (hasRelic(1) ? 1 : 0) + ((ITEM[save.inv.pet] || { st: {} }).st.role === 'rainbow' ? 1 : 0));
+  const baseDmg = () => Math.max(1, (Q && Q.P && Q.P.hdmg || 0) + (Q && Q.G && Q.G.powerT > 0 ? 2 : 0) + 1 + (save.bonusDmg | 0) + Math.floor(totalShards() / 7) + (hasRelic(1) ? 1 : 0) + ((ITEM[save.inv.pet] || { st: {} }).st.role === 'rainbow' ? 1 : 0));
   const swordDmg = () => baseDmg() + save.inv.w.reduce((m, id) => (ITEM[id] && ITEM[id].type === 'sword' ? Math.max(m, ITEM[id].st.dmg || 0) : m), 0);
   const UNLOCK_ALL = false; // set to false for release: then each win unlocks the next map
   const maxPlayable = () => UNLOCK_ALL ? 6 : save.cleared.length ? Math.min(6, Math.max.apply(null, save.cleared) + 1) : 0;
@@ -173,7 +176,8 @@
     lila: { spr: 'npc_lila', name: { en: 'Lila', vi: 'Lila' } },
     bram: { spr: 'npc_bram', name: { en: 'Captain Bram', vi: 'Đội trưởng Bram' } },
     gob: { spr: 'npc_gob', name: { en: 'Gob the Swamp Goblin', vi: 'Gob Yêu Tinh Đầm Lầy' }, shop: true },
-    angel: { spr: 'npc_angel', name: { en: 'Seraph', vi: 'Thiên thần Seraph' }, bless: true }
+    angel: { spr: 'npc_angel', name: { en: 'Seraph', vi: 'Thiên thần Seraph' }, bless: true },
+    trader: { spr: 'npc_trader', name: { en: 'Mira the Gem Trader', vi: 'Mira - Thương Nhân Ngọc' }, trade: true, generic: [{ en: 'Oh! A lantern-bearer! I trade in Star Gems - four of them hide in every land, usually somewhere high.', vi: 'Ô! Người mang đèn đây rồi! Tôi buôn Ngọc Sao - mỗi vùng đất giấu bốn viên, thường ở chỗ cao.' }, { en: 'Bring me gems and I will give you treasures you cannot buy anywhere else. Even secret heroes!', vi: 'Mang ngọc tới đây, tôi sẽ đổi cho bạn những báu vật không đâu bán. Cả hero bí mật nữa!' }] }
   };
   const DLG = {
     0: { lila: [
@@ -499,7 +503,7 @@
     if (gp) {
       ax = gp.axes[0] || 0; ay = gp.axes[1] || 0;
       const b = i => gp.buttons[i] && gp.buttons[i].pressed;
-      gb.a = b(0); gb.b = b(1); gb.x = b(2); gb.y = b(3); gb.start = b(9); gb.lb = b(4); gb.rb = b(5); gb.rt = b(7); gb.lt = b(6);
+      gb.a = b(0); gb.b = b(1); gb.x = b(2); gb.y = b(3); gb.start = b(9); gb.back = b(8); gb.lb = b(4); gb.rb = b(5); gb.rt = b(7); gb.lt = b(6);
       gb.l = b(14) || ax < -0.5; gb.r = b(15) || ax > 0.5; gb.u = b(12) || ay < -0.5; gb.d = b(13) || ay > 0.5;
     }
     const gpP = n => gb[n] && !gpPrev[n];
@@ -518,10 +522,11 @@
     act.upP = any(pressed, ['ArrowUp', 'KeyW']) || gpP('u'); act.downP = any(pressed, ['ArrowDown', 'KeyS']) || gpP('d');
     act.talkP = pressed.KeyE || pressed.Enter || gpP('rb');
     act.skillP = any(pressed, ['KeyR']) || gpP('rb');
+    act.shopP = any(pressed, ['KeyB', 'KeyI']) || gpP('back');
     act.muteP = pressed.KeyM; act.fullP = pressed.KeyF || pressed.F11;
     gpPrev = gb;
   }
-  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.atk2P = act.throwP = act.swapP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = act.skillP = false; }
+  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.atk2P = act.throwP = act.swapP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = act.skillP = act.shopP = false; }
   function toggleFull() {
     try { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch (e) { }
   }
@@ -969,6 +974,7 @@
       else if (s.type === 'heart') Q.items.push({ kind: 'heart', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'shard') { if (!save.shards[Q.li][s.k]) Q.items.push({ kind: 'shard', x: s.x, y: s.y, id: s.id, k: s.k, ph: 0 }); }
       else if (s.type === 'boss') Q.boss = makeBoss(s);
+      else if (s.type === 'rare') { if ((save.rareGot[Q.li] || []).indexOf(s.k) < 0) Q.items.push({ kind: 'rare', x: s.x, y: s.y, id: s.id, k: s.k, ph: Math.random() * 6 }); }
       else if (s.type === 'cage') { if (save.leek) Q.items.push({ kind: 'npc', who: 'lyra', x: s.x, y: s.y, id: s.id, ph: 0 }); else Q.pz.push({ type: 'cage', x: s.x, y: s.y, grp: s.grp, open: false }); }
       else if (s.type === 'pk') Q.items.push({ kind: 'pk', what: s.what, amt: s.what === 'dagger' ? 5 : 2, keep: !!s.keep, x: s.x, y: s.y - 7, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'key') Q.items.push({ kind: 'key', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
@@ -2079,6 +2085,7 @@
   function endTalk() {
     const tk = Q.talk, n = tk.npc, it = tk.it; Q.talk = null;
     if (tk.after) { Q.state = 'play'; tk.after(); return; }
+    if (n.trade) { Q.state = 'play'; openShopInGame('trade'); return; }
     if (n.shop) { Q.state = 'shop'; Q.menu = 0; Q.shopMsg = ''; Q.shopWho = it.who; return; }
     Q.state = 'play';
     if (!it.blessed) {
@@ -2221,9 +2228,10 @@
       const d = Math.hypot(it.x - pc.x, it.y - pc.y);
       if (it.kind === 'coin') {
         if (d < (hasRelic(3) ? 90 : 40) * (petRole() === 'coin' ? 2.2 : (petRole() === 'rainbow' ? 1.8 : 1)) && !it.drop) { it.x += (pc.x - it.x) * 6 * dt; it.y += (pc.y - it.y) * 6 * dt; }
-        if (d < 10) { it.dead = true; const cv2 = hasRelic(3) ? 2 : 1; Q.coinsRun += cv2; save.coins += cv2; Snd.play('coin'); if (it.id >= 0) Q.taken.add(it.id); emit(it.x, it.y, 4, { col: '#ffd34e', sp0: 10, sp1: 40 }); if (Q.coinsRun % 50 === 0 && Q.P.hp < maxHP()) { Q.P.hp++; Snd.play('heart'); } }
+        if (d < 10) { it.dead = true; const cv2 = hasRelic(3) ? 2 : 1; Q.coinsRun += cv2; save.coins += cv2; if (coop) coop.gold = (coop.gold || 0) + cv2; Snd.play('coin'); if (it.id >= 0) Q.taken.add(it.id); emit(it.x, it.y, 4, { col: '#ffd34e', sp0: 10, sp1: 40 }); if (Q.coinsRun % 50 === 0 && Q.P.hp < maxHP()) { Q.P.hp++; Snd.play('heart'); } }
       } else if (it.kind === 'heart') {
-        if (d < 11) { if (P.hp < maxHP()) { P.hp++; it.dead = true; Snd.play('heart'); setEmo('happy', 1); if (it.id >= 0) Q.taken.add(it.id); emit(it.x, it.y, 10, { col: ['#e0453a', '#ff7fb0'], sp0: 10, sp1: 50 }); } }
+        if (d < 11 && coop && Q.players) { const need = Q.players.filter(p => !p.down && p.hp < (p.mhp || maxHP())); if (need.length) { for (const p of need) { p.hp++; emit(p.x + 4, p.y + 2, 8, { col: ['#e0453a', '#ff7fb0'], sp0: 10, sp1: 40 }); } it.dead = true; Snd.play('heart'); if (it.id >= 0) Q.taken.add(it.id); pop(it.x, it.y - 10, sv('+1 HP for the team', '+1 máu cả đội'), '#ff7fb0'); } }
+        else if (d < 11) { if (P.hp < maxHP()) { P.hp++; it.dead = true; Snd.play('heart'); setEmo('happy', 1); if (it.id >= 0) Q.taken.add(it.id); emit(it.x, it.y, 10, { col: ['#e0453a', '#ff7fb0'], sp0: 10, sp1: 50 }); } }
       } else if (it.kind === 'shard') {
         if (d < 13) { it.dead = true; save.shards[Q.li][it.k] = 1; writeSave(); Q.taken.add(it.id); Snd.play('shard'); setEmo('happy', 2.2); Q.shardFlash = 1.2; emit(it.x, it.y, 30, { col: ['#ffd34e', '#fff', '#6ee7f2'], sp0: 20, sp1: 120 }); const ts = totalShards(); Q.msg = (save.lang === 'vi' ? 'Mảnh nắng ' : 'Sun Shard ') + ts + '/21' + (ts % 3 === 0 ? (save.lang === 'vi' ? '  — Tim tối đa tăng!' : '  — Max hearts up!') : '') + (ts % 7 === 0 ? (save.lang === 'vi' ? '  — Kiếm mạnh hơn!' : '  — Sword stronger!') : ''); Q.msgT = 4; if (P.hp < maxHP()) P.hp = maxHP(); }
       } else if (it.kind === 'pk') {
@@ -2235,6 +2243,12 @@
       } else if (it.kind === 'buff') {
         if (d < 12) { it.dead = true; Snd.play('relic'); emit(it.x, it.y, 16, { col: it.what === 'shield' ? ['#6ee7f2', '#fff'] : ['#ff5a3a', '#ffd34e'], sp0: 20, sp1: 80 });
           if (it.what === 'shield') { P.shield = true; Q.msg = save.lang === 'vi' ? 'Nhận khiên bảo vệ!' : 'Shield!'; } else { Q.G.powerT = 10; Q.msg = save.lang === 'vi' ? 'Sức mạnh x2 trong 10 giây!' : 'Power up for 10 seconds!'; } Q.msgT = 2.5; }
+      } else if (it.kind === 'rare') {
+        if (d < 13) {
+          it.dead = true; Snd.play('shard'); emit(it.x, it.y, 26, { col: ['#c07bff', '#6ee7f2', '#fff'], sp0: 20, sp1: 110 }); addRing(it.x, it.y, '#c07bff', 30, 0.4);
+          if (!coop || P === Q.me) { save.rare++; const g2 = save.rareGot[Q.li] || (save.rareGot[Q.li] = []); if (g2.indexOf(it.k) < 0) g2.push(it.k); writeSave(); Q.msg = sv('Star Gem! You have ', 'Ngọc Sao! Bạn có ') + save.rare + sv(' - trade them with the travelling merchant (B).', ' viên - đổi quà ở thương nhân (B).'); Q.msgT = 4; }
+          else { coopGive(P, { t: 'rare' }); Q.msg = 'P' + (P.slot + 1) + sv(' found a Star Gem!', ' nhặt được Ngọc Sao!'); Q.msgT = 3; }
+        }
       } else if (it.kind === 'key') {
         if (d < 13) { it.dead = true; P.keys++; Snd.play('key'); Q.taken.add(it.id); Q.msg = T('gotkey'); Q.msgT = 3; emit(it.x, it.y, 14, { col: ['#ffd34e', '#fff'], sp0: 15, sp1: 60 }); }
       } else if (it.kind === 'npc') {
@@ -3051,6 +3065,7 @@
     if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (coop) { if (Q.li >= 6 && !Q.endShown) { Q.endShown = true; startScripted('narr', COOP_END, () => coopBackToLobby()); return; } coopBackToLobby(); return; } if (Q.li >= 6) toScene('ending'); else if (Q.li === 0 && !save.ride) toScene('ride'); else if (Q.li === 1 && !save.castle) toScene('castle'); else { cutLevel = Q.li; mapSel = Math.min(6, Q.li + 1); toScene('cutscene'); } } return; }
     // play / bossintro
     if (act.pauseP && st === 'play') { Q.state = 'pause'; Q.menu = 0; return; }
+    if (act.shopP && st === 'play') { openShopInGame(); return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
     if (Q.freeze > 0) { Q.freeze -= dt; updateParticles(dt); return; }
     Q.t += dt; Q.time += dt;
@@ -3161,6 +3176,11 @@
         g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35; disc(g, x, by, 9, c); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
         disc(g, x, by, 5, '#14121f'); disc(g, x, by, 4, c);
         g.fillStyle = '#fff'; if (it.what === 'shield') { g.fillRect(x - 2, by - 2, 5, 3); g.fillRect(x - 1, by + 1, 3, 1); g.fillRect(x, by + 2, 1, 1); } else { g.fillRect(x, by - 3, 1, 6); g.fillRect(x - 2, by + 1, 5, 1); }
+      } else if (it.kind === 'rare') {
+        const by = y + Math.round(Math.sin(it.ph * 3) * 2);
+        g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.3 + Math.sin(it.ph * 5) * 0.1; disc(g, x, by, 10, '#c07bff'); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+        drawRareIc(x, by, 1.4);
+        if (Math.random() < 0.15) emit(it.x + rr(-6, 6), it.y + rr(-6, 6), 1, { col: ['#fff', '#c07bff', '#6ee7f2'], sp0: 2, sp1: 8, grav: -10, l0: 0.4, l1: 0.8 });
       } else if (it.kind === 'shard') {
         const s = getSprite('shard'); const sc = 2; drawSpr(g, s, x, y + 10 + Math.round(Math.sin(it.ph * 2) * 2), false, false, sc, sc);
         if (Math.random() < 0.2) emit(it.x + rr(-6, 6), it.y + rr(-6, 6), 1, { col: ['#fff', '#ffd34e'], sp0: 2, sp1: 8, grav: -10, l0: 0.4, l1: 0.8 });
@@ -3334,7 +3354,9 @@
     if (Q.state === 'dead') return;
     if (P.inv > 0 && P.dash <= 0 && Math.floor(P.inv * 20) % 2 === 0) return;
     const x = Math.round(P.x + P.w / 2 - camX), bot = Math.round(P.y + P.h - camY);
-    const hh = P.hero && HERO[P.hero], av = hh || armorVis(save.inv.armor), swp = av ? av.sw : {};
+    const hh = P.hero && HERO[P.hero]; let av = hh || armorVis(save.inv.armor);
+    if (!hh && !coop && (save.cos.aura || save.cos.wings)) av = Object.assign({ sw: {} }, av || {}, save.cos.aura ? { aura: '#ffd34e' } : {}, save.cos.wings && !(av && av.wings) ? { wings: 'dragon' } : {});
+    const swp = av ? av.sw : {};
     if (av) drawArmorBack(av, x, bot);
     let spr;
     if (!P.onGround) spr = getSprite(P.vy < 0 ? 'hero_jump' : 'hero_fall', swp, 0);
@@ -3413,6 +3435,7 @@
     const hdy = (Math.ceil(mh / 8) - 1) * 10;
     g.fillStyle = '#ffd34e'; g.fillRect(8, 20 + hdy, 5, 5); g.fillStyle = '#c89a1c'; g.fillRect(12, 21 + hdy, 1, 3);
     txt('x' + Q.coinsRun + '   (' + save.coins + ')', 16, 23 + hdy, { size: 7 });
+    drawRareIc(78, 22 + hdy, 0.8); txt('x' + save.rare, 84, 23 + hdy, { size: 7, col: '#d8b8ff' }); txt(sv('B: bag/shop', 'B: túi đồ/shop'), 104, 23 + hdy, { size: 5, col: '#8892aa' });
     if (P.shield) { g.fillStyle = '#6ee7f2'; g.fillRect(12 + 3 * 11 + 6, 38 + hdy, 6, 7); g.fillStyle = '#fff'; g.fillRect(12 + 3 * 11 + 8, 40 + hdy, 2, 3); }
     const sh = save.shards[Q.li] || [0, 0, 0], ss = getSprite('shard');
     for (let i = 0; i < 3; i++) { if (sh[i]) drawSpr(g, ss, 12 + i * 11, 42 + hdy, false); else { g.globalAlpha = 0.35; drawSpr(g, ss, 12 + i * 11, 42 + hdy, false, true); g.globalAlpha = 1; } }
@@ -3567,7 +3590,7 @@
   const SHOP_FREE = true; // the weapon shop is FREE for everyone (set false to charge gold/gems)
   const TOPUP_PACKS = [{ gems: 60, vnd: '20.000đ', usd: '$0.99' }, { gems: 330, vnd: '99.000đ', usd: '$4.99' }, { gems: 700, vnd: '199.000đ', usd: '$9.99' }, { gems: 1500, vnd: '399.000đ', usd: '$19.99' }, { gems: 4000, vnd: '999.000đ', usd: '$49.99' }];
   const TOPUP_ENABLED = false; // no real-money payments are connected, so the Top-up tab is hidden
-  const SH_TABS = [['sword', { en: 'Swords', vi: 'Kiếm' }], ['armor', { en: 'Armor', vi: 'Giáp' }], ['pet', { en: 'Pets', vi: 'Thú cưng' }], ['wpn', { en: 'Weapons', vi: 'Vũ khí' }], ['bag', { en: 'Inventory', vi: 'Kho đồ' }], ['topup', { en: 'Top-up', vi: 'Nạp' }]].filter(t => t[0] !== 'topup' || TOPUP_ENABLED);
+  const SH_TABS = [['sword', { en: 'Swords', vi: 'Kiếm' }], ['armor', { en: 'Armor', vi: 'Giáp' }], ['pet', { en: 'Pets', vi: 'Thú cưng' }], ['wpn', { en: 'Weapons', vi: 'Vũ khí' }], ['trade', { en: 'Star Gems', vi: 'Đổi Ngọc' }], ['bag', { en: 'Inventory', vi: 'Kho đồ' }], ['topup', { en: 'Top-up', vi: 'Nạp' }]].filter(t => t[0] !== 'topup' || TOPUP_ENABLED);
   const TYPE_NAME = { sword: { en: 'Sword', vi: 'Kiếm' }, armor: { en: 'Armor', vi: 'Giáp' }, pet: { en: 'Pet', vi: 'Thú cưng' }, wpn: { en: 'Special weapon', vi: 'Vũ khí đặc biệt' } };
   const sv = (en, vi) => save.lang === 'vi' ? vi : en;
   let shopTab = 0, shopIdx = 0, shopFrom = 'title', shopCard = null, shopMsg = '', shopMsgT = 0, shopBad = false;
@@ -3577,7 +3600,42 @@
     const t = SH_TABS[shopTab][0];
     if (t === 'bag') { const ord = { sword: 0, wpn: 1, armor: 2, pet: 3 }; return save.inv.own.map(id => ITEM[id]).filter(Boolean).sort((a, b) => ord[a.type] - ord[b.type] || a.tier - b.tier); }
     if (t === 'topup') return TOPUP_PACKS;
+    if (t === 'trade') return TRADES;
     return shopList(t);
+  }
+  // the bag and shop can be opened in the middle of a level (B / I); the level waits (in co-op the world keeps going)
+  let shopHeldQ = null;
+  function openShopInGame(tab) {
+    shopFrom = 'play'; shopHeldQ = Q; shopCard = null; shopIdx = 0; scene = 'shop'; sceneT = 0; clearPressed();
+    if (tab) { const i = SH_TABS.findIndex(t => t[0] === tab); if (i >= 0) shopTab = i; }
+    if (coop && coop.role === 'client') NET.send({ t: 'i' });
+  }
+  function shopBack() {
+    Q = shopHeldQ || Q; shopHeldQ = null; scene = 'play'; clearPressed();
+    if (Q && Q.P) { Q.P.sw = null; if (coop && Q.P.hero) { Q.P.mhp = Math.max(2, baseHP() + HERO[Q.P.hero].hp); Q.P.hp = Math.min(Q.P.hp, Q.P.mhp); } }
+    if (coop && coop.role === 'client') NET.send({ t: 'inv', inv: { w: save.inv.w.slice(), armor: save.inv.armor } });
+  }
+  // ---- Star Gem trades ----
+  const TRADES = [
+    { id: 'ammo', cost: 2, name: { en: 'Supply crate', vi: 'Thùng tiếp tế' }, desc: { en: '+10 daggers, +5 bombs, +5 flasks.', vi: '+10 dao, +5 bom, +5 bình lửa.' }, give() { save.ammo.dagger += 10; save.ammo.bomb += 5; save.ammo.flask += 5; } },
+    { id: 'gold', cost: 2, name: { en: 'Pouch of gold', vi: 'Túi vàng' }, desc: { en: '+500 gold.', vi: '+500 vàng.' }, give() { save.coins += 500; } },
+    { id: 'heart', cost: 5, max: 5, have: () => save.bonusHP, name: { en: 'Heart crystal', vi: 'Pha lê trái tim' }, desc: { en: '+1 max heart forever (up to 5).', vi: '+1 tim tối đa vĩnh viễn (tối đa 5).' }, give() { save.bonusHP++; if (Q && Q.P) Q.P.hp++; } },
+    { id: 'dmg', cost: 8, max: 3, have: () => save.bonusDmg, name: { en: 'Whetstone of dawn', vi: 'Đá mài bình minh' }, desc: { en: '+1 damage on every attack forever (up to 3).', vi: '+1 sát thương mọi đòn đánh vĩnh viễn (tối đa 3).' }, give() { save.bonusDmg++; } },
+    { id: 'aura', cost: 6, max: 1, have: () => save.cos.aura ? 1 : 0, name: { en: 'Golden glow', vi: 'Hào quang vàng' }, desc: { en: 'Ember shines with a golden aura (looks only).', vi: 'Ember tỏa hào quang vàng (trang trí).' }, give() { save.cos.aura = 1; } },
+    { id: 'wings', cost: 9, max: 1, have: () => save.cos.wings ? 1 : 0, name: { en: 'Dragon wings', vi: 'Cánh rồng' }, desc: { en: 'Ember grows a pair of dragon wings (looks only).', vi: 'Ember mọc đôi cánh rồng (trang trí).' }, give() { save.cos.wings = 1; } }
+  ];
+  HEROES.filter(h => h.secret).forEach(h => TRADES.push({ id: 'hero_' + h.id, cost: 10, max: 1, hero: h.id, have: () => save.heroUnlock.indexOf(h.id) >= 0 ? 1 : 0, name: { en: 'Secret hero: ' + h.name.en, vi: 'Hero bí mật: ' + h.name.vi }, desc: { en: 'Unlock ' + h.name.en + ' for online co-op.', vi: 'Mở khóa ' + h.name.vi + ' để chơi co-op online.' }, give() { save.heroUnlock.push(h.id); } }));
+  function doTrade(o) {
+    if (o.max && o.have() >= o.max) { shopSay(sv('You already have this.', 'Bạn đã có món này rồi.'), true); return; }
+    if (save.rare < o.cost) { shopSay(sv('Not enough Star Gems (', 'Chưa đủ Ngọc Sao (') + save.rare + '/' + o.cost + ')', true); return; }
+    save.rare -= o.cost; o.give(); writeSave(); Snd.play('relic'); shopSay(sv('Traded: ', 'Đã đổi: ') + LN(o.name));
+  }
+  function drawRareIc(x, y, sc) {
+    sc = sc || 1; g.save(); g.translate(Math.round(x), Math.round(y)); g.scale(sc, sc);
+    g.fillStyle = '#14121f'; g.fillRect(-4, -1, 9, 3); g.fillRect(-3, -3, 7, 7); g.fillRect(-1, -5, 3, 11);
+    g.fillStyle = '#8e4be0'; g.fillRect(-3, -1, 7, 3); g.fillRect(-2, -3, 5, 7); g.fillRect(0, -4, 1, 9);
+    g.fillStyle = '#c07bff'; g.fillRect(-2, -2, 3, 3); g.fillStyle = '#6ee7f2'; g.fillRect(1, 1, 2, 2); g.fillStyle = '#fff'; g.fillRect(-1, -2, 1, 1);
+    g.restore();
   }
   function shopSay(s, bad) { shopMsg = s; shopMsgT = 2.6; shopBad = !!bad; Snd.play(bad ? 'hurt' : 'ok'); }
   function setTab(i) { shopTab = (i + SH_TABS.length) % SH_TABS.length; shopIdx = 0; shopCard = null; Snd.play('select'); }
@@ -3659,14 +3717,15 @@
     if (act.swapP) setTab(shopTab - 1);
     if (pressed.KeyE || pressed.Tab) setTab(shopTab + 1);
     const mv = d => { const ni = clamp(shopIdx + d, 0, n - 1); if (ni !== shopIdx) { shopIdx = ni; Snd.play('select'); } };
-    if (t === 'topup') { if (act.upP) mv(-1); if (act.downP) mv(1); }
+    if (t === 'topup' || t === 'trade') { if (act.upP) mv(-1); if (act.downP) mv(1); }
     else { if (act.leftP) mv(-1); if (act.rightP) mv(1); if (act.upP) mv(-5); if (act.downP) mv(5); }
     shopIdx = clamp(shopIdx, 0, Math.max(0, n - 1));
     if (act.okP) {
       if (t === 'topup') topUp(list[shopIdx]);
+      else if (t === 'trade') { if (list[shopIdx]) doTrade(list[shopIdx]); }
       else if (list[shopIdx]) { shopCard = { it: list[shopIdx], opt: 0 }; Snd.play('ok'); }
     }
-    if (act.backP || act.pauseP) { Snd.play('select'); toScene(shopFrom); }
+    if (act.backP || act.pauseP) { Snd.play('select'); if (shopFrom === 'play') shopBack(); else toScene(shopFrom); }
   }
   const SH_GX = 12, SH_GY = 30, SH_STEP = 34;
   function shopMouse(gx, gy, click) {
@@ -3679,7 +3738,10 @@
     for (let i = 0; i < SH_TABS.length; i++) if (near(gx, gy, 6 + i * 62 + 30, 13, 30, 8)) { if (click && i !== shopTab) setTab(i); return; }
     if (click && near(gx, gy, VW - 20, VH - 7, 20, 6)) { pressed.Escape = true; return; }
     const t = SH_TABS[shopTab][0], list = shopItems();
-    if (t === 'topup') {
+    if (t === 'trade') {
+      for (let i = 0; i < list.length; i++) if (near(gx, gy, VW / 2, 60 + i * 13, VW / 2 - 8, 6)) { if (shopIdx !== i) { shopIdx = i; Snd.play('select'); } if (click) doTrade(list[i]); return; }
+      return;
+    } else if (t === 'topup') {
       for (let i = 0; i < list.length; i++) if (near(gx, gy, VW / 2, 42 + i * 24, 170, 11)) { if (shopIdx !== i) { shopIdx = i; Snd.play('select'); } if (click) pressed.Enter = true; return; }
       return;
     }
@@ -3706,7 +3768,21 @@
       txt(LN(t[1]), x + 30, 14, { al: 'center', size: 6.5, col: on ? '#ffd34e' : '#8892aa', bold: on });
     });
     const t = SH_TABS[shopTab][0], list = shopItems();
-    if (t === 'topup') {
+    if (t === 'trade') {
+      g.drawImage(npcSpr('npc_trader').c, 8, 26); drawRareIc(40, 34, 1.3);
+      txt(sv('Star Gems: ', 'Ngọc Sao: ') + save.rare, 48, 35, { size: 8, bold: true, col: '#d8b8ff' });
+      txt(sv('"Shiny gems for shiny rewards, friend. 4 hide in every land - look up high!"', '"Ngọc sáng đổi quà xịn nhé bạn. Mỗi vùng giấu 4 viên - nhìn lên chỗ cao!"'), 48, 45, { size: 5.5, col: '#cfd6e6' });
+      list.forEach((o, i) => {
+        const y = 60 + i * 13, on = i === shopIdx, full = o.max && o.have() >= o.max;
+        g.fillStyle = on ? 'rgba(192,123,255,.2)' : 'rgba(255,255,255,.04)'; g.fillRect(8, y - 6, VW - 16, 12);
+        if (on) { g.fillStyle = '#c07bff'; g.fillRect(8, y - 6, VW - 16, 1); g.fillRect(8, y + 5, VW - 16, 1); }
+        if (o.hero) drawHeroAt(o.hero, 18, y + 6, 1, 0, 0.5);
+        txt(LN(o.name), 28, y + 2, { size: 6.5, bold: on, col: full ? '#5fcf5a' : '#fff' });
+        txt(full ? sv('owned', 'đã có') : (o.max > 1 ? o.have() + '/' + o.max : ''), 250, y + 2, { size: 6, col: full ? '#5fcf5a' : '#8892aa' });
+        drawRareIc(VW - 40, y, 0.8); txt(String(o.cost), VW - 34, y + 2, { size: 6.5, col: save.rare >= o.cost ? '#d8b8ff' : '#ff7a7a' });
+      });
+      const o = list[shopIdx]; if (o) { g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(0, 186, VW, 12); txt(LN(o.desc) + sv('   Enter: trade', '   Enter: đổi'), VW / 2, 193, { al: 'center', size: 6, col: '#e8eaf5' }); }
+    } else if (t === 'topup') {
       txt(sv('Top-up gems', 'Nạp gem'), VW / 2, 31, { al: 'center', size: 7, col: '#cfd6e6' });
       list.forEach((p, i) => {
         const y = 42 + i * 24, on = i === shopIdx;
@@ -4197,7 +4273,8 @@
   const cvs = (en, vi) => save.lang === 'vi' ? vi : en;
   const PCOL = ['#ffd34e', '#6ee7f2', '#ff7fb0', '#7ed957', '#c07bff'];
   const coopUI = { ph: 'menu', sel: 0, code: '', msg: '', msgBad: false, hs: 0, li: 0, slots: [], from: 'lobby' };
-  const myHero = () => (HERO[save.hero] ? save.hero : 'ember');
+  const heroLocked = h => h && h.secret && save.heroUnlock.indexOf(h.id) < 0;
+  const myHero = () => (HERO[save.hero] && !heroLocked(HERO[save.hero]) ? save.hero : 'ember');
   function allPl() { return coop && Q.players ? Q.players.filter(p => !p.down) : [Q.P]; }
   function asP(p, fn) {
     if (!p || p === Q.P) return fn();
@@ -4295,6 +4372,7 @@
       case 'onihorn': R(-1, -5, 3, 6); R(0, -7, 2, 2); R(-5, 0, 2, 2); R(4, 0, 2, 2); break;
       case 'bun': R(-3, -4, 6, 5); R(-2, -5, 4, 1); R(-1, -3, 2, 1, '#ff9fd0'); break;
       case 'cowboy': R(-9, 2, 18, 2); R(-5, -2, 10, 4); R(-5, 1, 10, 1, '#e0453a'); break;
+      case 'crown': R(-5, 0, 10, 2); R(-5, -3, 2, 3); R(-1, -4, 2, 4); R(3, -3, 2, 3); R(-1, -1, 2, 1, '#e0453a'); break;
       case 'fox': R(-6, -4, 3, 5); R(3, -4, 3, 5); R(-6, -4, 3, 1, '#ff9a4a'); R(3, -4, 3, 1, '#ff9a4a'); R(-5, -2, 1, 2, '#ff9fd0'); R(4, -2, 1, 2, '#ff9fd0'); break;
     }
   }
@@ -4370,6 +4448,7 @@
     if (iDone && wait.length) { g.fillStyle = 'rgba(8,6,20,.85)'; g.fillRect(VW / 2 - 110, 124, 220, 14); txt(cvs('Waiting for ', 'Đang chờ ') + wait.join(', ') + cvs(' to finish reading...', ' đọc xong...'), VW / 2, 134, { al: 'center', size: 7, col: '#ffd34e' }); }
     else if (ready.length) txt(cvs('Ready: ', 'Đã xong: ') + ready.join(', '), VW - 10, 140, { al: 'right', size: 5, col: '#a4ffc0' });
   }
+  function coopGive(p, msg) { for (const [id, pr] of coop.peers) if (pr.pl === p) NET.send(msg, id); }
   function coopRespawn() {
     for (const p of Q.players) { p.down = false; p.hp = p.mhp; p.inv = 1.5; p.vx = p.vy = 0; p.x = Q.P.x - p.slot * 6; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; }
   }
@@ -4473,6 +4552,7 @@
     s.gd = gd;
     if (Q.L.arena) s.ar = [Q.L.arena.x0, Q.L.arena.x1, Q.L.arena.gy];
     coop.ev.length = 0;
+    if (coop.gold) { s.gold = coop.gold; coop.gold = 0; }
     return s;
   }
   function applyList(pk, cur) {
@@ -4514,6 +4594,7 @@
       if (e[0] === 'e') emit(e[1], e[2], e[3], e[4]);
       else if (e[0] === 's' && coop.play0) coop.play0(e[1]);
     }
+    if (s.gold) { save.coins += s.gold; writeSave(); }
     coop.since = 0;
   }
   // ---------- per-frame network work ----------
@@ -4607,6 +4688,10 @@
         coop.peers.set(from, { slot, hero: HERO[d.hero] ? d.hero : 'ember', inv: d.inv, pl: null });
         NET.send({ t: 'welcome', slot }, from); sendLobby();
       } else if (d.t === 'tkdone' && p && Q && Q.talk && Q.talk.id === d.id) { const dl = Q.talk.doneList || (Q.talk.doneList = []); if (dl.indexOf(p.slot) < 0) dl.push(p.slot); }
+      else if (d.t === 'inv' && p && p.pl && d.inv) {
+        const w = (Array.isArray(d.inv.w) ? d.inv.w : []).slice(0, 2).map(i => (i && ITEM[i]) ? i : null); if (!w.some(Boolean)) w[0] = 'iron';
+        p.pl.bag = { w, armor: ITEM[d.inv.armor] ? d.inv.armor : null, pet: null, own: w.filter(Boolean) }; p.pl.sw = null;
+      }
       else if (d.t === 'hero' && p) { p.hero = HERO[d.id] ? d.id : p.hero; sendLobby(); }
       else if (d.t === 'i' && p && p.pl) {
         const pl = p.pl; pl.inp = d; pl.edge = pl.edge || {};
@@ -4616,7 +4701,8 @@
       if (d.t === 'welcome') { coop.me = d.slot; coopUI.ph = 'lobby'; coopUI.msg = ''; }
       else if (d.t === 'lobby') { coopUI.slots = d.slots; coopUI.li = d.li; coopUI.code = d.code; if (scene === 'play') { coopUI.ph = 'lobby'; toScene('coop'); } }
       else if (d.t === 'start') { coopUI.li = d.li; coop.objs.clear(); startLevel(d.li); Q.client = true; Q.players = []; Q.state = 'intro'; scene = 'play'; }
-      else if (d.t === 's') { if (scene === 'play' && Q) coopApply(d); }
+      else if (d.t === 's') { if ((scene === 'play' || scene === 'shop') && Q) coopApply(d); }
+      else if (d.t === 'rare') { save.rare++; writeSave(); if (Q) { Q.msg = cvs('Star Gem! You have ', 'Ngọc Sao! Bạn có ') + save.rare + cvs('.', ' viên.'); Q.msgT = 3; } }
       else if (d.t === 'full') coopLeave(cvs('The room is full (5 players).', 'Phòng đã đủ 5 người.'));
       else if (d.t === 'busy') coopLeave(cvs('That room is already playing. Try again later.', 'Phòng đang chơi. Hãy thử lại sau.'));
     }
@@ -4750,7 +4836,8 @@
       if (act.rightP) { coopUI.hs = (coopUI.hs + 1) % n; Snd.play('select'); }
       if (act.upP) { coopUI.hs = (coopUI.hs + n - C) % n; Snd.play('select'); }
       if (act.downP) { coopUI.hs = (coopUI.hs + C) % n; Snd.play('select'); }
-      if (pressed.Enter || pressed.KeyJ || pressed.Space) {
+      if ((pressed.Enter || pressed.KeyJ || pressed.Space) && heroLocked(HEROES[coopUI.hs])) { coopUI.msg = cvs('Locked: trade 10 Star Gems with Mira the trader.', 'Đang khóa: đổi 10 Ngọc Sao ở thương nhân Mira.'); coopUI.msgBad = true; Snd.play('hurt'); }
+      else if (pressed.Enter || pressed.KeyJ || pressed.Space) {
         save.hero = HEROES[coopUI.hs].id; writeSave(); Snd.play('relic');
         if (coop && coop.role === 'client') NET.send({ t: 'hero', id: save.hero });
         if (coop && coop.role === 'host') sendLobby();
@@ -4812,18 +4899,21 @@
     if (coopUI.msg) { const ls = wrapText(coopUI.msg, 72); ls.forEach((l, i) => txt(l, VW / 2, VH - 12 - (ls.length - 1 - i) * 9, { al: 'center', size: 7, col: coopUI.msgBad ? '#ff7a7a' : '#a4ffc0' })); }
   }
   function drawHeroPick() {
-    const C = 10, cw = 36, chh = 34, x0 = (VW - C * cw) / 2, y0 = 44;
+    const C = 10, cw = 36, chh = 28, x0 = (VW - C * cw) / 2, y0 = 40;
     HEROES.forEach((h, i) => {
       const cx = x0 + (i % C) * cw, cy = y0 + Math.floor(i / C) * chh, on = i === coopUI.hs;
       g.fillStyle = on ? 'rgba(255,211,78,.18)' : 'rgba(255,255,255,.04)'; g.fillRect(cx + 1, cy, cw - 2, chh - 2);
       g.fillStyle = HERO_CLS[h.cls].col; g.fillRect(cx + 1, cy + chh - 3, cw - 2, 1);
-      drawHeroAt(h.id, cx + cw / 2, cy + chh - 5, 1, on ? Math.floor(sceneT * 4) % 2 : 0, 1);
+      if (heroLocked(h)) g.globalAlpha = 0.35;
+      drawHeroAt(h.id, cx + cw / 2, cy + chh - 4, 1, on ? Math.floor(sceneT * 4) % 2 : 0, 1); g.globalAlpha = 1;
+      if (heroLocked(h)) { g.fillStyle = '#c07bff'; g.fillRect(cx + cw - 9, cy + 3, 6, 5); g.fillStyle = '#14121f'; g.fillRect(cx + cw - 7, cy + 5, 2, 2); g.strokeStyle = '#c07bff'; g.lineWidth = 1; g.strokeRect(cx + cw - 8.5, cy + 0.5, 5, 4); }
       if (h.id === myHero()) txt('✓', cx + cw - 5, cy + 7, { size: 6, col: '#a4ffc0', al: 'right' });
       if (on) { g.fillStyle = '#ffd34e'; g.fillRect(cx, cy - 1, cw, 1); g.fillRect(cx, cy + chh - 2, cw, 1); g.fillRect(cx, cy - 1, 1, chh - 1); g.fillRect(cx + cw - 1, cy - 1, 1, chh - 1); }
     });
-    const h = HEROES[coopUI.hs], cl = HERO_CLS[h.cls], y = y0 + 3 * chh + 4;
+    const h = HEROES[coopUI.hs], cl = HERO_CLS[h.cls], y = y0 + Math.ceil(HEROES.length / C) * chh + 2;
     drawPanel(12, y, VW - 24, VH - y - 6, cl.col);
-    drawHeroAt(h.id, 40, y + 52, 1, Math.floor(sceneT * 3) % 2, 2);
+    drawHeroAt(h.id, 40, y + 46, 1, Math.floor(sceneT * 3) % 2, 1.8);
+    if (heroLocked(h)) txt(cvs('SECRET - trade 10 Star Gems', 'BÍ MẬT - đổi 10 Ngọc Sao'), VW - 18, y + 12, { al: 'right', size: 6, col: '#c07bff', bold: true });
     txt(LN(h.name), 68, y + 12, { size: 10, bold: true, col: '#ffd34e' });
     txt(LN(cl), 68 + Math.round(LN(h.name).length * 6.2) + 8, y + 12, { size: 7, col: cl.col });
     const st = (n, v) => (v > 0 ? '+' : '') + v;
@@ -4898,6 +4988,7 @@
       for (let i = 0; i < n; i++) {
         if (scene === 'play') { if (coop && coop.role === 'client') coopClientTick(sub); else updatePlay(sub); }
         else if (scene === 'coop') updateCoop(sub);
+        if (scene === 'shop' && coop && coop.role === 'host' && Q) { const keep = Object.assign({}, act); for (const k in act) act[k] = false; try { updatePlay(sub); } finally { Object.assign(act, keep); } }
         else if (scene === 'title') updateTitle(sub);
         else if (scene === 'story' || scene === 'ending') updateStory(sub);
         else if (scene === 'map') updateMap(sub);
@@ -4909,7 +5000,7 @@
         if (fadeTo) break;
       }
       if (fadeIn > 0) fadeIn = Math.max(0, fadeIn - dt / 0.25);
-      if (coop && coop.role === 'host' && scene === 'play') coopHostNet(dt);
+      if (coop && coop.role === 'host' && (scene === 'play' || scene === 'shop') && Q) coopHostNet(dt);
     }
     // render
     g.imageSmoothingEnabled = false;
