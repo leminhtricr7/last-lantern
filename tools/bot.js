@@ -5,6 +5,8 @@ window.runBot = function (li, maxSec) {
   const deathAt = [];
   for (let i = 0; i < maxSec / dt; i++) {
     const Q = LL.Q, P = Q.P, a = LL.act; t += dt;
+    if (Q.gates && Q.gates.some(gd => !gd.open) && Q.state === 'play') LL.solveAll();
+    P.keys = 0;
     a.left = false; a.right = true; a.jump = false; a.jumpP = false; a.atkP = false; a.dashP = false; a.down = false; a.okP = false; a.pauseP = false; a.up = false; a.backP = false;
     if (Q.state === 'intro') { a.okP = true; LL.updatePlay(dt); LL.clearPressed(); continue; }
     if (Q.state === 'dead') { deaths++; deathAt.push(Math.round(P.x / TS)); a.okP = true; for (let k = 0; k < 100; k++) LL.updatePlay(dt); LL.updatePlay(dt); LL.clearPressed(); continue; }

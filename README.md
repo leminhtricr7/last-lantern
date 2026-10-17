@@ -22,6 +22,9 @@ Add `?debug` to the URL to expose `window.LL` (used by `tools/bot.js`, an autopl
 | Jump (double jump from level 2) | Space / W / Z | A |
 | Attack (↓ + attack in air = pogo bounce) | J / X | X / RB |
 | Dash (from level 4) | K / C / Shift | B / RT |
+| Throw item (dagger / bomb / fire flask) | L | Y |
+| Switch throwable | Q | LB |
+| Talk / use lever, torch, tablet | E / Enter | RB |
 | Pause | Esc / P | Start |
 | Mute / Fullscreen | M / F11 | |
 
@@ -43,10 +46,19 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 ## Characters, monsters & traps
 
 - **Ember** - chibi warrior with a flame-plume helm (4-frame run, idle, jump, fall).
-- **Story NPCs** (press **E / Enter** next to them): **Lila** (village girl), **Captain Bram** (soldier), **Gob** (swamp goblin merchant - sells a
-  healing potion and a one-hit shield charm for coins), **Seraph** (angel). Talking to Lila/Bram/Seraph restores your hearts.
+- **Story NPCs** (press **E / Enter** next to them): **Lila** (village girl), **Captain Bram** (soldier), **Gob** (swamp goblin merchant - healing potion + shield charm),
+  **Durin** (dwarf smith - bombs, daggers, fire flasks), **Old Merl** (wizard - puzzle hints), **Pip** (fairy guide), **Seraph** (angel). Talking to Lila/Bram/Seraph restores your hearts.
 - **~25 monster types** incl. small ones (beetle, wisp, imp, mushroom, zombie) and 7 hand-painted bosses.
 - **Traps:** pop-up spikes, dart-shooting totems, sliding saw blades, fire vents, falling rocks/icicles (a red ! marker warns you).
+
+## Items, puzzles & relics
+
+- **Throwables** (found all over every map, dropped by monsters, sold by Durin): daggers (fast, 2 dmg), bombs (area blast, crumble cracked walls),
+  fire flasks (leave flames that burn enemies and light torches).
+- **Puzzles** get harder from map 1 to map 7: lever + gate, key + locked door, torches (any order / in the order shown on a stone tablet),
+  cracked walls (bomb them), timed levers (run to the gate before it closes, through traps), multi-lever gates, rune plates stepped in order.
+- **Boss relics** - every boss drops a permanent relic: +2 hearts, +1 damage, brighter lantern, double coins + magnet, no ice slip + fast dash, flame-wave sword.
+- All monsters, bosses, Ember and every NPC have their own voices (growls, screeches, speech blips), generated in code.
 
 ## Project layout
 

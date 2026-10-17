@@ -4,7 +4,7 @@ const FLY = new Set(['bat', 'bee', 'vulture', 'icebat', 'fire', 'ghost', 'fireba
 
 const BIOMES = [
   { // 1
-    id: 'meadow', seed: 11, len: 200, hazard: 'spikes', dark: 0, sun: true, particles: 'pollen',
+    id: 'meadow', seed: 11, len: 300, hazard: 'spikes', dark: 0, sun: true, particles: 'pollen',
     name: { en: 'Verdant Meadow', vi: 'Đồng Cỏ Xanh' }, sub: { en: 'Where the light first faded', vi: 'Nơi ánh sáng bắt đầu tắt' },
     sky: ['#2b3a67', '#5b6fa8', '#e08a6a', '#ffc98a'], far: '#6a7fae', mid: '#3f6f66', style: 'hills', tree: ['#2f6a4c', '#4a8a5a'],
     ground: { top: '#5fcf5a', topDark: '#2b8a3e', topLight: '#a4e86b', body: '#8a5a34', dark: '#5e3b22', light: '#a87442' },
@@ -15,7 +15,7 @@ const BIOMES = [
     proj: '#a4e86b', traps: ['spiketrap']
   },
   { // 2
-    id: 'forest', seed: 22, len: 230, hazard: 'spikes', dark: 0.28, sun: true, particles: 'fireflies',
+    id: 'forest', seed: 22, len: 340, hazard: 'spikes', dark: 0.28, sun: true, particles: 'fireflies',
     name: { en: 'Whispering Forest', vi: 'Rừng Thì Thầm' }, sub: { en: 'The trees remember the sun', vi: 'Cây cối vẫn nhớ mặt trời' },
     sky: ['#0f2a2a', '#1f4b3f', '#2f7a5a', '#6fb98a'], far: '#1c4a3c', mid: '#12332b', style: 'pines', tree: ['#0c2a22', '#1d5a45'],
     ground: { top: '#3fa05a', topDark: '#1f6a3a', topLight: '#7ad68a', body: '#4a3426', dark: '#2e2018', light: '#6a4a36' },
@@ -26,7 +26,7 @@ const BIOMES = [
     proj: '#a4e86b', traps: ['turret', 'spiketrap'], trapStyle: 'wood'
   },
   { // 3
-    id: 'caves', seed: 33, len: 250, hazard: 'spikes', dark: 0.7, sun: false, particles: 'drips',
+    id: 'caves', seed: 33, len: 380, hazard: 'spikes', dark: 0.7, sun: false, particles: 'drips',
     name: { en: 'Crystal Caverns', vi: 'Hang Pha Lê' }, sub: { en: 'Only your lantern shows the way', vi: 'Chỉ ngọn đèn của bạn soi đường' },
     sky: ['#0b0a1a', '#17143a', '#2a2260', '#3d3380'], far: '#1b1840', mid: '#241f52', style: 'cave', tree: ['#000', '#000'],
     ground: { top: '#6a68b0', topDark: '#3c3a7a', topLight: '#a0a0ee', body: '#2b2a4a', dark: '#1c1b33', light: '#3f3d6a' },
@@ -37,7 +37,7 @@ const BIOMES = [
     proj: '#6ee7f2', traps: ['rockfall']
   },
   { // 4
-    id: 'desert', seed: 44, len: 270, hazard: 'spikes', dark: 0, sun: true, particles: 'sand',
+    id: 'desert', seed: 44, len: 420, hazard: 'spikes', dark: 0, sun: true, particles: 'sand',
     name: { en: 'Sunscorch Desert', vi: 'Sa Mạc Cháy Nắng' }, sub: { en: 'Even a dead sun leaves its heat', vi: 'Mặt trời chết vẫn để lại hơi nóng' },
     sky: ['#3d1c4a', '#a8404a', '#f08a4a', '#ffd08a'], far: '#c86a4a', mid: '#a8503a', style: 'dunes', tree: ['#000', '#000'],
     ground: { top: '#f0c878', topDark: '#c8964a', topLight: '#ffe8a8', body: '#c8964a', dark: '#a07030', light: '#e0b060' },
@@ -48,7 +48,7 @@ const BIOMES = [
     proj: '#ffd34e', traps: ['turret', 'spiketrap'], trapStyle: 'sand'
   },
   { // 5
-    id: 'frost', seed: 55, len: 290, hazard: 'spikes', dark: 0.1, sun: true, particles: 'snow',
+    id: 'frost', seed: 55, len: 460, hazard: 'spikes', dark: 0.1, sun: true, particles: 'snow',
     name: { en: 'Frostbite Peaks', vi: 'Đỉnh Băng Giá' }, sub: { en: 'Slippery ground, sharper teeth', vi: 'Nền trơn trượt, nanh vuốt sắc hơn' },
     sky: ['#1a2b5a', '#3a5a9a', '#7ab0e0', '#d8f0ff'], far: '#6a8ac0', mid: '#9ac0e8', style: 'ice', tree: ['#000', '#000'],
     ground: { top: '#ffffff', topDark: '#b8d8f0', topLight: '#ffffff', body: '#6a8ac0', dark: '#4a6aa0', light: '#9ac0e8' },
@@ -59,7 +59,7 @@ const BIOMES = [
     proj: '#bfeaff', ice: true, traps: ['rockfall', 'spiketrap']
   },
   { // 6
-    id: 'volcano', seed: 66, len: 310, hazard: 'lava', dark: 0.15, sun: false, particles: 'embers',
+    id: 'volcano', seed: 66, len: 500, hazard: 'lava', dark: 0.15, sun: false, particles: 'embers',
     name: { en: 'Ember Volcano', vi: 'Núi Lửa Tro Tàn' }, sub: { en: 'The ground itself wants you gone', vi: 'Chính mặt đất muốn tiễn bạn đi' },
     sky: ['#1a0808', '#4a1010', '#a02a10', '#f06a20'], far: '#4a1a14', mid: '#2e0f0c', style: 'volcano', tree: ['#000', '#000'],
     ground: { top: '#5a5a66', topDark: '#33333d', topLight: '#80808f', body: '#2e2a30', dark: '#1c181c', light: '#4a3f44' },
@@ -70,7 +70,7 @@ const BIOMES = [
     proj: '#ff9a2a', movers: true, traps: ['jets', 'rockfall', 'saw'], trapStyle: 'dark'
   },
   { // 7
-    id: 'citadel', seed: 77, len: 340, hazard: 'spikes', dark: 0.5, sun: false, stars: true, particles: 'motes',
+    id: 'citadel', seed: 77, len: 560, hazard: 'spikes', dark: 0.5, sun: false, stars: true, particles: 'motes',
     name: { en: 'Shadow Citadel', vi: 'Thành Trì Bóng Tối' }, sub: { en: 'The Eclipse waits at the top', vi: 'Nhật Thực đang đợi trên đỉnh' },
     sky: ['#06040f', '#150a2a', '#2a1450', '#4a2a7a'], far: '#1a1030', mid: '#0e0820', style: 'citadel', tree: ['#000', '#000'],
     ground: { top: '#7a6aae', topDark: '#3a2f66', topLight: '#a89add', body: '#2a2248', dark: '#1a1430', light: '#463a78' },
@@ -85,14 +85,32 @@ const BIOMES = [
 const BOSS_MUSIC = { root: 48, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 150, wave: 'square', prog: [0, 1, 3, 1], seed: 77, density: 0.7 };
 const TITLE_MUSIC = { root: 60, scale: [0, 2, 4, 7, 9], bpm: 78, wave: 'triangle', prog: [0, 5, 3, 7], seed: 2, density: 0.4, drums: false };
 
-const NPC_PLAN = { 0: { start: 'lila' }, 1: { start: 'bram', cp: 'gob' }, 2: { cp: 'gob' }, 3: { start: 'bram' }, 4: { cp: 'angel' }, 5: { cp: 'gob' }, 6: { pre: ['lila', 'angel', 'bram'] } };
+const NPC_PLAN = {
+  0: { start: ['lila'], cps: ['fairy'] },
+  1: { start: ['bram'], cps: ['gob', 'wizard'] },
+  2: { cps: ['smith', 'wizard'] },
+  3: { start: ['bram'], cps: ['gob', 'smith'] },
+  4: { cps: ['angel', 'smith'] },
+  5: { cps: ['gob', 'smith'] },
+  6: { cps: ['wizard'], pre: ['lila', 'angel', 'bram', 'fairy'] }
+};
+// puzzles per map, easy -> hard
+const PUZZLES = {
+  0: ['lever', 'bombwall'],
+  1: ['key', 'lever', 'torches'],
+  2: ['torches', 'bombwall', 'multilever'],
+  3: ['timed', 'key', 'bombwall'],
+  4: ['seqtorch', 'multilever', 'timed'],
+  5: ['timed', 'bombwall', 'seqtorch', 'key'],
+  6: ['runes', 'seqtorch', 'multilever', 'timed']
+};
 
 function genLevel(li) {
   const B = BIOMES[li], rnd = mulberry32(9001 + li * 7919);
   const R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
   const H = 15, W = B.len + 70;
   const grid = []; for (let y = 0; y < H; y++) grid.push(new Array(W).fill(' '));
-  const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], id: 0 };
+  const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], id: 0 };
   const set = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) grid[y][x] = c; };
   const col = (x, top) => { for (let y = top; y < H; y++) grid[y][x] = (B.ice && rnd() < 0.55) ? 'I' : '#'; };
   const solidCol = (x, top) => { for (let y = top; y < H; y++) grid[y][x] = '#'; };
@@ -127,8 +145,83 @@ function genLevel(li) {
     if (o.cp) { L.checkpoints.push({ x: (x + 2) * TS + 8, y: gy * TS, id: L.id++ }); }
     if (o.heart) spawn('heart', x + (n >> 1), gy - 2);
     if (rnd() < 0.6 && n >= 5) coinsLine(x + R(1, n - 4), gy - 2, R(3, 4));
+    if (rnd() < 0.13 && n >= 5) spawn('pk', x + R(1, n - 2), gy, { what: pickWhat() });
     if (!o.safe && n >= 8 && B.traps && rnd() < 0.3 + d * 0.3) placeTrap(B.traps[R(0, B.traps.length - 1)], x, n);
     x += n;
+  }
+  function pickWhat() { const r = rnd(); return r < 0.45 ? 'dagger' : (r < 0.75 ? 'bomb' : 'flask'); }
+  function perm(n) { const a = []; for (let i = 0; i < n; i++) a.push(i); for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function gateAt(gx, need, ex) {
+    const id = L.id++;
+    for (let y = 0; y <= gy - 1; y++) set(gx, y, 'G');
+    L.gates.push(Object.assign({ id, x: gx, y0: 0, y1: gy - 1, need }, ex || {}));
+    return id;
+  }
+  function pzFlat(n) { const x0 = x; flat(n, { safe: true, cp: true }); return x0; }
+  function pzGuards(x0, n, k) { for (let c = 0; c < k; c++) addEnemy(x0 + R(9, n - 9), gy); }
+  function ledges(x0, list) { list.forEach(l => { for (let i = 0; i < l[2]; i++) set(x0 + l[0] + i, gy - l[1], '='); }); }
+  function pLever() {
+    const n = 30, x0 = pzFlat(n), gid = gateAt(x0 + n - 6, 'lever', { count: 1 });
+    if (li >= 2) { ledges(x0, [[6, 2, 3], [10, 4, 3]]); spawn('lever', x0 + 11, gy - 4, { gate: gid }); }
+    else spawn('lever', x0 + 8, gy, { gate: gid });
+    pzGuards(x0, n, 1 + (li > 1 ? 1 : 0));
+    coinsLine(x0 + 14, gy - 2, 4);
+  }
+  function pKey() {
+    const n = 34, x0 = pzFlat(n);
+    if (li >= 3) { ledges(x0, [[5, 2, 3], [9, 4, 3], [5, 6, 3]]); spawn('key', x0 + 6, gy - 6, {}); }
+    else { ledges(x0, [[6, 2, 3], [10, 4, 3]]); spawn('key', x0 + 11, gy - 4, {}); }
+    const f = B.enemies.find(e => FLY.has(e.t));
+    if (f) spawn(f.t, x0 + 9, gy - 7);
+    gateAt(x0 + n - 6, 'key', {});
+    pzGuards(x0, n, 2);
+  }
+  function pTorches(count, ordered) {
+    const n = 22 + count * 5, x0 = pzFlat(n), cs = perm(5).slice(0, count);
+    const seq = ordered ? perm(count) : null;
+    const gid = gateAt(x0 + n - 5, ordered ? 'seq' : 'torches', { count, seq: seq, seqColors: seq ? seq.map(t => cs[t]) : null });
+    for (let i = 0; i < count; i++) spawn('torch', x0 + 7 + i * 5, gy, { gate: gid, ci: cs[i], tid: i });
+    if (ordered) spawn('tablet', x0 + 3, gy, { gate: gid });
+    pzGuards(x0, n, 1 + (li > 3 ? 1 : 0));
+  }
+  function pBombWall() {
+    const n = 28, x0 = pzFlat(n), wx = x0 + n - 8, tl = [];
+    for (let xx = wx; xx < wx + 2; xx++) for (let yy = gy - 7; yy <= gy - 1; yy++) { set(xx, yy, 'X'); tl.push([xx, yy]); }
+    L.xwalls.push({ tiles: tl });
+    for (let i = 0; i < 3; i++) spawn('pk', x0 + 5 + i * 2, gy, { what: 'bomb', keep: true });
+    coinsLine(x0 + 12, gy - 2, 4);
+    pzGuards(x0, n, 1 + (li > 2 ? 1 : 0));
+  }
+  function pTimed() {
+    const n = 38, x0 = pzFlat(n), T = li >= 5 ? 8 : 9;
+    const gid = gateAt(x0 + n - 5, 'timed', { T });
+    spawn('lever', x0 + 4, gy, { gate: gid, timed: T });
+    const tr = B.traps ? B.traps[R(0, B.traps.length - 1)] : 'spiketrap';
+    placeTrap(tr === 'turret' ? 'spiketrap' : tr, x0 + 9, n - 16);
+    spawn('spiketrap', x0 + n - 10, gy, { w: 2, off: rnd() * 3 });
+    coinsLine(x0 + 14, gy - 3, 3);
+  }
+  function pMulti(k) {
+    const n = 18 + k * 11, x0 = pzFlat(n), gid = gateAt(x0 + n - 5, 'lever', { count: k });
+    for (let i = 0; i < k; i++) {
+      const lx = x0 + 6 + i * 10;
+      if (li >= 4 && i % 2 === 1) { ledges(x0, [[lx - x0 - 1, 2, 3], [lx - x0 + 2, 4, 3]]); spawn('lever', lx + 3, gy - 4, { gate: gid }); }
+      else spawn('lever', lx, gy, { gate: gid });
+    }
+    pzGuards(x0, n, k);
+  }
+  function pRunes() {
+    const cnt = 4, n = 40, x0 = pzFlat(n), cs = perm(5).slice(0, cnt), seq = perm(cnt);
+    const gid = gateAt(x0 + n - 5, 'runes', { count: cnt, seq, seqColors: seq.map(t => cs[t]) });
+    for (let i = 0; i < cnt; i++) spawn('rune', x0 + 9 + i * 6, gy, { gate: gid, ci: cs[i], tid: i });
+    spawn('tablet', x0 + 3, gy, { gate: gid });
+    pzGuards(x0, n, 3);
+  }
+  function runPuzzle(t) {
+    if (t === 'lever') pLever(); else if (t === 'key') pKey();
+    else if (t === 'torches') pTorches(li < 3 ? 2 : 3, false); else if (t === 'seqtorch') pTorches(li < 6 ? 3 : 4, true);
+    else if (t === 'bombwall') pBombWall(); else if (t === 'timed') pTimed();
+    else if (t === 'multilever') pMulti(li < 5 ? 2 : 3); else if (t === 'runes') pRunes();
   }
   function placeTrap(t, x0, n) {
     if (t === 'turret') { spawn('turret', x0 + n - 2, gy, { dir: -1 }); if (li >= 3 && n >= 12) spawn('turret', x0 + 1, gy, { dir: 1 }); }
@@ -260,13 +353,17 @@ function genLevel(li) {
   flat(10, { safe: true });
   L.start = { x: 3 * TS, y: gy * TS };
   const plan = NPC_PLAN[li] || {};
-  if (plan.start) spawn('npc', 7, gy, { who: plan.start });
-  let cpNpcDone = false;
+  (plan.start || []).forEach((w, i) => spawn('npc', 7 + i * 2, gy, { who: w }));
+  if (li === 0) spawn('pk', 14, gy, { what: 'dagger' });
+  let cpNpcIdx = 0;
+  const pzList = PUZZLES[li] || []; let pzIdx = 0;
+  const pzAt = pzList.map((_, i) => Math.floor(B.len * (0.14 + 0.7 * (i + 0.5) / pzList.length)));
   let nextCp = 42, placed = 0;
   const shardAt = [0.2, 0.5, 0.76].map(f => Math.floor(B.len * f));
   while (x < B.len - 16) {
-    if (x > nextCp) { const ax = x; flat(6, { safe: true, cp: true, heart: rnd() < 0.5 }); if (plan.cp && !cpNpcDone) { spawn('npc', ax + 4, gy, { who: plan.cp }); cpNpcDone = true; } nextCp = x + R(38, 52); continue; }
+    if (x > nextCp) { const ax = x; flat(6, { safe: true, cp: true, heart: rnd() < 0.5 }); if (plan.cps && cpNpcIdx < plan.cps.length) { spawn('npc', ax + 4, gy, { who: plan.cps[cpNpcIdx++] }); } nextCp = x + R(38, 52); continue; }
     if (placed < 3 && x > shardAt[placed]) { secret(placed); placed++; continue; }
+    if (pzIdx < pzList.length && x > pzAt[pzIdx]) { runPuzzle(pzList[pzIdx++]); continue; }
     const r = rnd(), d = diff();
     if (r < 0.18) flat(R(6, 12));
     else if (r < 0.34) gap(R(2, maxGap));
