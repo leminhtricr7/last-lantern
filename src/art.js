@@ -925,14 +925,23 @@ function watcherSprite() {
 // leek sword (Lyra's gift): long glowing negi, handle on the left
 function leekSprite() {
   if (_cache.leek) return _cache.leek;
-  _cache.leek = paint(30, 9, P => {
-    P.rect(1, 3, 8, 4, 'w'); P.rect(1, 3, 8, 1, 'e'); P.rect(1, 6, 8, 1, 'E'); P.px(0, 4, 'e'); P.px(0, 5, 'E'); P.rect(2, 2, 1, 1, 'e'); P.rect(4, 7, 1, 1, 'E');
-    P.rect(9, 2, 2, 5, 'x'); P.rect(9, 2, 2, 1, 't');
-    P.rect(11, 3, 12, 3, 'g'); P.rect(11, 3, 12, 1, 't'); P.rect(11, 5, 12, 1, 'G');
-    P.tri(22, 2, 22, 7, 29, 4, 'g'); P.tri(22, 3, 22, 4, 28, 4, 't');
-    P.px(14, 4, 'w'); P.px(19, 4, 'w');
+  // Princess Lyra's leek blade: white-bulb grip with roots, golden leaf guard, long jade blade, leafy tip
+  _cache.leek = paint(38, 15, P => {
+    P.px(0, 6, 'e'); P.px(0, 8, 'e'); P.px(1, 7, 'E'); P.px(0, 7, 'w');
+    P.rect(2, 5, 9, 5, 'w'); P.rect(2, 5, 9, 1, 'x'); P.rect(2, 9, 9, 1, 'e'); P.rect(5, 5, 1, 5, 'e'); P.rect(8, 5, 1, 5, 'e'); P.px(3, 6, 'w');
+    P.rect(11, 2, 3, 11, 'y'); P.rect(11, 2, 1, 11, '#fff2a0'); P.rect(13, 3, 1, 9, 'Y'); P.tri(11, 2, 14, 2, 12, -1 + 1, 'y'); P.tri(11, 12, 14, 12, 12, 14, 'y'); P.px(12, 7, 'r');
+    P.rect(14, 5, 17, 5, 't'); P.rect(14, 5, 17, 1, 'x'); P.rect(14, 7, 17, 1, 'w'); P.rect(14, 9, 17, 1, 'g'); P.rect(14, 10, 17, 0, 'G');
+    P.tri(30, 4, 30, 11, 37, 7, 'g'); P.tri(30, 5, 30, 7, 36, 7, 't');
+    P.tri(26, 4, 22, 0, 31, 3, 't'); P.tri(26, 11, 22, 14, 31, 11, 't'); P.tri(27, 4, 25, 1, 29, 3, 'x'); P.tri(27, 11, 25, 13, 29, 11, 'x');
+    P.px(18, 7, 'w'); P.px(24, 6, 'w'); P.px(21, 8, 'x');
   });
   return _cache.leek;
+}
+// small flying leek used inside the leek tornado
+function leekMini() {
+  if (_cache.leekmini) return _cache.leekmini;
+  _cache.leekmini = paint(14, 5, P => { P.rect(0, 1, 4, 3, 'w'); P.px(0, 2, 'e'); P.rect(4, 1, 7, 3, 'g'); P.rect(4, 1, 7, 1, 't'); P.tri(10, 0, 10, 4, 13, 2, 'g'); P.px(7, 2, 'x'); });
+  return _cache.leekmini;
 }
 
 // ---------- giant dragon (form 0 young, 1 red, 2 three-headed, 3 shadow) ----------

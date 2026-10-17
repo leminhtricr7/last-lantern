@@ -1958,9 +1958,8 @@
     if (G.leekHeal <= 0 && P.hp < maxHP()) { P.hp++; G.leekHeal = 9; Snd.play('heart'); emit(P.x + 4, P.y + 4, 10, { col: ['#a4ffc0', '#e0453a', '#fff'], sp0: 10, sp1: 55 }); }
     if (e.dead) return;
     if (mx && e.hp > 0 && e.hp / mx <= (e.isBoss ? 0.08 : 0.15)) {
-      G.torn.push({ x: e.x + e.w / 2, y: e.y + e.h, h: Math.max(40, e.h + 20), life: 1.1, t: 0 }); Snd.play('whoosh'); Snd.play('thunder'); Q.shake = Math.max(Q.shake, 0.35);
-      emit(e.x + e.w / 2, e.y + e.h / 2, 24, { col: ['#a4ffc0', '#4fc84f', '#fff'], sp0: 40, sp1: 140 });
-      if (e.isBoss) hurtBoss(e, (e.hp + 1) * 12, true, true); else hurtEnemy(e, e.hp + 99, true);
+      e.stunT = Math.max(e.stunT || 0, 2); e.stunCd = 30;
+      G.torn.push({ x: e.x + e.w / 2, y: e.y + e.h, h: Math.max(64, e.h + 44), life: 1.7, t: 0, e, exec: 0.7 }); Snd.play('whoosh'); Snd.play('whoosh'); Q.shake = Math.max(Q.shake, 0.3);
     } else if ((e.stunCd || 0) <= 0) {
       e.stunT = e.isBoss ? 1.5 : 2.5; e.stunCd = e.isBoss ? 20 : 9; Snd.play('zap'); emit(e.x + e.w / 2, e.y, 8, { col: ['#ffd34e', '#fff'], sp0: 20, sp1: 60 });
     }
@@ -2020,7 +2019,24 @@
     if (G.flash > 0) G.flash -= dt;
     if (G.slowT > 0) G.slowT -= dt;
     if (G.leekHeal > 0) G.leekHeal -= dt;
-    for (const t of G.torn) { t.life -= dt; t.t += dt; }
+    for (const t of G.torn) {
+      t.life -= dt; t.t += dt;
+      if (t.e) {
+        const e = t.e;
+        if (e.dead) t.e = null;
+        else {
+          e.stunT = Math.max(e.stunT || 0, 0.3);
+          if (!e.isBoss) { e.x += (t.x - e.w / 2 - e.x) * Math.min(1, 8 * dt); e.y -= 46 * dt; e.vy = 0; e.vx = 0; }
+          t.exec -= dt;
+          if (Math.random() < 0.5) emit(t.x + rr(-14, 14), t.y - rr(0, t.h), 1, { col: ['#a4ffc0', '#4fc84f', '#fff'], sp0: 10, sp1: 40, grav: -20, l0: 0.2, l1: 0.5 });
+          if (t.exec <= 0) {
+            Snd.play('thunder'); Q.shake = Math.max(Q.shake, 0.35); emit(e.x + e.w / 2, e.y + e.h / 2, 28, { col: ['#a4ffc0', '#4fc84f', '#fff', '#e8f5d0'], sp0: 40, sp1: 150 });
+            if (e.isBoss) hurtBoss(e, (e.hp + 1) * 12, true, true); else hurtEnemy(e, e.hp + 99, true);
+            t.e = null;
+          }
+        }
+      }
+    }
     G.torn = G.torn.filter(t => t.life > 0);
     for (const l of G.later) { l.t -= dt; if (l.t <= 0) { l.dead = true; l.fn(); } }
     G.later = G.later.filter(l => !l.dead);
@@ -2138,9 +2154,18 @@
       g.globalAlpha = 0.72; g.globalCompositeOperation = 'lighter'; g.drawImage(d.f < 0 ? ds.f : ds.c, Math.round(x - ds.w / 2), Math.round(y - ds.h / 2 + 8)); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
     }
     for (const t of G.torn) {
-      const x = Math.round(t.x - camX), y = Math.round(t.y - camY), k = Math.min(1, t.life / 0.4);
-      g.globalAlpha = k;
-      for (let i = 0; i < 26; i++) { const u = i / 26, yy = y - u * t.h, rd = 3 + u * 13, an = t.t * 14 + u * 9; g.fillStyle = i % 3 === 0 ? '#e8f5d0' : (i % 3 === 1 ? '#4fc84f' : '#a4ffc0'); g.fillRect(Math.round(x + Math.cos(an) * rd), Math.round(yy), 4, 2); }
+      const x = Math.round(t.x - camX), y = Math.round(t.y - camY), k = Math.min(1, t.life / 0.4, t.t / 0.25), lm = leekMini();
+      g.globalAlpha = 0.22 * k; g.fillStyle = '#a4ffc0'; g.beginPath(); g.moveTo(x - 4, y); g.lineTo(x + 4, y); g.lineTo(x + 24, y - t.h); g.lineTo(x - 24, y - t.h); g.fill();
+      g.globalAlpha = 0.5 * k; g.strokeStyle = '#e8f5d0'; g.lineWidth = 1;
+      for (let r = 0; r < 5; r++) { const u = r / 5, yy = y - u * t.h - 4, rd = 6 + u * 20; g.beginPath(); g.ellipse(x, yy, rd, rd * 0.3, 0, 0, 7); g.stroke(); }
+      g.globalAlpha = 1;
+      for (let pass = 0; pass < 2; pass++) for (let i = 0; i < 22; i++) {
+        const u = i / 22, an = t.t * 11 + i * 0.95, depth = Math.sin(an);
+        if ((pass === 0) !== (depth < 0)) continue;
+        const rad = 5 + u * 21, px = x + Math.cos(an) * rad, py = y - u * t.h + depth * rad * 0.3, sc = 0.85 + u * 0.55 + (pass ? 0.2 : 0);
+        g.save(); g.globalAlpha = k * (pass ? 1 : 0.55); g.translate(Math.round(px), Math.round(py)); g.rotate(an + Math.PI / 2 + (Math.cos(an) > 0 ? 0 : Math.PI)); g.scale(sc, sc); g.drawImage(lm.c, -lm.w / 2, -lm.h / 2); g.restore();
+      }
+      g.globalAlpha = 0.45 * k; g.fillStyle = '#d9c9a0'; for (let i = 0; i < 8; i++) { const an = t.t * 6 + i * 0.8; g.fillRect(Math.round(x + Math.cos(an) * (14 + (i % 3) * 4)), y - 1 - (i % 2), 3, 2); }
       g.globalAlpha = 1;
     }
     for (const e of Q.ents) if (!e.dead && !e.hid && e.stunT > 0) { const x = Math.round(e.x + e.w / 2 - camX), y = Math.round(e.y - camY) - 5; for (let i = 0; i < 3; i++) { const an = Q.t * 6 + i * 2.1; g.fillStyle = '#ffd34e'; g.fillRect(Math.round(x + Math.cos(an) * 6), Math.round(y + Math.sin(an) * 2), 2, 2); } }
@@ -3231,7 +3256,7 @@
     }));
   }
   function startRide() { ride = { i: 0, lt: 0, t: 0 }; Q = null; Snd.music('title', TITLE_MUSIC); }
-  function endRide() { save.ride = 1; writeSave(); cutLevel = 0; mapSel = 1; toScene('cutscene'); }
+  function endRide() { save.ride = 1; writeSave(); cutLevel = 0; mapSel = 1; cutSkip = true; toScene('cutscene'); }
   function updateRide(dt) {
     const c = ride; c.t += dt; c.lt += dt;
     const ln = RIDE[c.i], tx = ln[save.lang], n0 = Math.floor((c.lt - dt) * 40), n1 = Math.min(tx.length, Math.floor(c.lt * 40)), v = ln.w === 'lyra' ? 'lyra' : null;
@@ -3508,7 +3533,8 @@
 
   // ============================== DEVIL CUTSCENE ==============================
   let cutLevel = 0, cut = null;
-  function startCut() { cut = { t: 0, phase: 'walk', i: 0, lt: 0, pt: 0, fl: 0, shake: 0, thun: false, lastBlip: 0 }; Q = null; Snd.music('devil', DEVIL_MUSIC); }
+  let cutSkip = false;
+  function startCut() { cut = { t: 0, phase: 'walk', i: 0, lt: 0, pt: 0, fl: 0, shake: 0, thun: false, lastBlip: 0 }; Q = null; Snd.music('devil', DEVIL_MUSIC); if (cutSkip) { cutSkip = false; cut.phase = 'devil'; cut.t = 4; cut.fl = 0.5; cut.shake = 0.5; Snd.play('thunder'); cutLineStart(); } }
   function cutLineStart() {
     const ln = CUT[cutLevel][cut.i];
     if (ln.w === 'quoc') Snd.devilRoar(ln.shout ? 1 : 0.55); else if (ln.w === 'imp') Snd.creature('imp', 'alert'); else Snd.blip('shorty');
@@ -3617,6 +3643,6 @@
   let fadeIn = 0;
   enterScene('title');
   requestAnimationFrame(frame);
-  if (DEMO) { save.leek = true; save.cleared = [0]; save.inv.own = ['iron', 'leek']; save.inv.w = ['leek', null]; save.inv.armor = null; save.inv.pet = null; save.ammo = { dagger: 9, bomb: 3, flask: 3 }; startLevel(0); Q.state = 'play'; Q.msg = 'LEEK DEMO: J / click = swing (3 light beams). Hit = heal + 3s stun. Under 20% HP = tornado.'; Q.msgT = 12; }
+  if (DEMO) { save.leek = true; save.cleared = [0]; save.inv.own = ['iron', 'leek']; save.inv.w = ['leek', null]; save.inv.armor = null; save.inv.pet = null; save.ammo = { dagger: 9, bomb: 3, flask: 3 }; startLevel(0); Q.state = 'play'; Q.msg = 'LEEK DEMO: J / click = swing (3 light beams). Hit = heal + stun. Under 15% HP = leek tornado.'; Q.msgT = 12; }
   if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, hurtBoss, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();

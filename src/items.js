@@ -158,6 +158,7 @@ function swordPaint(P, o) {
   if (o.shape === 'crystal' || o.id === 'crystal') for (let i = 3; i < L - 3; i += 6) P.px(x0 + i, cy - 1, '#fff');
 }
 function swordSprite(id) {
+  if (id === 'leek') return leekSprite();
   const k = 'sw_' + id; if (_cache[k]) return _cache[k];
   const o = SWORD_LOOK[id] || SWORD_LOOK.iron;
   return (_cache[k] = paint(o.len + 20, 19, P => swordPaint(P, o)));
