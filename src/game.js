@@ -55,6 +55,11 @@
     ab3: { en: 'NEW: Dash — press K / Shift (you are invincible while dashing)', vi: 'MỚI: Lướt — nhấn K / Shift (bất tử khi lướt)' },
     ctl: { en: 'Move A/D  Jump Space  Attack J  Dash K  (↓+J in air = pogo)', vi: 'Di chuyển A/D  Nhảy Space  Đánh J  Lướt K  (↓+J trên không = nảy)' },
     thanks: { en: 'Thank you for playing!', vi: 'Cảm ơn bạn đã chơi!' },
+    talk: { en: 'E / Enter: Talk', vi: 'E / Enter: Nói chuyện' },
+    shop1: { en: 'Potion - restore all hearts (15 coins)', vi: 'Thuốc - hồi đầy tim (15 xu)' },
+    shop2: { en: 'Charm - blocks the next hit (25 coins)', vi: 'Bùa - đỡ 1 đòn tiếp theo (25 xu)' },
+    shop3: { en: 'Leave', vi: 'Tạm biệt' }, wallet: { en: 'Coins', vi: 'Xu' }, nomoney: { en: 'Not enough coins!', vi: 'Không đủ xu!' },
+    healed: { en: 'You feel warm again. Hearts restored.', vi: 'Bạn thấy ấm lại. Tim đã hồi đầy.' }, bought: { en: 'Pleasure doing business!', vi: 'Giao dịch vui vẻ!' },
     hearts: { en: 'Max hearts', vi: 'Tim tối đa' }, dmg: { en: 'Sword power', vi: 'Sức mạnh kiếm' }
   };
   const T = k => (STR[k] && STR[k][save.lang]) || k;
@@ -73,6 +78,54 @@
     { en: 'Dawn breaks over Aurelia. Your little lantern flickers, and goes quiet — its work is done.', vi: 'Bình minh ló rạng trên Aurelia. Ngọn đèn nhỏ của bạn chập chờn rồi lặng đi — nhiệm vụ đã xong.' },
     { en: 'Thank you, Ember.', vi: 'Cảm ơn bạn, Ember.' }
   ];
+
+  const NPCS = {
+    lila: { spr: 'npc_lila', name: { en: 'Lila', vi: 'Lila' } },
+    bram: { spr: 'npc_bram', name: { en: 'Captain Bram', vi: 'Đội trưởng Bram' } },
+    gob: { spr: 'npc_gob', name: { en: 'Gob the Swamp Goblin', vi: 'Gob Yêu Tinh Đầm Lầy' }, shop: true },
+    angel: { spr: 'npc_angel', name: { en: 'Seraph', vi: 'Thiên thần Seraph' }, bless: true }
+  };
+  const DLG = {
+    0: { lila: [
+      { en: 'Ember! The Sun fell silent three nights ago. Every lantern in the village went out.', vi: 'Ember! Mặt Trời đã tắt lịm ba đêm trước. Mọi chiếc đèn trong làng đều vụt tắt.' },
+      { en: 'Yours is the last flame in Aurelia. Follow the road east - the fragments fell that way.', vi: 'Đèn của bạn là ngọn lửa cuối cùng ở Aurelia. Hãy đi về phía đông - các mảnh mặt trời rơi hướng đó.' },
+      { en: 'Slimes hate light... and they are hungry. Swing your sword - press J!', vi: 'Slime ghét ánh sáng... mà chúng lại đói. Vung kiếm đi - nhấn J!' }
+    ] },
+    1: { bram: [
+      { en: 'Halt! Captain Bram of the Dawn Guard. This forest has been cursed since the Sun broke.', vi: 'Dừng lại! Đội trưởng Bram của Đội Vệ Binh Bình Minh. Khu rừng này bị nguyền rủa từ khi Mặt Trời vỡ.' },
+      { en: 'Villagers who wandered in came out... wrong. Do not let them touch you.', vi: 'Dân làng lạc vào đây đi ra đã... biến dạng. Đừng để chúng chạm vào bạn.' },
+      { en: 'The Spider Queen nests deep inside. When she charges, strike her as she recovers.', vi: 'Nữ Hoàng Nhện làm tổ sâu bên trong. Khi nó lao tới, hãy tấn công lúc nó đang hồi sức.' }
+    ], gob: [
+      { en: 'Psst! Gob has potions! Gob found them in the swamp. Gob did NOT steal them.', vi: 'Xì! Gob có thuốc đây! Gob nhặt ở đầm lầy. Gob KHÔNG ăn trộm đâu.' },
+      { en: 'Coins for goodies, shiny one. Fair price. Mostly.', vi: 'Xu đổi hàng ngon, người sáng chói ạ. Giá công bằng. Phần lớn là vậy.' }
+    ] },
+    2: { gob: [
+      { en: 'Heehee! Gob follows the glowing rocks. Crystals hum louder when something big is near.', vi: 'Hê hê! Gob đi theo đá phát sáng. Tinh thể kêu to hơn khi có thứ gì khổng lồ ở gần.' },
+      { en: 'Falling rocks here! Watch the markers on the ground - they warn you.', vi: 'Ở đây có đá rơi! Nhìn dấu hiệu trên mặt đất - chúng báo trước cho bạn đó.' }
+    ] },
+    3: { bram: [
+      { en: 'You again! I led my soldiers here after the Pharaoh woke. The sand swallowed them.', vi: 'Lại là bạn! Tôi dẫn lính tới đây khi Pharaoh thức giấc. Cát đã nuốt chửng họ.' },
+      { en: 'Beware the statues that shoot, and spikes hiding in the sand. Time your jumps!', vi: 'Coi chừng tượng bắn tên, và gai ẩn dưới cát. Canh thời gian mà nhảy!' },
+      { en: 'You learned to dash, did you? Use it - you cannot be hurt while dashing.', vi: 'Bạn đã học được lướt rồi à? Hãy dùng nó - lướt thì không bị thương.' }
+    ] },
+    4: { angel: [
+      { en: 'I am Seraph. I fell with the Sun, and I have waited in the snow for someone with a light.', vi: 'Ta là Seraph. Ta rơi xuống cùng Mặt Trời, và đã chờ trong tuyết một người mang ánh sáng.' },
+      { en: 'The Eclipse feeds on every missing fragment. Each one you return starves it.', vi: 'Nhật Thực ăn từng mảnh bị mất. Mỗi mảnh bạn mang về sẽ làm nó đói.' },
+      { en: 'Take a little warmth, bearer. I can give no more.', vi: 'Nhận chút hơi ấm đi, người mang đèn. Ta chỉ có thể cho bấy nhiêu.' }
+    ] },
+    5: { gob: [
+      { en: 'Hot hot hot! Gob hates this place. Fire vents breathe in a rhythm - count before you cross.', vi: 'Nóng nóng nóng! Gob ghét chỗ này. Vòi lửa phun theo nhịp - đếm rồi hãy băng qua.' },
+      { en: 'Buy a charm, shiny one. You will want it before the Titan.', vi: 'Mua bùa đi, người sáng chói. Bạn sẽ cần nó trước khi gặp Titan.' }
+    ] },
+    6: { lila: [
+      { en: 'I could not stay home. I followed your light the whole way. I brought bread!', vi: 'Em không thể ở nhà. Em đi theo ánh sáng của bạn suốt chặng đường. Em mang bánh mì nè!' },
+      { en: 'Whatever happens up there... the village believes in you.', vi: 'Dù chuyện gì xảy ra trên đó... cả làng tin ở bạn.' }
+    ], angel: [
+      { en: 'Light does not need to be large to matter, Ember. Only unbroken.', vi: 'Ánh sáng không cần lớn mới có ý nghĩa, Ember. Chỉ cần không tắt.' }
+    ], bram: [
+      { en: 'Go. My Guard will hold the door behind you. For Aurelia!', vi: 'Đi đi. Vệ Binh của tôi sẽ giữ cửa sau lưng bạn. Vì Aurelia!' }
+    ] }
+  };
 
   // ---------- text queue (drawn at native resolution after blit) ----------
   let texts = [];
@@ -128,10 +181,11 @@
     act.backP = pressed.Escape || gpP('b');
     act.leftP = any(pressed, ['ArrowLeft', 'KeyA']) || gpP('l'); act.rightP = any(pressed, ['ArrowRight', 'KeyD']) || gpP('r');
     act.upP = any(pressed, ['ArrowUp', 'KeyW']) || gpP('u'); act.downP = any(pressed, ['ArrowDown', 'KeyS']) || gpP('d');
+    act.talkP = pressed.KeyE || pressed.Enter || gpP('lb');
     act.muteP = pressed.KeyM; act.fullP = pressed.KeyF || pressed.F11;
     gpPrev = gb;
   }
-  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.dashP = act.pauseP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = false; }
+  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = false; }
   function toggleFull() {
     try { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch (e) { }
   }
@@ -145,7 +199,8 @@
       { k: 'Space', x: w - s * 0.8, y: h - s * 0.9, r: r * 1.15, l: '▲' }, { k: 'KeyJ', x: w - s * 2.1, y: h - s * 0.75, r, l: 'X' },
       { k: 'KeyK', x: w - s * 1.5, y: h - s * 1.9, r: r * 0.85, l: '»' }, { k: 'Escape', x: w - s * 0.5, y: s * 0.5, r: r * 0.7, l: 'II' }
     ];
-    if (scene !== 'play' || (Q && Q.state === 'pause')) { b.push({ k: 'ArrowUp', x: s * 1.4, y: h - s * 2.0, r, l: '▲' }); b.push({ k: 'ArrowDown', x: s * 1.4, y: h - s * 0.2 - s * 0.0, r: 0.01, l: '' }); b[b.length - 1] = { k: 'ArrowDown', x: s * 2.7, y: h - s * 2.0, r, l: '▼' }; }
+    if (scene === 'play' && Q && Q.nearNpc && Q.state === 'play') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '...' });
+    if (scene !== 'play' || (Q && (Q.state === 'pause' || Q.state === 'shop'))) { b.push({ k: 'ArrowUp', x: s * 1.4, y: h - s * 2.0, r, l: '▲' }); b.push({ k: 'ArrowDown', x: s * 1.4, y: h - s * 0.2 - s * 0.0, r: 0.01, l: '' }); b[b.length - 1] = { k: 'ArrowDown', x: s * 2.7, y: h - s * 2.0, r, l: '▼' }; }
     return b;
   }
   function touchUpdate() {
@@ -180,10 +235,10 @@
 
   // ---------- enemy / boss configs ----------
   const EN = {
-    slime: { spr: 'slime', w: 10, h: 8, hp: 2, sp: 20, ai: 'hop', jump: 170 },
-    iceslime: { spr: 'slime', swap: { g: 'c', t: 'w', G: 'C' }, w: 10, h: 8, hp: 2, sp: 22, ai: 'hop', jump: 180 },
-    lavaslime: { spr: 'slime', swap: { g: 'o', t: 'y', G: 'r' }, w: 10, h: 8, hp: 3, sp: 24, ai: 'hop', jump: 190 },
-    shadeslime: { spr: 'slime', swap: { g: 'p', t: 'h', G: 'P' }, out: '#a15be0', w: 10, h: 8, hp: 3, sp: 28, ai: 'hop', jump: 200 },
+    slime: { spr: 'slime', w: 12, h: 9, hp: 2, sp: 20, ai: 'hop', jump: 170 },
+    iceslime: { spr: 'slime', swap: { g: 'c', t: 'w', G: 'C' }, w: 12, h: 9, hp: 2, sp: 22, ai: 'hop', jump: 180 },
+    lavaslime: { spr: 'slime', swap: { g: 'o', t: 'y', G: 'r' }, w: 12, h: 9, hp: 3, sp: 24, ai: 'hop', jump: 190 },
+    shadeslime: { spr: 'slime', swap: { g: 'p', t: 'h', G: 'P' }, out: '#a15be0', w: 12, h: 9, hp: 3, sp: 28, ai: 'hop', jump: 200 },
     bee: { spr: 'bat', swap: { p: 'y', P: 'N' }, w: 12, h: 7, hp: 1, sp: 44, ai: 'fly' },
     bat: { spr: 'bat', w: 12, h: 7, hp: 1, sp: 54, ai: 'fly' },
     icebat: { spr: 'bat', swap: { p: 'c', P: 'b' }, w: 12, h: 7, hp: 2, sp: 56, ai: 'fly' },
@@ -199,24 +254,31 @@
     fire: { spr: 'fire', w: 10, h: 10, hp: 2, sp: 40, ai: 'flyshoot' },
     ghost: { spr: 'ghost', swap: { w: 'c', k: 'B' }, out: '#6ee7f2', w: 10, h: 11, hp: 2, sp: 34, ai: 'ghost' },
     knight: { spr: 'knight', out: '#a15be0', w: 10, h: 15, hp: 5, sp: 34, ai: 'charge' },
+    beetle: { spr: 'beetle', w: 10, h: 6, hp: 1, sp: 34, ai: 'walk' },
+    sandbeetle: { spr: 'beetle', swap: { n: 'Y', N: 'n', r: 'k' }, w: 10, h: 6, hp: 1, sp: 40, ai: 'walk' },
+    wisp: { spr: 'wisp', w: 8, h: 8, hp: 1, sp: 46, ai: 'fly' },
+    shadewisp: { spr: 'wisp', swap: { c: 'p', w: 'm' }, out: '#a15be0', w: 8, h: 8, hp: 1, sp: 50, ai: 'fly' },
+    imp: { spr: 'imp', w: 10, h: 11, hp: 2, sp: 56, ai: 'fly' },
+    shadeimp: { spr: 'imp', swap: { r: 'P', R: 'D', e: 'h', w: 'm' }, out: '#a15be0', w: 10, h: 11, hp: 3, sp: 60, ai: 'fly' },
+    shroom: { spr: 'shroom', w: 10, h: 10, hp: 2, sp: 0, ai: 'shoot', proj: '#a4e86b', spd: 55 },
+    zombie: { spr: 'zombie', w: 9, h: 14, hp: 3, sp: 20, ai: 'walk' },
     lavablob: { spr: 'slime', swap: { g: 'o', t: 'y', G: 'r' }, w: 8, h: 8, hp: 1, sp: 0, ai: 'blob' }
   };
   const BOSS = [
-    { name: { en: 'King Slime', vi: 'Vua Slime' }, spr: 'slime', scale: 4, w: 44, h: 28, hp: 8, pat: ['jump', 'jump', 'summon'], minion: 'slime', crown: true, sp: 18 },
-    { name: { en: 'Spider Queen', vi: 'Nữ Hoàng Nhện' }, spr: 'spider', swap: { P: 'p', D: 'P', r: 'y' }, scale: 4, w: 44, h: 24, hp: 12, pat: ['charge', 'shoot', 'summon', 'jump'], minion: 'spider', sp: 22 },
-    { name: { en: 'Crystal Golem', vi: 'Người Khổng Lồ Pha Lê' }, spr: 'golem', scale: 2.6, w: 34, h: 40, hp: 16, pat: ['jump', 'rain', 'shoot', 'charge'], minion: 'cavespider', sp: 16 },
-    { name: { en: 'Sand Pharaoh', vi: 'Pharaoh Cát' }, spr: 'skeleton', swap: { e: 'y', E: 'Y' }, out: '#5a3a22', scale: 3, w: 28, h: 46, hp: 20, pat: ['charge', 'rain', 'summon', 'spin'], minion: 'scorpion', sp: 24 },
-    { name: { en: 'Frost King', vi: 'Vua Băng' }, spr: 'snowman', scale: 3.4, w: 34, h: 40, hp: 24, pat: ['shoot', 'rain', 'jump', 'spin'], minion: 'iceslime', sp: 16 },
-    { name: { en: 'Magma Titan', vi: 'Titan Dung Nham' }, spr: 'golem', swap: { d: 'R', c: 'y', y: 'w' }, out: '#ff9a2a', scale: 2.8, w: 36, h: 44, hp: 28, pat: ['jump', 'spin', 'rain', 'charge', 'shoot'], minion: 'lavaslime', sp: 20 },
-    { name: { en: 'THE ECLIPSE', vi: 'NHẬT THỰC' }, spr: 'knight', scale: 3.6, w: 36, h: 52, hp: 36, pat: ['charge', 'shoot', 'rain', 'spin', 'jump', 'summon'], minion: 'ghost', sp: 26, out: '#d58bff', eclipse: true }
+    { name: { en: 'King Slime', vi: 'Vua Slime' }, w: 38, h: 26, hp: 8, pat: ['jump', 'jump', 'summon'], minion: 'slime', sp: 18 },
+    { name: { en: 'Spider Queen', vi: 'Nữ Hoàng Nhện' }, w: 40, h: 26, hp: 12, pat: ['charge', 'shoot', 'summon', 'jump'], minion: 'spider', sp: 22 },
+    { name: { en: 'Crystal Golem', vi: 'Người Khổng Lồ Pha Lê' }, w: 34, h: 44, hp: 16, pat: ['jump', 'rain', 'shoot', 'charge'], minion: 'wisp', sp: 16 },
+    { name: { en: 'Sand Pharaoh', vi: 'Pharaoh Cát' }, w: 26, h: 52, hp: 20, pat: ['charge', 'rain', 'summon', 'spin'], minion: 'scorpion', sp: 24 },
+    { name: { en: 'Frost King', vi: 'Vua Băng' }, w: 36, h: 48, hp: 24, pat: ['shoot', 'rain', 'jump', 'spin'], minion: 'iceslime', sp: 16 },
+    { name: { en: 'Magma Titan', vi: 'Titan Dung Nham' }, w: 40, h: 50, hp: 28, pat: ['jump', 'spin', 'rain', 'charge', 'shoot'], minion: 'imp', sp: 20 },
+    { name: { en: 'THE ECLIPSE', vi: 'NHẬT THỰC' }, w: 30, h: 56, hp: 36, pat: ['charge', 'shoot', 'rain', 'spin', 'jump', 'summon'], minion: 'ghost', sp: 26, eclipse: true }
   ];
 
   // ---------- caches ----------
   const tileCache = {}, bgCache = {};
   const tiles = li => tileCache[li] || (tileCache[li] = buildTileset(BIOMES[li]));
   const bgs = li => bgCache[li] || (bgCache[li] = buildBackground(BIOMES[li]));
-  const sprOf = cfg => getSprite(cfg.spr, cfg.swap || {}, 0, cfg.out);
-
+  
   // ============================== GAMEPLAY STATE ==============================
   let Q = null; // current play context
   const GRAV = 820, JUMP = 292, DJUMP = 262, RUN = 112;
@@ -297,7 +359,7 @@
     P.x = L.start.x; P.y = L.start.y - P.h;
     Q = {
       li, L, P, B: L.B, bg: bgs(li), ts: tiles(li), crum: new Map(), taken: new Set(), cp: null, cpIdx: -1,
-      ents: [], items: [], projs: [], parts: [], boss: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
+      ents: [], items: [], projs: [], traps: [], parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
       cam: { x: 0, y: 0 }, coinsRun: 0, time: 0, safe: { x: P.x, y: P.y }, menu: 0,
       dj: li >= 1 || save.cleared.indexOf(0) >= 0, dashAb: li >= 3 || save.cleared.indexOf(2) >= 0,
       arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0
@@ -313,13 +375,15 @@
   }
   function initEntities() {
     const L = Q.L;
-    Q.ents = []; Q.items = []; Q.projs = []; Q.boss = null;
+    Q.ents = []; Q.items = []; Q.projs = []; Q.traps = []; Q.boss = null; Q.nearNpc = null;
     for (const s of L.spawns) {
       if (Q.taken.has(s.id)) continue;
       if (s.type === 'coin') Q.items.push({ kind: 'coin', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'heart') Q.items.push({ kind: 'heart', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'shard') { if (!save.shards[Q.li][s.k]) Q.items.push({ kind: 'shard', x: s.x, y: s.y, id: s.id, k: s.k, ph: 0 }); }
       else if (s.type === 'boss') Q.boss = makeBoss(s);
+      else if (s.type === 'npc') Q.items.push({ kind: 'npc', who: s.who, x: s.x, y: s.y, id: s.id, ph: Math.random() * 6 });
+      else if (['turret', 'spiketrap', 'jets', 'saw', 'rockfall'].indexOf(s.type) >= 0) Q.traps.push({ type: s.type, x: s.x, y: s.y, t: 0, off: s.off || 0, w: s.w || 2, dir: s.dir || -1, len: s.len || 6, x0: s.x - 8, cd: rr(0.5, 2), st: 'idle', ph: 0, id: s.id });
       else Q.ents.push(makeEnemy(s.type, s.x, s.y, s));
     }
     for (const c of L.checkpoints) Q.items.push({ kind: 'cp', x: c.x, y: c.y, id: c.id, lit: Q.cp && Q.cp.id === c.id });
@@ -334,7 +398,7 @@
   }
   function makeBoss(s) {
     const c = BOSS[Q.li];
-    return { isBoss: true, cfg: c, spr: sprOf(c), x: s.x - c.w / 2, y: s.y - c.h, w: c.w, h: c.h, vx: 0, vy: 0, hp: c.hp + Math.floor(totalShards() / 7) * Math.floor(c.hp * 0.25), max: 0, dir: -1, st: 'sleep', timer: 0, flash: 0, t: 0, atk: null, ai: 0, onGround: false, noOneWay: true, thr: 0, n: 0, drop: 0 };
+    return { isBoss: true, cfg: c, spr: bossSprite(Q.li), x: s.x - c.w / 2, y: s.y - c.h, w: c.w, h: c.h, vx: 0, vy: 0, hp: c.hp + Math.floor(totalShards() / 7) * Math.floor(c.hp * 0.25), max: 0, dir: -1, st: 'sleep', timer: 0, flash: 0, t: 0, atk: null, ai: 0, onGround: false, noOneWay: true, thr: 0, n: 0, drop: 0 };
   }
   function initWeather() {
     const p = Q.B.particles, n = 46; Q.weather = [];
@@ -369,6 +433,7 @@
   function hurtPlayer(n, fromX, noKnock) {
     const P = Q.P;
     if (P.inv > 0 || P.dash > 0 || Q.state !== 'play' && Q.state !== 'bossplay') return false;
+    if (P.shield) { P.shield = false; P.inv = 1.0; Snd.play('hit'); emit(P.x + 4, P.y + 7, 14, { col: ['#ffd34e', '#fff'], sp0: 30, sp1: 90 }); return false; }
     P.hp -= n; P.inv = 1.2; Q.freeze = 0.07; Q.shake = 0.25;
     Snd.play('hurt');
     emit(P.x + P.w / 2, P.y + P.h / 2, 10, { col: ['#e0453a', '#f6f3e9'], sp0: 30, sp1: 90 });
@@ -592,7 +657,7 @@
           e.dir = dx > 0 ? 1 : -1; e.vy = Math.min(380, e.vy + GRAV * dt); moveY(e, e.vy * dt);
           e.cd -= dt;
           if (Math.abs(dx) < 160 && Math.abs(dy) < 70 && e.cd <= 0) { e.cd = 2.1; e.st = 'wind'; e.stT = 0.35; }
-          if (e.st === 'wind') { e.stT -= dt; if (e.stT <= 0) { e.st = 'patrol'; const a = Math.atan2(dy, dx); firePr(e.x + e.w / 2, e.y + 4, Math.cos(a) * 95, Math.sin(a) * 95, { col: '#bfeaff' }); } }
+          if (e.st === 'wind') { e.stT -= dt; if (e.stT <= 0) { e.st = 'patrol'; const a = Math.atan2(dy, dx); const sp = c.spd || 95; firePr(e.x + e.w / 2, e.y + 4, Math.cos(a) * sp, Math.sin(a) * sp, { col: c.proj || '#bfeaff' }); } }
           break;
         }
         case 'ghost': {
@@ -696,14 +761,143 @@
       const tx = Math.floor(p.x / TS), ty = Math.floor(p.y / TS);
       if (p.type !== 'wave' && solid(tx, ty)) { p.dead = true; emit(p.x, p.y, 5, { col: p.col, sp0: 10, sp1: 40 }); continue; }
       if (p.type === 'wave') { if (solid(Math.floor((p.x + Math.sign(p.vx) * 5) / TS), Math.floor(p.y / TS))) { p.dead = true; continue; } if (Math.random() < 0.4) emit(p.x, p.y + 4, 1, { col: p.col, sp0: 5, sp1: 20, vy: -20 }); }
-      const hb = p.type === 'wave' ? { x: p.x - 6, y: p.y - 6, w: 12, h: 12 } : { x: p.x - 2, y: p.y - 2, w: 4, h: 4 };
+      const hb = p.type === 'wave' ? { x: p.x - 6, y: p.y - 6, w: 12, h: 12 } : (p.big ? { x: p.x - 4, y: p.y - 4, w: 8, h: 8 } : { x: p.x - 2, y: p.y - 2, w: 4, h: 4 });
       if (ov(P, hb)) { if (hurtPlayer(1, p.x)) { p.dead = true; } }
     }
     Q.projs = Q.projs.filter(p => !p.dead);
   }
 
+  // ----- NPC dialogue & shop -----
+  function startTalk(it) {
+    const d = (DLG[Q.li] || {})[it.who] || [{ en: '...', vi: '...' }];
+    Q.talk = { it, npc: NPCS[it.who], lines: d, i: 0, t: 0 }; Q.state = 'talk'; Snd.play('select'); Q.P.vx = 0;
+  }
+  function endTalk() {
+    const n = Q.talk.npc, it = Q.talk.it; Q.talk = null;
+    if (n.shop) { Q.state = 'shop'; Q.menu = 0; Q.shopMsg = ''; return; }
+    Q.state = 'play';
+    if (!it.blessed) {
+      it.blessed = true;
+      if (Q.P.hp < maxHP()) { Q.P.hp = maxHP(); Snd.play('heart'); Q.msg = T('healed'); Q.msgT = 3; emit(Q.P.x + 4, Q.P.y + 7, 14, { col: ['#e0453a', '#ff7fb0', '#fff'], sp0: 10, sp1: 60 }); }
+    }
+  }
+  function updateTalk(dt) {
+    const tk = Q.talk; tk.t += dt;
+    const full = tk.lines[tk.i][save.lang].length;
+    if (act.okP || act.talkP || act.atkP) {
+      if (tk.t * 45 < full) tk.t = 999;
+      else { tk.i++; tk.t = 0; Snd.play('select'); if (tk.i >= tk.lines.length) endTalk(); }
+    }
+    if (Q.talk && (act.backP || act.pauseP)) endTalk();
+  }
+  function updateShop() {
+    if (act.upP) { Q.menu = (Q.menu + 2) % 3; Snd.play('select'); }
+    if (act.downP) { Q.menu = (Q.menu + 1) % 3; Snd.play('select'); }
+    if (act.backP || act.pauseP) { Q.state = 'play'; return; }
+    if (act.okP) {
+      if (Q.menu === 2) { Q.state = 'play'; return; }
+      const price = Q.menu === 0 ? 15 : 25;
+      if (save.coins < price) { Q.shopMsg = T('nomoney'); Snd.play('hurt'); return; }
+      save.coins -= price; writeSave(); Snd.play('coin'); Q.shopMsg = T('bought');
+      if (Q.menu === 0) Q.P.hp = maxHP(); else Q.P.shield = true;
+    }
+  }
+
+  // ----- traps -----
+  function updateTraps(dt) {
+    const P = Q.P, cx = Q.cam.x + VW / 2;
+    for (const t of Q.traps) {
+      if (Math.abs(t.x - cx) > 300) continue;
+      t.t += dt;
+      const dx = (P.x + 4) - t.x;
+      switch (t.type) {
+        case 'spiketrap': {
+          const ph = (t.t + t.off) % 3.4; t.warn = ph >= 1.8 && ph < 2.3; t.up = ph >= 2.3 && ph < 3.3;
+          if (t.up && ov(P, { x: t.x - t.w * 8 + 1, y: t.y - 9, w: t.w * 16 - 2, h: 9 })) hurtPlayer(1, t.x);
+          break;
+        }
+        case 'jets': {
+          const ph = (t.t + t.off) % 3.6; t.warn = ph >= 1.8 && ph < 2.4; t.up = ph >= 2.4 && ph < 3.3;
+          if (t.up) { if (Math.random() < 0.6) emit(t.x + rr(-3, 3), t.y - rr(8, 40), 1, { col: ['#ffd34e', '#f08a2b'], sp0: 3, sp1: 14, vy: -20, grav: -10, l0: 0.2, l1: 0.4 }); if (ov(P, { x: t.x - 5, y: t.y - 40, w: 10, h: 40 })) hurtPlayer(1, t.x); }
+          break;
+        }
+        case 'saw': {
+          t.ph += dt * (46 + Q.li * 3) / Math.max(16, t.len * 16) * Math.PI;
+          t.sx = t.x0 + (t.len * 16 - 16) * (0.5 - 0.5 * Math.cos(t.ph));
+          if (ov(P, { x: t.sx - 6, y: t.y - 15, w: 12, h: 13 })) hurtPlayer(1, t.sx);
+          break;
+        }
+        case 'turret': {
+          t.cd -= dt;
+          t.warn = t.cd < 0.35 && t.cd > 0 && Math.abs(dx) < 220;
+          if (t.cd <= 0) { t.cd = 2.4; if (Math.abs(dx) < 220 && (dx > 0) === (t.dir > 0)) firePr(t.x + t.dir * 6, t.y - 9, t.dir * 115, 0, { col: '#ffd34e' }); }
+          break;
+        }
+        case 'rockfall': {
+          if (t.st === 'idle') { if (Math.abs(dx) < 70) { t.st = 'warn'; t.cd = 0.8; } }
+          else if (t.st === 'warn') { t.cd -= dt; if (t.cd <= 0) { t.st = 'cool'; t.cd = 3.2; Q.projs.push({ x: t.x, y: Q.cam.y - 12, vx: 0, vy: 50, life: 3, grav: 400, col: Q.B.id === 'volcano' ? '#ff9a2a' : (Q.B.id === 'frost' ? '#bfeaff' : '#b8bfd0'), type: 'fall', boss: false, big: true }); } }
+          else { t.cd -= dt; if (t.cd <= 0) t.st = 'idle'; }
+          break;
+        }
+      }
+    }
+  }
+  function turretSpr(style) {
+    const k = 'turret' + (style || 'wood');
+    if (!_cache[k]) {
+      const C = { wood: ['n', 'N', 'y'], sand: ['E', 'S', 'r'], dark: ['d', 'D', 'm'] }[style || 'wood'];
+      _cache[k] = paint(14, 18, P => { P.rect(1, 2, 12, 16, C[0]); P.rect(0, 0, 14, 3, C[1]); P.rect(1, 16, 12, 2, C[1]); P.rect(3, 6, 3, 3, 'k'); P.rect(8, 6, 3, 3, 'k'); P.px(4, 7, C[2]); P.px(9, 7, C[2]); P.rect(4, 12, 6, 3, 'k'); P.px(5, 12, 'w'); P.px(8, 12, 'w'); });
+    }
+    return _cache[k];
+  }
+  function drawTraps(camX, camY) {
+    const B = Q.B, ts = Q.ts;
+    for (const t of Q.traps) {
+      const x = Math.round(t.x - camX), y = Math.round(t.y - camY);
+      if (x < -40 || x > VW + 40 + (t.type === 'saw' ? t.len * 16 : 0)) continue;
+      switch (t.type) {
+        case 'spiketrap': {
+          const x0 = Math.round(t.x - t.w * 8 - camX);
+          g.fillStyle = '#1b1626'; g.fillRect(x0, y - 2, t.w * 16, 2);
+          g.fillStyle = B.plat[1]; g.fillRect(x0 + 1, y - 2, t.w * 16 - 2, 1);
+          for (let i = 0; i < t.w; i++) {
+            if (t.up) g.drawImage(ts.spike, x0 + i * 16, y - 16);
+            else if (t.warn && Math.floor(t.t * 20) % 2 === 0) g.drawImage(ts.spike, 0, 13, 16, 3, x0 + i * 16, y - 3, 16, 3);
+          }
+          break;
+        }
+        case 'jets': {
+          g.fillStyle = '#1b1626'; g.fillRect(x - 7, y - 3, 14, 3); g.fillStyle = t.up || t.warn ? '#f08a2b' : '#4a3f44'; g.fillRect(x - 5, y - 3, 10, 1);
+          if (t.warn) { g.fillStyle = Math.floor(t.t * 16) % 2 ? '#ffd34e' : '#f08a2b'; g.fillRect(x - 2, y - 7, 4, 4); }
+          if (t.up) { for (let i = 0; i < 10; i++) { const w = 10 - Math.floor(i / 2) * 2 + (Math.random() < 0.4 ? 2 : 0); g.fillStyle = i < 3 ? '#fff6c0' : (i < 6 ? '#ffd34e' : '#f08a2b'); g.fillRect(x - Math.floor(w / 2), y - 4 - i * 4, w, 4); } }
+          break;
+        }
+        case 'saw': {
+          const rx = Math.round(t.x0 - camX) + 8, ry = y - 8;
+          g.fillStyle = '#434d6e'; g.fillRect(rx, ry, t.len * 16 - 16, 1); g.fillStyle = '#1b1626'; g.fillRect(rx - 1, ry - 2, 3, 5); g.fillRect(rx + t.len * 16 - 17, ry - 2, 3, 5);
+          const sx = Math.round((t.sx === undefined ? t.x0 : t.sx) - camX) + 8;
+          disc(g, sx, ry, 8, '#1b1626'); disc(g, sx, ry, 7, '#b8bfd0'); disc(g, sx, ry, 4, '#6a7090');
+          for (let k = 0; k < 8; k++) { const a = t.ph * 10 + k * Math.PI / 4; g.fillStyle = k % 2 ? '#fff' : '#8d9bbd'; g.fillRect(Math.round(sx + Math.cos(a) * 7), Math.round(ry + Math.sin(a) * 7), 2, 2); }
+          g.fillStyle = '#1b1626'; g.fillRect(sx - 1, ry - 1, 3, 3);
+          break;
+        }
+        case 'turret': {
+          const sp = turretSpr(B.trapStyle);
+          drawSpr(g, sp, x, y, t.dir > 0, t.warn && Math.floor(t.t * 24) % 2 === 0);
+          break;
+        }
+        case 'rockfall': {
+          g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(x - 3, y - 1, 6, 1);
+          if (t.st === 'warn') { const bl = Math.floor(t.t * 14) % 2; g.fillStyle = bl ? '#e0453a' : '#ffd34e'; g.fillRect(x - 1, y - 12, 2, 6); g.fillRect(x - 1, y - 4, 2, 2); g.fillStyle = 'rgba(224,69,58,.5)'; g.fillRect(x - 6, y - 1, 12, 1); }
+          break;
+        }
+      }
+    }
+  }
+
   function updateItems(dt) {
     const P = Q.P;
+    Q.nearNpc = null;
     for (const it of Q.items) {
       if (it.dead) continue;
       it.ph += dt;
@@ -722,6 +916,8 @@
         if (d < 11) { if (P.hp < maxHP()) { P.hp++; it.dead = true; Snd.play('heart'); if (it.id >= 0) Q.taken.add(it.id); emit(it.x, it.y, 10, { col: ['#e0453a', '#ff7fb0'], sp0: 10, sp1: 50 }); } }
       } else if (it.kind === 'shard') {
         if (d < 13) { it.dead = true; save.shards[Q.li][it.k] = 1; writeSave(); Q.taken.add(it.id); Snd.play('shard'); Q.shardFlash = 1.2; emit(it.x, it.y, 30, { col: ['#ffd34e', '#fff', '#6ee7f2'], sp0: 20, sp1: 120 }); const ts = totalShards(); Q.msg = (save.lang === 'vi' ? 'Mảnh nắng ' : 'Sun Shard ') + ts + '/21' + (ts % 3 === 0 ? (save.lang === 'vi' ? '  — Tim tối đa tăng!' : '  — Max hearts up!') : '') + (ts % 7 === 0 ? (save.lang === 'vi' ? '  — Kiếm mạnh hơn!' : '  — Sword stronger!') : ''); Q.msgT = 4; if (P.hp < maxHP()) P.hp = maxHP(); }
+      } else if (it.kind === 'npc') {
+        if (Math.abs(it.x - pc.x) < 26 && Math.abs(it.y - pc.y) < 30) Q.nearNpc = it;
       } else if (it.kind === 'cp') {
         if (!it.lit && Math.abs(it.x - pc.x) < 14 && Math.abs(it.y - pc.y) < 30) {
           Q.items.forEach(o => { if (o.kind === 'cp') o.lit = false; }); it.lit = true; Q.cp = { x: it.x, y: it.y, id: it.id }; Snd.play('checkpoint'); emit(it.x, it.y - 12, 16, { col: ['#ffd34e', '#fff'], sp0: 15, sp1: 70 });
@@ -754,7 +950,7 @@
   function updateCrumble(dt) {
     for (const [k, s] of Q.crum) {
       s.t += dt;
-      if (s.st === 1 && s.t > 0.4) { s.st = 2; s.t = 0; Snd.play('crumble'); emit(s.tx * TS + 8, s.ty * TS + 8, 8, { col: '#8a6a44', sp0: 10, sp1: 40, vy: 20 }); }
+      if (s.st === 1 && s.t > 0.55) { s.st = 2; s.t = 0; Snd.play('crumble'); emit(s.tx * TS + 8, s.ty * TS + 8, 8, { col: '#8a6a44', sp0: 10, sp1: 40, vy: 20 }); }
       else if (s.st === 2 && s.t > 2.5) { if (!ov(Q.P, { x: s.tx * TS, y: s.ty * TS, w: TS, h: TS })) { s.st = 0; s.t = 0; } }
     }
   }
@@ -796,6 +992,8 @@
       }
       return;
     }
+    if (st === 'talk') { updateTalk(dt); updateParticles(dt); return; }
+    if (st === 'shop') { updateShop(); return; }
     if (st === 'dead') {
       updateParticles(dt);
       if (Q.stateT > 0.8 && act.okP) { Snd.play('ok'); respawn(); }
@@ -805,6 +1003,7 @@
     if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (Q.li >= 6) toScene('ending'); else { mapSel = Math.min(6, Q.li + 1); toScene('map'); } } return; }
     // play / bossintro
     if (act.pauseP && st === 'play') { Q.state = 'pause'; Q.menu = 0; return; }
+    if (st === 'play' && Q.nearNpc && act.talkP) { startTalk(Q.nearNpc); return; }
     if (Q.freeze > 0) { Q.freeze -= dt; updateParticles(dt); return; }
     Q.t += dt; Q.time += dt;
     if (Q.shake > 0) Q.shake -= dt;
@@ -813,7 +1012,7 @@
     if (st === 'bossintro') { updateBoss(dt); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
     updatePlayer(dt);
     if (Q.state !== 'play' && Q.state !== 'bossintro') { updateParticles(dt); return; }
-    updateEnemies(dt); updateBoss(dt); updateBossDeath(dt); updateProjs(dt); updateItems(dt); updateParticles(dt); updateCam(dt); updateWeather(dt);
+    updateEnemies(dt); updateBoss(dt); updateBossDeath(dt); updateTraps(dt); updateProjs(dt); updateItems(dt); updateParticles(dt); updateCam(dt); updateWeather(dt);
   }
   function updateParticles(dt) {
     for (const p of Q.parts) { p.life -= dt; p.vy += p.grav * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.max = Math.max(p.max, p.life); }
@@ -868,6 +1067,7 @@
       g.fillStyle = B.plat[1]; g.fillRect(Math.round(p.x - camX + 2), Math.round(p.y - camY + 7), p.w - 4, 1);
     }
     drawItems(camX, camY);
+    drawTraps(camX, camY);
     for (const e of Q.ents) drawEnemy(e, camX, camY);
     if (Q.boss && Q.boss.st !== 'sleep' || (Q.boss && Q.li === 6)) drawBoss(camX, camY);
     drawPlayer(camX, camY);
@@ -875,6 +1075,7 @@
     for (const p of Q.projs) {
       const px = Math.round(p.x - camX), py = Math.round(p.y - camY);
       if (p.type === 'wave') { g.fillStyle = p.col; g.fillRect(px - 6, py - 5, 12, 10); g.fillStyle = '#fff'; g.fillRect(px - 3, py - 3, 6, 6); }
+      else if (p.big) { g.fillStyle = '#1b1626'; g.fillRect(px - 5, py - 5, 10, 10); g.fillStyle = p.col; g.fillRect(px - 4, py - 4, 8, 8); g.fillStyle = '#fff'; g.fillRect(px - 3, py - 3, 3, 2); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(px, py, 4, 4); }
       else { g.fillStyle = p.col; g.fillRect(px - 3, py - 2, 6, 4); g.fillRect(px - 2, py - 3, 4, 6); g.fillStyle = '#fff'; g.fillRect(px - 1, py - 1, 2, 2); }
     }
     for (const p of Q.parts) { g.globalAlpha = clamp(p.life / 0.4, 0, 1); g.fillStyle = p.col; g.fillRect(Math.round(p.x - camX), Math.round(p.y - camY), p.size, p.size); }
@@ -893,6 +1094,12 @@
       } else if (it.kind === 'shard') {
         const s = getSprite('shard'); const sc = 2; drawSpr(g, s, x, y + 10 + Math.round(Math.sin(it.ph * 2) * 2), false, false, sc, sc);
         if (Math.random() < 0.2) emit(it.x + rr(-6, 6), it.y + rr(-6, 6), 1, { col: ['#fff', '#ffd34e'], sp0: 2, sp1: 8, grav: -10, l0: 0.4, l1: 0.8 });
+      } else if (it.kind === 'npc') {
+        const n = NPCS[it.who], sp = getSprite(n.spr), bob = Math.round(Math.sin(it.ph * 2) * 0.5 + 0.5);
+        drawSpr(g, sp, x, y - bob, Q.P.x + 4 < it.x);
+        const by = y - sp.h - 4 - bob;
+        if (Q.nearNpc === it && Q.state === 'play') { txt(T('talk'), x, by - 4, { al: 'center', size: 6, col: '#ffd34e' }); }
+        else if (Q.nearNpc !== it) { g.fillStyle = '#1b1626'; g.fillRect(x - 4, by - 5, 9, 7); g.fillStyle = '#fff'; g.fillRect(x - 3, by - 4, 7, 5); g.fillStyle = '#1b1626'; g.fillRect(x - 2, by - 2, 1, 1); g.fillRect(x, by - 2, 1, 1); g.fillRect(x + 2, by - 2, 1, 1); }
       } else if (it.kind === 'cp') {
         g.fillStyle = '#1b1626'; g.fillRect(x - 2, y - 22, 4, 22); g.fillStyle = '#5a3a22'; g.fillRect(x - 1, y - 21, 2, 21);
         g.fillStyle = '#1b1626'; g.fillRect(x - 5, y - 30, 10, 10);
@@ -924,13 +1131,12 @@
   function drawBoss(camX, camY) {
     const b = Q.boss; if (b.dead && Q.t % 0.1 > 0.05) return;
     const c = b.cfg, x = Math.round(b.x + b.w / 2 - camX), bot = Math.round(b.y + b.h - camY);
-    if (c.eclipse) { g.globalAlpha = 0.5 + Math.sin(b.t * 3) * 0.2; disc(g, x, bot - 26, 34, '#2a0f4a'); g.globalAlpha = 0.7; disc(g, x, bot - 26, 28, '#0a0618'); g.globalAlpha = 1; for (let i = 0; i < 12; i++) { const a = b.t + i * Math.PI / 6; g.fillStyle = '#d58bff'; g.fillRect(Math.round(x + Math.cos(a) * 36), Math.round(bot - 26 + Math.sin(a) * 36), 2, 2); } }
+    if (c.eclipse) { g.globalAlpha = 0.25 + Math.sin(b.t * 3) * 0.1; disc(g, x, bot - 40, 40, '#7a4cff'); g.globalAlpha = 1; }
     const tele = b.st === 'tele' && Math.floor(b.t * 18) % 2 === 0;
-    const bob = b.st === 'wait' ? Math.round(Math.sin(b.t * 3)) : 0;
-    let sy = c.scale;
-    if (b.st === 'tele' && b.atk === 'jump') sy = c.scale * 0.85;
-    drawSpr(g, b.spr, x, bot + bob, b.dir < 0, b.flash > 0 || tele, c.scale, sy);
-    if (c.crown) { g.fillStyle = '#1b1626'; g.fillRect(x - 11, bot - c.h - 8, 22, 9); g.fillStyle = '#ffd34e'; g.fillRect(x - 10, bot - c.h - 7, 20, 6); for (let i = 0; i < 4; i++) g.fillRect(x - 10 + i * 6, bot - c.h - 10, 3, 4); g.fillStyle = '#e0453a'; g.fillRect(x - 1, bot - c.h - 6, 3, 3); }
+    const bob = (b.st === 'wait' || c.eclipse) ? Math.round(Math.sin(b.t * 3) * (c.eclipse ? 3 : 1)) : 0;
+    let sy = 1;
+    if (b.st === 'tele' && b.atk === 'jump') sy = 0.88;
+    drawSpr(g, b.spr, x, bot + bob, b.dir < 0, b.flash > 0 || tele, 1, sy);
   }
   function drawPlayer(camX, camY) {
     const P = Q.P;
@@ -938,15 +1144,15 @@
     if (P.inv > 0 && P.dash <= 0 && Math.floor(P.inv * 20) % 2 === 0) return;
     const x = Math.round(P.x + P.w / 2 - camX), bot = Math.round(P.y + P.h - camY);
     let spr;
-    if (!P.onGround) spr = getSprite('hero_jump', {}, 0);
-    else if (Math.abs(P.vx) > 15) spr = getSprite('hero_run', {}, Math.floor(P.anim * 10) % 2);
-    else spr = getSprite('hero_idle', {}, 0);
+    if (!P.onGround) spr = getSprite(P.vy < 0 ? 'hero_jump' : 'hero_fall', {}, 0);
+    else if (Math.abs(P.vx) > 15) spr = getSprite('hero_run', {}, Math.floor(P.anim * 12) % 4);
+    else spr = getSprite('hero_idle', {}, Math.floor(P.anim * 3) % 2);
     const bob = (P.onGround && Math.abs(P.vx) <= 15) ? Math.round(Math.sin(P.anim * 3) * 0.5 + 0.5) * 0 : 0;
     if (P.dash > 0) g.globalAlpha = 0.75;
     drawSpr(g, spr, x, bot + bob, P.face < 0);
     g.globalAlpha = 1;
     // lantern
-    const lx = x + P.face * 8, ly = bot - 8 + Math.round(Math.sin(P.anim * 7) * (Math.abs(P.vx) > 15 ? 1.5 : 0.6));
+    const lx = x + P.face * 8, ly = bot - 9 +Math.round(Math.sin(P.anim * 7) * (Math.abs(P.vx) > 15 ? 1.5 : 0.6));
     g.fillStyle = '#1b1626'; g.fillRect(lx - 3, ly - 3, 6, 7); g.fillRect(lx - 1, ly - 5, 2, 2);
     g.fillStyle = '#ffd34e'; g.fillRect(lx - 2, ly - 2, 4, 5); g.fillStyle = '#fff6c0'; g.fillRect(lx - 1, ly - 1, 2, 2);
     // slash
@@ -966,7 +1172,7 @@
     const flick = Math.sin(Q.t * 9) * 2 + Math.sin(Q.t * 5.3) * 1.5;
     const lights = [{ x: P.x + 4 - camX, y: P.y + 6 - camY, r: (B.dark > 0.5 ? 70 : 90) + flick, i: 1 }];
     const addL = (x, y, r, i) => { const sx = x - camX, sy = y - camY; if (sx > -r && sx < VW + r && sy > -r && sy < VH + r) lights.push({ x: sx, y: sy, r, i: i || 1 }); };
-    for (const it of Q.items) { if (it.kind === 'cp' && it.lit) addL(it.x, it.y - 26, 50, 1); else if (it.kind === 'shard') addL(it.x, it.y, 34, 1); else if (it.kind === 'frag') addL(it.x, it.y, 80, 1); else if (it.kind === 'coin' && B.dark > 0.5) addL(it.x, it.y, 10, 0.5); }
+    for (const it of Q.items) { if (it.kind === 'cp' && it.lit) addL(it.x, it.y - 26, 50, 1); else if (it.kind === 'shard') addL(it.x, it.y, 34, 1); else if (it.kind === 'frag') addL(it.x, it.y, 80, 1); else if (it.kind === 'npc') addL(it.x, it.y - 10, 36, 0.8); else if (it.kind === 'coin' && B.dark > 0.5) addL(it.x, it.y, 10, 0.5); }
     for (const e of Q.ents) if (e.cfg.ai === 'flyshoot' || e.cfg.ai === 'blob' || e.type === 'ghost') addL(e.x + e.w / 2, e.y + e.h / 2, 34, 0.9);
     for (const p of Q.projs) addL(p.x, p.y, 24, 0.9);
     if (Q.boss && Q.boss.st !== 'sleep') addL(Q.boss.x + Q.boss.w / 2, Q.boss.y + Q.boss.h / 2, 60, 0.7);
@@ -1009,7 +1215,8 @@
       if (i < P.hp) drawSpr(g, hs, x, y, false); else { g.globalAlpha = 0.3; drawSpr(g, hs, x, y, false, true); g.globalAlpha = 1; }
     }
     g.fillStyle = '#ffd34e'; g.fillRect(8, 20, 5, 5); g.fillStyle = '#c89a1c'; g.fillRect(12, 21, 1, 3);
-    txt('x' + Q.coinsRun, 16, 23, { size: 7 });
+    txt('x' + Q.coinsRun + '   (' + save.coins + ')', 16, 23, { size: 7 });
+    if (P.shield) { g.fillStyle = '#6ee7f2'; g.fillRect(12 + 3 * 11 + 6, 38, 6, 7); g.fillStyle = '#fff'; g.fillRect(12 + 3 * 11 + 8, 40, 2, 3); }
     const sh = save.shards[Q.li] || [0, 0, 0], ss = getSprite('shard');
     for (let i = 0; i < 3; i++) { if (sh[i]) drawSpr(g, ss, 12 + i * 11, 42, false); else { g.globalAlpha = 0.35; drawSpr(g, ss, 12 + i * 11, 42, false, true); g.globalAlpha = 1; } }
     // boss bar
@@ -1049,6 +1256,24 @@
       txt(T('paused'), VW / 2, 52, { al: 'center', size: 16, bold: true });
       ['resume', 'restart', 'tomap', 'totitle'].forEach((k, i) => txt((Q.menu === i ? '> ' : '  ') + T(k), VW / 2, 88 + i * 18, { al: 'center', size: 10, col: Q.menu === i ? '#ffd34e' : '#cfd6e6' }));
       txt('M: ' + (Snd.muted ? 'Sound OFF' : 'Sound ON') + '    F11: ' + T('full'), VW / 2, 190, { al: 'center', size: 6, col: '#8892aa' });
+    } else if (st === 'talk') {
+      const tk = Q.talk, sp = getSprite(tk.npc.spr);
+      g.fillStyle = 'rgba(8,6,20,.93)'; g.fillRect(8, 148, VW - 16, 62);
+      g.fillStyle = '#ffd34e'; g.fillRect(8, 148, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1); g.fillRect(8, 148, 1, 62); g.fillRect(VW - 9, 148, 1, 62);
+      g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(14, 154, 44, 50);
+      drawSpr(g, sp, 36, 204, false, false, 2, 2);
+      txt(LN(tk.npc.name), 66, 158, { size: 8, col: '#ffd34e', bold: true });
+      const line = tk.lines[tk.i][save.lang], n = Math.floor(tk.t * 45);
+      wrapText(line.substr(0, n), 62).forEach((l, i) => txt(l, 66, 173 + i * 11, { size: 7 }));
+      if (n >= line.length) txt('>', VW - 18, 200, { size: 8, col: '#ffd34e', alpha: 0.5 + 0.5 * Math.sin(Q.stateT * 8 + Q.t * 8) });
+    } else if (st === 'shop') {
+      g.fillStyle = 'rgba(8,6,20,.94)'; g.fillRect(40, 60, VW - 80, 100);
+      g.fillStyle = '#ffd34e'; g.fillRect(40, 60, VW - 80, 1); g.fillRect(40, 159, VW - 80, 1); g.fillRect(40, 60, 1, 100); g.fillRect(VW - 41, 60, 1, 100);
+      txt(LN(NPCS.gob.name), VW / 2, 72, { al: 'center', size: 8, col: '#ffd34e', bold: true });
+      txt(T('wallet') + ': ' + save.coins, VW / 2, 86, { al: 'center', size: 7, col: '#cfd6e6' });
+      ['shop1', 'shop2', 'shop3'].forEach((k, i) => txt((Q.menu === i ? '> ' : '  ') + T(k), VW / 2, 106 + i * 14, { al: 'center', size: 7, col: Q.menu === i ? '#ffd34e' : '#e8eaf5' }));
+      if (Q.shopMsg) txt(Q.shopMsg, VW / 2, 150, { al: 'center', size: 6, col: '#a4e86b' });
+      if (Q.P.shield) txt('Shield ON', 50, 72, { size: 6, col: '#6ee7f2' });
     } else if (st === 'dead') {
       const a = Math.min(1, Q.stateT / 0.8);
       g.globalAlpha = 0.6 * a; g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1;
@@ -1115,7 +1340,7 @@
   function drawTitle() {
     const gy = drawBgOnly(0, title.cam, sceneT);
     // hero running
-    const hs = getSprite('hero_run', {}, Math.floor(sceneT * 8) % 2);
+    const hs = getSprite('hero_run', {}, Math.floor(sceneT * 9) % 4);
     drawSpr(g, hs, 80, gy, false, false, 2, 2);
     g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(94, gy - 14, 0, 94, gy - 14, 50); gr.addColorStop(0, 'rgba(255,190,90,.35)'); gr.addColorStop(1, 'rgba(255,190,90,0)'); g.fillStyle = gr; g.fillRect(40, gy - 70, 110, 110); g.globalCompositeOperation = 'source-over';
     g.fillStyle = 'rgba(5,3,15,.35)'; g.fillRect(0, 0, VW, VH);

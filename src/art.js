@@ -15,35 +15,132 @@ const PAL = {
   k: '#1b1626', w: '#f6f3e9', r: '#e0453a', R: '#8e2335', o: '#f08a2b', y: '#ffd34e', Y: '#c89a1c',
   g: '#5fcf5a', G: '#2b8a3e', t: '#a4e86b', b: '#4a8bf0', B: '#2a4a9c', c: '#6ee7f2', C: '#2c9ab8',
   p: '#a15be0', P: '#5a2d8f', n: '#9a6a3b', N: '#5a3a22', s: '#f2c394', S: '#d99a6a', l: '#b8bfd0',
-  d: '#6a7090', D: '#2d3045', e: '#e8dfc0', E: '#b9a77a', m: '#ff7fb0', h: '#8e6bff'
+  d: '#6a7090', D: '#2d3045', e: '#e8dfc0', E: '#b9a77a', m: '#ff7fb0', h: '#8e6bff',
+  a: '#d6deee', A: '#8d9bbd', q: '#434d6e', f: '#ff6a3a', i: '#7a1a2a', x: '#c8f0a0', z: '#3a1a40'
 };
 
 // ---- sprite sources (fill only, outline is added automatically) ----
+// Ember: 16x21 chibi warrior — steel helm with flame plume, glowing eyes, red scarf, pauldrons
+const heroTop = [
+  ['......ofo.......', '.....oyyyo......'],
+  ['.....o.o.o......', '......oyyo......']
+];
 const heroBody = [
-  '...BBBBBB...',
-  '..BBBBBBBB..',
-  '..BBssssBB..',
-  '..BBsskskB..',
-  '..BBssssBB..',
-  '...rrrrrr...',
-  '..bbbbbbbb..',
-  '.bbbbbbbbbb.',
-  '.bbbbbbbbbb.',
-  '.bbbnnnnbbb.',
-  '.bbbbbbbbbb.',
-  '..bbbbbbbb..'
+  '.....rrrrrr.....',
+  '....aaaaaaaa....',
+  '...aAAAAAAAAa...',
+  '...aAaaaaaaAa...',
+  '...AqqqqqqqqA...',
+  '...AqqqyqqyqA...',
+  '...AqqqyqqyqA...',
+  '...AAAAAAAAAA...',
+  '..rrrrrrrrrrrr..',
+  '.aaAbbbbbbbbAaa.',
+  '.aAAbbaabbbbAAa.',
+  '..AAbbbbbbbbAA..',
+  '..AAnnnnnnnnAA..',
+  '...AbbbyybbbA...',
+  '...AAbbbbbbAA...'
 ];
 const heroLegs = {
-  idle: ['..bbb..bbb..', '..nn....nn..', '..NN....NN..', '............'],
-  run1: ['...bb..bbb..', '.nn......nn.', 'NN........NN', '............'],
-  run2: ['...bbbbbb...', '...nn..nn...', '...NN..NN...', '............'],
-  jump: ['..bbbbbbbb..', '..nnnnnnnn..', '............', '............']
+  idle: ['....qq....qq....', '....AA....AA....', '...AAA....AAA...', '...qqq....qqq...'],
+  runA: ['...qq......qq...', '..AAq......AA...', '..AA........AAq.', '..qq.........qq.'],
+  runB: ['....qqqqqqqq....', '....AAAAAAAA....', '....AA....AA....', '....qq....qq....'],
+  jump: ['...qqqqqqqqqq...', '...AAAAAAAAAA...', '...qq......qq...', '................'],
+  fall: ['...qq......qq...', '..AA........AA..', '..qq........qq..', '................']
 };
+const rev = rows => rows.map(r => r.split('').reverse().join(''));
+const heroFrame = (top, legs) => top.concat(heroBody, legs);
 
+const withSpear = rows => rows.map((r, i) => (i >= 3 ? r.substr(0, 14) + 'n' + r.substr(15) : (i >= 1 ? r.substr(0, 14) + 'a' + r.substr(15) : r)));
 const ART = {
-  hero_idle: [heroBody.concat(heroLegs.idle)],
-  hero_run: [heroBody.concat(heroLegs.run1), heroBody.concat(heroLegs.run2)],
-  hero_jump: [heroBody.concat(heroLegs.jump)],
+  npc_lila: [[
+    '.....nnnnnn.....',
+    '....nnnnnnnn....',
+    '...nnNnnnnNnn...',
+    '...nnssssssnn...',
+    '...nsskssksnn...',
+    '...nsmssssmsn...',
+    '..nnnssssssnn...',
+    '..n.nnssssnn....',
+    '..n.gggggggg....',
+    '..mggwwwwwwgg...',
+    '...ggwwwwwwgg...',
+    '..gggwwwwwwggg..',
+    '..gggwwyywwggg..',
+    '.gggggwwwwggggg.',
+    '.gggggwwwwggggg.',
+    '.GGGGGGGGGGGGGG.',
+    '....ss....ss....',
+    '....ss....ss....',
+    '...nnn....nnn...'
+  ]],
+  npc_gob: [[
+    '......NNNN......',
+    '.....NnnnnN.....',
+    '....NnnnnnnN....',
+    '...NNNNNNNNNN...',
+    'gg.gggggggggg.gg',
+    '.gggggygggygggg.',
+    '..gggggGGggggg..',
+    '...gwgwgwgggg...',
+    '....gggggggg....',
+    '...nnnnnnnnnn...',
+    '..nnnNnnnnNnnn..',
+    '.gnnnNnnnnNnng..',
+    '.gnnnnnnnnnnng..',
+    '..nnnnnnnnnnnn..',
+    '...NNNNNNNNNN...',
+    '....gg....gg....',
+    '...GGG....GGG...'
+  ]],
+  npc_angel: [[
+    '......yyyyyy......',
+    '.......yyyy.......',
+    '.....yyyyyyyy.....',
+    '....yyyyyyyyyy....',
+    '....yyssssssyy....',
+    '....yssksskssy....',
+    '....yssssssssy....',
+    '.....yysmmsyy.....',
+    '......wwwwww......',
+    '.lww.wwwwwwww.wwl.',
+    'lwwwwwwwwwwwwwwwwl',
+    'lwwwwwwyyywwwwwwwl',
+    '.lwwwwwwyywwwwwwl.',
+    '..lwwwwwwwwwwwwl..',
+    '...lllwwwwwwlll...',
+    '......wwwwww......',
+    '......wwwwww......',
+    '.....wwwwwwww.....',
+    '....wwwwwwwwww....',
+    '....wwwllllwww....'
+  ]],
+  npc_bram: [withSpear([
+    '.......rr.......',
+    '......rrrr......',
+    '.....aaaaaa.....',
+    '....aAAAAAAa....',
+    '....AaaaaaaA....',
+    '....AssksskA....',
+    '....AssssssA....',
+    '....ANNNNNNA....',
+    '.....AssssA.....',
+    '...aaAAAAAAaa...',
+    '..aaArrrrrrAaa..',
+    '..aAArrwwrrAAa..',
+    '..AAArrrrrrAAA..',
+    '..AAAAAAAAAAAA..',
+    '...AAAAAAAAAA...',
+    '....qq....qq....',
+    '....AA....AA....',
+    '...AAA....AAA...',
+    '...qqq....qqq...'
+  ])],
+  hero_idle: [heroFrame(heroTop[0], heroLegs.idle), heroFrame(heroTop[1], heroLegs.idle)],
+  hero_run: [heroFrame(heroTop[0], heroLegs.runA), heroFrame(heroTop[1], heroLegs.runB), heroFrame(heroTop[0], rev(heroLegs.runA)), heroFrame(heroTop[1], heroLegs.runB)],
+  hero_jump: [heroFrame(heroTop[0], heroLegs.jump)],
+  hero_fall: [heroFrame(heroTop[1], heroLegs.fall)],
   slime: [[
     '....tttttt....',
     '..ttgggggggg..',
@@ -201,6 +298,193 @@ const ART = {
   ]]
 };
 
+// ---- horror redesign of monsters + new small monsters (override earlier entries) ----
+Object.assign(ART, {
+  slime: [[
+    '.....tttttt.....',
+    '...ttggggggtt...',
+    '..tggggggggggt..',
+    '.tggwwggggwwggt.',
+    '.ggwwrwggwwrwggg',
+    '.gggwwgggggwwggg',
+    '.gggggggggggggg.',
+    '.gkkkkkkkkkkkkg.',
+    '.gkwkwkwkwkwkwg.',
+    '..gkkkkkkkkkkg..',
+    '..GGGGGGGGGGGG..',
+    '...GGGGGGGGGG...'
+  ]],
+  bat: [[
+    'pp............pp',
+    'ppp....pp....ppp',
+    'pPpp..pppp..pppP',
+    'pPPppprpprppPPpp',
+    '.pPppppwwppppPp.',
+    '..pp..pwwp..pp..',
+    '......p..p......'
+  ], [
+    '................',
+    '......p..p......',
+    '....pppppppp....',
+    '..pppprpprpppp..',
+    '.pPppppwwppppPp.',
+    'pPp..ppwwpp..pPp',
+    'pp....pppp....pp',
+    'p..............p'
+  ]],
+  spider: [[
+    'D..D........D..D',
+    '.D..D.DDDD.D..D.',
+    '..D.DDPPPPDD.D..',
+    'D.DDPrrPPrrPDD.D',
+    '.DDPPPrPPrPPPDD.',
+    'D..DPPwPPwPPD..D',
+    '...D.PPPPPP.D...',
+    '......DDDD......'
+  ]],
+  skeleton: [[
+    '....eeeeee....',
+    '...eeeeeeee...',
+    '..eekkeekkee..',
+    '..ekrkeekrke..',
+    '..eekkeekkee..',
+    '...eeeeeeee...',
+    '...ekekekee...',
+    '....eeeeee....',
+    '..eeeeeeeeeel.',
+    '..eEeeeeeeEel.',
+    '..eEeeeeeeEel.',
+    '..eeeEEEEeeen.',
+    '...eeeeeeee...',
+    '....eeeeee....',
+    '...ee....ee...',
+    '...ee....ee...',
+    '..eee....eee..',
+    '..eee....eee..'
+  ]],
+  snowman: [[
+    '...DDDDDD...',
+    '....DDDD....',
+    '...wwwwww...',
+    '..wwrwwrww..',
+    '..wwwwwwww..',
+    '...wkwkwkw..',
+    '..wwwwwwww..',
+    '.wwwlwwwwww.',
+    '.wwwwwwwlww.',
+    '.wwwwwwwwww.',
+    '..wwwwwwww..',
+    '...wwwwww...'
+  ]],
+  fire: [[
+    '.....r......',
+    '....rro.....',
+    '...rroor....',
+    '..rrooyor...',
+    '..rookkook..',
+    '.rooykkykoor',
+    '.rooywyywor.',
+    '.rookkkkkor.',
+    '..rookyyor..',
+    '...rroorr...',
+    '....rrrr....'
+  ]],
+  ghost: [[
+    '...wwwwww...',
+    '..wwwwwwww..',
+    '.wwwwwwwwww.',
+    '.wwkkwwkkww.',
+    '.wwkkwwkkww.',
+    '.wwwwwwwwww.',
+    '.wwwwkkwwww.',
+    '.wwwkkkkwww.',
+    '.wwwwkkwwww.',
+    '.wwwwwwwwww.',
+    '.ww.www.www.',
+    '.w...w...w..'
+  ]],
+  knight: [[
+    '.e..........e.',
+    '.ee........ee.',
+    '..eDDDDDDDDe..',
+    '...DPPPPPPD...',
+    '...DPmPPmPD...',
+    '...DDPPPPDD...',
+    '....DDDDDD....',
+    '..PPDDDDDDPP..',
+    '.PPDDPPPPDDPP.',
+    '.PDDDPPPPDDDP.',
+    '.PDDDDDDDDDDP.',
+    '..DDDDDDDDDD..',
+    '...DDDDDDDD...',
+    '...DD....DD...',
+    '...DD....DD...',
+    '..DDD....DDD..',
+    '..DDD....DDD..'
+  ]],
+  beetle: [[
+    '..N....N..',
+    '...nnnn...',
+    '.nnNnnNnnr',
+    'nnnNnnNnnn',
+    'nnnNnnNnnn',
+    '.nnnnnnnn.',
+    '.N.N..N.N.'
+  ]],
+  wisp: [[
+    '...cc...',
+    '..cccc..',
+    '.cccccc.',
+    '.cwkwkc.',
+    '.cccccc.',
+    '..cccc..',
+    '.c.cc.c.',
+    '...c.c..'
+  ]],
+  imp: [[
+    '..e......e..',
+    '..ee....ee..',
+    '...rrrrrr...',
+    '..rrrrrrrr..',
+    '..rwkrrwkr..',
+    '..rrrrrrrr..',
+    '..rrwrwrwr..',
+    'r.rrrrrrrr.r',
+    '.rrrrrrrrrr.',
+    '..rrrrrrrr..',
+    '..rr....rr..',
+    '..RR....RR..'
+  ]],
+  shroom: [[
+    '..rrrrrr..',
+    '.rrwrrrwr.',
+    'rrrrrwrrrr',
+    'rwrrrrrrwr',
+    'rrrrrrrrrr',
+    '..eeeeee..',
+    '..ekeekee.',
+    '..eeeeee..',
+    '..eeeeee..',
+    '...EEEE...'
+  ]],
+  zombie: [[
+    '..GGGGGG..',
+    '.GggggggG.',
+    '.GgrggrgG.',
+    '.GgggggggG',
+    '..gkkkkg..',
+    '...gggg...',
+    '.nnnnnnnn.',
+    'gnnNnnNnng',
+    'g.nnnnnn.g',
+    'g.nNnnNn.g',
+    '..nnnnnn..',
+    '..bb..bb..',
+    '..bb..bb..',
+    '..NN..NN..'
+  ]]
+});
+
 // decor (no outline)
 const DECOR = {
   tuft: ['..t..t.', '.gg.gg.', 'gGggGgg'],
@@ -254,6 +538,152 @@ function makeSprite(rows, swap, outline) {
   const f = mk(), fx = f.getContext('2d'); fx.translate(W, 0); fx.scale(-1, 1); fx.drawImage(c, 0, 0);
   const mkWhite = src => { const q = mk(), qx = q.getContext('2d'); qx.drawImage(src, 0, 0); qx.globalCompositeOperation = 'source-atop'; qx.fillStyle = '#fff'; qx.fillRect(0, 0, W, H); return q; };
   return { c, f, cw: mkWhite(c), fw: mkWhite(f), w: W, h: H };
+}
+
+// ---------- painter: draw big sprites with primitives, then auto-outline ----------
+function spriteFromCanvas(src, outline) {
+  const w = src.width, h = src.height, W = w + 2, H = h + 2;
+  const d = src.getContext('2d').getImageData(0, 0, w, h).data;
+  const cells = [];
+  for (let y = 0; y < H; y++) cells.push(new Array(W).fill(null));
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4;
+    if (d[i + 3] > 128) cells[y + 1][x + 1] = 'rgb(' + d[i] + ',' + d[i + 1] + ',' + d[i + 2] + ')';
+  }
+  const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
+  const c = mk(), x = c.getContext('2d');
+  x.fillStyle = outline || PAL.k;
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    if (cells[j][i]) continue;
+    let near = false;
+    for (let dj = -1; dj <= 1 && !near; dj++) for (let di = -1; di <= 1; di++) {
+      const jj = j + dj, ii = i + di;
+      if (jj >= 0 && jj < H && ii >= 0 && ii < W && cells[jj][ii]) { near = true; break; }
+    }
+    if (near) x.fillRect(i, j, 1, 1);
+  }
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) if (cells[j][i]) { x.fillStyle = cells[j][i]; x.fillRect(i, j, 1, 1); }
+  const f = mk(), fx = f.getContext('2d'); fx.translate(W, 0); fx.scale(-1, 1); fx.drawImage(c, 0, 0);
+  const mkWhite = s => { const q = mk(), qx = q.getContext('2d'); qx.drawImage(s, 0, 0); qx.globalCompositeOperation = 'source-atop'; qx.fillStyle = '#fff'; qx.fillRect(0, 0, W, H); return q; };
+  return { c, f, cw: mkWhite(c), fw: mkWhite(f), w: W, h: H };
+}
+function paint(w, h, fn, outline) {
+  const [c, x] = mkCanvas(w, h); let flip = false;
+  const X = a => flip ? w - 1 - a : a;
+  const col = cl => { x.fillStyle = PAL[cl] || cl; };
+  const P = {
+    px(a, b, cl) { col(cl); x.fillRect(X(a), b, 1, 1); },
+    rect(a, b, ww, hh, cl) { col(cl); x.fillRect(flip ? w - a - ww : a, b, ww, hh); },
+    ell(cx, cy, rx, ry, cl) { col(cl); for (let j = -ry; j <= ry; j++) { const hw = Math.round(rx * Math.sqrt(Math.max(0, 1 - (j * j) / ((ry + 0.5) * (ry + 0.5))))); x.fillRect(X(cx) - hw, cy + j, hw * 2 + 1, 1); } },
+    line(x0, y0, x1, y1, cl, t) {
+      t = t || 1; col(cl); const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1);
+      for (let i = 0; i <= n; i++) x.fillRect(X(Math.round(x0 + (x1 - x0) * i / n)) - (flip ? t - 1 : 0), Math.round(y0 + (y1 - y0) * i / n), t, t);
+    },
+    tri(x0, y0, x1, y1, x2, y2, cl) {
+      col(cl); x0 = X(x0); x1 = X(x1); x2 = X(x2);
+      const minx = Math.min(x0, x1, x2), maxx = Math.max(x0, x1, x2), miny = Math.min(y0, y1, y2), maxy = Math.max(y0, y1, y2);
+      const sg = (ax, ay, bx, by, cx, cy) => (ax - cx) * (by - cy) - (bx - cx) * (ay - cy);
+      for (let j = miny; j <= maxy; j++) for (let i = minx; i <= maxx; i++) {
+        const px = i + 0.5, py = j + 0.5, d1 = sg(px, py, x0, y0, x1, y1), d2 = sg(px, py, x1, y1, x2, y2), d3 = sg(px, py, x2, y2, x0, y0);
+        if (!((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0))) x.fillRect(i, j, 1, 1);
+      }
+    },
+    both(f) { flip = false; f(); flip = true; f(); flip = false; },
+    poly(pts, cl, t) { for (let i = 0; i < pts.length - 1; i++) P.line(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], cl, t || 1); }
+  };
+  fn(P);
+  return spriteFromCanvas(c, outline);
+}
+
+const BOSS_PAINT = [
+  // 0 King Slime
+  P => {
+    P.ell(23, 25, 21, 11, 'G'); P.ell(23, 23, 20, 10, 'g'); P.ell(23, 19, 17, 7, 'g');
+    P.ell(13, 14, 6, 3, 't'); P.ell(12, 14, 3, 1, 'w');
+    P.both(() => { P.ell(13, 21, 4, 5, 'w'); P.ell(14, 22, 2, 3, 'r'); P.px(14, 21, 'k'); P.line(7, 14, 16, 18, 'G', 2); });
+    P.rect(9, 27, 28, 6, 'k');
+    for (let i = 0; i < 7; i++) { P.tri(10 + i * 4, 27, 14 + i * 4, 27, 12 + i * 4, 31, 'w'); P.tri(12 + i * 4, 33, 16 + i * 4, 33, 14 + i * 4, 29, 'w'); }
+    P.ell(36, 32, 1, 3, 't');
+    P.rect(11, 6, 24, 4, 'y'); P.rect(11, 9, 24, 1, 'Y');
+    P.tri(11, 6, 17, 6, 13, 1, 'y'); P.tri(18, 6, 28, 6, 23, 0, 'y'); P.tri(29, 6, 35, 6, 33, 1, 'y');
+    P.px(23, 8, 'r'); P.px(15, 8, 'c'); P.px(31, 8, 'c');
+  },
+  // 1 Spider Queen
+  P => {
+    P.both(() => {
+      P.poly([[19, 16], [10, 4], [4, 10], [3, 22]], 'D', 2); P.poly([[17, 20], [6, 12], [1, 18], [1, 30]], 'D', 2);
+      P.poly([[17, 24], [5, 26], [1, 32], [2, 36]], 'D', 2); P.poly([[19, 27], [11, 31], [8, 35], [8, 37]], 'D', 2);
+      P.px(10, 4, 'p'); P.px(6, 12, 'p'); P.px(5, 26, 'p'); P.px(11, 31, 'p');
+    });
+    P.ell(25, 27, 11, 10, 'P'); P.ell(25, 26, 9, 8, 'P'); P.ell(21, 22, 4, 3, 'p');
+    P.tri(22, 22, 28, 22, 25, 27, 'r'); P.tri(22, 33, 28, 33, 25, 28, 'r');
+    P.ell(25, 14, 8, 7, 'D'); P.ell(25, 13, 7, 6, 'P'); P.ell(24, 11, 3, 2, 'p');
+    P.both(() => { P.ell(21, 12, 2, 2, 'r'); P.px(21, 12, 'w'); P.ell(18, 14, 1, 1, 'r'); P.px(22, 9, 'r'); P.px(19, 11, 'r'); P.tri(22, 18, 24, 18, 23, 24, 'w'); P.line(20, 19, 18, 22, 'D', 1); });
+    P.tri(19, 8, 22, 8, 20, 2, 'y'); P.tri(22, 8, 28, 8, 25, 0, 'y'); P.tri(28, 8, 31, 8, 30, 2, 'y'); P.px(25, 6, 'r');
+  },
+  // 2 Crystal Golem
+  P => {
+    P.both(() => { P.rect(14, 38, 9, 11, 'd'); P.rect(13, 48, 10, 4, 'D'); P.rect(14, 38, 3, 11, 'l'); });
+    P.ell(24, 27, 16, 14, 'd'); P.ell(19, 21, 9, 6, 'l'); P.ell(24, 33, 13, 6, 'D');
+    P.both(() => { P.ell(7, 27, 6, 9, 'd'); P.ell(5, 24, 3, 4, 'l'); P.ell(6, 40, 5, 5, 'd'); P.ell(6, 43, 4, 2, 'D'); P.tri(3, 38, 6, 38, 4, 33, 'c'); P.tri(7, 38, 10, 38, 9, 34, 'C'); });
+    P.ell(24, 10, 9, 8, 'd'); P.ell(21, 7, 5, 3, 'l');
+    P.both(() => { P.rect(19, 8, 4, 3, 'k'); P.rect(20, 9, 2, 1, 'c'); P.tri(11, 18, 17, 18, 13, 6, 'c'); P.tri(15, 18, 20, 18, 19, 9, 'C'); P.line(15, 24, 18, 31, 'D', 1); });
+    P.tri(21, 3, 27, 3, 24, 0, 'c'); P.rect(21, 14, 6, 2, 'D');
+    P.ell(24, 29, 5, 6, 'c'); P.ell(24, 29, 3, 4, 'w'); P.line(24, 35, 24, 39, 'D', 1);
+  },
+  // 3 Sand Pharaoh
+  P => {
+    P.rect(12, 28, 20, 20, 'e'); for (let y = 30; y < 48; y += 3) P.rect(12, y, 20, 1, 'E');
+    P.rect(13, 46, 8, 6, 'E'); P.rect(23, 46, 8, 6, 'E'); P.rect(12, 51, 10, 2, 'N'); P.rect(22, 51, 10, 2, 'N');
+    P.ell(22, 28, 13, 4, 'y'); P.ell(22, 28, 11, 3, 'b'); for (let i = 0; i < 6; i++) P.rect(13 + i * 3, 26, 1, 5, 'y');
+    P.both(() => { P.rect(8, 28, 4, 14, 'e'); P.rect(8, 40, 4, 3, 'E'); P.rect(9, 30, 12, 4, 'y'); });
+    P.ell(22, 14, 11, 11, 'y'); for (let y = 6; y < 24; y += 3) P.rect(11, y, 22, 1, 'b');
+    P.both(() => { P.rect(9, 12, 5, 20, 'y'); for (let y = 14; y < 32; y += 3) P.rect(9, y, 5, 1, 'b'); });
+    P.rect(16, 11, 12, 15, 'N'); P.rect(16, 11, 12, 2, 'Y');
+    P.both(() => { P.rect(18, 16, 4, 2, 'c'); P.px(20, 16, 'w'); });
+    P.rect(20, 21, 4, 2, 'S'); P.rect(21, 26, 2, 7, 'b');
+    P.rect(20, 2, 4, 6, 'g'); P.px(21, 3, 'k'); P.px(22, 2, 'y');
+    P.line(38, 14, 38, 50, 'Y', 2); P.poly([[38, 14], [41, 10], [36, 8], [35, 12]], 'Y', 2);
+  },
+  // 4 Frost King
+  P => {
+    P.rect(6, 26, 36, 26, 'B'); P.tri(6, 26, 2, 52, 14, 52, 'B'); P.tri(42, 26, 46, 52, 34, 52, 'B');
+    P.ell(24, 40, 17, 13, 'w'); P.ell(30, 44, 12, 8, 'l'); P.ell(24, 21, 12, 11, 'w'); P.ell(29, 25, 7, 6, 'l'); P.ell(20, 16, 6, 3, 'w');
+    P.both(() => { P.tri(13, 12, 18, 12, 14, 3, 'c'); P.tri(18, 12, 22, 12, 20, 0, 'C'); P.line(10, 32, 1, 24, 'n', 2); P.line(4, 26, 3, 20, 'n', 1); P.line(4, 26, 0, 27, 'n', 1); });
+    P.tri(21, 12, 27, 12, 24, 0, 'c'); P.rect(13, 11, 22, 3, 'C'); P.px(24, 12, 'r');
+    P.both(() => { P.ell(19, 20, 3, 3, 'k'); P.px(19, 20, 'c'); P.px(18, 19, 'w'); P.line(15, 15, 22, 18, 'k', 2); });
+    P.rect(22, 23, 5, 2, 'o'); P.px(27, 24, 'o');
+    P.rect(16, 28, 16, 5, 'k'); for (let i = 0; i < 4; i++) { P.tri(16 + i * 4, 28, 20 + i * 4, 28, 18 + i * 4, 32, 'w'); }
+    P.ell(24, 38, 2, 2, 'k'); P.ell(24, 45, 2, 2, 'k');
+    P.both(() => { P.tri(8, 52, 12, 52, 10, 47, 'c'); P.tri(15, 52, 19, 52, 17, 46, 'C'); });
+  },
+  // 5 Magma Titan
+  P => {
+    P.both(() => { P.rect(18, 47, 10, 9, 'D'); P.rect(18, 47, 3, 9, 'd'); P.rect(20, 52, 3, 1, 'o'); });
+    P.ell(28, 32, 18, 16, 'D'); P.ell(22, 24, 9, 7, 'd'); P.ell(28, 38, 14, 7, 'k');
+    P.both(() => { P.ell(8, 30, 7, 12, 'D'); P.ell(6, 26, 3, 5, 'd'); P.ell(7, 46, 7, 7, 'D'); P.ell(5, 44, 3, 3, 'd'); P.line(5, 42, 9, 50, 'o', 1); P.line(8, 22, 10, 36, 'o', 1); });
+    P.ell(28, 12, 10, 9, 'D'); P.ell(24, 9, 5, 3, 'd');
+    P.both(() => { P.tri(19, 10, 22, 14, 11, 1, 'R'); P.tri(15, 4, 18, 5, 12, 1, 'o'); P.rect(22, 9, 4, 3, 'y'); P.px(23, 10, 'w'); P.line(20, 7, 26, 9, 'k', 2); });
+    P.rect(23, 17, 10, 3, 'o'); for (let i = 0; i < 4; i++) P.tri(23 + i * 3, 17, 26 + i * 3, 17, 24 + i * 3, 20, 'k');
+    P.ell(28, 32, 6, 7, 'o'); P.ell(28, 32, 4, 5, 'y'); P.ell(28, 32, 2, 2, 'w');
+    P.line(20, 28, 14, 36, 'o', 1); P.line(36, 26, 42, 34, 'o', 1); P.px(14, 38, 'o'); P.px(30, 48, 'o');
+  },
+  // 6 The Eclipse
+  P => {
+    P.ell(30, 21, 22, 22, 'h'); P.ell(30, 21, 20, 20, 'p'); P.ell(30, 21, 18, 18, 'z');
+    for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2, r0 = 22, r1 = i % 2 ? 26 : 29; P.line(Math.round(30 + Math.cos(a) * r0), Math.round(21 + Math.sin(a) * r0), Math.round(30 + Math.cos(a) * r1), Math.round(21 + Math.sin(a) * r1), 'h', 1); }
+    P.tri(30, 26, 6, 62, 54, 62, 'z'); P.tri(30, 28, 14, 62, 46, 62, 'P');
+    for (let i = 0; i < 10; i++) P.tri(6 + i * 5, 58, 11 + i * 5, 58, 8 + i * 5, 64, 'z');
+    P.ell(30, 24, 11, 12, 'k'); P.ell(30, 24, 8, 9, 'z');
+    P.both(() => { P.rect(24, 22, 4, 2, 'w'); P.px(25, 22, 'm'); P.line(22, 19, 28, 22, 'k', 1); P.tri(13, 14, 16, 12, 9, 2, 'h'); P.tri(8, 22, 11, 20, 3, 14, 'h'); P.line(14, 40, 4, 54, 'P', 2); P.ell(14, 46, 3, 3, 'w'); });
+    P.ell(30, 49, 6, 6, 'p'); P.ell(30, 49, 4, 4, 'h'); P.ell(30, 49, 2, 2, 'w');
+  }
+];
+const BOSS_SIZES = [[46, 36], [50, 38], [48, 52], [44, 54], [48, 54], [56, 56], [60, 66]];
+function bossSprite(i) {
+  const key = 'boss' + i;
+  if (!_cache[key]) _cache[key] = paint(BOSS_SIZES[i][0], BOSS_SIZES[i][1], BOSS_PAINT[i], i === 6 ? '#d58bff' : (i === 5 ? '#ff9a2a' : null));
+  return _cache[key];
 }
 
 // draw sprite: x = centre, y = bottom (feet)

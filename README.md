@@ -40,6 +40,14 @@ Add `?debug` to the URL to expose `window.LL` (used by `tools/bot.js`, an autopl
 Each level also hides 3 **Sun Shards** (21 total): every 3 shards = +1 max heart, every 7 = stronger sword.
 Languages: Vietnamese + English (switch on the title screen). Progress is saved automatically.
 
+## Characters, monsters & traps
+
+- **Ember** - chibi warrior with a flame-plume helm (4-frame run, idle, jump, fall).
+- **Story NPCs** (press **E / Enter** next to them): **Lila** (village girl), **Captain Bram** (soldier), **Gob** (swamp goblin merchant - sells a
+  healing potion and a one-hit shield charm for coins), **Seraph** (angel). Talking to Lila/Bram/Seraph restores your hearts.
+- **~25 monster types** incl. small ones (beetle, wisp, imp, mushroom, zombie) and 7 hand-painted bosses.
+- **Traps:** pop-up spikes, dart-shooting totems, sliding saw blades, fire vents, falling rocks/icicles (a red ! marker warns you).
+
 ## Project layout
 
 - `src/art.js` — all pixel art is generated in code (sprites, tilesets, parallax backgrounds)
