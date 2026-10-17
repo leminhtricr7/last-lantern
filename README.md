@@ -65,7 +65,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 
 ## Story characters
 
-- **Lyra** (an original songstress, map 1) is locked in a cage guarded by monsters. Defeat the guards, free her, and she gives you her **glowing Leek Blade** - your new sword
+- **Lyra Blue** (songstress, map 1) is locked in a cage guarded by monsters. Defeat the guards, free her, and she gives you her **glowing Leek Blade** - your new sword
   (+1 damage, longer reach, green glow and sparkles). She cheers you on in maps 4, 6 and 7 (restores your hearts).
 - **Mr Shorty Phong** (villain) forces a **Trial** on you in maps 2, 4, 6 and 7: the arena seals and waves of monsters spawn; survive to win hearts, coins and a bomb.
 - **QuanSadBoy** (sad bookworm wizard) helps a lot in maps 2 and 3 with advice and free supplies.

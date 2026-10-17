@@ -200,7 +200,7 @@
     ] }
   };
   for (const k in DLG2) DLG[k] = Object.assign(DLG[k] || {}, DLG2[k]);
-  const LYRA_NAME = { en: 'Lyra', vi: 'Lyra' }; // change here if you rename the character
+  const LYRA_NAME = { en: 'Lyra Blue', vi: 'Lyra Blue' }; // change here if you rename the character
   Object.assign(NPCS, {
     lyra: { spr: 'npc_lyra', name: LYRA_NAME },
     shorty: { spr: 'npc_shorty', name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' } },
@@ -1451,7 +1451,7 @@
       else if (pz.type === 'torch') drawSpr(g, icon('torch', pz.ci, pz.lit ? 1 : 0), x, y, false);
       else if (pz.type === 'tablet') drawSpr(g, icon('tablet'), x, y, false);
       else if (pz.type === 'cage') {
-        const sp = npcSpr('npc_lyra'); drawSpr(g, sp, x, y - 1 + Math.round(Math.sin(Q.t * 2) * 0.6), false, false);
+        const sp = npcSpr('npc_lyra_leek'); drawSpr(g, sp, x, y - 1 + Math.round(Math.sin(Q.t * 2) * 0.6), false, false);
         drawSpr(g, npcSpr('cage'), x, y + 1, false);
         if (Q.ents.some(e => !e.dead && e.grp === pz.grp)) { g.fillStyle = '#e0453a'; g.fillRect(x - 1, y - 52, 3, 7); g.fillRect(x - 1, y - 43, 3, 3); }
       }

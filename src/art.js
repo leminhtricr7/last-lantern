@@ -779,26 +779,31 @@ function icon(name, a, b) {
 }
 
 // ---------- story characters (painted) ----------
+function lyraPaint(P, leek) {
+  const T = '#3cc4b8', TD = '#2a9a94', TL = '#9ff0e8', SK = '#ffe4d6';
+  P.both(() => {
+    P.ell(4, 25, 4, 12, T); P.ell(3, 28, 2, 9, TD); P.ell(4, 36, 3, 1, TD); P.rect(3, 15, 1, 8, TL); P.px(2, 34, 'w');
+    P.rect(5, 11, 4, 7, 'D'); P.rect(6, 12, 2, 5, '#31e0d0'); P.px(6, 12, 'w');
+  });
+  P.ell(16, 13, 11, 10, T); P.rect(6, 9, 20, 4, T); P.rect(7, 4, 18, 2, 'D'); P.rect(9, 3, 14, 1, TD);
+  for (let i = 0; i < 5; i++) P.px(9 + i * 4, 9, TL);
+  P.ell(16, 16, 8, 7, SK);
+  P.both(() => { P.rect(10, 14, 5, 1, 'D'); P.rect(11, 15, 3, 4, '#1f8f9c'); P.px(11, 15, 'w'); P.px(12, 17, TL); P.rect(9, 19, 3, 2, '#ff9fb8'); });
+  P.px(16, 20, '#d0405a'); P.px(15, 20, '#ff9fb8'); P.rect(15, 21, 2, 1, SK);
+  P.rect(2, 9, 5, 2, '#ffa0b4'); P.ell(27, 8, 2, 2, '#ff7fa0'); P.px(27, 8, 'D'); P.px(5, 4, 'w'); P.px(28, 5, 'w');
+  P.rect(13, 22, 6, 1, SK);
+  P.rect(11, 23, 10, 6, '#9aa2b2'); P.rect(11, 23, 10, 1, 'w'); P.rect(15, 24, 2, 6, T); P.rect(13, 26, 1, 3, '#7d8596'); P.rect(18, 26, 1, 3, '#7d8596');
+  P.both(() => { P.rect(7, 23, 4, 6, 'D'); P.rect(7, 28, 4, 1, T); });
+  P.rect(9, 29, 14, 3, '#26283a'); P.rect(9, 32, 14, 1, T); P.rect(12, 30, 1, 2, '#3a3d56'); P.rect(16, 30, 1, 2, '#3a3d56'); P.rect(20, 30, 1, 2, '#3a3d56');
+  P.both(() => { P.rect(11, 33, 4, 4, 'D'); P.rect(11, 36, 4, 1, T); });
+  if (leek) {
+    P.rect(26, 21, 2, 10, '#e8f5d0'); P.rect(26, 21, 1, 10, 'w'); P.rect(25, 12, 4, 9, '#4fc84f'); P.rect(25, 12, 1, 9, '#8af08a'); P.px(27, 11, '#4fc84f'); P.px(26, 29, SK); P.px(27, 29, SK);
+  }
+}
 const NPC_PAINT = {
-  // Lyra: original songstress - pink twin buns + pigtails, flower & star clips, white blouse, purple skirt
-  npc_lyra: [28, 38, P => {
-    P.both(() => {
-      P.ell(4, 25, 3, 11, 'm'); P.ell(3, 29, 1, 7, 'p'); P.ell(4, 35, 2, 1, 'p'); P.rect(2, 12, 5, 2, 'w'); P.px(4, 12, 'r');
-      P.ell(7, 5, 4, 4, 'm'); P.px(6, 4, 'w'); P.px(8, 7, 'p');
-      P.rect(4, 12, 3, 9, 'm');
-    });
-    P.ell(14, 12, 10, 9, 'm'); P.rect(5, 9, 18, 4, 'm'); P.px(10, 6, 'w'); P.px(11, 6, 'w');
-    P.ell(14, 14, 7, 7, 's');
-    P.both(() => { P.rect(10, 13, 2, 3, 'h'); P.px(10, 13, 'w'); P.px(10, 17, 'm'); P.px(11, 17, 'm'); });
-    P.rect(13, 18, 2, 1, 'm'); P.rect(12, 19, 4, 2, 's');
-    P.ell(21, 8, 3, 3, 'w'); P.ell(21, 8, 1, 1, 'y');
-    P.px(8, 7, 'y'); P.px(7, 8, 'y'); P.px(9, 8, 'y'); P.px(8, 9, 'y');
-    P.rect(8, 21, 12, 8, 'w'); P.rect(8, 21, 12, 1, 'l');
-    P.both(() => { P.rect(5, 22, 3, 7, 'w'); P.rect(5, 28, 3, 1, 'm'); P.tri(14, 22, 9, 20, 9, 25, 'm'); });
-    P.rect(13, 22, 2, 3, 'R');
-    P.rect(7, 29, 14, 5, 'p'); P.rect(7, 29, 14, 1, 'h'); P.rect(7, 33, 14, 1, 'y'); P.rect(10, 30, 1, 3, 'P'); P.rect(14, 30, 1, 3, 'P'); P.rect(18, 30, 1, 3, 'P');
-    P.both(() => { P.rect(9, 34, 3, 3, 'w'); P.rect(9, 36, 3, 2, 'm'); });
-  }],
+  // Lyra Blue: chibi songstress, teal twin-tails + headset. npc_lyra = free, npc_lyra_leek = caged (holding her leek)
+  npc_lyra: [32, 38, P => lyraPaint(P, false)],
+  npc_lyra_leek: [32, 38, P => lyraPaint(P, true)],
   // Mr Shorty Phong: short, dapper villain with top hat, monocle, curled moustache, cane
   npc_shorty: [18, 20, P => {
     P.rect(5, 0, 8, 6, 'k'); P.rect(5, 4, 8, 1, 'r'); P.rect(3, 6, 12, 2, 'k'); P.rect(6, 1, 1, 3, 'D');
