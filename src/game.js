@@ -1938,7 +1938,7 @@
     P.sw = it; P.atk = 0.2; P.atkCd = 0.27 * (st.cd || 1); P.atkHit = new Set(); P.atkDown = !P.onGround && act.down;
     Snd.play('slash'); if (Math.random() < 0.6) Snd.hero('attack');
     if (hasRelic(5) && !P.atkDown) { Snd.play('flame'); Q.fps.push({ t: 'wave', x: P.x + 4 + f * 10, y: P.y + 7, vx: f * 150, vy: 0, g: 0, life: 0.55, hit: new Set() }); }
-    if (st.beam3 && !P.atkDown) { Snd.play('whoosh'); for (const an of [-0.16, 0, 0.16]) shootG({ x: P.x + 4 + f * 10, y: P.y + 6, vx: f * Math.cos(an) * 250, vy: Math.sin(an) * 250, life: 0.85, dmg: Math.max(1, Math.round((baseDmg() + st.dmg) * 0.5)), thru: true, pierceN: 2, shape: 'beam', col: '#a4ffc0', sz: 3, f, quiet: true }); }
+    if (st.beam3 && !P.atkDown) { Snd.play('whoosh'); for (const an of [-0.16, 0, 0.16]) shootG({ x: P.x + 4 + f * 10, y: P.y + 6, vx: f * Math.cos(an) * 250, vy: Math.sin(an) * 250, life: 0.85, dmg: Math.max(1, Math.round((baseDmg() + st.dmg) * 0.3)), thru: true, pierceN: 1, shape: 'beam', col: '#a4ffc0', sz: 3, f, quiet: true }); }
     if (st.beam && !P.atkDown) { Snd.play('whoosh'); shootG({ x: P.x + 4 + f * 10, y: P.y + 6, vx: f * 270, vy: 0, life: 0.55, dmg: Math.max(2, Math.round((baseDmg() + st.dmg) * 0.6)), thru: true, pierceN: st.beam, shape: 'beam', col: it.id === 'sun' ? '#ffe08a' : '#fff6c0', sz: 3, f, quiet: true }); }
   }
   function swordHitFx(e, st, id, dealt) {
@@ -1955,14 +1955,14 @@
   // Princess Lyra's leek blade: heal (5s), stun (3s) and a tornado that finishes anything under 20% health
   function leekPower(e) {
     const G = Q.G, P = Q.P, mx = e.isBoss ? e.max : e.maxhp;
-    if (G.leekHeal <= 0 && P.hp < maxHP()) { P.hp++; G.leekHeal = 5; Snd.play('heart'); emit(P.x + 4, P.y + 4, 10, { col: ['#a4ffc0', '#e0453a', '#fff'], sp0: 10, sp1: 55 }); }
+    if (G.leekHeal <= 0 && P.hp < maxHP()) { P.hp++; G.leekHeal = 9; Snd.play('heart'); emit(P.x + 4, P.y + 4, 10, { col: ['#a4ffc0', '#e0453a', '#fff'], sp0: 10, sp1: 55 }); }
     if (e.dead) return;
-    if (mx && e.hp > 0 && e.hp / mx <= 0.2) {
+    if (mx && e.hp > 0 && e.hp / mx <= (e.isBoss ? 0.08 : 0.15)) {
       G.torn.push({ x: e.x + e.w / 2, y: e.y + e.h, h: Math.max(40, e.h + 20), life: 1.1, t: 0 }); Snd.play('whoosh'); Snd.play('thunder'); Q.shake = Math.max(Q.shake, 0.35);
       emit(e.x + e.w / 2, e.y + e.h / 2, 24, { col: ['#a4ffc0', '#4fc84f', '#fff'], sp0: 40, sp1: 140 });
       if (e.isBoss) hurtBoss(e, (e.hp + 1) * 12, true, true); else hurtEnemy(e, e.hp + 99, true);
     } else if ((e.stunCd || 0) <= 0) {
-      e.stunT = 3; e.stunCd = e.isBoss ? 10 : 5; Snd.play('zap'); emit(e.x + e.w / 2, e.y, 8, { col: ['#ffd34e', '#fff'], sp0: 20, sp1: 60 });
+      e.stunT = e.isBoss ? 1.5 : 2.5; e.stunCd = e.isBoss ? 20 : 9; Snd.play('zap'); emit(e.x + e.w / 2, e.y, 8, { col: ['#ffd34e', '#fff'], sp0: 20, sp1: 60 });
     }
   }
   function onKill(e) {
@@ -2525,7 +2525,7 @@
       else if (Q.stateT > 0.8 && act.backP) toScene('map');
       return;
     }
-    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (Q.li >= 6) toScene('ending'); else if (Q.li === 1 && !save.castle) toScene('castle'); else { cutLevel = Q.li; mapSel = Math.min(6, Q.li + 1); toScene('cutscene'); } } return; }
+    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (Q.li >= 6) toScene('ending'); else if (Q.li === 0 && !save.ride) toScene('ride'); else if (Q.li === 1 && !save.castle) toScene('castle'); else { cutLevel = Q.li; mapSel = Math.min(6, Q.li + 1); toScene('cutscene'); } } return; }
     // play / bossintro
     if (act.pauseP && st === 'play') { Q.state = 'pause'; Q.menu = 0; return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
@@ -3199,6 +3199,67 @@
     });
   }
 
+  // ============================== RIDE HOME (after map 1): Ember carries Lyra on a horse ==============================
+  const RIDE = [
+    { w: 'narr', en: 'King Slime melts into the grass. The cage is empty at last, and the meadow is silent in a way that is almost peaceful.', vi: 'Vua Slime tan chảy vào bãi cỏ. Chiếc lồng cuối cùng cũng trống, và đồng cỏ yên lặng đến mức gần như bình yên.' },
+    { w: 'narr', en: 'Ember whistles. A brown mare trots out of the hills, one of the few animals that never ran from the dark. He lifts Lyra onto the saddle and climbs up in front of her.', vi: 'Ember huýt sáo. Một con ngựa nâu chạy ra từ đồi, một trong số ít con vật không bỏ chạy trước bóng tối. Cậu đỡ Lyra lên yên rồi leo lên phía trước.' },
+    { w: 'lyra', heart: 1, en: 'You... you do not have to take me all the way, Ember. I can walk. (She holds on to his cloak anyway.)', vi: 'Bạn... bạn không cần đưa mình đi tận nơi đâu, Ember. Mình tự đi được mà. (Nói vậy nhưng cô vẫn nắm chặt áo choàng của cậu.)' },
+    { w: 'ember', en: 'You are shaking, Princess. The road is full of shadows. Hold on tight.', vi: 'Công chúa đang run kìa. Đường này đầy bóng tối. Cứ nắm chặt vào nhé.' },
+    { w: 'narr', en: 'Lyra rests her cheek against his back. She has sung for kings and crowds, but she has never felt this: a heartbeat so loud it drowns out every song.', vi: 'Lyra áp má vào lưng cậu. Cô từng hát trước vua chúa và đám đông, nhưng chưa bao giờ cảm thấy điều này: một nhịp tim lớn đến mức át cả mọi bài ca.' },
+    { w: 'lyra', heart: 1, en: '(whispering to herself) Please... do not let him hear mine...', vi: '(thì thầm với chính mình) Xin đừng... để cậu ấy nghe thấy tim mình...' },
+    { w: 'lyra', en: 'Ember, why did you walk all the way into that meadow for a stranger?', vi: 'Ember, tại sao bạn lại đi tận vào đồng cỏ đó vì một người xa lạ?' },
+    { w: 'ember', en: 'Because someone was singing in the dark. Somebody had to answer.', vi: 'Vì có người đang hát trong bóng tối. Phải có ai đó đáp lại chứ.' },
+    { w: 'lyra', heart: 1, en: 'That is... the kindest thing anyone has ever said to me. I... I think I... (She stops.) ...I think the stars are lovely tonight.', vi: 'Đó là... lời tử tế nhất mà ai đó từng nói với mình. Mình... mình nghĩ là mình... (Cô khựng lại.) ...Mình nghĩ đêm nay sao đẹp quá.' },
+    { w: 'ember', en: '(half smiling, not sure) The stars? ...Right. Yeah. Lovely. (He knows she was about to say something else. He is not sure he is allowed to hope.)', vi: '(nửa cười, nửa ngờ) Sao á? ...Ừ. Ừ, đẹp thật. (Cậu biết cô định nói điều khác. Cậu không chắc mình có được phép hy vọng hay không.)' },
+    { w: 'lyra', heart: 1, en: 'If I told you something silly, would you believe me?', vi: 'Nếu mình nói một điều ngốc nghếch, bạn có tin không?' },
+    { w: 'ember', en: 'Depends. Silly like "slimes can learn to dance"? Or silly like "something I should be careful with"?', vi: 'Còn tùy. Ngốc kiểu "slime biết nhảy múa"? Hay ngốc kiểu "thứ mà mình nên cẩn thận"?' },
+    { w: 'lyra', heart: 1, en: 'Silly like a song. I will sing it for you when the Sun is back. Then you can decide whether to believe it.', vi: 'Ngốc như một bài hát. Mình sẽ hát cho bạn nghe khi Mặt Trời trở lại. Lúc đó bạn hãy quyết định có tin hay không.' },
+    { w: 'narr', en: 'The hoofbeats fade into the dusk. Ember does not answer. But for the first time since the Sun fell, his lantern burns a little warmer.', vi: 'Tiếng vó ngựa tan vào hoàng hôn. Ember không đáp. Nhưng lần đầu tiên kể từ khi Mặt Trời rơi, chiếc đèn của cậu cháy ấm hơn một chút.' }
+  ];
+  let ride = null;
+  function horseSprite(fr) {
+    const k = 'horse' + fr; if (_cache[k]) return _cache[k];
+    const B = '#9a6a3b', D = '#5a3a22', L = '#c8964a';
+    return (_cache[k] = paint(48, 36, P => {
+      P.ell(22, 17, 16, 8, B); P.ell(22, 21, 12, 3, L); P.ell(22, 14, 14, 3, '#b07a44');
+      P.tri(32, 12, 41, 1, 40, 19, B); P.ell(42, 6, 5, 4, B); P.rect(44, 6, 5, 4, L); P.px(47, 7, D); P.px(41, 4, 'k'); P.tri(38, 3, 40, -1 + 1, 42, 3, D);
+      P.line(36, 5, 30, 14, D, 3); P.line(35, 3, 29, 9, D, 2);
+      P.line(7, 13, 1, 22, D, 3); P.line(8, 14, 3, 25, D, 2);
+      if (fr === 0) { P.line(30, 22, 38, 30, B, 3); P.line(27, 22, 24, 32, B, 3); P.line(12, 22, 5, 30, B, 3); P.line(16, 22, 21, 32, B, 3); P.rect(37, 30, 3, 2, D); P.rect(23, 32, 3, 2, D); P.rect(3, 30, 3, 2, D); P.rect(20, 32, 3, 2, D); }
+      else { P.line(30, 22, 33, 30, B, 3); P.line(27, 22, 35, 28, B, 3); P.line(12, 22, 16, 31, B, 3); P.line(16, 22, 11, 29, B, 3); P.rect(32, 30, 3, 2, D); P.rect(34, 28, 3, 2, D); P.rect(15, 31, 3, 2, D); P.rect(10, 29, 3, 2, D); }
+      P.rect(16, 9, 12, 4, 'r'); P.rect(16, 13, 12, 2, 'y'); P.rect(17, 15, 2, 5, D);
+    }));
+  }
+  function startRide() { ride = { i: 0, lt: 0, t: 0 }; Q = null; Snd.music('title', TITLE_MUSIC); }
+  function endRide() { save.ride = 1; writeSave(); cutLevel = 0; mapSel = 1; toScene('cutscene'); }
+  function updateRide(dt) {
+    const c = ride; c.t += dt; c.lt += dt;
+    const ln = RIDE[c.i], tx = ln[save.lang], n0 = Math.floor((c.lt - dt) * 40), n1 = Math.min(tx.length, Math.floor(c.lt * 40)), v = ln.w === 'lyra' ? 'lyra' : null;
+    if (v) for (let k = n0 + 1; k <= n1; k++) if (k % 3 === 0 && /\S/.test(tx[k - 1] || ' ')) Snd.blip(v);
+    if (act.okP) { if (c.lt * 40 < tx.length) c.lt = 999; else { c.i++; c.lt = 0; if (c.i >= RIDE.length) { endRide(); c.i = RIDE.length - 1; c.lt = 999; } } }
+    if (act.backP) endRide();
+  }
+  function drawRide() {
+    const c = ride, t = c.t, k = Math.min(1, c.i / (RIDE.length - 1));
+    const gy = drawBgOnly(0, t * 70, t);
+    // sunset wash that deepens as the ride goes on
+    g.fillStyle = 'rgba(255,120,40,' + (0.18 + 0.2 * k) + ')'; g.fillRect(0, 0, VW, VH); g.fillStyle = 'rgba(40,10,60,' + (0.1 + 0.4 * k) + ')'; g.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 30; i++) { const sx = (i * 61 + 13) % VW, sy = (i * 29) % 70; g.globalAlpha = k * 0.9; g.fillStyle = '#fff'; g.fillRect(sx, sy, 1, 1); } g.globalAlpha = 1;
+    const fr = Math.floor(t * 9) % 2, bob = Math.round(Math.abs(Math.sin(t * 9)) * 2), hx = 150;
+    g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(hx - 22, gy - 1, 50, 2);
+    drawSpr(g, horseSprite(fr), hx, gy - bob, false);
+    drawSpr(g, npcSpr('npc_lyra'), hx - 8, gy - 17 - bob + Math.round(Math.sin(t * 9 + 1)), false);
+    drawSpr(g, getSprite('hero_idle', {}, 0), hx + 2, gy - 15 - bob, false);
+    // dust
+    for (let i = 0; i < 6; i++) { const u = (t * 2 + i / 6) % 1; g.globalAlpha = (1 - u) * 0.5; g.fillStyle = '#d9c9a0'; g.fillRect(Math.round(hx - 24 - u * 34), Math.round(gy - 2 - u * 6), 3 - Math.round(u * 2), 3 - Math.round(u * 2)); } g.globalAlpha = 1;
+    const ln = RIDE[c.i], sp = CS[ln.w], tx = ln[save.lang], n = Math.floor(c.lt * 40);
+    if (ln.heart) for (let i = 0; i < 4; i++) { const u = (c.lt * 0.6 + i / 4) % 1, hxp = hx - 8 + Math.sin(u * 6 + i) * 10, hyp = gy - 44 - u * 34; g.globalAlpha = 1 - u; g.fillStyle = '#ff5a8a'; g.fillRect(Math.round(hxp), Math.round(hyp), 2, 2); g.fillRect(Math.round(hxp) + 3, Math.round(hyp), 2, 2); g.fillRect(Math.round(hxp) - 1, Math.round(hyp) + 1, 7, 2); g.fillRect(Math.round(hxp), Math.round(hyp) + 3, 5, 1); g.fillRect(Math.round(hxp) + 1, Math.round(hyp) + 4, 3, 1); } g.globalAlpha = 1;
+    g.fillStyle = 'rgba(0,0,0,.84)'; g.fillRect(8, 156, VW - 16, 54); g.fillStyle = sp.col; g.fillRect(8, 156, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1);
+    txt(LN(sp.n), 18, 165, { size: 8, col: sp.col, bold: true });
+    wrapText(tx.substr(0, n), 66).forEach((l, i) => txt(l, 18, 177 + i * 10, { size: 7 }));
+    if (n >= tx.length) txt('>', VW - 20, 200, { size: 8, col: sp.col, alpha: 0.5 + 0.5 * Math.sin(t * 8) });
+  }
+
   // ============================== CASTLE CUTSCENE (after map 2): the king, the crowd and a surprise gift ==============================
   const CS = { narr: { n: { en: 'Story', vi: 'Kể chuyện' }, col: '#cfd6e6', v: null }, king: { n: { en: 'King Aurelius', vi: 'Vua Aurelius' }, col: '#ffd34e', v: 'bram' }, lyra: { n: { en: 'Princess Lyra', vi: 'Công chúa Lyra' }, col: '#6ee7f2', v: 'lyra' }, ember: { n: { en: 'Ember', vi: 'Ember' }, col: '#ff9a4a', v: null }, crowd: { n: { en: 'The crowd', vi: 'Đám đông' }, col: '#ffffff', v: 'lila' } };
   const CASTLE = [
@@ -3314,6 +3375,7 @@
     if (s === 'map') { Snd.music('title', TITLE_MUSIC); Q = null; mapSel = Math.min(mapSel, maxPlayable()); }
     if (s === 'cutscene') startCut();
     if (s === 'castle') startCastle();
+    if (s === 'ride') startRide();
     if (s === 'shop') { Snd.music('title', TITLE_MUSIC); Q = null; shopCard = null; shopIdx = 0; }
   }
 
@@ -3341,7 +3403,7 @@
     const it = [];
     if (save.cleared.length || UNLOCK_ALL) it.push({ k: 'cont', fn: () => { mapSel = UNLOCK_ALL ? 0 : maxPlayable(); toScene('map'); } });
     it.push({ k: 'shopT', fn: () => { shopFrom = 'title'; toScene('shop'); } });
-    it.push({ k: 'newgame', fn: () => { save.castle = 0; save.seen = {}; save.inv = { own: ['iron'], w: ['iron', null], armor: null, pet: null, gems: save.inv.gems | 0 }; save.cleared = []; save.shards = {}; save.coins = 0; save.leek = false; save.relics = [0, 0, 0, 0, 0, 0, 0]; save.ammo = { dagger: 0, bomb: 0, flask: 0 }; writeSave(); mapSel = 0; toScene('story'); } });
+    it.push({ k: 'newgame', fn: () => { save.castle = 0; save.ride = 0; save.seen = {}; save.inv = { own: ['iron'], w: ['iron', null], armor: null, pet: null, gems: save.inv.gems | 0 }; save.cleared = []; save.shards = {}; save.coins = 0; save.leek = false; save.relics = [0, 0, 0, 0, 0, 0, 0]; save.ammo = { dagger: 0, bomb: 0, flask: 0 }; writeSave(); mapSel = 0; toScene('story'); } });
     it.push({ k: 'lang', fn: () => { save.lang = save.lang === 'vi' ? 'en' : 'vi'; writeSave(); } });
     it.push({ k: 'sound', fn: () => { Snd.toggleMute(); } });
     it.push({ k: 'full', fn: toggleFull });
@@ -3449,7 +3511,7 @@
   function startCut() { cut = { t: 0, phase: 'walk', i: 0, lt: 0, pt: 0, fl: 0, shake: 0, thun: false, lastBlip: 0 }; Q = null; Snd.music('devil', DEVIL_MUSIC); }
   function cutLineStart() {
     const ln = CUT[cutLevel][cut.i];
-    if (ln.w === 'quoc') Snd.creature(7, 'attack', true); else if (ln.w === 'imp') Snd.creature('imp', 'alert'); else Snd.blip('shorty');
+    if (ln.w === 'quoc') Snd.devilRoar(ln.shout ? 1 : 0.55); else if (ln.w === 'imp') Snd.creature('imp', 'alert'); else Snd.blip('shorty');
     if (ln.shout) { cut.shake = 0.55; cut.fl = 0.3; if (Math.random() < 0.5) Snd.play('thunder'); }
   }
   function updateCut(dt) {
@@ -3526,6 +3588,7 @@
         else if (scene === 'map') updateMap(sub);
         else if (scene === 'shop') updateShopScene(sub);
         else if (scene === 'castle') updateCastle(sub);
+        else if (scene === 'ride') updateRide(sub);
         else if (scene === 'cutscene') updateCut(sub);
         if (i === 0) clearPressed();
         if (fadeTo) break;
@@ -3540,6 +3603,7 @@
     else if (scene === 'map') drawMap();
     else if (scene === 'shop') drawShop();
     else if (scene === 'castle' && castle) drawCastle();
+    else if (scene === 'ride' && ride) drawRide();
     else if (scene === 'cutscene' && cut) drawCut();
     cv.style.cursor = (scene === 'play' && Q && Q.state === 'play') ? 'crosshair' : (scene === 'play' || scene === 'title' || scene === 'map' ? 'pointer' : 'default');
     const f = fadeTo ? fade : fadeIn;

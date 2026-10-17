@@ -183,9 +183,40 @@ const Snd = (() => {
   }
   function sting() { voice({ f0: 1900, f1: 520, type: 'square', dur: 0.28, vol: 0.05, wob: 160, wobHz: 38 }); voice({ f0: 300, f1: 120, type: 'sawtooth', dur: 0.4, vol: 0.08, lp: 600 }); }
   function hero(evt) { if (HV[evt]) HV[evt](); }
+  // ---- Quoc the Devil: layered, distorted, echoing demon voice ----
+  let devilFx = null;
+  function getDevilFx() {
+    if (devilFx) return devilFx;
+    const ws = ac.createWaveShaper(), n = 1024, cv = new Float32Array(n);
+    for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; cv[i] = Math.tanh(x * 7) * 0.85; }
+    ws.curve = cv; ws.oversample = '2x';
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1500; lp.Q.value = 3;
+    const dl = ac.createDelay(1); dl.delayTime.value = 0.21; const fb = ac.createGain(); fb.gain.value = 0.38; const wet = ac.createGain(); wet.gain.value = 0.5;
+    const dry = ac.createGain(); dry.gain.value = 1;
+    ws.connect(lp); lp.connect(dry); dry.connect(sfxG); lp.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(sfxG);
+    return (devilFx = ws);
+  }
+  function devilVoice(dur, pm, vol) {
+    if (!ac) return;
+    const ws = getDevilFx(), t = ac.currentTime, f = 52 * (pm || 1) * (0.94 + Math.random() * 0.12);
+    const mk = (type, f0, f1, v, wob, wobHz) => {
+      const o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(Math.max(25, f1), t + dur);
+      if (wob) { const l = ac.createOscillator(), lg = ac.createGain(); l.frequency.value = wobHz; lg.gain.value = wob; l.connect(lg); lg.connect(o.frequency); l.start(t); l.stop(t + dur + 0.05); }
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v * (vol || 1), t + Math.min(0.03, dur * 0.25)); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g); g.connect(ws); o.start(t); o.stop(t + dur + 0.05);
+    };
+    mk('sawtooth', f, f * 0.72, 0.5, 6, 9); mk('sawtooth', f * 2.02, f * 1.5, 0.28, 14, 13); mk('square', f * 0.5, f * 0.38, 0.4, 0, 0);
+    noise(dur, 0.1 * (vol || 1), 250, t, sfxG);
+  }
+  function devilRoar(power) {
+    if (!ac) return; const p = power === undefined ? 1 : power;
+    devilVoice(0.9 + p * 0.7, 0.8, 1.3); devilVoice(0.7 + p * 0.5, 1.15, 0.8);
+    tone(70, 1.1, 'sine', 0.5 * p, -45, ac.currentTime, sfxG); whisper();
+  }
   const NV = { dragon: ['sawtooth', 58, 96, 0.1], lyra: ['triangle', 1100, 1700, 0.07], shorty: ['square', 340, 470, 0.05], quan: ['triangle', 380, 500, 0.06], quoc: ['sawtooth', 62, 105, 0.1], lila: ['sine', 720, 980, 0.07], bram: ['square', 130, 190, 0.06], gob: ['sawtooth', 380, 620, 0.06], angel: ['sine', 880, 1320, 0.07], smith: ['square', 95, 135, 0.07], wizard: ['triangle', 280, 520, 0.09], fairy: ['sine', 1500, 2200, 0.05] };
   function blip(who) {
     if (!ac) return;
+    if (who === 'quoc') { devilVoice(0.15, 0.85 + Math.random() * 0.5, 0.55); return; }
     const v = NV[who] || NV.lila, f = v[1] + Math.random() * (v[2] - v[1]);
     voice({ f0: f, f1: f * (0.92 + Math.random() * 0.2), type: v[0], dur: 0.07, vol: v[3], wob: who === 'wizard' ? 30 : 0, wobHz: 14, noise: who === 'gob' ? 0.04 : 0, nHP: 2000 });
     if (who === 'angel') voice({ f0: f * 1.5, f1: f * 1.5, type: 'sine', dur: 0.09, vol: 0.04 });
@@ -268,5 +299,5 @@ const Snd = (() => {
     // ---- riser in the last two bars of the build ----
     if (sec === 7 && s === 0) { const o = ac.createOscillator(), gn = ac.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(2400, t + spb * 16); gn.gain.setValueAtTime(0.02, t); gn.gain.linearRampToValueAtTime(0.12, t + spb * 16); o.connect(gn); gn.connect(leadBus); o.start(t); o.stop(t + spb * 16 + 0.05); }
   }
-  return { init, play, creature, hero, blip, whisper, sting, music, stop, setVol, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
+  return { init, play, creature, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, setVol, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
 })();

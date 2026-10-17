@@ -66,7 +66,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 ## Story characters
 
 - **Princess Lyra** (map 1) is locked in a cage guarded by monsters. Defeat the guards, free her, and she gives you her **glowing Leek Blade** - your new sword
-  (+1 damage, longer reach, green glow). Special: every swing shoots 3 light beams (lights dark maps, long range); a hit heals 1 heart (once per 5s) and stuns the target for 3s; any monster or boss under 20% health is finished by a leek tornado. She cheers you on in maps 4, 6 and 7 (restores your hearts).
+  (+1 damage, longer reach, green glow). Special: every swing shoots 3 light beams (lights dark maps, long range); a hit heals 1 heart (once per 9s) and stuns the target for 2.5s; monsters under 15% health (bosses under 8%) are finished by a leek tornado. She cheers you on in maps 4, 6 and 7 (restores your hearts).
 - **Mr Shorty Phong** (villain) forces a **Trial** on you in maps 2, 4, 6 and 7: the arena seals and waves of monsters spawn; survive to win hearts, coins and a bomb.
 - **QuanSadBoy** (sad bookworm wizard) helps a lot in maps 2 and 3 with advice and free supplies.
 - **Quoc the Devil** - after every map the screen darkens and you see the giant devil screaming at his minions (Shorty and an imp). Press Enter to advance.
@@ -82,6 +82,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **Top-up is in TEST MODE** (`TOPUP_TEST = true` in `src/game.js`): it gives free gems. Before selling, replace `topUp()` with a real payment flow.
 - Catalog and item art: `src/items.js`. Music is a chiptune EDM engine in `src/audio.js` (BPM is derived from each level's music definition).
 - **Princess Lyra follows you through map 2.** After you beat map 2 the story moves to **Castle Aurelia**: the crowd cheers, King Aurelius asks you to defeat the guardians, you agree, and a golden egg hatches into a free **Baby Dragon pet** (+500 gold, +20 gems). Plays once per save.
+- **After map 1:** Ember rides a horse home with Lyra - a short, shy romance scene - before the devil cutscene.
 
 ## Bosses, dragon & difficulty
 
