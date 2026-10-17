@@ -167,8 +167,9 @@ def bust(img, name, w, h):
 
 bust(lord[1], 'portrait_smirk.png', 150, 128)
 bust(lord[4] if len(lord) > 4 else lord[-1], 'portrait_roar.png', 150, 128)
-face = lord[0].crop((int(lord[0].width * 0.22), 0, int(lord[0].width * 0.78), int(lord[0].height * 0.32)))
-face = face.resize((24, round(24 * face.height / face.width)), Image.LANCZOS)
+face = lord[0].crop((int(lord[0].width * 0.06), 0, int(lord[0].width * 0.94), int(lord[0].height * 0.5)))   # head and shoulders for the dialogue frame
+face = face.resize((round(48 * face.width / face.height), 48), Image.LANCZOS)
+if face.width > 44: face = face.crop(((face.width - 44) // 2, 0, (face.width - 44) // 2 + 44, 48))
 face.save(os.path.join(OUT, 'face.png'))
 json.dump(manifest, open(os.path.join(OUT, 'forms.json'), 'w'), indent=1)
 print(json.dumps(manifest))
