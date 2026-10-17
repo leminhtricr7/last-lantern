@@ -189,7 +189,7 @@ function genLevel(li) {
     o = o || {};
     const d = diff();
     for (let i = 0; i < n; i++) col(x + i, gy);
-    for (let i = 0; i < n; i++) if (rnd() < 0.2) L.decor.push({ x: (x + i) * TS + R(0, 8), y: gy * TS, k: R(0, B.decor.length - 1) });
+    for (let i = 0; i < n; i++) if (rnd() < 0.32) L.decor.push({ x: (x + i) * TS + R(0, 8), y: gy * TS, k: R(0, B.decor.length - 1) });
     if (!o.safe && n >= 5) {
       const cnt = rnd() < 0.78 + d * 0.2 ? (li === 6 ? 1 : 0) + 1 + (d > 0.45 && rnd() < 0.6 ? 1 : 0) + (d > 0.8 && rnd() < 0.5 ? 1 : 0) + (n >= 9 && rnd() < 0.7 ? 1 : 0) + (li >= 2 && rnd() < 0.35 ? 1 : 0) : 0;
       for (let c = 0; c < cnt; c++) addEnemy(x + R(2, n - 2), gy);
@@ -512,6 +512,27 @@ function genLevel(li) {
   L.spawns.push({ id: L.id++, type: 'boss', x: (ax0 + AW - 7) * TS, y: 10 * TS });
   L.endX = (ax0 + AW) * TS;
   // ground step safety: if the pre-arena ground is not at row 10 build ramp
+  { const rn = mulberry32(777 + li * 131), endX = (L.arena ? L.arena.x0 : W) - 8, nooks = [];
+    const SOL = c => c === '#' || c === 'I', topOf = x => { for (let y = 3; y < H - 1; y++) if (SOL(L.grid[y][x])) return L.grid[y - 1][x] === ' ' ? y : -1; return -1; };
+    const busy = x => L.spawns.some(sp => Math.abs(sp.x / TS - x) < 4) || L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 5);
+    for (let part = 0; part < 3; part++) {
+      const a = Math.floor(20 + (endX - 20) * part / 3), b = Math.floor(20 + (endX - 20) * (part + 1) / 3);
+      for (let tries = 0; tries < 40; tries++) {
+        const x0 = a + Math.floor(rn() * Math.max(1, b - a - 6)), y = topOf(x0); if (y < 0 || y + 3 > H - 1) continue;
+        let ok = true; for (let i = 0; i < 5 && ok; i++) { if (topOf(x0 + i) !== y) ok = false; for (let k = 0; k < 4 && ok; k++) if (!SOL(L.grid[y + k][x0 + i])) ok = false; }
+        if (!ok || busy(x0 + 2)) continue;
+        for (let i = 1; i <= 3; i++) { L.grid[y][x0 + i] = 'F'; L.grid[y + 1][x0 + i] = ' '; L.grid[y + 2][x0 + i] = ' '; }
+        nooks.push({ x: x0, y }); break;
+      }
+    }
+    nooks.forEach((n, i) => {
+      for (let k = 1; k <= 3; k++) L.spawns.push({ id: L.id++, type: 'coin', x: (n.x + k) * TS + TS / 2, y: (n.y + 2) * TS + 2 });
+      const fx = (n.x + 2) * TS + TS / 2, fy = (n.y + 3) * TS;
+      if (i === 0 && typeof EGGS !== 'undefined' && EGGS[B.id]) L.spawns.push({ id: L.id++, type: 'egg', k: B.id, x: fx, y: fy });
+      else if (i === 1 && typeof ORB_MAPS !== 'undefined' && ORB_MAPS.indexOf(li) >= 0) L.spawns.push({ id: L.id++, type: 'orb', n: ORB_MAPS.indexOf(li) + 1, x: fx, y: fy - 6 });
+      else L.spawns.push({ id: L.id++, type: 'heart', x: fx, y: fy });
+    });
+    L.nooks = nooks; }
   { const cand = [];
     for (let x = 12; x < (L.arena ? L.arena.x0 - 4 : W - 10); x++) for (let y = 2; y <= 7; y++) if (L.grid[y][x] === '=' && L.grid[y - 1][x] === ' ' && L.grid[y - 2] && L.grid[y - 2][x] === ' ') cand.push([x, y]);
     const rr2 = mulberry32(5150 + li * 97), picks = [];

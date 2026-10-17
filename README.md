@@ -136,6 +136,13 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - Press **B** (or I / gamepad Back) during a level to open the shop and bag without leaving the level.
 - In co-op, hearts and gold are shared by the whole team; everything else belongs to whoever grabs it first.
 
+## Scenery, secrets and saving
+- Every land got an art pass (`src/scenery.js` + tile details in `drawWorld`): textured ground with buried stones/roots/gems, soft depth shading, swaying grass and flowers, snow caps, glowing cracks, roots/icicles/stalactites/kelp hanging under ledges, styled platforms (planks, stone, ice, metal grates, coral) with ropes and chains, 50+ props (fences, wells, shrines, pyramids' statues, ice lamps, gothic pillars, minecarts, anchors...), a distant landmark per land (castle, giant tree, crystal spires, pyramids, aurora and ice castle, lava fall, moon and towers, giant mushroom, sunken ship, mine tunnels), drifting clouds, birds/bats/fish, haze, big foreground plants, a colour mood per land and a soft vignette.
+- **Hidden nooks**: in each land a few patches of ground are not really there - walk over them and fall into a small treasure room (look for the tiny sparkle).
+- **10 easter eggs** (one per land) hidden in those nooks - affectionate homages to famous anime, shown only as objects and hints (no names, no logos). Each first find gives a Star Gem.
+- **7 Wish Orbs** with 1-7 stars hidden in seven lands. Gather all seven and a great green dragon grants a wish.
+- **Saving on this device**: every checkpoint saves your progress in the level (local storage of this browser / this PC's app). "Resume" on the title screen puts you back at your last checkpoint.
+
 ## Project layout
 
 - `src/art.js` — all pixel art is generated in code (sprites, tilesets, parallax backgrounds)

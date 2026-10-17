@@ -40,6 +40,7 @@
   if (!Array.isArray(save.relics)) save.relics = [];
   while (save.relics.length < 10) save.relics.push(0);
   if (!save.ammo) save.ammo = { dagger: 0, bomb: 0, flask: 0 };
+  if (!Array.isArray(save.orbs)) save.orbs = []; if (!save.eggs || typeof save.eggs !== 'object') save.eggs = {};
   save.rare = save.rare | 0; if (!save.rareGot || typeof save.rareGot !== 'object') save.rareGot = {};
   save.bonusHP = save.bonusHP | 0; save.bonusDmg = save.bonusDmg | 0; if (!save.cos || typeof save.cos !== 'object') save.cos = {};
   if (!Array.isArray(save.heroUnlock)) save.heroUnlock = [];
@@ -67,7 +68,7 @@
   Snd.setVol(save.vol);
 
   const STR = {
-    newgame: { en: 'New Game', vi: 'Chơi mới' }, shopT: { en: 'Shop & Inventory', vi: 'Cửa hàng & Kho đồ' }, cont: { en: 'Continue', vi: 'Tiếp tục' }, coopT: { en: 'Online Co-op (5 players)', vi: 'Co-op online (5 người)' },
+    newgame: { en: 'New Game', vi: 'Chơi mới' }, shopT: { en: 'Shop & Inventory', vi: 'Cửa hàng & Kho đồ' }, cont: { en: 'Continue', vi: 'Tiếp tục' }, resume: { en: 'Resume', vi: 'Chơi tiếp' }, coopT: { en: 'Online Co-op (5 players)', vi: 'Co-op online (5 người)' },
     lang: { en: 'Language: English', vi: 'Ngôn ngữ: Tiếng Việt' },
     sound: { en: 'Sound', vi: 'Âm thanh' }, full: { en: 'Fullscreen', vi: 'Toàn màn hình' }, quit: { en: 'Quit', vi: 'Thoát' },
     press: { en: 'Press ENTER', vi: 'Nhấn ENTER' },
@@ -950,6 +951,7 @@
     initEntities();
     initWeather();
     initCreeps();
+    Q.scn = buildScene();
     snapCam();
     scene = 'play';
     Snd.music('lvl' + li, L.B.music);
@@ -975,6 +977,8 @@
       else if (s.type === 'heart') Q.items.push({ kind: 'heart', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'shard') { if (!save.shards[Q.li][s.k]) Q.items.push({ kind: 'shard', x: s.x, y: s.y, id: s.id, k: s.k, ph: 0 }); }
       else if (s.type === 'boss') Q.boss = makeBoss(s);
+      else if (s.type === 'egg') Q.items.push({ kind: 'egg', k: s.k, x: s.x, y: s.y, id: s.id, ph: 0 });
+      else if (s.type === 'orb') { if (save.orbs.indexOf(Q.li) < 0) Q.items.push({ kind: 'orb', n: s.n, x: s.x, y: s.y, id: s.id, ph: Math.random() * 6 }); }
       else if (s.type === 'rare') { if ((save.rareGot[Q.li] || []).indexOf(s.k) < 0) Q.items.push({ kind: 'rare', x: s.x, y: s.y, id: s.id, k: s.k, ph: Math.random() * 6 }); }
       else if (s.type === 'cage') { if (save.leek) Q.items.push({ kind: 'npc', who: 'lyra', x: s.x, y: s.y, id: s.id, ph: 0 }); else Q.pz.push({ type: 'cage', x: s.x, y: s.y, grp: s.grp, open: false }); }
       else if (s.type === 'pk') Q.items.push({ kind: 'pk', what: s.what, amt: s.what === 'dagger' ? 5 : 2, keep: !!s.keep, x: s.x, y: s.y - 7, id: s.id, ph: Math.random() * 6 });
@@ -2248,6 +2252,19 @@
       } else if (it.kind === 'buff') {
         if (d < 12) { it.dead = true; Snd.play('relic'); emit(it.x, it.y, 16, { col: it.what === 'shield' ? ['#6ee7f2', '#fff'] : ['#ff5a3a', '#ffd34e'], sp0: 20, sp1: 80 });
           if (it.what === 'shield') { P.shield = true; Q.msg = save.lang === 'vi' ? 'Nhận khiên bảo vệ!' : 'Shield!'; } else { Q.G.powerT = 10; Q.msg = save.lang === 'vi' ? 'Sức mạnh x2 trong 10 giây!' : 'Power up for 10 seconds!'; } Q.msgT = 2.5; }
+      } else if (it.kind === 'egg') {
+        if (d < 26 && !it.seen && Q.state === 'play') { it.seen = true; const E = EGGS[it.k]; const first = !save.eggs[it.k]; save.eggs[it.k] = 1; writeSave(); Snd.play('relic'); emit(it.x, it.y - 10, 20, { col: ['#ffd34e', '#fff', '#ff7fb0'], sp0: 20, sp1: 70 });
+          startScripted('narr', [{ en: E.en, vi: E.vi }, { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + Object.keys(EGGS).length + ')' + (first ? ' +1 Star Gem' : ''), vi: 'Tìm thấy bí mật! (' + Object.keys(save.eggs).length + ' / ' + Object.keys(EGGS).length + ')' + (first ? ' +1 Ngọc Sao' : '') }], null); if (first) save.rare++; }
+      } else if (it.kind === 'orb') {
+        if (d < 13) {
+          it.dead = true; if (save.orbs.indexOf(Q.li) < 0) save.orbs.push(Q.li); writeSave(); Snd.play('shard'); emit(it.x, it.y, 30, { col: ['#ffb04a', '#ffd34e', '#fff'], sp0: 20, sp1: 120 }); addRing(it.x, it.y, '#ffb04a', 40, 0.5);
+          if (save.orbs.length >= 7 && !save.wish) { save.wish = 1; writeSave(); Q.wishT = 9; Snd.devilRoar && Snd.play('boom');
+            startScripted('narr', [{ en: 'The seven Wish Orbs shine together... the sky turns dark... and a great green dragon rises from the light!', vi: 'Bảy viên Ngọc Ước cùng phát sáng... bầu trời tối sầm... và một con rồng xanh khổng lồ bay lên từ ánh sáng!' },
+              { en: '"SPEAK YOUR WISH, LITTLE FLAME. I SHALL GRANT ONE."', vi: '"HÃY NÓI ĐIỀU ƯỚC CỦA NGƯƠI, NGỌN LỬA NHỎ. TA SẼ BAN MỘT ĐIỀU."' },
+              { en: 'You wish for the strength to protect everyone. (+1 max heart, +1 damage, +10 Star Gems!)', vi: 'Bạn ước có sức mạnh để bảo vệ mọi người. (+1 tim tối đa, +1 sát thương, +10 Ngọc Sao!)' }],
+              () => { save.bonusHP = Math.min(6, save.bonusHP + 1); save.bonusDmg = Math.min(4, save.bonusDmg + 1); save.rare += 10; writeSave(); Q.P.hp = maxHP(); });
+          } else { Q.msg = sv('Wish Orb with ', 'Ngọc Ước ') + it.n + sv(' stars! (', ' sao! (') + save.orbs.length + '/7)' + sv(' Gather all seven...', ' Hãy gom đủ bảy viên...'); Q.msgT = 4; }
+        }
       } else if (it.kind === 'rare') {
         if (d < 13) {
           it.dead = true; Snd.play('shard'); emit(it.x, it.y, 26, { col: ['#c07bff', '#6ee7f2', '#fff'], sp0: 20, sp1: 110 }); addRing(it.x, it.y, '#c07bff', 30, 0.4);
@@ -2260,7 +2277,7 @@
         if (Math.abs(it.x - pc.x) < 26 && Math.abs(it.y - pc.y) < 30) Q.nearNpc = it;
       } else if (it.kind === 'cp') {
         if (!it.lit && Math.abs(it.x - pc.x) < 14 && Math.abs(it.y - pc.y) < 30) {
-          Q.items.forEach(o => { if (o.kind === 'cp') o.lit = false; }); it.lit = true; Q.cpCount = (Q.cpCount || 0) + 1; if (Q.cpCount === 2 && MID_STORY[Q.li] && !Q.midDone) { Q.midDone = true; later(0.6, () => { if (Q.state === 'play') startScripted('ember', MID_STORY[Q.li], null); }); } Q.cp = { x: it.x, y: it.y, id: it.id }; Snd.play('checkpoint'); emit(it.x, it.y - 12, 16, { col: ['#ffd34e', '#fff'], sp0: 15, sp1: 70 });
+          Q.items.forEach(o => { if (o.kind === 'cp') o.lit = false; }); it.lit = true; Q.cpCount = (Q.cpCount || 0) + 1; if (Q.cpCount === 2 && MID_STORY[Q.li] && !Q.midDone) { Q.midDone = true; later(0.6, () => { if (Q.state === 'play') startScripted('ember', MID_STORY[Q.li], null); }); } Q.cp = { x: it.x, y: it.y, id: it.id }; Snd.play('checkpoint'); saveResume(); pop(it.x, it.y - 34, sv('Progress saved', 'Đã lưu tiến trình'), '#a4ffc0'); emit(it.x, it.y - 12, 16, { col: ['#ffd34e', '#fff'], sp0: 15, sp1: 70 });
           if (P.hp < maxHP()) { P.hp = maxHP(); }
         }
       } else if (it.kind === 'frag') {
@@ -2270,11 +2287,26 @@
     Q.items = Q.items.filter(i => !i.dead);
   }
 
+  function saveResume() {
+    if (coop || DEMO) return;
+    save.resume = { li: Q.li, cp: Q.cp, taken: [...Q.taken], solved: [...Q.solved], brokenX: [...Q.brokenX], trialsDone: [...Q.trialsDone], dragonsDone: [...Q.dragonsDone], minisDone: [...Q.minisDone], coinsRun: Q.coinsRun, time: Q.time, cpCount: Q.cpCount || 0, midDone: !!Q.midDone, ammo: save.ammo };
+    writeSave();
+  }
+  function resumeLevel() {
+    const r = save.resume; if (!r || !BIOMES[r.li]) return;
+    startLevel(r.li);
+    Q.taken = new Set(r.taken || []); Q.solved = new Set(r.solved || []); Q.brokenX = new Set(r.brokenX || []); Q.trialsDone = new Set(r.trialsDone || []); Q.dragonsDone = new Set(r.dragonsDone || []); Q.minisDone = new Set(r.minisDone || []);
+    Q.cp = r.cp; Q.cpCount = r.cpCount; Q.midDone = r.midDone; Q.coinsRun = r.coinsRun || 0; Q.time = r.time || 0;
+    initEntities(); Q.scn = buildScene();
+    if (Q.cp) { Q.P.x = Q.cp.x - Q.P.w / 2; Q.P.y = Q.cp.y - Q.P.h; Q.safe = { x: Q.P.x, y: Q.P.y }; }
+    snapCam(); Q.state = 'intro'; Q.stateT = 0; Q.msg = sv('Welcome back! Continuing from your last checkpoint.', 'Chào mừng trở lại! Chơi tiếp từ checkpoint cuối.'); Q.msgT = 4;
+  }
   function completeLevel() {
     Q.state = 'complete'; Q.stateT = 0; Snd.stop();
     Q.relicNew = !save.relics[Q.li]; save.relics[Q.li] = 1;
     Snd.play(Q.relicNew ? 'relic' : 'win'); Snd.hero('cheer'); setEmo('happy', 99);
     if (save.cleared.indexOf(Q.li) < 0) save.cleared.push(Q.li);
+    if (save.resume && save.resume.li === Q.li) delete save.resume;
     Q.firstClear = true; Q.bonusGold = 40 + 25 * Q.li; save.coins += Q.bonusGold;
     writeSave();
   }
@@ -3079,6 +3111,7 @@
     Q.t += dt; Q.time += dt;
     if (Q.shake > 0) Q.shake -= dt;
     if (Q.msgT > 0) Q.msgT -= dt;
+    if (Q.wishT > 0) Q.wishT -= dt;
     updatePlats(dt); updateCrumble(dt);
     if (st === 'bossintro' && !(Q.boss && Q.boss.st === 'intro')) Q.state = 'play'; // never get stuck in the intro
     if (st === 'bossintro') { asP(coop ? bossTgt(dt) : Q.P, () => updateBoss(dt)); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
@@ -3108,11 +3141,14 @@
     const camX = Math.round(cam.x), camY = Math.round(cam.y);
     g.drawImage(Q.bg.sky, 0, 0);
     drawSun();
+    drawSkyLife(camX, camY);
+    if (Q.wishT > 0) drawWishDragon();
     for (const ly of Q.bg.layers) {
       let ox = -((cam.x * ly.f) % 512); if (ox > 0) ox -= 512;
       const y = Math.round(ly.anchor === 'top' ? ly.y - camY * 0.1 + 24 * 0.1 : ly.y + (24 - cam.y) * ly.f);
       g.drawImage(ly.c, Math.round(ox), y); g.drawImage(ly.c, Math.round(ox) + 512, y);
     }
+    { const hz = g.createLinearGradient(0, VH * 0.42, 0, VH); hz.addColorStop(0, hexA(B.sky[2], 0)); hz.addColorStop(1, hexA(B.sky[2], B.dark > 0.5 ? 0.1 : 0.22)); g.fillStyle = hz; g.fillRect(0, VH * 0.42, VW, VH * 0.58); }
     if (Q.li === 6 && Q.boss && Q.boss.id === 'quoc' && Q.arenaSealed && Q.boss.fi > 0) drawFormScene(Q.boss.fi);
     const tx0 = Math.floor(camX / TS), tx1 = Math.floor((camX + VW) / TS), ty0 = Math.floor(camY / TS), ty1 = Math.floor((camY + VH) / TS);
     const lf = Math.floor(Q.t * 6 + (Q.time || 0) * 0) % 4;
@@ -3121,9 +3157,15 @@
       const c = L.grid[ty][tx]; if (c === ' ') continue;
       const dx = tx * TS - camX, dy = ty * TS - camY, v = (tx * 7 + ty * 13) & 1;
       const above = ty > 0 ? L.grid[ty - 1][tx] : ' ';
-      if (c === '#') g.drawImage((above === '#' || above === 'I' || above === 'C') ? ts.body[v] : ts.top[v], dx, dy);
+      if (c === '#' || c === 'F') {
+        const isTop = !(above === '#' || above === 'I' || above === 'C'), h = ((tx * 73856093) ^ (ty * 19349663)) >>> 0;
+        if (c === 'F') { const near = Math.abs(Q.P.x - tx * TS) < 40 && Math.abs(Q.P.y - ty * TS) < 40; g.globalAlpha = near ? 0.35 : 1; }
+        g.drawImage(isTop ? (L.grid[ty][tx - 1] === 'I' && c === 'F' ? ts.iceTop[v] : ts.top[v]) : ts.body[h % 9 === 0 ? 2 + ((h >> 4) & 1) : v], dx, dy);
+        if (c === 'F') { g.globalAlpha = 1; if (Math.sin(Q.t * 2 + tx) > 0.97) { g.fillStyle = '#fff'; g.fillRect(dx + (h % 12) + 2, dy + 1, 1, 1); } }
+        else decoTile(tx, ty, dx, dy, isTop, h);
+      }
       else if (c === 'I') g.drawImage((above === '#' || above === 'I') ? ts.iceBody[v] : ts.iceTop[v], dx, dy);
-      else if (c === '=') g.drawImage(ts.plat, dx, dy);
+      else if (c === '=') { g.drawImage(ts.plat, dx, dy); platEnds(tx, ty, dx, dy); }
       else if (c === '^') g.drawImage(ts.spike, dx, dy);
       else if (c === 'G') g.drawImage(ts.gate, dx, dy);
       else if (c === 'X') g.drawImage(ts.cracked, dx, dy);
@@ -3140,6 +3182,7 @@
       if (d.x < camX - 20 || d.x > camX + VW + 20) continue;
       const sp = ts.decor[d.k]; g.drawImage(sp.c, Math.round(d.x - camX - sp.w / 2), Math.round(d.y - camY - sp.h + 1));
     }
+    drawProps(camX, camY);
     // moving platforms
     for (const p of L.plats) {
       for (let i = 0; i < p.w / TS; i++) g.drawImage(ts.plat, Math.round(p.x - camX + i * TS), Math.round(p.y - camY));
@@ -3168,6 +3211,7 @@
     }
     for (const p of Q.parts) { g.globalAlpha = clamp(p.life / 0.4, 0, 1); g.fillStyle = p.col; g.fillRect(Math.round(p.x - camX), Math.round(p.y - camY), p.size, p.size); }
     g.globalAlpha = 1;
+    drawForeground(camX, camY);
   }
   function drawItems(camX, camY) {
     for (const it of Q.items) {
@@ -3184,6 +3228,14 @@
         g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35; disc(g, x, by, 9, c); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
         disc(g, x, by, 5, '#14121f'); disc(g, x, by, 4, c);
         g.fillStyle = '#fff'; if (it.what === 'shield') { g.fillRect(x - 2, by - 2, 5, 3); g.fillRect(x - 1, by + 1, 3, 1); g.fillRect(x, by + 2, 1, 1); } else { g.fillRect(x, by - 3, 1, 6); g.fillRect(x - 2, by + 1, 5, 1); }
+      } else if (it.kind === 'egg') {
+        drawSpr(g, eggSprite(EGGS[it.k].k), x, y, false);
+        if (!it.seen && Math.sin(Q.t * 3 + it.x) > 0.6) { g.fillStyle = '#fff'; g.fillRect(x + 6, y - 20, 1, 3); g.fillRect(x + 5, y - 19, 3, 1); }
+      } else if (it.kind === 'orb') {
+        const by = y + Math.round(Math.sin(it.ph * 2) * 2);
+        g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35; disc(g, x, by, 11, '#ffb04a'); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+        drawSpr(g, eggSprite('wishorb'), x, by + 7, false);
+        g.fillStyle = '#e0453a'; for (let k = 0; k < it.n; k++) { const a = k / Math.max(1, it.n) * 6.283; g.fillRect(Math.round(x + (it.n > 1 ? Math.cos(a) * 2.5 : 0)) - 1, Math.round(by + 1 + (it.n > 1 ? Math.sin(a) * 2.5 : 0)) - 1, 2, 2); }
       } else if (it.kind === 'rare') {
         const by = y + Math.round(Math.sin(it.ph * 3) * 2);
         g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.3 + Math.sin(it.ph * 5) * 0.1; disc(g, x, by, 10, '#c07bff'); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
@@ -3405,6 +3457,7 @@
     if (Q.G.lyra) addL(Q.G.lyra.x, Q.G.lyra.y - 12, 44, 0.9);
     { const hs = heldSword(); if (hs && swordGlow(hs.id)) addL(P.x + 4 + P.face * 10, P.y + 2, 38, 0.85); }
     if (Q.boss && Q.boss.st !== 'sleep') addL(Q.boss.x + Q.boss.w / 2, Q.boss.y + Q.boss.h / 2, 60, 0.7);
+    if (Q.scn) for (const p of Q.scn.props) if (PROP_GLOW[p.k]) addL(p.x, p.y - 10, 40, 0.8);
     for (const d of Q.L.decor) { if (Q.B.decor[d.k][0] === 'torch' || (B.id === 'caves' && Q.B.decor[d.k][0] === 'crystal')) addL(d.x, d.y - 6, 36, 0.8); }
     if (B.hazard === 'lava') { const tx0 = Math.floor(camX / TS), tx1 = Math.floor((camX + VW) / TS); for (let tx = tx0; tx <= tx1; tx += 2) { if (tx >= 0 && tx < Q.L.W && Q.L.grid[Q.L.H - 2][tx] === '~') addL(tx * TS + 8, (Q.L.H - 2) * TS, 40, 0.8); } }
     if (dark > 0) {
@@ -3489,7 +3542,7 @@
     g.save();
     const sh = Q.shake > 0 ? Q.shake * 8 : 0;
     if (sh > 0) g.translate(Math.round(rr(-sh, sh)), Math.round(rr(-sh, sh)));
-    drawWorld(); drawFog(); drawLighting(); drawCreepEyes(Math.round(Q.cam.x), Math.round(Q.cam.y)); drawWeather(); drawGearTop(Math.round(Q.cam.x), Math.round(Q.cam.y));
+    drawWorld(); drawFog(); drawLighting(); drawCreepEyes(Math.round(Q.cam.x), Math.round(Q.cam.y)); drawWeather(); drawGrade(); drawGearTop(Math.round(Q.cam.x), Math.round(Q.cam.y));
     g.restore();
     if (Q.state !== 'talk') drawHUD();
     if (coop && Q.state !== 'talk') drawCoopHUD();
@@ -3497,7 +3550,7 @@
     if (st === 'intro') {
       const a = Q.stateT < 0.4 ? Q.stateT / 0.4 : (Q.stateT > 2.1 ? Math.max(0, (2.6 - Q.stateT) / 0.5) : 1);
       g.globalAlpha = 0.55 * a; g.fillStyle = '#000'; g.fillRect(0, 70, VW, 66); g.globalAlpha = 1;
-      txt((save.lang === 'vi' ? 'MÀN ' : 'LEVEL ') + (Q.li + 1), VW / 2, 88, { al: 'center', size: 8, col: '#ffd34e', alpha: a });
+      txt((save.lang === 'vi' ? 'MÀN ' : 'LEVEL ') + (LPOS(Q.li) + 1), VW / 2, 88, { al: 'center', size: 8, col: '#ffd34e', alpha: a });
       txt(LN(Q.B.name), VW / 2, 104, { al: 'center', size: 16, alpha: a, bold: true });
       txt(LN(Q.B.sub), VW / 2, 122, { al: 'center', size: 7, col: '#cfd6e6', alpha: a });
     } else if (st === 'bossintro') {
@@ -4110,6 +4163,7 @@
   }
   function titleItems() {
     const it = [];
+    if (save.resume && BIOMES[save.resume.li]) it.push({ k: 'resume', fn: resumeLevel });
     if (save.cleared.length || UNLOCK_ALL) it.push({ k: 'cont', fn: () => { mapSel = UNLOCK_ALL ? 0 : maxPlayable(); toScene('map'); } });
     it.push({ k: 'shopT', fn: () => { shopFrom = 'title'; toScene('shop'); } });
     it.push({ k: 'coopT', fn: () => { coopUI.ph = 'menu'; coopUI.sel = 0; coopUI.msg = ''; toScene('coop'); } });
@@ -4131,7 +4185,7 @@
     txt(save.lang === 'vi' ? 'Ngọn Đèn Cuối Cùng' : 'The Shattered Sun', VW / 2, 56, { al: 'center', size: 10, col: '#cfd6e6' });
     const items = titleItems();
     items.forEach((it, i) => {
-      let s = T(it.k); if (it.k === 'sound') s += ': ' + (Snd.muted ? 'OFF' : 'ON');
+      let s = it.k === 'resume' ? sv('Resume: map ', 'Chơi tiếp: map ') + (LPOS(save.resume.li) + 1) + ' ' + LN(BIOMES[save.resume.li].name) : T(it.k); if (it.k === 'sound') s += ': ' + (Snd.muted ? 'OFF' : 'ON');
       txt((titleSel === i ? '> ' : '  ') + s + (titleSel === i ? ' <' : ''), VW / 2 + 60, 92 + i * 14, { al: 'center', size: 9, col: titleSel === i ? '#ffd34e' : '#e8eaf5' });
     });
     txt('© Your Studio  •  v1.0', VW - 6, VH - 8, { al: 'right', size: 5, col: '#8892aa' });
@@ -5111,6 +5165,159 @@
       { en: 'Ah, the Lanternbearer! I am writing a song about you. So far it has three verses and one rhyme.', vi: 'A, Người Mang Đèn! Tôi đang viết một bài hát về bạn. Hiện có ba đoạn và đúng một vần.' },
       { en: '"Oh little flame, so brave and bright, you hit the slimes with all your might..." Too much?', vi: '"Ơi ngọn lửa nhỏ dũng cảm sáng ngời, chém lũ slime chẳng nghỉ ngơi..." Hơi lố hả?' }] }
   });
+  // ===================== SCENERY: tile details, props, living sky, foreground, colour mood =====================
+  const SOLC = c => c === '#' || c === 'I' || c === 'C' || c === 'X' || c === 'G';
+  function buildScene() {
+    const L = Q.L, B = Q.B, rn = mulberry32(4242 + Q.li * 59), props = [], kinds = BIOME_PROPS[B.id] || [];
+    const endX = (L.arena ? L.arena.x0 : L.W) - 2, topOf = x => { for (let y = 2; y < L.H - 1; y++) { const c = L.grid[y][x]; if (c === '#' || c === 'I') return L.grid[y - 1][x] === ' ' ? y : -1; if (c !== ' ') return -1; } return -1; };
+    const busy = x => L.spawns.some(sp => Math.abs(sp.x / TS - x) < 2.2) || L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 3) || (L.nooks || []).some(n => x >= n.x - 1 && x <= n.x + 5);
+    for (let x = 4; x < endX && kinds.length;) {
+      const y = topOf(x);
+      if (y > 0 && topOf(x + 1) === y && topOf(x - 1) === y && !busy(x) && rn() < 0.55) { const k = kinds[Math.floor(rn() * kinds.length)]; props.push({ k, x: x * TS + 8 + Math.round((rn() - 0.5) * 6), y: y * TS, f: rn() < 0.5 }); x += 5 + Math.floor(rn() * 7); }
+      else x += 2;
+    }
+    // props on high ledges too
+    for (let x = 4; x < endX && kinds.length; x++) for (let y = 2; y < 8; y++) if (L.grid[y][x] === '=' && L.grid[y][x + 1] === '=' && L.grid[y - 1][x] === ' ' && rn() < 0.05) props.push({ k: kinds[Math.floor(rn() * kinds.length)], x: x * TS + 12, y: y * TS, f: rn() < 0.5, small: true });
+    const fg = []; for (let x = 120; x < L.W * TS * 1.3; x += 180 + Math.floor(rn() * 260)) fg.push({ x, h: 26 + Math.floor(rn() * 30), s: rn() });
+    const clouds = []; for (let i = 0; i < 9; i++) clouds.push({ x: rn() * (VW + 200), y: 14 + rn() * 60, w: 22 + rn() * 40, v: 2 + rn() * 5 });
+    const flocks = []; for (let i = 0; i < 3; i++) flocks.push({ x: rn() * 600, y: 26 + rn() * 50, v: 12 + rn() * 10, n: 3 + Math.floor(rn() * 4), ph: rn() * 6 });
+    return { props: props.filter(p => !p.small || PROP_PAINT[p.k][1] <= 20), fg, clouds, flocks };
+  }
+  // details on one ground tile: grass, snow, moss, edge shadows and things hanging under ledges
+  function decoTile(tx, ty, dx, dy, isTop, h) {
+    const L = Q.L, B = Q.B, G = B.ground, id = B.id;
+    const lc = tx > 0 ? L.grid[ty][tx - 1] : '#', rc = tx < L.W - 1 ? L.grid[ty][tx + 1] : '#', bc = ty < L.H - 1 ? L.grid[ty + 1][tx] : '#';
+    if (!isTop) { let d = 0; for (let k = 1; k <= 4 && ty - k >= 0 && SOLC(L.grid[ty - k][tx]); k++) d++; if (d > 1) { g.fillStyle = 'rgba(0,0,0,' + ((d - 1) * 0.07).toFixed(2) + ')'; g.fillRect(dx, dy, 16, 16); } }
+    if (!SOLC(lc)) { g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(dx, dy + (isTop ? 3 : 0), 2, isTop ? 13 : 16); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(dx + 2, dy + (isTop ? 4 : 0), 1, isTop ? 12 : 16); }
+    if (!SOLC(rc)) { g.fillStyle = 'rgba(0,0,0,.38)'; g.fillRect(dx + 14, dy + (isTop ? 3 : 0), 2, isTop ? 13 : 16); }
+    if (!SOLC(bc) && bc !== '~') {
+      g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(dx, dy + 14, 16, 2);
+      const sw = Math.round(Math.sin(Q.t * 1.6 + tx) * 0.8), n = 1 + (h % 3);
+      for (let k = 0; k < n; k++) {
+        const x = dx + 2 + ((h >> (k * 5)) % 12), len = 3 + ((h >> (k * 3)) % 6);
+        if (id === 'frost') { g.fillStyle = '#e8fbff'; for (let i = 0; i < len; i++) g.fillRect(x + (i > len - 3 ? 0 : 0), dy + 16 + i, Math.max(1, 2 - (i >> 2)), 1); g.fillStyle = '#9fe0f0'; g.fillRect(x, dy + 16, 1, len - 1); }
+        else if (id === 'caves' || id === 'tunnels') { g.fillStyle = G.dark; for (let i = 0; i < len; i++) g.fillRect(x - (i < 2 ? 1 : 0), dy + 16 + i, i < 2 ? 3 : (i < len - 1 ? 2 : 1), 1); if (id === 'caves' && k === 0 && Math.sin(Q.t * 3 + tx) > 0.7) { g.fillStyle = '#8ad8ff'; g.fillRect(x, dy + 16 + len + ((Q.t * 30 + tx * 7) % 20), 1, 2); } }
+        else if (id === 'volcano') { g.fillStyle = '#2a1f28'; g.fillRect(x, dy + 16, 2, Math.min(3, len)); if (k === 0 && Math.sin(Q.t * 2 + tx * 3) > 0.6) { g.fillStyle = '#ff7a2a'; g.fillRect(x, dy + 19 + ((Q.t * 20 + tx) % 12), 1, 2); } }
+        else if (id === 'citadel') { g.fillStyle = '#6a3aa8'; g.fillRect(x, dy + 16, 1, len); g.fillStyle = '#c9a0ff'; g.fillRect(x, dy + 16 + len, 1, 1); }
+        else if (id === 'ocean') { g.fillStyle = '#16805a'; for (let i = 0; i < len + 3; i++) g.fillRect(x + Math.round(Math.sin(Q.t * 2 + i * 0.6 + tx) * 1.2), dy + 16 + i, 1, 1); }
+        else if (id === 'desert') { if (k === 0 && Math.sin(Q.t * 1.5 + tx * 2) > 0.8) { g.fillStyle = 'rgba(240,200,120,.7)'; g.fillRect(x, dy + 16 + ((Q.t * 25 + tx) % 14), 1, 1); } }
+        else { g.fillStyle = id === 'swamp' ? '#3a6a2a' : (k ? '#5e3b22' : G.topDark); for (let i = 0; i < len; i++) g.fillRect(x + (i > 2 ? sw : 0), dy + 16 + i, 1, 1); if (id === 'swamp' && k === 0) { g.fillStyle = '#a4ffc0'; g.fillRect(x + sw, dy + 16 + len, 1, 1); } }
+      }
+    }
+    if (!isTop) return;
+    const t = Q.t, sway = k => Math.round(Math.sin(t * 2.2 + tx * 0.9 + k * 1.7) * (id === 'ocean' ? 1.5 : 0.8));
+    if (id === 'meadow' || id === 'forest' || id === 'swamp') {
+      for (let k = 0; k < 4; k++) { const x = dx + ((h >> (k * 4)) & 15), ht = 2 + ((h >> (k * 2 + 1)) % 3); g.fillStyle = k % 2 ? G.topLight : G.top; g.fillRect(x, dy - ht + 1, 1, ht); g.fillRect(x + sway(k), dy - ht, 1, 1); }
+      if (id === 'meadow' && h % 5 === 0) { const x = dx + 4 + (h % 8); g.fillStyle = G.topDark; g.fillRect(x, dy - 4, 1, 4); g.fillStyle = ['#ff7fb0', '#ffd34e', '#fff', '#a98bff'][h % 4]; g.fillRect(x - 1 + sway(5), dy - 6, 3, 2); g.fillStyle = '#ffd34e'; g.fillRect(x + sway(5), dy - 6, 1, 1); }
+      if (id === 'forest' && h % 9 === 0) { const x = dx + 6; g.fillStyle = '#e8dcc0'; g.fillRect(x, dy - 3, 1, 3); g.fillStyle = '#e0453a'; g.fillRect(x - 1, dy - 5, 3, 2); g.fillStyle = '#fff'; g.fillRect(x, dy - 5, 1, 1); }
+      if (id === 'swamp' && h % 6 === 0) { const x = dx + 3 + (h % 9); g.fillStyle = '#e8dcc0'; g.fillRect(x, dy - 3, 1, 3); g.fillStyle = Math.sin(t * 3 + tx) > 0 ? '#a4ffc0' : '#6ee7f2'; g.fillRect(x - 1, dy - 5, 3, 2); }
+      if (!SOLC(L.grid[ty][tx - 1] || '#')) { g.fillStyle = G.top; g.fillRect(dx - 1, dy + 1, 1, 3); g.fillStyle = G.topDark; g.fillRect(dx - 1, dy + 4, 1, 1); }
+      if (!SOLC(L.grid[ty][tx + 1] || '#')) { g.fillStyle = G.top; g.fillRect(dx + 16, dy + 1, 1, 3); }
+    } else if (id === 'frost') {
+      g.fillStyle = '#ffffff'; g.fillRect(dx, dy - 1, 16, 1); g.fillRect(dx + (h % 10), dy - 2, 4, 1); if (h % 3 === 0) g.fillRect(dx + 3 + (h % 7), dy - 3, 2, 1);
+      if (h % 7 === 0 && Math.sin(t * 4 + tx) > 0.8) { g.fillStyle = '#fff'; g.fillRect(dx + (h % 14), dy - 2, 1, 1); }
+    } else if (id === 'desert') {
+      g.fillStyle = G.topLight; g.fillRect(dx + (h % 6), dy + 2, 6, 1); if (h % 6 === 0) { g.fillStyle = '#8a6a44'; g.fillRect(dx + 8, dy - 3, 1, 3); g.fillRect(dx + 7, dy - 2, 1, 1); g.fillRect(dx + 9, dy - 3, 1, 1); }
+      if (h % 11 === 0) { g.fillStyle = '#c8b898'; g.fillRect(dx + 3, dy - 1, 2, 1); }
+    } else if (id === 'caves' || id === 'citadel') {
+      if (h % 4 === 0) { const x = dx + 2 + (h % 11), c2 = id === 'caves' ? ['#6ee7f2', '#c07bff', '#ff7fb0'][h % 3] : '#c9a0ff'; g.fillStyle = c2; g.fillRect(x, dy - 3, 2, 3); g.fillRect(x + 2, dy - 2, 1, 2); g.fillStyle = '#fff'; g.fillRect(x, dy - 3, 1, 1); }
+      if (id === 'citadel' && h % 5 === 1) { g.fillStyle = '#4a2a7a'; g.fillRect(dx + (h % 13), dy - 1, 3, 1); }
+    } else if (id === 'volcano') {
+      if (h % 3 === 0) { const a = 0.5 + 0.5 * Math.sin(t * 3 + tx * 1.7); g.fillStyle = 'rgba(255,122,42,' + a.toFixed(2) + ')'; g.fillRect(dx + (h % 12) + 1, dy + 1, 3, 1); g.fillRect(dx + (h % 12) + 3, dy + 2, 1, 1); }
+    } else if (id === 'ocean') {
+      for (let k = 0; k < 3; k++) { const x = dx + ((h >> (k * 4)) & 15), ht = 3 + ((h >> (k * 3)) % 4); g.fillStyle = k % 2 ? '#2ab08a' : '#16805a'; for (let i = 0; i < ht; i++) g.fillRect(x + Math.round(Math.sin(t * 2 + i * 0.7 + tx + k) * 1.2 * (i / ht)), dy - i, 1, 1); }
+      if (h % 8 === 0) { g.fillStyle = '#ffd0e0'; g.fillRect(dx + 5, dy - 1, 3, 1); g.fillRect(dx + 6, dy - 2, 1, 1); }
+    } else if (id === 'tunnels') {
+      if (h % 3 === 0) { g.fillStyle = '#5a4430'; g.fillRect(dx + (h % 12), dy - 1, 2, 1); g.fillStyle = '#8a7a6a'; g.fillRect(dx + (h % 9) + 4, dy - 1, 1, 1); }
+      if (h % 13 === 0) { g.fillStyle = '#ffd34e'; g.fillRect(dx + 7, dy + 3, 1, 1); }
+    }
+  }
+  // ropes, chains or seaweed hanging from the ends of floating platforms
+  function platEnds(tx, ty, dx, dy) {
+    const L = Q.L, id = Q.B.id, below = ty < L.H - 1 ? L.grid[ty + 1][tx] : '#';
+    if (SOLC(below)) return;
+    const lEnd = L.grid[ty][tx - 1] !== '=', rEnd = L.grid[ty][tx + 1] !== '=';
+    if (!lEnd && !rEnd) { if (((tx * 31) % 5) === 0 && (id === 'meadow' || id === 'forest' || id === 'swamp')) { g.fillStyle = id === 'swamp' ? '#3a6a2a' : '#2f7a4a'; const n = 4 + (tx % 5); for (let i = 0; i < n; i++) g.fillRect(dx + 8 + Math.round(Math.sin(Q.t * 1.5 + i * 0.5 + tx) * (i / n) * 1.5), dy + 8 + i, 1, 1); g.fillStyle = '#5fcf5a'; g.fillRect(dx + 7, dy + 10, 2, 1); } return; }
+    const x = dx + (lEnd ? 2 : 13), metal = id === 'caves' || id === 'citadel' || id === 'volcano' || id === 'frost';
+    if (id === 'ocean') { g.fillStyle = '#16805a'; for (let i = 0; i < 9; i++) g.fillRect(x + Math.round(Math.sin(Q.t * 2 + i * 0.6 + tx) * 1.3), dy + 8 + i, 1, 1); return; }
+    if (metal) { g.fillStyle = id === 'frost' ? '#9fe0f0' : '#5a5a66'; for (let i = 0; i < 4; i++) { g.fillRect(x, dy + 8 + i * 3, 1, 2); g.fillRect(x - 1, dy + 9 + i * 3, 3, 1); } }
+    else { g.fillStyle = '#8a6a44'; g.fillRect(x, dy + 8, 1, 7); g.fillStyle = '#c8a070'; g.fillRect(x - 1, dy + 15, 3, 2); }
+  }
+  // clouds, birds, bats and fish swimming across the sky
+  function drawSkyLife(camX, camY) {
+    const S = SKY_STYLE[Q.B.id] || {}, sc = Q.scn; if (!sc) return;
+    if (S.cloud) for (const c of sc.clouds) {
+      const x = ((c.x - camX * 0.04 + Q.t * c.v) % (VW + 200) + VW + 200) % (VW + 200) - 100, y = Math.round(c.y - camY * 0.03);
+      { const cs = cloudSprite(S.cloud, Math.round(c.w)); g.globalAlpha = cs.alpha; g.drawImage(cs, Math.round(x), y - 12); g.globalAlpha = 1; }
+    }
+    if (S.birds || S.bats) for (const f of sc.flocks) for (let i = 0; i < f.n; i++) {
+      const x = Math.round(((f.x + Q.t * f.v - camX * 0.08 + i * 9) % (VW + 300) + VW + 300) % (VW + 300) - 150), y = Math.round(f.y + Math.abs(i - f.n / 2) * 4 + Math.sin(Q.t * 1.3 + f.ph) * 5 - camY * 0.05), up = Math.floor(Q.t * 8 + i) % 2;
+      g.fillStyle = S.bats ? '#06040f' : S.birds; g.fillRect(x, y, 1, 1); g.fillRect(x - 2, y - (up ? 1 : -1), 2, 1); g.fillRect(x + 1, y - (up ? 1 : -1), 2, 1);
+    }
+    if (S.fish) for (const f of sc.flocks) for (let i = 0; i < f.n + 3; i++) {
+      const x = Math.round(((f.x + Q.t * f.v * 1.3 - camX * 0.15 + i * 7) % (VW + 300) + VW + 300) % (VW + 300) - 150), y = Math.round(f.y + 20 + Math.sin(i * 1.7 + Q.t * 2 + f.ph) * 6 - camY * 0.05);
+      g.fillStyle = 'rgba(160,220,255,.45)'; g.fillRect(x, y, 3, 1); g.fillRect(x - 1, y - (Math.floor(Q.t * 6 + i) % 2), 1, 1);
+    }
+  }
+  const cloudCache = {};
+  function cloudSprite(col, w) {
+    w = Math.max(20, Math.round(w / 6) * 6); const key = col + w; if (cloudCache[key]) return cloudCache[key];
+    const [c, x] = mkCanvas(w + 8, 22), r = mulberry32(w * 7), m = col.match(/[\d.]+/g), base = 'rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',', a = +m[3];
+    const blob = (cx, cy, rad, st) => { x.fillStyle = st; for (let j = -rad; j <= rad; j++) { const hw = Math.round(Math.sqrt(rad * rad - j * j)); x.fillRect(cx - hw, cy + j, hw * 2 + 1, 1); } };
+    const puffs = []; for (let i = 0; i < 3 + w / 18; i++) puffs.push([6 + r() * (w - 8), 12 + r() * 3 - (i % 2) * 3, 4 + r() * 5]);
+    const sh = 'rgb(' + Math.round(m[0] * 0.78) + ',' + Math.round(m[1] * 0.78) + ',' + Math.round(m[2] * 0.85) + ')', mid = 'rgb(' + m[0] + ',' + m[1] + ',' + m[2] + ')', hi = 'rgb(' + Math.min(255, +m[0] + 30) + ',' + Math.min(255, +m[1] + 30) + ',' + Math.min(255, +m[2] + 30) + ')';
+    for (const p of puffs) blob(Math.round(p[0]), Math.round(p[1]) + 2, Math.round(p[2]), sh);
+    for (const p of puffs) blob(Math.round(p[0]), Math.round(p[1]), Math.round(p[2]), mid);
+    for (const p of puffs) blob(Math.round(p[0] - 1), Math.round(p[1] - p[2] * 0.45), Math.max(1, Math.round(p[2] * 0.45)), hi);
+    c.alpha = a; return (cloudCache[key] = c);
+  }
+  function drawProps(camX, camY) {
+    if (!Q.scn) return;
+    for (const p of Q.scn.props) {
+      if (p.x < camX - 40 || p.x > camX + VW + 40) continue;
+      const sp = propSprite(p.k), x = Math.round(p.x - camX), y = Math.round(p.y - camY);
+      if (PROP_GLOW[p.k]) { const gl = g.createRadialGradient(x, y - sp.h * 0.6, 0, x, y - sp.h * 0.6, 22); gl.addColorStop(0, hexA(PROP_GLOW[p.k], 0.25 + Math.sin(Q.t * 3 + p.x) * 0.05)); gl.addColorStop(1, hexA(PROP_GLOW[p.k], 0)); g.globalCompositeOperation = 'lighter'; g.fillStyle = gl; g.fillRect(x - 22, y - sp.h * 0.6 - 22, 44, 44); g.globalCompositeOperation = 'source-over'; }
+      g.fillStyle = 'rgba(0,0,0,.22)'; g.fillRect(x - (sp.w >> 2), y - 1, sp.w >> 1, 2);
+      drawSpr(g, sp, x, y + 1, p.f);
+    }
+  }
+  // big dark plants drifting past in front of the camera
+  function drawForeground(camX, camY) {
+    if (!Q.scn || Q.state === 'talk') return;
+    const kind = FG_KIND[Q.B.id] || 'grass', col = Q.B.ground.dark;
+    g.fillStyle = col; g.globalAlpha = 0.88;
+    for (const f of Q.scn.fg) {
+      const x = Math.round(f.x - camX * 1.3), base = VH + 4 - Math.max(0, (camY - 0) * 0.2); if (x < -60 || x > VW + 60) continue;
+      const h = f.h, t = Q.t;
+      if (kind === 'grass' || kind === 'reed' || kind === 'kelp' || kind === 'fern') {
+        const n = kind === 'fern' ? 7 : 9;
+        for (let i = 0; i < n; i++) { const bx = x + (i - n / 2) * 4, bh = h * (0.5 + ((i * 37 + Math.round(f.s * 10)) % 5) / 8), sw = Math.sin(t * (kind === 'kelp' ? 1.4 : 2) + i + f.s * 6) * (kind === 'kelp' ? 5 : 2.5);
+          for (let k = 0; k < bh; k += 2) g.fillRect(Math.round(bx + sw * (k / bh) * (k / bh)), base - k, kind === 'kelp' ? 3 : 2, 2);
+          if (kind === 'reed' && i % 3 === 0) g.fillRect(Math.round(bx + sw) - 1, base - bh - 5, 4, 7); }
+      } else if (kind === 'rock' || kind === 'dune' || kind === 'snow') {
+        for (let j = 0; j < h * 0.6; j++) { const hw = Math.round(Math.sqrt(Math.max(0, 1 - (j / (h * 0.6)) ** 2)) * h * 0.9); g.fillRect(x - hw, base - j, hw * 2, 1); }
+        if (kind === 'snow') { g.globalAlpha = 0.55; g.fillStyle = '#e8f4ff'; g.fillRect(x - h * 0.6, base - h * 0.6 + 2, h * 1.2, 2); g.fillStyle = col; g.globalAlpha = 0.88; }
+      }
+    }
+    g.globalAlpha = 1;
+  }
+  // colour mood + soft vignette
+  let vignette = null;
+  function drawGrade() {
+    const gr = GRADE[Q.B.id];
+    if (gr) { g.globalCompositeOperation = 'soft-light'; g.globalAlpha = gr[1] * 3; g.fillStyle = gr[0]; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
+    if (!vignette) { const [c, x] = mkCanvas(VW, VH), v = x.createRadialGradient(VW / 2, VH / 2, VH * 0.35, VW / 2, VH / 2, VW * 0.62); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.42)'); x.fillStyle = v; x.fillRect(0, 0, VW, VH); vignette = c; }
+    g.drawImage(vignette, 0, 0);
+  }
+  // the green wish dragon winding across the sky
+  function drawWishDragon() {
+    const k = Q.wishT, a = Math.min(1, k / 1.5, (9 - k) / 1.5);
+    g.globalAlpha = 0.35 * a; g.fillStyle = '#05140a'; g.fillRect(0, 0, VW, VH); g.globalAlpha = a;
+    const hx = VW + 60 - (9 - k) * 70;
+    for (let i = 40; i >= 0; i--) { const x = hx + i * 9, y = 70 + Math.sin(i * 0.35 + Q.t * 2) * 26, r = i === 0 ? 9 : Math.max(3, 7 - i * 0.1); disc(g, Math.round(x), Math.round(y), Math.round(r), i % 2 ? '#2a8a3a' : '#3ab04a'); if (i % 4 === 0) { g.fillStyle = '#ffd34e'; g.fillRect(Math.round(x) - 1, Math.round(y - r), 2, 2); } }
+    g.fillStyle = '#ff3a2a'; g.fillRect(Math.round(hx) - 4, 66 + Math.round(Math.sin(Q.t * 2) * 26), 2, 2); g.fillStyle = '#ffd34e'; g.fillRect(Math.round(hx) - 2, 58 + Math.round(Math.sin(Q.t * 2) * 26), 6, 2);
+    g.globalAlpha = 1;
+  }
   function frame(now) {
     requestAnimationFrame(frame);
     step(now);
@@ -5186,5 +5393,5 @@
       seal(); if (n > 0) { applyForm(Q.boss, n); Q.boss.st = 'intro'; Q.boss.timer = 0; Q.boss.invul = 0; } if (n >= 3) spawnAllies();
     }, 400); }
   { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
-  if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get coop() { return coop; }, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();

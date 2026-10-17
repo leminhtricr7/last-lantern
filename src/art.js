@@ -1100,15 +1100,38 @@ function buildTileset(B) {
     return c;
   }
   T.body = [body(0, G.body, G.dark, G.light), body(1, G.body, G.dark, G.light)];
+  { const EMB = { meadow: ['#a8a8b8', '#6a5a44', 'root'], forest: ['#8a8a9a', '#3a6a3a', 'root'], caves: ['#6ee7f2', '#c07bff', 'gem'], desert: ['#f6efe0', '#c8964a', 'bone'], frost: ['#ffffff', '#9fe0f0', 'gem'],
+      volcano: ['#ff7a2a', '#ffd34e', 'vein'], citadel: ['#c9a0ff', '#6a3aa8', 'gem'], swamp: ['#a4ffc0', '#3a6a2a', 'root'], ocean: ['#ffd0e0', '#f6efe0', 'shell'], tunnels: ['#ffd34e', '#c8c0b0', 'gem'] }[B.id] || ['#aaa', '#777', 'root'];
+    for (let v = 0; v < 2; v++) {
+      const c = body(0, G.body, G.dark, G.light), x = c.getContext('2d');
+      // a buried stone
+      x.fillStyle = G.dark; x.fillRect(3 + v * 6, 9 - v * 4, 6, 4); x.fillStyle = '#9a9aa8'; x.fillRect(4 + v * 6, 9 - v * 4, 4, 3); x.fillStyle = '#c8c8d4'; x.fillRect(4 + v * 6, 9 - v * 4, 2, 1);
+      if (EMB[2] === 'root') { x.fillStyle = EMB[1]; for (let i = 0; i < 9; i++) x.fillRect(10 - v * 7 + Math.round(Math.sin(i * 0.9) * 1.5), i + 1, 1, 1); }
+      else if (EMB[2] === 'gem') { x.fillStyle = EMB[0]; x.fillRect(11 - v * 8, 3 + v * 7, 2, 3); x.fillStyle = EMB[1]; x.fillRect(12 - v * 8, 4 + v * 7, 2, 2); x.fillStyle = '#fff'; x.fillRect(11 - v * 8, 3 + v * 7, 1, 1); }
+      else if (EMB[2] === 'bone') { x.fillStyle = EMB[0]; x.fillRect(9 - v * 6, 3 + v * 8, 5, 1); x.fillRect(9 - v * 6, 2 + v * 8, 1, 3); x.fillRect(13 - v * 6, 2 + v * 8, 1, 3); }
+      else if (EMB[2] === 'vein') { x.fillStyle = EMB[0]; for (let i = 0; i < 10; i++) x.fillRect(2 + i, 6 + v * 5 + Math.round(Math.sin(i * 0.8) * 2), 1, 1); x.fillStyle = EMB[1]; x.fillRect(6, 6 + v * 5, 1, 1); }
+      else if (EMB[2] === 'shell') { x.fillStyle = EMB[0]; x.fillRect(10 - v * 7, 4 + v * 6, 3, 2); x.fillRect(11 - v * 7, 3 + v * 6, 1, 1); }
+      T.body.push(c);
+    } }
   T.top = [top(0, G.body, G.dark, G.light, G.top, G.topDark, G.topLight), top(1, G.body, G.dark, G.light, G.top, G.topDark, G.topLight)];
   // ice
   T.iceBody = [body(0, '#8fd8ee', '#4fb0d0', '#d8f8ff'), body(1, '#8fd8ee', '#4fb0d0', '#d8f8ff')];
   T.iceTop = [top(0, '#8fd8ee', '#4fb0d0', '#d8f8ff', '#e8fbff', '#9fe0f0', '#ffffff'), top(1, '#8fd8ee', '#4fb0d0', '#d8f8ff', '#e8fbff', '#9fe0f0', '#ffffff')];
-  // one-way platform
-  { const [c, x] = mkCanvas(16, 8);
-    x.fillStyle = B.plat[0]; x.fillRect(0, 0, 16, 4);
-    x.fillStyle = B.plat[1]; x.fillRect(0, 4, 16, 3); x.fillRect(0, 0, 16, 1); x.fillRect(7, 0, 1, 4); x.fillRect(15, 0, 1, 4);
-    x.fillStyle = 'rgba(255,255,255,.25)'; x.fillRect(1, 1, 5, 1); x.fillRect(9, 1, 5, 1);
+  // one-way platform, styled for each land
+  { const [c, x] = mkCanvas(16, 8), st = { caves: 'stone', frost: 'ice', citadel: 'stone', volcano: 'metal', ocean: 'coral', tunnels: 'wood' }[B.id] || 'wood';
+    if (st === 'wood') {
+      x.fillStyle = B.plat[0]; x.fillRect(0, 0, 16, 5); x.fillStyle = B.plat[1]; x.fillRect(0, 5, 16, 2); x.fillRect(0, 0, 16, 1); x.fillRect(7, 0, 1, 5); x.fillRect(15, 0, 1, 5);
+      x.fillStyle = 'rgba(255,255,255,.22)'; x.fillRect(1, 1, 5, 1); x.fillRect(9, 1, 5, 1); x.fillStyle = 'rgba(0,0,0,.18)'; x.fillRect(2, 3, 3, 1); x.fillRect(10, 2, 4, 1);
+      x.fillStyle = '#c8c8d4'; x.fillRect(1, 2, 1, 1); x.fillRect(5, 2, 1, 1); x.fillRect(9, 2, 1, 1); x.fillRect(13, 2, 1, 1);
+    } else if (st === 'stone' || st === 'ice') {
+      x.fillStyle = B.plat[0]; x.fillRect(0, 0, 16, 6); x.fillStyle = B.plat[1]; x.fillRect(0, 6, 16, 2); x.fillRect(5, 0, 1, 6); x.fillRect(11, 2, 1, 4);
+      x.fillStyle = st === 'ice' ? 'rgba(255,255,255,.6)' : 'rgba(255,255,255,.22)'; x.fillRect(0, 0, 16, 1); x.fillRect(1, 1, 3, 1); x.fillRect(7, 1, 3, 1);
+      if (st === 'ice') { x.fillStyle = '#e8fbff'; x.fillRect(3, 6, 1, 2); x.fillRect(12, 6, 1, 2); }
+    } else if (st === 'metal') {
+      x.fillStyle = '#3a3a44'; x.fillRect(0, 0, 16, 6); x.fillStyle = '#5a5a66'; x.fillRect(0, 0, 16, 1); x.fillStyle = '#1c1c22'; for (let i = 0; i < 4; i++) x.fillRect(1 + i * 4, 2, 2, 3); x.fillStyle = '#ff7a2a'; x.fillRect(2, 3, 1, 1); x.fillRect(10, 3, 1, 1); x.fillStyle = '#2a2a30'; x.fillRect(0, 6, 16, 2);
+    } else {
+      x.fillStyle = B.plat[0]; x.fillRect(0, 1, 16, 5); x.fillStyle = B.plat[1]; x.fillRect(0, 6, 16, 2); x.fillStyle = '#ffb0c8'; for (let i = 0; i < 6; i++) x.fillRect(1 + i * 3, i % 2, 2, 2); x.fillStyle = 'rgba(255,255,255,.3)'; x.fillRect(3, 2, 2, 1); x.fillRect(11, 3, 2, 1);
+    }
     T.plat = c; }
   // spikes
   { const [c, x] = mkCanvas(16, 16);
@@ -1198,6 +1221,7 @@ function buildBackground(B) {
     if (B.style === 'ice') { for (let i = 0; i < 9; i++) { const cx = (r() * W) | 0; wrap(o => { tri(x, cx + o, ys[cx] + 20, 46, 70, B.far); tri(x, cx + o, ys[cx] - 30, 18, 24, '#e8f4ff'); }); } }
     if (B.style === 'volcano') { const cx = 150; wrap(o => { tri(x, cx + o, 110, 150, 90, B.far); disc(x, cx + o, 22, 0, B.far); x.fillStyle = '#f06a20'; x.fillRect(cx + o - 8, 22, 17, 3); }); }
     bg.layers.push({ c, f: 0.12, y: 56, anchor: 'bottom' }); }
+  { const [c, x] = mkCanvas(W, 170); if (typeof paintLandmark === 'function') paintLandmark(B, x, W); bg.layers.push({ c, f: 0.2, y: 46, anchor: 'bottom' }); }
   // mid layer
   { const [c, x] = mkCanvas(W, 170);
     if (B.style === 'cave' || B.style === 'tunnel') {
