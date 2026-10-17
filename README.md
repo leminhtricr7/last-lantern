@@ -121,6 +121,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - A hero who runs out of hearts falls down and gets back up after 9 seconds (much faster if a friend stands next to them). If the whole team is down, the host restarts everyone from the checkpoint.
 - Enemies chase the nearest hero, bosses switch targets every few seconds, and nobody is left behind a boss wall.
 - Connection uses PeerJS (WebRTC, `src/vendor/peerjs.min.js`) with the free public PeerJS server to find each other; very strict networks may block the direct connection.
+- Every room has a join link (`...?room=CODE`, press **L** in the lobby to copy it). Opening the link joins the room directly - to test alone, create a room in one tab and open the link in a second tab. The game keeps running while its tab is in the background during co-op.
 - Dev test page with a host and a guest side by side: `http://localhost:8123/tools/coop_test.html`.
 
 ## Project layout

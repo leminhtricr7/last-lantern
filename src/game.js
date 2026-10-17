@@ -4572,6 +4572,12 @@
     Q.players.sort((a, b) => a.slot - b.slot);
     NET.send({ t: 'start', li });
   }
+  function coopJoin(code) { coopUI.ph = 'code'; coopUI.code = code.toUpperCase(); coopInit('client'); coopUI.msg = cvs('Connecting...', 'Đang kết nối...'); coopUI.msgBad = false; NET.join(coopUI.code); Snd.play('ok'); }
+  const roomLink = () => location.origin + location.pathname + '?room=' + (coopUI.code || '');
+  function copyLink() {
+    const l = roomLink(), ok = () => { coopUI.msg = cvs('Link copied! Open it in another tab or send it to friends.', 'Đã copy link! Mở ở tab khác hoặc gửi cho bạn bè.'); coopUI.msgBad = false; Snd.play('ok'); };
+    try { navigator.clipboard.writeText(l).then(ok, () => { coopUI.msg = l; }); } catch (e) { coopUI.msg = l; }
+  }
   function coopBackToLobby() { coopUI.ph = 'lobby'; toScene('coop'); setTimeout(() => { if (coop) sendLobby(); }, 50); }
   addEventListener('keydown', e => {
     if (scene !== 'coop' || coopUI.ph !== 'code') return;
@@ -4596,7 +4602,7 @@
       if (act.okP) { Snd.play('ok'); it[coopUI.sel].fn(); }
       if (act.backP) { coopLeave(); toScene('title'); }
     } else if (ph === 'code') {
-      if (pressed.Enter && coopUI.code.length === 5) { coopInit('client'); coopUI.msg = cvs('Connecting...', 'Đang kết nối...'); coopUI.msgBad = false; NET.join(coopUI.code); Snd.play('ok'); }
+      if (pressed.Enter && coopUI.code.length === 5) coopJoin(coopUI.code);
       if (pressed.Escape) { coopUI.ph = 'menu'; }
     } else if (ph === 'heroes') {
       const n = HEROES.length, C = 10;
@@ -4612,6 +4618,7 @@
       }
       if (act.backP) coopUI.ph = coopUI.from;
     } else if (ph === 'lobby') {
+      if (pressed.KeyL) copyLink();
       if (pressed.KeyC || pressed.KeyH) { coopUI.ph = 'heroes'; coopUI.from = 'lobby'; coopUI.hs = Math.max(0, HEROES.findIndex(h => h.id === myHero())); return; }
       if (coop && coop.role === 'host') {
         const mx = maxPlayable();
@@ -4660,7 +4667,7 @@
       }
       txt(cvs('Map: ', 'Bản đồ: ') + (coopUI.li + 1) + ' - ' + LN(BIOMES[coopUI.li].name || { en: '', vi: '' }), VW / 2, 158, { al: 'center', size: 8, col: '#cfd6e6' });
       txt(host ? cvs('←/→ map   •   C = change hero   •   Enter = START   •   Esc = close room', '←/→ chọn map   •   C = đổi hero   •   Enter = BẮT ĐẦU   •   Esc = đóng phòng') : cvs('C = change hero   •   Waiting for the host to start...   •   Esc = leave', 'C = đổi hero   •   Đang chờ chủ phòng bắt đầu...   •   Esc = rời phòng'), VW / 2, 174, { al: 'center', size: 6, col: '#ffd34e' });
-      if (host) txt(cvs('Send the code to your friends. They choose "Join room".', 'Gửi mã cho bạn bè. Họ chọn "Vào phòng".'), VW / 2, 186, { al: 'center', size: 6, col: '#8892aa' });
+      txt(cvs('Join link (L = copy): ', 'Link vào phòng (L = copy): ') + roomLink(), VW / 2, 186, { al: 'center', size: 5, col: '#8892aa' });
     }
     if (coopUI.msg) txt(coopUI.msg, VW / 2, VH - 12, { al: 'center', size: 7, col: coopUI.msgBad ? '#ff7a7a' : '#a4ffc0' });
   }
@@ -4723,6 +4730,15 @@
   }
   function frame(now) {
     requestAnimationFrame(frame);
+    step(now);
+  }
+  // browsers stop requestAnimationFrame in hidden tabs; during co-op a worker keeps the game ticking so a host
+  // (or guest) in a background tab keeps playing - handy when testing with two tabs on one computer
+  try {
+    const wk = new Worker(URL.createObjectURL(new Blob(['setInterval(() => postMessage(0), 16)'], { type: 'text/javascript' })));
+    wk.onmessage = () => { if (document.hidden && coop) step(performance.now()); };
+  } catch (e) {}
+  function step(now) {
     let dt = Math.min(0.05, (now - (frame.last || now)) / 1000); frame.last = now;
     readInput();
     coopClientInput();
@@ -4785,5 +4801,6 @@
       const ar = Q.L.arena; Q.P.x = (ar.x0 + 6) * TS; Q.P.y = (ar.gy - 1) * TS - Q.P.h; snapCam();
       seal(); if (n > 0) { applyForm(Q.boss, n); Q.boss.st = 'intro'; Q.boss.timer = 0; Q.boss.invul = 0; } if (n >= 3) spawnAllies();
     }, 400); }
+  { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
   if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get coop() { return coop; }, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();
