@@ -1,0 +1,33 @@
+  { // 8 (play order 7)
+    id: 'swamp', seed: 88, len: 540, hazard: 'spikes', dark: 0.35, sun: false, particles: 'spores',
+    name: { en: 'Glowcap Swamp', vi: 'Đầm Lầy Nấm Phát Quang' }, sub: { en: 'Everything here glows, and everything here bites', vi: 'Mọi thứ ở đây đều phát sáng, và đều biết cắn' },
+    sky: ['#06120e', '#0f2a20', '#1f4a34', '#3f6a3a'], far: '#14301f', mid: '#0b1f16', style: 'swamp', tree: ['#0c2018', '#1d4a35'],
+    ground: { top: '#4a7a3a', topDark: '#2a4a22', topLight: '#7ab04a', body: '#3a2e22', dark: '#241c14', light: '#54442e' },
+    plat: ['#6a5a3a', '#3a2e1e'], spike: ['#c8f0a0', '#5a8a3a'],
+    decor: [['mushroom'], ['mushroom', { r: 'p', e: 'm' }], ['mushroom', { r: 'c', e: 'w' }], ['tuft', { g: 'G', t: 'g' }], ['rock', { d: 'G', l: 'g', D: 'k' }]],
+    enemies: [{ t: 'bogslime', w: 4, min: 0 }, { t: 'shroom', w: 3, min: 0 }, { t: 'mosquito', w: 3, min: 0.05 }, { t: 'bogzombie', w: 3, min: 0.15 }, { t: 'toxbeetle', w: 2, min: 0.2 }],
+    music: { root: 53, scale: [0, 2, 3, 7, 8], bpm: 104, wave: 'triangle', prog: [0, -4, -2, -5], seed: 51 },
+    proj: '#c8f0a0', traps: ['turret', 'spiketrap'], trapStyle: 'wood'
+  },
+  { // 9 (play order 8)
+    id: 'ocean', seed: 99, len: 560, hazard: 'spikes', dark: 0.3, sun: false, water: true, particles: 'bubbles',
+    name: { en: 'Sunken Deep', vi: 'Đại Dương Sâu Thẳm' }, sub: { en: 'Hold your breath - the sea is listening', vi: 'Nín thở nhé - biển cả đang lắng nghe' },
+    sky: ['#02101e', '#06243e', '#0a4a6a', '#1a7a9a'], far: '#063050', mid: '#042238', style: 'ocean', tree: ['#0a5a4a', '#1a8a6a'],
+    ground: { top: '#e8d8a0', topDark: '#b8a070', topLight: '#fff0c0', body: '#2a4a6a', dark: '#1a3048', light: '#3a6a8a' },
+    plat: ['#c86a8a', '#7a3a5a'], spike: ['#3a2a5a', '#a07ae0'],
+    decor: [['crystal', { c: 'm', C: 'r' }], ['tuft', { g: 'C', t: 'c', G: 'B' }], ['rock', { d: 'B', l: 'b', D: 'D' }], ['crystal', { c: 'c', C: 'C' }]],
+    enemies: [{ t: 'crab', w: 4, min: 0 }, { t: 'jelly', w: 4, min: 0 }, { t: 'piranha', w: 3, min: 0.05 }, { t: 'seaslime', w: 3, min: 0 }, { t: 'eel', w: 2, min: 0.2 }],
+    music: { root: 57, scale: [0, 2, 4, 7, 9, 11], bpm: 84, wave: 'triangle', prog: [0, 4, 5, 3], seed: 63, density: 0.5 },
+    proj: '#6ee7f2', traps: ['rockfall', 'saw'], trapStyle: 'dark'
+  },
+  { // 10 (play order 9)
+    id: 'tunnels', seed: 111, len: 580, hazard: 'spikes', dark: 0.62, sun: false, particles: 'drips',
+    name: { en: 'Deepdig Tunnels', vi: 'Đường Hầm Sâu' }, sub: { en: 'The ground has teeth, and it is hungry', vi: 'Mặt đất có răng, và nó đang đói' },
+    sky: ['#0a0806', '#1a140e', '#2a2016', '#3a2c1e'], far: '#1e1610', mid: '#140e0a', style: 'tunnel', tree: ['#000', '#000'],
+    ground: { top: '#8a6a4a', topDark: '#5a4430', topLight: '#b08a60', body: '#3a2a1c', dark: '#241a10', light: '#52402c' },
+    plat: ['#8a6a3a', '#4a3418'], spike: ['#c8c0b0', '#6a6050'],
+    decor: [['rock', { d: 'n', l: 'S', D: 'N' }], ['crystal', { c: 'y', C: 'o' }], ['bones'], ['torch']],
+    enemies: [{ t: 'mole', w: 4, min: 0 }, { t: 'rockslime', w: 3, min: 0 }, { t: 'bat', w: 3, min: 0 }, { t: 'cavespider', w: 3, min: 0.1 }, { t: 'minerskel', w: 3, min: 0.2 }],
+    music: { root: 48, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 112, wave: 'square', prog: [0, 1, 0, -2], seed: 72, density: 0.55 },
+    proj: '#ffd34e', movers: true, traps: ['rockfall', 'saw', 'spiketrap'], trapStyle: 'dark'
+  }

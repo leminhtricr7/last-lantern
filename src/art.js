@@ -748,7 +748,43 @@ const BOSS_PAINT = [
     P.ell(30, 24, 11, 12, 'k'); P.ell(30, 24, 8, 9, 'z');
     P.both(() => { P.rect(24, 22, 4, 2, 'w'); P.px(25, 22, 'm'); P.line(22, 19, 28, 22, 'k', 1); P.tri(13, 14, 16, 12, 9, 2, 'h'); P.tri(8, 22, 11, 20, 3, 14, 'h'); P.line(14, 40, 4, 54, 'P', 2); P.ell(14, 46, 3, 3, 'w'); });
     P.ell(30, 49, 6, 6, 'p'); P.ell(30, 49, 4, 4, 'h'); P.ell(30, 49, 2, 2, 'w');
+  },
+  // 7 Spore Queen: a towering glowcap with a crown of smaller mushrooms, glowing eyes in the gills and root arms
+  P => {
+    P.both(() => { P.line(14, 30, 4, 40, '#5a3a22', 3); P.line(4, 40, 2, 47, '#5a3a22', 2); P.ell(3, 47, 2, 1, '#3a2a14'); P.ell(8, 26, 4, 3, '#c070ff'); P.px(7, 25, '#fff'); });
+    P.rect(17, 24, 14, 22, '#e8dcc0'); P.rect(17, 24, 3, 22, '#fff6e0'); P.rect(28, 24, 3, 22, '#c8b898');
+    P.rect(19, 44, 10, 3, '#8a6a44'); P.both(() => { P.ell(19, 47, 3, 1, '#5a3a22'); });
+    P.ell(24, 16, 22, 11, '#5a1a6a'); P.ell(24, 14, 21, 10, '#8e2ab0'); P.ell(24, 12, 18, 8, '#c050d0');
+    P.both(() => { P.ell(12, 11, 3, 2, '#ffd0f0'); P.ell(18, 7, 2, 2, '#ffd0f0'); P.px(6, 15, '#ffd0f0'); });
+    P.ell(24, 22, 18, 3, '#3a1040'); for (let i = 0; i < 9; i++) P.rect(9 + i * 4, 21, 1, 4, '#6a2a70');
+    P.both(() => { P.ell(19, 30, 3, 2, 'k'); P.ell(19, 30, 2, 1, '#c8f0a0'); P.px(19, 30, '#fff'); });
+    P.rect(21, 35, 6, 2, '#3a1040'); P.px(22, 36, '#c8f0a0'); P.px(25, 36, '#c8f0a0');
+    P.ell(14, 2, 4, 3, '#ff9fd0'); P.rect(13, 4, 2, 3, '#e8dcc0'); P.ell(24, 0 + 1, 5, 3, '#c8f0a0'); P.rect(23, 3, 2, 3, '#e8dcc0'); P.ell(34, 2, 4, 3, '#6ee7f2'); P.rect(33, 4, 2, 3, '#e8dcc0');
+  },
+  // 8 Abyssal Kraken: a huge octopus head with a beak, glowing eyes, and eight curling tentacles
+  P => {
+    P.both(() => {
+      P.line(20, 34, 6, 40, '#7a2a5a', 4); P.line(6, 40, 2, 34, '#7a2a5a', 3); P.ell(2, 32, 2, 2, '#7a2a5a');
+      P.line(22, 38, 12, 47, '#7a2a5a', 4); P.line(12, 47, 4, 46, '#7a2a5a', 3);
+      P.line(25, 39, 22, 48, '#8a3a6a', 4); P.line(27, 39, 28, 49, '#8a3a6a', 3);
+      for (let i = 0; i < 4; i++) { P.px(8 + i * 4, 41 + (i % 2), '#ffb0d0'); }
+      P.ell(19, 22, 5, 5, '#ffd34e'); P.ell(19, 22, 4, 4, '#fff6c0'); P.rect(18, 19, 2, 7, 'k');
+    });
+    P.ell(30, 18, 19, 18, '#5a1a4a'); P.ell(30, 17, 18, 17, '#9a3a7a'); P.ell(30, 12, 14, 10, '#b84a8a');
+    P.both(() => { P.ell(22, 8, 3, 2, '#e07ab0'); P.ell(17, 14, 2, 2, '#e07ab0'); });
+    P.ell(30, 6, 6, 3, '#d070a8');
+    P.both(() => { P.ell(23, 22, 5, 5, '#ffd34e'); P.ell(23, 22, 4, 4, '#fff6c0'); P.rect(22, 19, 2, 7, 'k'); });
+    P.tri(26, 30, 34, 30, 30, 37, '#3a1a2a'); P.tri(27, 30, 33, 30, 30, 34, '#e8dcc0');
+  },
+  // 9 Gravemaw the Great Worm: a segmented worm bursting from the ground, ringed mouth full of teeth
+  P => {
+    P.ell(25, 46, 24, 4, '#3a2a1c'); P.both(() => { P.ell(4, 44, 4, 3, '#5a4430'); P.ell(10, 46, 3, 2, '#8a6a4a'); });
+    for (let i = 0; i < 5; i++) { const y = 42 - i * 7, r = 12 - i; P.ell(25, y, r + 2, 5, '#7a4a3a'); P.ell(25, y - 1, r + 1, 4, '#c87a6a'); P.rect(25 - r, y - 1, r * 2, 1, '#e8a090'); }
+    P.ell(25, 8, 16, 10, '#7a4a3a'); P.ell(25, 8, 13, 8, '#3a0a10'); P.ell(25, 9, 9, 5, '#14040a');
+    for (let i = 0; i < 12; i++) { const a = i / 12 * 6.283, x = 25 + Math.round(Math.cos(a) * 11), y = 8 + Math.round(Math.sin(a) * 6.5); P.rect(x, y, 2, 2, '#fff6e0'); }
+    P.both(() => { P.ell(12, 16, 2, 2, '#ffd34e'); P.px(12, 16, '#e0453a'); P.ell(10, 22, 1, 1, '#ffd34e'); });
   }
+
 ];
 const TORCH_COLORS = ['#ffd34e', '#ff6a3a', '#6ee7f2', '#c07bff', '#a4e86b'];
 const _ic = {};
@@ -771,6 +807,9 @@ function icon(name, a, b) {
     tablet: [14, 18, P => { P.ell(7, 4, 6, 3, 'd'); P.rect(1, 4, 12, 14, 'd'); P.rect(1, 4, 2, 14, 'l'); P.rect(11, 4, 2, 14, 'D'); P.rect(4, 6, 6, 1, 'c'); P.rect(4, 9, 2, 2, 'c'); P.rect(8, 9, 2, 2, 'c'); P.rect(4, 13, 6, 1, 'c'); }],
     rune: [18, 6, P => { const c = TORCH_COLORS[a % 5]; P.rect(0, 1, 18, 5, 'd'); P.rect(0, 1, 18, 1, 'l'); P.rect(0, 5, 18, 1, 'D'); P.rect(6, 2, 6, 3, b ? c : 'D'); if (b) { P.px(5, 3, c); P.px(12, 3, c); } }],
     tbox: [10, 10, P => { P.rect(0, 0, 10, 10, TORCH_COLORS[a % 5]); }],
+    r7: [16, 16, P => { P.rect(7, 8, 2, 7, 'e'); P.ell(8, 7, 7, 4, 'p'); P.ell(8, 6, 6, 3, 'h'); P.px(5, 5, 'w'); P.px(10, 4, 'w'); P.px(8, 7, 'x'); }],
+    r8: [16, 16, P => { P.ell(8, 9, 6, 5, 'C'); P.ell(8, 10, 5, 3, 'b'); P.ell(8, 8, 3, 3, 'w'); P.px(7, 7, 'c'); P.rect(2, 13, 12, 1, 'c'); }],
+    r9: [16, 16, P => { P.ell(6, 9, 4, 5, 'N'); P.ell(6, 9, 3, 4, 'n'); for (let i = 0; i < 3; i++) P.line(9, 6 + i * 3, 14, 4 + i * 4, 'l', 1); P.px(14, 4, 'w'); P.px(14, 8, 'w'); P.px(14, 12, 'w'); }],
     r0: [16, 16, P => { P.ell(8, 11, 7, 4, 'G'); P.rect(2, 7, 12, 5, 'g'); P.tri(2, 7, 5, 7, 3, 2, 'y'); P.tri(6, 7, 10, 7, 8, 1, 'y'); P.tri(11, 7, 14, 7, 13, 2, 'y'); P.rect(2, 6, 12, 3, 'y'); P.px(8, 7, 'r'); P.ell(5, 13, 1, 2, 't'); P.ell(11, 14, 1, 2, 't'); }],
     r1: [16, 16, P => { P.tri(3, 2, 13, 2, 8, 15, 'w'); P.tri(5, 3, 11, 3, 8, 12, 'e'); P.rect(3, 1, 10, 2, 'D'); P.ell(8, 14, 1, 2, 'g'); P.px(7, 10, 'g'); P.px(8, 8, 'G'); }],
     r2: [16, 16, P => { P.rect(4, 3, 8, 11, 'A'); P.rect(5, 4, 6, 9, 'k'); P.ell(8, 8, 2, 4, 'c'); P.ell(8, 8, 1, 2, 'w'); P.rect(3, 1, 10, 2, 'Y'); P.rect(7, 0, 2, 1, 'Y'); P.rect(3, 14, 10, 2, 'Y'); }],
@@ -1010,7 +1049,7 @@ function dragonSprite(form, wing) {
   return _drag[key];
 }
 
-const BOSS_SIZES = [[46, 36], [50, 38], [48, 52], [44, 54], [48, 54], [56, 56], [60, 66]];
+const BOSS_SIZES = [[46, 36], [50, 38], [48, 52], [44, 54], [48, 54], [56, 56], [60, 66], [48, 50], [60, 50], [50, 50]];
 function bossSprite(i) {
   const key = 'boss' + i;
   if (!_cache[key]) _cache[key] = paint(BOSS_SIZES[i][0], BOSS_SIZES[i][1], BOSS_PAINT[i], i === 6 ? '#d58bff' : (i === 5 ? '#ff9a2a' : null));
@@ -1161,7 +1200,7 @@ function buildBackground(B) {
     bg.layers.push({ c, f: 0.12, y: 56, anchor: 'bottom' }); }
   // mid layer
   { const [c, x] = mkCanvas(W, 170);
-    if (B.style === 'cave') {
+    if (B.style === 'cave' || B.style === 'tunnel') {
       const ys = ridge(x, 128, 12, B.mid, 77, 170);
       for (let i = 0; i < 16; i++) { const cx = (r() * W) | 0, w = 10 + r() * 16, h = 14 + r() * 40; wrap(o => tri(x, cx + o, ys[cx] + 2, w, h * 0.7, B.mid)); }
       bg.layers.push({ c, f: 0.3, y: 50, anchor: 'bottom' });
@@ -1171,6 +1210,24 @@ function buildBackground(B) {
       x2.fillStyle = '#0c0a1e'; x2.fillRect(0, 0, W, 8);
       for (let i = 0; i < 14; i++) { const cx = (r() * W) | 0, cy = 20 + (r() * 60) | 0; x2.fillStyle = r() < 0.5 ? '#6ee7f2' : '#d58bff'; x2.fillRect(cx, cy, 1, 2); x2.fillStyle = 'rgba(110,231,242,.25)'; x2.fillRect(cx - 1, cy - 1, 3, 4); }
       bg.layers.push({ c: c2, f: 0.45, y: 0, anchor: 'top' });
+      if (B.style === 'tunnel') {   // wooden mine supports and hanging lamps
+        const [c3, x3] = mkCanvas(W, 170);
+        for (let i = 0; i < 9; i++) { const cx = 20 + i * 58; wrap(o => { x3.fillStyle = '#3a2a18'; x3.fillRect(cx + o - 18, 40, 4, 130); x3.fillRect(cx + o + 14, 40, 4, 130); x3.fillRect(cx + o - 20, 36, 40, 6); x3.fillStyle = '#5a4428'; x3.fillRect(cx + o - 20, 36, 40, 2); x3.fillStyle = '#ffd34e'; x3.fillRect(cx + o - 1, 44, 3, 4); x3.fillStyle = 'rgba(255,211,78,.18)'; x3.fillRect(cx + o - 6, 40, 13, 14); }); }
+        bg.layers.push({ c: c3, f: 0.55, y: 40, anchor: 'bottom' });
+      }
+    } else if (B.style === 'ocean') {
+      const ys = ridge(x, 110, 14, B.mid, (B.seed || 5) * 5, 170);
+      for (let i = 0; i < 30; i++) { const cx = (r() * W) | 0, h = 26 + ((r() * 50) | 0), ph = r() * 6; wrap(o => { for (let k = 0; k < h; k++) { x.fillStyle = k % 6 < 3 ? '#0f6a4a' : '#16805a'; x.fillRect(cx + o + Math.round(Math.sin(k / 6 + ph) * 2), ys[cx] - k, 2, 1); } }); }
+      for (let i = 0; i < 12; i++) { const cx = (r() * W) | 0, col = ['#c86a8a', '#e0905a', '#9a5ac8'][i % 3]; wrap(o => { disc(x, cx + o, ys[cx] - 4, 6, col); disc(x, cx + o - 5, ys[cx] - 8, 4, col); disc(x, cx + o + 5, ys[cx] - 9, 3, col); }); }
+      bg.layers.push({ c, f: 0.3, y: 52, anchor: 'bottom' });
+      const [c2, x2] = mkCanvas(W, 140);   // light rays from the surface
+      for (let i = 0; i < 7; i++) { const cx = 30 + i * 74; x2.fillStyle = 'rgba(160,230,255,0.06)'; for (let k = 0; k < 140; k++) x2.fillRect(cx + k * 0.45, k, 22 - k * 0.08, 1); }
+      bg.layers.push({ c: c2, f: 0.15, y: 0, anchor: 'top' });
+    } else if (B.style === 'swamp') {
+      const ys = ridge(x, 96, 10, B.mid, (B.seed || 5) * 5, 170);
+      for (let i = 0; i < 8; i++) { const cx = (r() * W) | 0, h = 30 + ((r() * 26) | 0); wrap(o => { x.fillStyle = '#1a1410'; x.fillRect(cx + o, ys[cx] - h, 3, h + 4); x.fillRect(cx + o - 8, ys[cx] - h + 6, 10, 2); x.fillRect(cx + o + 2, ys[cx] - h + 12, 9, 2); }); }
+      for (let i = 0; i < 12; i++) { const cx = (r() * W) | 0, h = 18 + ((r() * 40) | 0), rad = 8 + ((r() * 10) | 0), col = ['#8e2ab0', '#2ab08a', '#c0a020'][i % 3]; wrap(o => { x.fillStyle = '#d8ccb0'; x.fillRect(cx + o - 2, ys[cx] - h, 4, h + 4); disc(x, cx + o, ys[cx] - h, rad, col); x.fillStyle = 'rgba(255,255,255,.35)'; x.fillRect(cx + o - rad + 3, ys[cx] - h - 2, 3, 2); x.fillRect(cx + o + 2, ys[cx] - h - 4, 2, 2); }); }
+      bg.layers.push({ c, f: 0.3, y: 52, anchor: 'bottom' });
     } else {
       const ys = ridge(x, 88, 16, B.mid, (B.seed || 5) * 5, 170);
       if (B.style === 'hills') {

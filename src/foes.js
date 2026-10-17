@@ -170,3 +170,46 @@ NPC_PAINT.npc_trader = [22, 28, P => {
   P.rect(19, 14, 2, 6, '#4a3a7a'); P.rect(20, 18, 1, 4, '#5a3a22'); P.rect(18, 21, 4, 4, '#2a2040'); P.rect(19, 22, 2, 2, '#c07bff'); P.px(19, 22, '#fff');
   P.rect(10, 23, 3, 5, '#2a2040'); P.rect(16, 23, 3, 5, '#2a2040');
 }];
+
+// ---------------- side characters for the new lands (and a wandering bard) ----------------
+NPC_PAINT.npc_frog = [20, 22, P => { // Old Croak, the frog sage of the swamp
+  P.ell(10, 15, 8, 6, '#4a8a3a'); P.ell(10, 16, 6, 4, '#8ad060'); P.both(() => { P.ell(5, 8, 3, 3, '#4a8a3a'); P.ell(5, 8, 2, 2, '#fff'); P.px(5, 8, 'k'); });
+  P.rect(5, 12, 10, 1, '#2a4a1a'); P.rect(2, 3, 16, 2, '#7a5aa0'); P.rect(6, 0, 8, 4, '#7a5aa0'); P.px(10, 1, '#ffd34e');
+  P.rect(16, 6, 1, 16, '#8a6a44'); P.ell(16, 5, 2, 2, '#c8f0a0'); P.both(() => { P.ell(4, 21, 3, 1, '#4a8a3a'); });
+}];
+NPC_PAINT.npc_witch = [20, 30, P => { // Granny Moss, the swamp witch
+  P.tri(10, 0, 3, 10, 17, 10, '#2a1440'); P.rect(1, 10, 18, 2, '#2a1440'); P.rect(4, 8, 12, 1, '#9be564'); P.px(12, 3, '#ffd34e');
+  P.ell(10, 15, 5, 4, '#a8c890'); P.px(8, 14, 'k'); P.px(12, 14, 'k'); P.px(10, 17, '#5a7a4a'); P.rect(4, 12, 2, 8, '#c8c8c8'); P.rect(14, 12, 2, 8, '#c8c8c8');
+  P.tri(10, 18, 2, 29, 18, 29, '#3a2a5a'); P.rect(8, 19, 4, 10, '#4a3a6a'); P.rect(15, 20, 4, 4, '#6a4a2a'); P.ell(17, 19, 2, 1, '#9be564');
+}];
+NPC_PAINT.npc_mermaid = [20, 28, P => { // Nami the mermaid
+  P.ell(10, 7, 6, 6, '#ff7a5a'); P.ell(10, 8, 4, 4, '#f2c394'); P.px(8, 8, '#2c6ab8'); P.px(12, 8, '#2c6ab8'); P.px(10, 10, '#e07a7a');
+  P.rect(3, 6, 2, 12, '#ff7a5a'); P.rect(15, 6, 2, 12, '#ff7a5a'); P.ell(10, 15, 4, 3, '#f2c394'); P.both(() => P.ell(8, 15, 2, 1, '#c86ad0'));
+  P.ell(10, 21, 4, 4, '#2ab0a0'); P.ell(11, 24, 3, 2, '#2ab0a0'); P.tri(12, 25, 18, 22, 18, 28, '#6ee7f2'); P.px(9, 20, '#a4fff0'); P.px(11, 22, '#a4fff0');
+}];
+NPC_PAINT.npc_pirate = [22, 30, P => { // Captain Redbeard
+  P.rect(3, 2, 16, 3, '#14121f'); P.tri(11, 0, 3, 5, 19, 5, '#14121f'); P.px(11, 2, '#fff'); P.rect(3, 5, 16, 1, '#ffd34e');
+  P.ell(11, 10, 5, 4, '#f2c394'); P.rect(12, 8, 4, 2, 'k'); P.px(8, 9, 'k'); P.ell(11, 14, 6, 4, '#c0302a'); P.ell(11, 15, 4, 3, '#e04a3a');
+  P.rect(5, 17, 12, 9, '#2a3a8a'); P.rect(10, 17, 2, 9, '#ffd34e'); P.rect(17, 18, 3, 1, '#c8c8d8'); P.rect(19, 16, 1, 6, '#c8c8d8');
+  P.rect(6, 26, 4, 4, '#3a2a1a'); P.rect(13, 26, 2, 4, '#8a6a44');
+}];
+NPC_PAINT.npc_fisher = [20, 28, P => { // Old Tu the fisherman
+  P.ell(9, 4, 8, 2, '#d8b860'); P.tri(9, 0, 4, 4, 14, 4, '#e8c870'); P.ell(9, 8, 4, 4, '#e8b088'); P.px(7, 8, 'k'); P.px(11, 8, 'k'); P.rect(6, 11, 7, 2, '#e8e8e8');
+  P.rect(4, 13, 11, 10, '#4a6a8a'); P.rect(4, 13, 11, 2, '#6a8aaa'); P.rect(5, 23, 3, 5, '#5a4430'); P.rect(11, 23, 3, 5, '#5a4430');
+  P.line(16, 2, 17, 26, '#8a6a44', 1); P.line(17, 2, 19, 14, '#cfd6e6', 1); P.ell(19, 15, 1, 1, '#e0453a');
+}];
+NPC_PAINT.npc_miner = [20, 28, P => { // Bay the miner
+  P.ell(10, 5, 7, 4, '#ffd34e'); P.rect(3, 6, 14, 2, '#c89a1c'); P.rect(9, 2, 3, 3, '#fff6c0');
+  P.ell(10, 11, 5, 4, '#e0a878'); P.px(8, 10, 'k'); P.px(12, 10, 'k'); P.rect(6, 13, 9, 3, '#5a3a22');
+  P.rect(4, 16, 12, 8, '#3a5a8a'); P.rect(6, 16, 2, 8, '#c8964a'); P.rect(12, 16, 2, 8, '#c8964a'); P.rect(5, 24, 4, 4, '#3a2a1a'); P.rect(11, 24, 4, 4, '#3a2a1a');
+  P.line(16, 14, 19, 26, '#8a6a44', 1); P.tri(14, 13, 20, 13, 17, 16, '#a0a8b8');
+}];
+NPC_PAINT.npc_mole = [20, 22, P => { // Grandpa Mole
+  P.ell(10, 13, 8, 8, '#5a4a3a'); P.ell(10, 15, 5, 5, '#8a7a6a'); P.ell(10, 9, 3, 2, '#ff9fd0'); P.both(() => { P.ell(6, 7, 2, 1, 'k'); P.ell(6, 7, 3, 2, '#c8c8c8'); });
+  P.rect(4, 6, 12, 1, '#c8c8c8'); P.both(() => { P.rect(1, 18, 5, 3, '#ff9fd0'); P.px(1, 21, '#fff'); P.px(3, 21, '#fff'); }); P.rect(15, 4, 1, 18, '#8a6a44');
+}];
+NPC_PAINT.npc_bard = [20, 28, P => { // Lirio the wandering bard
+  P.rect(4, 2, 12, 3, '#3a8a5a'); P.tri(14, 2, 19, 0, 16, 4, '#e0453a'); P.ell(10, 8, 4, 4, '#f2c394'); P.px(8, 8, 'k'); P.px(12, 8, 'k'); P.rect(9, 10, 3, 1, '#c86a6a');
+  P.rect(5, 12, 10, 10, '#3a8a5a'); P.rect(5, 12, 10, 2, '#ffd34e'); P.ell(15, 17, 4, 3, '#c8844a'); P.ell(15, 17, 2, 1, '#5a3a22'); P.line(15, 15, 19, 10, '#8a6a44', 1);
+  P.rect(6, 22, 3, 6, '#5a3a22'); P.rect(11, 22, 3, 6, '#5a3a22');
+}];

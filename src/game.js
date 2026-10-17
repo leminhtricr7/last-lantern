@@ -32,12 +32,13 @@
 
   // ---------- save / i18n ----------
   const SAVEKEY = 'last_lantern_save_v1';
-  let save = { cleared: [], shards: {}, coins: 0, lang: 'vi', vol: 0.6, relics: [0, 0, 0, 0, 0, 0, 0], ammo: { dagger: 0, bomb: 0, flask: 0 }, leek: false };
+  let save = { cleared: [], shards: {}, coins: 0, lang: 'vi', vol: 0.6, relics: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], ammo: { dagger: 0, bomb: 0, flask: 0 }, leek: false };
   try { Object.assign(save, JSON.parse(localStorage.getItem(SAVEKEY) || '{}')); } catch (e) { }
   const DEMO = location.search.indexOf('leekdemo') >= 0; // ?leekdemo: try the leek blade without touching your save
   let coop = null, inSwap = 0;   // online co-op session (see ONLINE CO-OP below); inSwap > 0 while a guest's hero is being simulated
   const writeSave = () => { if (DEMO || inSwap) return; try { localStorage.setItem(SAVEKEY, JSON.stringify(save)); } catch (e) { } };
-  if (!Array.isArray(save.relics) || save.relics.length < 7) save.relics = [0, 0, 0, 0, 0, 0, 0];
+  if (!Array.isArray(save.relics)) save.relics = [];
+  while (save.relics.length < 10) save.relics.push(0);
   if (!save.ammo) save.ammo = { dagger: 0, bomb: 0, flask: 0 };
   save.rare = save.rare | 0; if (!save.rareGot || typeof save.rareGot !== 'object') save.rareGot = {};
   save.bonusHP = save.bonusHP | 0; save.bonusDmg = save.bonusDmg | 0; if (!save.cos || typeof save.cos !== 'object') save.cos = {};
@@ -56,12 +57,12 @@
   const totalShards = () => Object.keys(save.shards).reduce((a, k) => a + save.shards[k].filter(Boolean).length, 0);
   const hasRelic = i => !!save.relics[i];
   const armHP = () => { const a = ITEM[save.inv.armor]; return a ? (a.st.hp || 0) : 0; };
-  const baseHP = () => 3 + Math.floor(totalShards() / 3) + (hasRelic(0) ? 2 : 0) + armHP() + (save.bonusHP | 0);
+  const baseHP = () => 3 + Math.floor(totalShards() / 3) + (hasRelic(0) ? 2 : 0) + (hasRelic(8) ? 1 : 0) + armHP() + (save.bonusHP | 0);
   const maxHP = () => (coop && Q && Q.P && Q.P.mhp) || baseHP();
   const baseDmg = () => Math.max(1, (Q && Q.P && Q.P.hdmg || 0) + (Q && Q.G && Q.G.powerT > 0 ? 2 : 0) + 1 + (save.bonusDmg | 0) + Math.floor(totalShards() / 7) + (hasRelic(1) ? 1 : 0) + ((ITEM[save.inv.pet] || { st: {} }).st.role === 'rainbow' ? 1 : 0));
   const swordDmg = () => baseDmg() + save.inv.w.reduce((m, id) => (ITEM[id] && ITEM[id].type === 'sword' ? Math.max(m, ITEM[id].st.dmg || 0) : m), 0);
   const UNLOCK_ALL = false; // set to false for release: then each win unlocks the next map
-  const maxPlayable = () => UNLOCK_ALL ? 6 : save.cleared.length ? Math.min(6, Math.max.apply(null, save.cleared) + 1) : 0;
+  const maxPlayable = () => UNLOCK_ALL ? 9 : save.cleared.length ? Math.min(9, Math.max.apply(null, save.cleared.map(LPOS)) + 1) : 0;   // a position in LORDER
   const sunPower = () => save.cleared.length / 7;
   Snd.setVol(save.vol);
 
@@ -990,7 +991,7 @@
     for (const p of L.plats) { p.t = 0; p.ph = 0; p.dx = p.dy = 0; p.x = p.x0; p.y = p.vert ? p.y1 : p.y0; }
   }
   function makeEnemy(type, x, y, s) {
-    const c = EN[type], li = Q.li, v = s && s.v;
+    const c = EN[type], li = LDIFF(Q.li), v = s && s.v;
     let sc = 1, hpv = 1, armor = 0, dmg = 1, spv = 1;
     if (v === 'small') { sc = 0.7; hpv = 0.6; spv = 1.25; }
     else if (v === 'big') { sc = 1.6; hpv = 3; spv = 0.8; dmg = li >= 2 ? 2 : 1; }
@@ -1009,7 +1010,7 @@
     return { isBoss: true, cfg: c, spr: bossSprite(Q.li), x: s.x - c.w / 2, y: s.y - c.h, w: c.w, h: c.h, vx: 0, vy: 0, hp, max: 0, dir: -1, st: 'sleep', timer: 0, flash: 0, t: 0, sk: null, atkSk: null, lastSk: null, onGround: false, noOneWay: true, n: 0, phase: 0, shield: 0, evCd: 1, invul: 0, hide: false, closeT: 0, fury: 1, armor: c.armor };
   }
   // ---------- creepy darkness: eyes, watchers, fog, whispers ----------
-  const EYE_COL = { meadow: '#ffe066', forest: '#d8ff6a', caves: '#ff4a6a', desert: '#ff9a3a', frost: '#9fe8ff', volcano: '#ffd34e', citadel: '#d58bff' };
+  const EYE_COL = { swamp: '#c8f0a0', ocean: '#6ee7f2', tunnels: '#ffb04a', meadow: '#ffe066', forest: '#d8ff6a', caves: '#ff4a6a', desert: '#ff9a3a', frost: '#9fe8ff', volcano: '#ffd34e', citadel: '#d58bff' };
   function groundTop(tx) { for (let y = 3; y < Q.L.H - 2; y++) { const c = Q.L.grid[y][tx]; if (c === '#' || c === 'I') return y * TS; } return 10 * TS; }
   function initCreeps() {
     const L = Q.L; Q.eyes = []; Q.watchers = []; Q.fog = []; Q.darkCur = Q.B.dark; Q.whT = rr(4, 8);
@@ -1206,13 +1207,15 @@
       if (Math.random() < 0.8) emit(P.x + 4, P.y + 8, 1, { col: ['#6ee7f2', '#fff'], sp0: 0, sp1: 12, l0: 0.15, l1: 0.3, grav: 0 });
     } else {
       // horizontal
-      const target = dir * RUN * (P.slow > 0 ? 0.5 : 1) * (1 + aSt('speed') + pSt('speed') + (P.hspd || 0));
+      const target = dir * RUN * (Q.B.water ? (hasRelic(8) ? 0.95 : 0.8) : 1) * (P.slow > 0 ? 0.5 : 1) * (1 + aSt('speed') + pSt('speed') + (P.hspd || 0));
       const acc = ice ? 220 : (P.onGround ? 1100 : 750);
       if (dir !== 0 && P.atk <= 0.1) { P.face = dir; }
       if (dir !== 0 || !ice) {
         const a = (dir === 0 ? (ice ? 120 : 1300) : acc) * dt;
         if (P.vx < target) P.vx = Math.min(target, P.vx + a); else if (P.vx > target) P.vx = Math.max(target, P.vx - a);
       } else { P.vx *= (1 - 0.8 * dt); }
+      // swimming: every jump press is a stroke upwards, the water slows the fall
+      if (Q.B.water) { if (act.jumpP && P.dash <= 0) { P.vy = Math.min(P.vy, -150 - (hasRelic(8) ? 30 : 0)); P.jumps = 1; P.jumpBuf = 0; Snd.play('jump'); emit(P.x + 4, P.y + 2, 4, { col: ['#bfeaff', '#fff'], sp0: 5, sp1: 25, vy: -30, grav: -40, l0: 0.4, l1: 0.8 }); } else P.jumpBuf = 0; }
       // jump
       if (P.jumpBuf > 0) {
         if (act.down && P.onGround && ch(Math.floor((P.x + 4) / TS), Math.floor((P.y + P.h + 1) / TS)) === '=') { P.drop = 0.22; P.jumpBuf = 0; P.y += 2; }
@@ -1221,7 +1224,8 @@
       }
       if (!act.jump && P.vy < -110) P.vy *= (1 - 9 * dt);
       const g2 = (act.jump && Math.abs(P.vy) < 50) ? GRAV * 0.62 : GRAV;
-      P.vy = Math.min(380, P.vy + g2 * dt);
+      if (Q.B.water) { P.vy = Math.min(85, P.vy + g2 * 0.3 * dt); P.vx *= 1 - 1.2 * dt; if (Math.random() < 0.03) emit(P.x + 4 + P.face * 3, P.y + 3, 1, { col: '#bfeaff', sp0: 2, sp1: 6, vy: -20, grav: -30, l0: 0.6, l1: 1.2 }); }
+      else P.vy = Math.min(380, P.vy + g2 * dt);
     }
     // attack: slot 1 (J / click) and slot 2 (H / middle-click / LT) - swords swing, special weapons fire
     if (P.dash <= 0) { if (act.atkP) useSlot(0); if (act.atk2P) useSlot(1); }
@@ -1298,6 +1302,7 @@
         if (st.exec && !e.isBoss && e.maxhp && e.hp > 0 && e.hp / e.maxhp <= st.exec) { d = e.hp + 99; emit(e.x + e.w / 2, e.y + e.h / 2, 12, { col: ['#a15be0', '#14121f', '#fff'], sp0: 30, sp1: 110 }); }
         curHit = st;
         if (e.isBoss) hurtBoss(e, d, !!st.pierce); else hurtEnemy(e, d, !!st.pierce);
+        if (hasRelic(7)) { e.poisonT = 4; e.poisonN = Math.min(4, (e.poisonN || 0) + 1); }
         curHit = null;
         swordHitFx(e, st, sw.id, d);
         Q.freeze = 0.045; Snd.play('hit');
@@ -2772,6 +2777,7 @@
     if (broke) { Snd.play('gate'); Q.msg = T('wallbroke'); Q.msgT = 3; Q.shake = 0.7; }
   }
   function explode(x, y, r, dmg) {
+    if (hasRelic(9)) dmg *= 2;
     Snd.play('explode'); Q.shake = Math.max(Q.shake, 0.45);
     emit(x, y, 40, { col: ['#fff6c0', '#ffd34e', '#f08a2b', '#e0453a'], sp0: 40, sp1: 170, l0: 0.2, l1: 0.6 });
     for (const e of Q.ents) if (!e.dead && Math.hypot(e.x + e.w / 2 - x, e.y + e.h / 2 - y) < r + 6) hurtEnemy(e, dmg, true);
@@ -3026,6 +3032,8 @@
     for (const w of Q.weather) {
       w.ph += dt;
       switch (Q.wtype) {
+        case 'bubbles': w.y -= 22 * w.s * dt; w.x += Math.sin(w.ph * 2) * 8 * dt; break;
+        case 'spores': w.y -= 6 * w.s * dt; w.x += Math.sin(w.ph * 0.7) * 10 * dt; break;
         case 'pollen': w.x += Math.sin(w.ph) * 8 * dt + 10 * dt; w.y += Math.cos(w.ph * 0.7) * 6 * dt - 4 * dt; break;
         case 'fireflies': w.x += Math.sin(w.ph * 0.8) * 14 * dt; w.y += Math.cos(w.ph * 0.6) * 10 * dt; break;
         case 'drips': w.y += 90 * w.s * dt; break;
@@ -3062,7 +3070,7 @@
       else if (Q.stateT > 0.8 && act.backP) { if (coop) coopBackToLobby(); else toScene('map'); }
       return;
     }
-    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (coop) { if (Q.li >= 6 && !Q.endShown) { Q.endShown = true; startScripted('narr', COOP_END, () => coopBackToLobby()); return; } coopBackToLobby(); return; } if (Q.li >= 6) toScene('ending'); else if (Q.li === 0 && !save.ride) toScene('ride'); else if (Q.li === 1 && !save.castle) toScene('castle'); else { cutLevel = Q.li; mapSel = Math.min(6, Q.li + 1); toScene('cutscene'); } } return; }
+    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (coop) { if (Q.li === 6 && !Q.endShown) { Q.endShown = true; startScripted('narr', COOP_END, () => coopBackToLobby()); return; } coopBackToLobby(); return; } if (Q.li === 6) toScene('ending'); else if (Q.li === 0 && !save.ride) toScene('ride'); else if (Q.li === 1 && !save.castle) toScene('castle'); else { cutLevel = Q.li; mapSel = Math.min(9, LPOS(Q.li) + 1); toScene(CUT[Q.li] ? 'cutscene' : 'map'); } } return; }
     // play / bossintro
     if (act.pauseP && st === 'play') { Q.state = 'pause'; Q.menu = 0; return; }
     if (act.shopP && st === 'play') { openShopInGame(); return; }
@@ -3276,6 +3284,11 @@
     { const fr = bossFrame(b); if (fr) b.spr = fr; }
     const c = b.cfg, x = Math.round(b.x + b.w / 2 - camX), bot = Math.round(b.y + b.h - camY), gyy = Math.round(Q.L.arena.gy * TS - camY);
     if (b.hide) {
+      if (b.sk === 'burrow' && b.ph === 1) {
+        const mx = Math.round(b.tx - camX), gy2 = Math.round(groundYAt(b.tx) - camY), j = Math.round(Math.sin(Q.t * 40) * 2), bl = Math.floor(Q.t * 12) % 2;
+        g.fillStyle = '#5a4430'; g.fillRect(mx - 18 + j, gy2 - 3, 36, 3); g.fillStyle = '#8a6a4a'; g.fillRect(mx - 12 - j, gy2 - 5, 24, 2);
+        g.globalAlpha = 0.6; g.fillStyle = bl ? '#ff3a2a' : '#ffd34e'; g.fillRect(mx - 22, gy2 - 1, 44, 2); g.fillRect(mx - 1, gy2 - 22, 3, 9); g.fillRect(mx - 1, gy2 - 11, 3, 3); g.globalAlpha = 1;
+      }
       if (b.sk === 'ambush' && b.ph >= 1) {
         const mx = Math.round((b.ph === 1 ? b.mx : b.lockx) - camX), bl = Math.floor(Q.t * 14) % 2;
         g.globalAlpha = 0.5; g.fillStyle = bl ? '#ff3a2a' : '#ffd34e'; g.fillRect(mx - 20, gyy - 2, 40, 2); g.fillRect(mx - 1, gyy - 16, 2, 8); g.fillRect(mx - 1, gyy - 6, 2, 2); g.globalAlpha = 1;
@@ -3412,9 +3425,12 @@
   }
   function drawWeather() {
     const t = Q.wtype;
+    if (Q.B.water) { g.fillStyle = 'rgba(20,90,140,.16)'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 0.05 + Math.sin(Q.t * 0.7) * 0.02; g.fillStyle = '#bfeaff'; for (let i = 0; i < 6; i++) g.fillRect(((i * 73 + Q.t * 9) % (VW + 40)) - 20, 0, 10, VH); g.globalAlpha = 1; }
     for (const w of Q.weather) {
       const x = Math.round(w.x), y = Math.round(w.y);
       switch (t) {
+        case 'bubbles': g.strokeStyle = 'rgba(200,240,255,.6)'; g.lineWidth = 1; g.beginPath(); g.arc(x, y, w.s > 1 ? 2 : 1, 0, 7); g.stroke(); break;
+        case 'spores': { const a = 0.4 + 0.5 * Math.max(0, Math.sin(w.ph * 2)); g.globalAlpha = a; g.fillStyle = Math.floor(w.ph) % 2 ? '#c8f0a0' : '#c07bff'; g.fillRect(x, y, 2, 2); g.globalAlpha = 1; break; }
         case 'pollen': g.fillStyle = 'rgba(255,246,192,.7)'; g.fillRect(x, y, 1, 1); break;
         case 'fireflies': { const a = 0.4 + 0.6 * Math.max(0, Math.sin(w.ph * 2.5)); g.globalAlpha = a; g.fillStyle = '#d8ff6a'; g.fillRect(x, y, 2, 2); g.globalAlpha = a * 0.3; g.fillRect(x - 1, y - 1, 4, 4); g.globalAlpha = 1; break; }
         case 'drips': g.fillStyle = 'rgba(138,216,255,.7)'; g.fillRect(x, y, 1, 3); break;
@@ -3496,7 +3512,7 @@
       txt('M: ' + (Snd.muted ? 'Sound OFF' : 'Sound ON') + '    F11: ' + T('full'), VW / 2, 200, { al: 'center', size: 6, col: '#8892aa' });
       txt(save.lang === 'vi' ? 'Nhấp chuột: đánh / chọn menu   Chuột phải: ném   Lăn chuột: đổi đồ' : 'Click: attack / menus   Right-click: throw   Wheel: switch', VW / 2, 210, { al: 'center', size: 5, col: '#8892aa' });
       txt(T('relics'), VW / 2, 166, { al: 'center', size: 6, col: '#8892aa' });
-      for (let i = 0; i < 7; i++) { const ic = icon('r' + i); g.globalAlpha = save.relics[i] ? 1 : 0.2; g.drawImage(ic.c, VW / 2 - 7 * 13 + i * 26 + 4, 172); }
+      for (let i = 0; i < 10; i++) { const ic = icon('r' + LORDER[i]); g.globalAlpha = save.relics[LORDER[i]] ? 1 : 0.2; g.drawImage(ic.c, VW / 2 - 10 * 10 + i * 20 + 2, 172); }
       g.globalAlpha = 1;
     } else if (st === 'talk') {
       const tk = Q.talk, ln0 = tk.lines[tk.i] || {}, who = ln0.w || tk.it.who, cur = (ln0.w && NPCS[ln0.w]) || tk.npc, sp = cur.hero ? getSprite('hero_idle', HERO[cur.hero].sw, 0) : (cur.spr ? npcSpr(cur.spr) : null);
@@ -4147,9 +4163,9 @@
     const lines = wrapText(s.substr(0, n), 46);
     lines.forEach((l, i) => txt(l, VW / 2, 138 + i * 12, { al: 'center', size: 8 }));
     txt(T('press'), VW / 2, VH - 12, { al: 'center', size: 6, col: '#8892aa', alpha: 0.5 + 0.5 * Math.sin(sceneT * 4) });
-    if (ending && storyPage >= storyList.length - 1) txt(T('thanks') + '  ' + totalShards() + '/21', VW / 2, 120, { al: 'center', size: 8, col: '#ffd34e' });
+    if (ending && storyPage >= storyList.length - 1) txt(T('thanks') + '  ' + totalShards() + '/30', VW / 2, 120, { al: 'center', size: 8, col: '#ffd34e' });
   }
-  const NODES = [[40, 150], [90, 105], [140, 148], [195, 100], [245, 145], [290, 95], [338, 48]];
+  const NODES = [[24, 152], [58, 112], [92, 150], [128, 108], [162, 148], [198, 104], [232, 146], [268, 102], [304, 144], [350, 56]];
   function updateMap(dt) {
     sceneT += dt;
     if (act.leftP) { mapSel = Math.max(0, mapSel - 1); Snd.play('select'); }
@@ -4159,8 +4175,9 @@
     if (act.okP) {
       Snd.play('ok');
       if (!save.seen) save.seen = {};
-      if (MAP_STORY[mapSel] && !save.seen[mapSel]) { save.seen[mapSel] = 1; writeSave(); storyLevel = mapSel; toScene('mstory'); }
-      else startLevelFade(mapSel);
+      const li = LORDER[mapSel];
+      if (MAP_STORY[li] && !save.seen[li]) { save.seen[li] = 1; writeSave(); storyLevel = li; toScene('mstory'); }
+      else startLevelFade(li);
     }
   }
   function drawMap() {
@@ -4169,15 +4186,15 @@
     const r = mulberry32(7);
     for (let i = 0; i < 140; i++) { g.fillStyle = r() < 0.5 ? '#171c3e' : '#0d1128'; g.fillRect((r() * VW) | 0, (r() * VH) | 0, 8 + (r() * 24 | 0), 2 + (r() * 4 | 0)); }
     // path
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < NODES.length - 1; i++) {
       const a = NODES[i], b = NODES[i + 1], steps = 14;
       for (let k = 0; k < steps; k++) { const t = k / steps; g.fillStyle = i < maxPlayable() ? '#ffd34e' : '#3a3f66'; g.fillRect(Math.round(lerp(a[0], b[0], t)), Math.round(lerp(a[1], b[1], t)), 2, 2); }
     }
-    BIOMES.forEach((B, i) => {
-      const [x, y] = NODES[i], unlocked = i <= maxPlayable(), done = save.cleared.indexOf(i) >= 0;
+    LORDER.forEach((li, i) => {
+      const B = BIOMES[li], [x, y] = NODES[i], unlocked = i <= maxPlayable(), done = save.cleared.indexOf(li) >= 0;
       const col = unlocked ? B.sky[2] : '#2a2e50';
       disc(g, x, y, 11, '#05030f'); disc(g, x, y, 9, unlocked ? B.sky[1] : '#2a2e50'); disc(g, x, y, 6, col);
-      if (unlocked) { const sh = (save.shards[i] || [0, 0, 0]); for (let k = 0; k < 3; k++) { g.fillStyle = sh[k] ? '#ffd34e' : '#3a3f66'; g.fillRect(x - 7 + k * 6, y + 14, 4, 4); } }
+      if (unlocked) { const sh = (save.shards[li] || [0, 0, 0]); for (let k = 0; k < 3; k++) { g.fillStyle = sh[k] ? '#ffd34e' : '#3a3f66'; g.fillRect(x - 7 + k * 6, y + 14, 4, 4); } }
       if (done) { g.fillStyle = '#fff'; g.fillRect(x - 1, y - 1, 3, 3); }
       txt(String(i + 1), x, y, { al: 'center', size: 7, col: unlocked ? '#fff' : '#555a80', sh: unlocked });
     });
@@ -4185,20 +4202,20 @@
     const hb = Math.round(Math.sin(sceneT * 6) * 2);
     g.strokeStyle = '#ffd34e'; g.lineWidth = 1; g.strokeRect(sx - 13.5, sy - 13.5, 27, 27);
     drawSpr(g, getSprite('hero_idle'), sx, sy - 14 + hb, false);
-    const B = BIOMES[mapSel], unl = mapSel <= maxPlayable();
+    const mli = LORDER[mapSel], B = BIOMES[mli], unl = mapSel <= maxPlayable();
     txt(T('mapt'), VW / 2, 14, { al: 'center', size: 12, bold: true, col: '#ffd34e' });
     g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(0, 178, VW, 38);
     txt((mapSel + 1) + '. ' + LN(B.name), VW / 2, 188, { al: 'center', size: 11, bold: true, col: unl ? '#fff' : '#777' });
     txt(unl ? LN(B.sub) : T('locked'), VW / 2, 202, { al: 'center', size: 7, col: '#cfd6e6' });
     txt(sv('[B] Shop & Inventory', '[B] Cửa hàng & Kho đồ'), VW - 8, 14, { al: 'right', size: 6, col: '#ffd34e' });
     txt(T('maphelp'), VW / 2, 30, { al: 'center', size: 6, col: '#8892aa' });
-    txt(T('cleared') + ' ' + save.cleared.length + '/' + BIOMES.length + '    ' + T('relics') + ' ' + save.relics.filter(Boolean).length + '/7    (' + BIOMES.length + ' ' + T('maps') + ')', VW / 2, 42, { al: 'center', size: 6, col: '#cfd6e6' });
-    { const stars = '★'.repeat(mapSel + 1) + '☆'.repeat(6 - mapSel), pz = (PUZZLES[mapSel] || []).length, mins = Math.round(B.len / 70);
+    txt(T('cleared') + ' ' + save.cleared.length + '/' + BIOMES.length + '    ' + T('relics') + ' ' + save.relics.filter(Boolean).length + '/10    (' + BIOMES.length + ' ' + T('maps') + ')', VW / 2, 42, { al: 'center', size: 6, col: '#cfd6e6' });
+    { const stars = '★'.repeat(Math.ceil((LDIFF(mli) + 1) / 1.4)) + '☆'.repeat(Math.max(0, 5 - Math.ceil((LDIFF(mli) + 1) / 1.4))), pz = (PUZZLES[mli] || []).length, mins = Math.round(B.len / 70);
       txt(T('difficulty') + ': ' + stars, VW - 8, 188, { al: 'right', size: 6, col: '#ffd34e' });
       txt(T('puzzles') + ': ' + pz + '   ' + T('length') + ': ~' + mins + ' ' + T('min'), VW - 8, 201, { al: 'right', size: 6, col: '#cfd6e6' });
-      const ic = icon('r' + mapSel); g.globalAlpha = save.relics[mapSel] ? 1 : 0.35; g.drawImage(ic.c, 8, 184); g.globalAlpha = 1; }
+      const ic = icon('r' + mli); g.globalAlpha = save.relics[mli] ? 1 : 0.35; g.drawImage(ic.c, 8, 184); g.globalAlpha = 1; }
     const ts = totalShards();
-    txt(T('shards') + ' ' + ts + '/21   ' + T('hearts') + ' ' + maxHP() + '   ' + T('dmg') + ' ' + swordDmg(), 6, VH - 4, { size: 5, col: '#a4e86b' });
+    txt(T('shards') + ' ' + ts + '/30   ' + T('hearts') + ' ' + maxHP() + '   ' + T('dmg') + ' ' + swordDmg(), 6, VH - 4, { size: 5, col: '#a4e86b' });
   }
 
   // ============================== DEVIL CUTSCENE ==============================
@@ -4700,7 +4717,7 @@
     } else {
       if (d.t === 'welcome') { coop.me = d.slot; coopUI.ph = 'lobby'; coopUI.msg = ''; }
       else if (d.t === 'lobby') { coopUI.slots = d.slots; coopUI.li = d.li; coopUI.code = d.code; if (scene === 'play') { coopUI.ph = 'lobby'; toScene('coop'); } }
-      else if (d.t === 'start') { coopUI.li = d.li; coop.objs.clear(); startLevel(d.li); Q.client = true; Q.players = []; Q.state = 'intro'; scene = 'play'; }
+      else if (d.t === 'start') { coopUI.li = LPOS(d.li); coop.objs.clear(); startLevel(d.li); Q.client = true; Q.players = []; Q.state = 'intro'; scene = 'play'; }
       else if (d.t === 's') { if ((scene === 'play' || scene === 'shop') && Q) coopApply(d); }
       else if (d.t === 'rare') { save.rare++; writeSave(); if (Q) { Q.msg = cvs('Star Gem! You have ', 'Ngọc Sao! Bạn có ') + save.rare + cvs('.', ' viên.'); Q.msgT = 3; } }
       else if (d.t === 'full') coopLeave(cvs('The room is full (5 players).', 'Phòng đã đủ 5 người.'));
@@ -4783,7 +4800,7 @@
     return out;
   }
   function coopStart() {
-    const li = coopUI.li; startLevel(li); Q.state = 'intro';
+    const li = LORDER[coopUI.li] === undefined ? 0 : LORDER[coopUI.li]; startLevel(li); Q.state = 'intro';
     coop.seen = {}; coop.last = new Map(); coop.vlast = {}; coop.grid = []; coop.nid = 0;
     const P = Q.P; P.slot = 0; setHero(P, myHero()); Q.me = P; Q.players = [P];
     for (const [id, pr] of coop.peers) {
@@ -4892,7 +4909,7 @@
           if (s.slot === (coop ? coop.me : 0)) txt(cvs('you', 'bạn'), x + 56, 79, { al: 'right', size: 5, col: '#a4ffc0' });
         } else txt(cvs('empty', 'trống'), x + 30, 110, { al: 'center', size: 6, col: '#5a5470' });
       }
-      txt(cvs('Map: ', 'Bản đồ: ') + (coopUI.li + 1) + ' - ' + LN(BIOMES[coopUI.li].name || { en: '', vi: '' }), VW / 2, 158, { al: 'center', size: 8, col: '#cfd6e6' });
+      txt(cvs('Map: ', 'Bản đồ: ') + (coopUI.li + 1) + ' - ' + LN(BIOMES[LORDER[coopUI.li] === undefined ? 0 : LORDER[coopUI.li]].name), VW / 2, 158, { al: 'center', size: 8, col: '#cfd6e6' });
       txt(host ? cvs('←/→ map   •   C = change hero   •   Enter = START   •   Esc = close room', '←/→ chọn map   •   C = đổi hero   •   Enter = BẮT ĐẦU   •   Esc = đóng phòng') : cvs('C = change hero   •   Waiting for the host to start...   •   Esc = leave', 'C = đổi hero   •   Đang chờ chủ phòng bắt đầu...   •   Esc = rời phòng'), VW / 2, 174, { al: 'center', size: 6, col: '#ffd34e' });
       txt(cvs('Join link (L = copy): ', 'Link vào phòng (L = copy): ') + roomLink(), VW / 2, 186, { al: 'center', size: 5, col: '#8892aa' });
     }
@@ -4959,6 +4976,141 @@
     g.strokeStyle = PCOL[p.slot]; g.lineWidth = 2; g.beginPath(); g.arc(x, bot - 18, 5, -Math.PI / 2, -Math.PI / 2 + 6.283 * (1 - Math.max(0, p.downT || 0) / 9)); g.stroke();
     drawCoopTag(p, x, bot - 6);
   }
+  // ===================== THREE NEW LANDS (played as maps 7-9, before the Shadow Citadel which is now map 10) =====================
+  Object.assign(EN, {
+    bogslime: { spr: 'slime', swap: { g: 'G', t: 'x', G: 'N' }, out: '#7ed957', w: 12, h: 9, hp: 3, sp: 24, ai: 'hop', jump: 190 },
+    mosquito: { spr: 'bat', swap: { p: 'x', P: 'G' }, w: 12, h: 7, hp: 2, sp: 62, ai: 'fly' },
+    bogzombie: { spr: 'zombie', swap: { g: 'x', G: 'G' }, out: '#7ed957', w: 9, h: 14, hp: 5, sp: 24, ai: 'walk' },
+    toxbeetle: { spr: 'beetle', swap: { n: 'g', N: 'G', r: 'p' }, w: 10, h: 6, hp: 3, sp: 40, ai: 'walk' },
+    crab: { spr: 'beetle', swap: { n: 'r', N: 'R', r: 'y' }, out: '#ff9a8a', w: 11, h: 6, hp: 3, sp: 40, ai: 'walk' },
+    jelly: { spr: 'ghost', swap: { w: 'm', k: 'p' }, out: '#ff9fd0', w: 10, h: 11, hp: 3, sp: 26, ai: 'ghost' },
+    piranha: { spr: 'bat', swap: { p: 'b', P: 'B', w: 'r' }, w: 12, h: 7, hp: 2, sp: 66, ai: 'fly' },
+    seaslime: { spr: 'slime', swap: { g: 'c', t: 'w', G: 'B' }, out: '#6ee7f2', w: 12, h: 9, hp: 3, sp: 22, ai: 'hop', jump: 150 },
+    eel: { spr: 'wisp', swap: { c: 'y', w: 'w' }, out: '#ffe44e', w: 8, h: 8, hp: 2, sp: 58, ai: 'ghost', blink: true },
+    mole: { spr: 'beetle', swap: { n: 'N', N: 'k', r: 'm' }, w: 12, h: 7, hp: 4, sp: 36, ai: 'walk', burrow: true },
+    rockslime: { spr: 'slime', swap: { g: 'd', t: 'l', G: 'D' }, out: '#c8c0b0', w: 12, h: 9, hp: 5, sp: 18, ai: 'hop', jump: 170 },
+    minerskel: { spr: 'skeleton', swap: { e: 'y', E: 'Y' }, out: '#ffd34e', w: 9, h: 15, hp: 5, sp: 30, ai: 'charge' }
+  });
+  ['mosquito', 'piranha'].forEach(t => FLY.add(t));
+  BOSS.push(
+    { name: { en: 'Spore Queen', vi: 'Nữ Hoàng Bào Tử' }, w: 40, h: 46, hp: 600, armor: 0.3, smart: 0.55, sp: 24, minion: 'bogslime', proj: '#c8f0a0', skills: ['goo', 'shoot', 'summon', 'rain', 'jump', 'spin'], skills2: ['slam', 'roar', 'erupt'] },
+    { name: { en: 'Abyssal Kraken', vi: 'Thủy Quái Kraken' }, w: 52, h: 44, hp: 660, armor: 0.3, smart: 0.6, sp: 22, minion: 'piranha', proj: '#6ee7f2', skills: ['erupt', 'shoot', 'rain', 'charge', 'summon', 'fan'], skills2: ['spin', 'roar', 'slam'] },
+    { name: { en: 'Gravemaw the Great Worm', vi: 'Sâu Khổng Lồ Gravemaw' }, w: 44, h: 44, hp: 720, armor: 0.35, smart: 0.6, sp: 28, minion: 'mole', proj: '#c8a070', skills: ['burrow', 'burrow', 'charge', 'rain', 'summon'], skills2: ['burrow', 'slam', 'roar'] }
+  );
+  // the worm hides under the ground, rumbles under a hero for a moment, then bursts out - move away in time!
+  BS.burrow = {
+    tele: 0.4,
+    start(b) { b.n = 2 + (b.phase >= 1 ? 1 : 0); b.ph = 0; b.skT = 0.45; b.hide = true; b.vx = 0; const c = bc(b); Snd.play('crumble'); Q.shake = Math.max(Q.shake, 0.4); emit(c.x, b.y + b.h, 26, { col: ['#8a6a4a', '#5a4430', '#c8a070'], sp0: 30, sp1: 120, vy: -60 }); addRing(c.x, b.y + b.h, '#8a6a4a', 50, 0.5); },
+    upd(b, dt) {
+      b.skT -= dt;
+      if (b.ph === 0) { if (b.skT <= 0) { const t = Q.P; b.tx = arenaClamp(t.x + 4); b.ph = 1; b.skT = 1.0 - Math.min(0.3, b.phase * 0.12); } }
+      else if (b.ph === 1) {
+        const gy = groundYAt(b.tx); Q.shake = Math.max(Q.shake, 0.12);
+        if (Math.random() < 0.7) emit(b.tx + rr(-14, 14), gy, 1, { col: ['#8a6a4a', '#c8a070'], sp0: 10, sp1: 50, vy: -50 });
+        if (b.skT <= 0) {
+          b.x = b.tx - b.w / 2; b.y = gy - b.h; b.hide = false; b.vy = -330; b.onGround = false; b.ph = 2; b.skT = 0.75;
+          Snd.play('boom'); Snd.creature(Q.li, 'attack', true); Q.shake = 0.7; emit(b.tx, gy, 40, { col: ['#8a6a4a', '#5a4430', '#fff6e0'], sp0: 40, sp1: 170, vy: -90 }); addRing(b.tx, gy, '#c8a070', 70, 0.5);
+          hitPl({ x: b.tx - b.w / 2 - 6, y: gy - b.h - 20, w: b.w + 12, h: b.h + 20 }, () => hurtPlayer(2, b.tx));
+          for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + (i - 2.5) * 0.35; firePr(b.tx, gy - 10, Math.cos(a) * 130, Math.sin(a) * 160, { col: '#8a6a4a' }); }
+        }
+      } else if (b.ph === 2 && b.skT <= 0) {
+        if (--b.n > 0) { b.hide = true; b.ph = 0; b.skT = 0.35; Snd.play('crumble'); emit(b.x + b.w / 2, b.y + b.h, 20, { col: ['#8a6a4a', '#5a4430'], sp0: 20, sp1: 90, vy: -40 }); }
+        else return true;
+      }
+    }
+  };
+  RELICS.push(
+    { name: { en: 'Spore Charm', vi: 'Bùa Bào Tử' }, desc: { en: 'Your sword poisons what it hits', vi: 'Kiếm của bạn làm trúng độc kẻ địch' } },
+    { name: { en: 'Pearl of Tides', vi: 'Ngọc Trai Thủy Triều' }, desc: { en: '+1 max heart, swim faster', vi: '+1 tim tối đa, bơi nhanh hơn' } },
+    { name: { en: 'Mole Claw', vi: 'Móng Chuột Chũi' }, desc: { en: 'Bombs deal double damage', vi: 'Bom gây sát thương gấp đôi' } }
+  );
+  Object.assign(MAP_STORY, {
+    7: [{ en: 'GLOWCAP SWAMP. After the volcano, the road sinks into a swamp where the mushrooms are taller than houses and glow like lanterns.', vi: 'ĐẦM LẦY NẤM PHÁT QUANG. Sau núi lửa, con đường chìm vào một đầm lầy nơi nấm cao hơn nhà và phát sáng như đèn lồng.' },
+        { en: 'Their light is not warm. It is the cold glow of the Spore Queen, who promised Quoc to choke the last fragment in her roots.', vi: 'Thứ ánh sáng ấy không ấm. Đó là ánh lạnh của Nữ Hoàng Bào Tử, kẻ đã hứa với Quoc sẽ siết chặt mảnh cuối trong rễ của mình.' },
+        { en: 'Watch your step. Breathe through your scarf. And never trust a mushroom that smiles.', vi: 'Nhìn kỹ đường đi. Thở qua khăn quàng. Và đừng bao giờ tin một cây nấm biết cười.' }],
+    8: [{ en: 'SUNKEN DEEP. The swamp drains into the sea, and the sea swallows the road. Ember takes a deep breath... and dives.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Đầm lầy đổ ra biển, và biển nuốt mất con đường. Ember hít một hơi thật sâu... rồi lặn xuống.' },
+        { en: 'Down here you swim: press jump again and again to rise, and let the water carry you down gently.', vi: 'Dưới này bạn phải bơi: nhấn nhảy liên tục để ngoi lên, và để nước nhẹ nhàng đưa bạn xuống.' },
+        { en: 'Somewhere in the dark below, something with eight arms is holding a piece of the Sun like a toy.', vi: 'Đâu đó trong bóng tối bên dưới, một thứ có tám cánh tay đang cầm một mảnh Mặt Trời như món đồ chơi.' }],
+    9: [{ en: 'DEEPDIG TUNNELS. The last road to the Citadel goes under the earth, through tunnels the old miners dug and then ran away from.', vi: 'ĐƯỜNG HẦM SÂU. Con đường cuối cùng tới Thành Trì đi xuyên lòng đất, qua những đường hầm thợ mỏ xưa đã đào rồi bỏ chạy.' },
+        { en: 'They ran because of Gravemaw, a worm so big it swims through rock like water. When the ground shakes under your feet - jump away!', vi: 'Họ bỏ chạy vì Gravemaw, một con sâu to đến mức bơi trong đá như bơi trong nước. Khi mặt đất rung dưới chân - hãy nhảy tránh!' }]
+  });
+  Object.assign(MID_STORY, {
+    7: [{ w: 'ember', en: 'Everything glows here... and everything is watching me.', vi: 'Mọi thứ ở đây đều phát sáng... và đều đang nhìn mình.' },
+        { w: 'narr', en: 'A choir of tiny mushrooms turns their caps to follow the lantern. Somewhere ahead, a great one laughs.', vi: 'Một dàn đồng ca nấm nhỏ xoay mũ theo chiếc đèn. Ở phía trước, một cây nấm khổng lồ cất tiếng cười.' }],
+    8: [{ w: 'ember', en: 'The lantern still burns underwater. The Sun really does not give up.', vi: 'Đèn vẫn cháy dưới nước. Mặt Trời đúng là không chịu bỏ cuộc.' },
+        { w: 'narr', en: 'A shadow passes overhead, longer than a ship. The whole sea goes quiet.', vi: 'Một cái bóng lướt qua trên đầu, dài hơn cả con tàu. Cả biển lặng ngắt.' }],
+    9: [{ w: 'ember', en: 'Did the floor just... breathe?', vi: 'Mặt đất vừa... thở à?' },
+        { w: 'narr', en: 'Far below, something enormous turns over in its sleep. The tunnels groan like an old ship.', vi: 'Sâu bên dưới, một thứ khổng lồ trở mình trong giấc ngủ. Các đường hầm rên lên như một con tàu cũ.' }]
+  });
+  Object.assign(BOSS_LINES, {
+    7: { pre: [{ en: 'Shhh, little flame. Breathe in. Every breath of my swamp makes you mine.', vi: 'Suỵt, ngọn lửa nhỏ. Hít vào đi. Mỗi hơi thở trong đầm lầy này đều biến ngươi thành của ta.' },
+        { w: 'ember', en: 'Then I will hold my breath and swing fast.', vi: 'Vậy ta sẽ nín thở và chém thật nhanh.' }],
+      post: [{ en: 'My garden... will grow again... in the dark...', vi: 'Khu vườn của ta... sẽ mọc lại... trong bóng tối...' },
+        { w: 'narr', en: 'The cold glow fades. For the first time in years, real fireflies return to the swamp.', vi: 'Ánh sáng lạnh tắt dần. Lần đầu tiên sau nhiều năm, đom đóm thật quay về đầm lầy.' }] },
+    8: { pre: [{ en: 'GLUB... SHINY... MINE... ALL EIGHT ARMS SAY MINE!', vi: 'ỌC... LẤP LÁNH... CỦA TA... CẢ TÁM CÁNH TAY ĐỀU NÓI CỦA TA!' },
+        { w: 'ember', en: 'You have eight arms and you still cannot share?', vi: 'Có tám cánh tay mà vẫn không biết chia sẻ à?' }],
+      post: [{ en: 'Glub... the light... tickles...', vi: 'Ọc... ánh sáng... nhột quá...' },
+        { w: 'narr', en: 'The Kraken lets go and sinks into the deep, almost smiling. Sunlight reaches the seabed again.', vi: 'Thủy Quái buông tay, chìm vào đáy sâu, gần như mỉm cười. Ánh nắng lại chạm tới đáy biển.' }] },
+    9: { pre: [{ en: 'RRRRUMBLE... I TASTE LIGHT ABOVE ME. I WILL SWALLOW IT WHOLE.', vi: 'GRỪỪỪ... TA NẾM THẤY ÁNH SÁNG Ở TRÊN. TA SẼ NUỐT CHỬNG NÓ.' },
+        { w: 'ember', en: 'Everyone said this would be the easy part. Everyone lied.', vi: 'Ai cũng bảo đoạn này dễ. Ai cũng nói dối.' }],
+      post: [{ en: 'Too... bright... back to... the deep...', vi: 'Sáng... quá... trở về... lòng đất...' },
+        { w: 'narr', en: 'Gravemaw burrows away for good. Above the tunnels, the black towers of the Shadow Citadel are waiting.', vi: 'Gravemaw đào đi mãi mãi. Phía trên đường hầm, những ngọn tháp đen của Thành Trì Bóng Đêm đang chờ đợi.' }] }
+  });
+  // devil cutscenes: the old "after the volcano" scene now plays after the tunnels, right before the Citadel
+  CUT[9] = CUT[5];
+  CUT[5] = [
+    { w: 'quoc', shout: 1, en: 'THE TITAN IS ASH!! ASH!!! HE WAS MY FAVORITE VOLCANO!', vi: 'TITAN THÀNH TRO RỒI!! TRO!!! HẮN LÀ NGỌN NÚI LỬA YÊU THÍCH CỦA TA!' },
+    { w: 'shorty', en: 'Master, the lantern now walks toward the Glowcap Swamp...', vi: 'Thưa chủ nhân, chiếc đèn giờ đang đi về phía Đầm Lầy Nấm...' },
+    { w: 'quoc', en: 'Good. The Spore Queen will fill its little lungs with my darkness.', vi: 'Tốt. Nữ Hoàng Bào Tử sẽ lấp đầy hai lá phổi bé nhỏ của nó bằng bóng tối của ta.' }
+  ];
+  CUT[7] = [
+    { w: 'quoc', shout: 1, en: 'MY QUEEN... COMPOST?! WHO LETS A CANDLE WALK THROUGH A SWAMP?!', vi: 'NỮ HOÀNG CỦA TA... THÀNH PHÂN BÓN?! AI CHO CÂY NẾN ĐI QUA ĐẦM LẦY VẬY?!' },
+    { w: 'sy', en: 'My lord, the road goes under the sea now. No flame survives the deep.', vi: 'Thưa chủ nhân, con đường giờ đi xuống đáy biển. Không ngọn lửa nào sống nổi dưới đó.' },
+    { w: 'quoc', en: 'Then wake the Kraken. Let it squeeze that light until it pops.', vi: 'Vậy đánh thức Thủy Quái đi. Để nó siết ánh sáng đó tới khi vỡ tan.' }
+  ];
+  CUT[8] = [
+    { w: 'quoc', shout: 1, en: 'IT SWIMS?! THE CANDLE SWIMS?!', vi: 'NÓ BIẾT BƠI?! CÂY NẾN BIẾT BƠI?!' },
+    { w: 'shorty', en: 'It... also tickled the Kraken, master. He looked happy.', vi: 'Nó... còn cù lét Thủy Quái nữa, thưa chủ nhân. Trông hắn vui lắm.' },
+    { w: 'quoc', shout: 1, en: 'NOBODY IS HAPPY IN MY KINGDOM! GRAVEMAW! SWALLOW THE ROAD! SWALLOW EVERYTHING!', vi: 'KHÔNG AI ĐƯỢC VUI TRONG VƯƠNG QUỐC CỦA TA! GRAVEMAW! NUỐT CON ĐƯỜNG! NUỐT HẾT MỌI THỨ!' }
+  ];
+  Object.assign(COOP_MAP, {
+    7: [L2('narr', 'Glowcap Swamp. The mushrooms here are taller than houses, and the Spore Queen rules them all.', 'Đầm Lầy Nấm Phát Quang. Nấm ở đây cao hơn nhà, và Nữ Hoàng Bào Tử cai trị tất cả.'),
+        L2('{p1}', 'Nobody eat anything here. I mean it.', 'Không ai được ăn gì ở đây nhé. Nói thật đó.'),
+        L2('{p0}', 'Not even the glowing one? It looks delicious.', 'Kể cả cây phát sáng kia à? Nhìn ngon mà.')],
+    8: [L2('narr', 'The Sunken Deep. The road dives under the sea. Press jump again and again to swim up.', 'Đại Dương Sâu Thẳm. Con đường lặn xuống biển. Nhấn nhảy liên tục để bơi lên.'),
+        L2('{p0}', 'Can everyone swim? ...Can everyone swim WITH armour?', 'Mọi người biết bơi chứ? ...Biết bơi khi đang mặc giáp chứ?'),
+        L2('{p1}', 'Guess we are about to find out!', 'Chắc sắp biết ngay thôi!')],
+    9: [L2('narr', 'The Deepdig Tunnels. Gravemaw the Great Worm swims through rock like water.', 'Đường Hầm Sâu. Sâu Khổng Lồ Gravemaw bơi trong đá như bơi trong nước.'),
+        L2('{p1}', 'If the ground shakes under you, jump. Do not ask questions, just jump.', 'Đất rung dưới chân thì nhảy. Đừng hỏi, cứ nhảy.'),
+        L2('{p0}', 'Last land before the Citadel. Let us finish this together.', 'Vùng đất cuối trước Thành Trì. Cùng nhau kết thúc nào.')]
+  });
+  // side characters
+  Object.assign(NPCS, {
+    frog: { spr: 'npc_frog', name: { en: 'Old Croak the Frog Sage', vi: 'Ếch Hiền Già Ộp' }, generic: [
+      { en: 'Croak... a lantern in my swamp. I have waited one hundred rainy seasons for you.', vi: 'Ộp... một chiếc đèn trong đầm lầy của ta. Ta đã đợi ngươi một trăm mùa mưa.' },
+      { en: 'The Queen\'s spores make you slow. Keep moving, keep swinging, and never stand in the green clouds.', vi: 'Bào tử của Nữ Hoàng làm ngươi chậm lại. Cứ di chuyển, cứ chém, và đừng bao giờ đứng trong đám mây xanh.' }] },
+    witch: { spr: 'npc_witch', name: { en: 'Granny Moss', vi: 'Bà Rêu' }, gift: { dagger: 3, bomb: 2, flask: 2 }, generic: [
+      { en: 'Heh heh. Not every witch works for Quoc, dearie. Some of us just like soup.', vi: 'Hê hê. Không phải phù thủy nào cũng làm cho Quoc đâu cưng. Có người chỉ thích nấu súp thôi.' },
+      { en: 'Take these. Bombs for mushrooms, flasks for anything that bites. Now shoo!', vi: 'Cầm lấy. Bom cho lũ nấm, bình lửa cho bất cứ thứ gì biết cắn. Giờ thì đi đi!' }] },
+    mermaid: { spr: 'npc_mermaid', name: { en: 'Nami the Mermaid', vi: 'Nàng Tiên Cá Nami' }, generic: [
+      { en: 'A land-walker with a little sun! The fish told me you were coming.', vi: 'Một người trên cạn mang theo mặt trời nhỏ! Lũ cá đã kể với tôi bạn sắp tới.' },
+      { en: 'The Kraken is not evil, just lonely and greedy. Hit it when it opens its arms wide!', vi: 'Thủy Quái không ác đâu, chỉ cô đơn và tham lam thôi. Đánh nó khi nó dang rộng tay nhé!' }] },
+    pirate: { spr: 'npc_pirate', name: { en: 'Captain Redbeard', vi: 'Thuyền Trưởng Râu Đỏ' }, gift: { dagger: 6, bomb: 1, flask: 1 }, generic: [
+      { en: 'Arr! My ship sank chasing that Kraken. Now I live here. The rent is cheap.', vi: 'Arr! Tàu ta chìm vì đuổi theo con Thủy Quái. Giờ ta sống ở đây. Tiền thuê rẻ lắm.' },
+      { en: 'Take my daggers, lad. They fly straight even underwater. Mostly.', vi: 'Cầm dao của ta đi nhóc. Chúng bay thẳng kể cả dưới nước. Phần lớn là vậy.' }] },
+    fisher: { spr: 'npc_fisher', name: { en: 'Old Tu the Fisherman', vi: 'Ông Tư Đánh Cá' }, generic: [
+      { en: 'Forty years I fished these waters and never caught anything like you.', vi: 'Bốn mươi năm ông câu ở vùng nước này, chưa bao giờ câu được thứ gì như cháu.' },
+      { en: 'Star Gems glitter on the coral, high up. Swim up and look around, child.', vi: 'Ngọc Sao lấp lánh trên rạn san hô, ở chỗ cao. Bơi lên mà nhìn quanh nhé cháu.' }] },
+    miner: { spr: 'npc_miner', name: { en: 'Bay the Miner', vi: 'Thợ Mỏ Bảy Búa' }, gift: { dagger: 0, bomb: 4, flask: 0 }, generic: [
+      { en: 'You hear that rumble? That is Gravemaw. He ate my cart. And my lunch. And my other cart.', vi: 'Nghe tiếng ầm ầm không? Đó là Gravemaw. Nó ăn mất xe của tôi. Cả bữa trưa. Cả cái xe kia nữa.' },
+      { en: 'Here, take some bombs. Cracked walls hide shortcuts down here.', vi: 'Đây, cầm ít bom. Dưới này tường nứt hay giấu lối tắt lắm.' }] },
+    mole: { spr: 'npc_mole', name: { en: 'Grandpa Mole', vi: 'Ông Chuột Chũi' }, generic: [
+      { en: 'Eh? Speak up, I cannot see you. I cannot see anyone. I am a mole.', vi: 'Hả? Nói to lên, ông không thấy cháu. Ông chẳng thấy ai cả. Ông là chuột chũi mà.' },
+      { en: 'But I can FEEL the worm. When the dust jumps, he is right below. Run!', vi: 'Nhưng ông CẢM được con sâu. Khi bụi nảy lên là nó ở ngay bên dưới. Chạy!' }] },
+    bard: { spr: 'npc_bard', name: { en: 'Lirio the Bard', vi: 'Lirio Người Hát Rong' }, generic: [
+      { en: 'Ah, the Lanternbearer! I am writing a song about you. So far it has three verses and one rhyme.', vi: 'A, Người Mang Đèn! Tôi đang viết một bài hát về bạn. Hiện có ba đoạn và đúng một vần.' },
+      { en: '"Oh little flame, so brave and bright, you hit the slimes with all your might..." Too much?', vi: '"Ơi ngọn lửa nhỏ dũng cảm sáng ngời, chém lũ slime chẳng nghỉ ngơi..." Hơi lố hả?' }] }
+  });
   function frame(now) {
     requestAnimationFrame(frame);
     step(now);

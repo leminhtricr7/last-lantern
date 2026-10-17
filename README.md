@@ -125,6 +125,17 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - Every room has a join link (`...?room=CODE`, press **L** in the lobby to copy it). Opening the link joins the room directly - to test alone, create a room in one tab and open the link in a second tab. The game keeps running while its tab is in the background during co-op.
 - Dev test page with a host and a guest side by side: `http://localhost:8123/tools/coop_test.html`.
 
+## 10 maps, Star Gems and the in-level bag
+- **10 maps**. After the Volcano come three new lands, then the Shadow Citadel (Quoc) as map 10:
+  - Map 7 **Glowcap Swamp**: giant glowing mushrooms; boss **Spore Queen**.
+  - Map 8 **Sunken Deep**: underwater, you swim (press jump again and again to rise, the water slows your fall); boss **Abyssal Kraken**.
+  - Map 9 **Deepdig Tunnels**: mines with wooden supports; boss **Gravemaw the Great Worm**, which hides underground, rumbles under a hero for a moment and bursts out - jump away in time.
+- Internally the new lands are BIOMES 7-9 and the Citadel stays BIOMES 6; `LORDER` in `src/levels.js` is the play order and `LDIFF` keeps the Citadel the hardest.
+- New side characters: Old Croak the frog sage, Granny Moss the witch, Nami the mermaid, Captain Redbeard, Old Tu the fisherman, Bay the miner, Grandpa Mole, Lirio the bard - and **Mira the Gem Trader** on every map.
+- **Star Gems**: 4 hidden in every map (usually up high). Trade them with Mira (or the "Star Gems" tab of the shop) for supply crates, gold, permanent +1 heart / +1 damage, a golden glow, dragon wings and 4 secret co-op heroes.
+- Press **B** (or I / gamepad Back) during a level to open the shop and bag without leaving the level.
+- In co-op, hearts and gold are shared by the whole team; everything else belongs to whoever grabs it first.
+
 ## Project layout
 
 - `src/art.js` — all pixel art is generated in code (sprites, tilesets, parallax backgrounds)

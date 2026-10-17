@@ -79,8 +79,45 @@ const BIOMES = [
     enemies: [{ t: 'knight', w: 4, min: 0 }, { t: 'ghost', w: 3, min: 0 }, { t: 'shadeslime', w: 3, min: 0 }, { t: 'shadowskel', w: 3, min: 0.2 }, { t: 'cavespider', w: 2, min: 0.3 }, { t: 'shadewisp', w: 3, min: 0.1 }, { t: 'shadeimp', w: 3, min: 0.3 }],
     music: { root: 50, scale: [0, 2, 3, 5, 7, 8, 10], bpm: 120, wave: 'square', prog: [0, -2, -4, -5], seed: 41 },
     proj: '#d58bff', movers: true, traps: ['saw', 'turret', 'spiketrap'], trapStyle: 'dark'
+  },
+  { // 8 (play order 7)
+    id: 'swamp', seed: 88, len: 540, hazard: 'spikes', dark: 0.35, sun: false, particles: 'spores',
+    name: { en: 'Glowcap Swamp', vi: 'Đầm Lầy Nấm Phát Quang' }, sub: { en: 'Everything here glows, and everything here bites', vi: 'Mọi thứ ở đây đều phát sáng, và đều biết cắn' },
+    sky: ['#06120e', '#0f2a20', '#1f4a34', '#3f6a3a'], far: '#14301f', mid: '#0b1f16', style: 'swamp', tree: ['#0c2018', '#1d4a35'],
+    ground: { top: '#4a7a3a', topDark: '#2a4a22', topLight: '#7ab04a', body: '#3a2e22', dark: '#241c14', light: '#54442e' },
+    plat: ['#6a5a3a', '#3a2e1e'], spike: ['#c8f0a0', '#5a8a3a'],
+    decor: [['mushroom'], ['mushroom', { r: 'p', e: 'm' }], ['mushroom', { r: 'c', e: 'w' }], ['tuft', { g: 'G', t: 'g' }], ['rock', { d: 'G', l: 'g', D: 'k' }]],
+    enemies: [{ t: 'bogslime', w: 4, min: 0 }, { t: 'shroom', w: 3, min: 0 }, { t: 'mosquito', w: 3, min: 0.05 }, { t: 'bogzombie', w: 3, min: 0.15 }, { t: 'toxbeetle', w: 2, min: 0.2 }],
+    music: { root: 53, scale: [0, 2, 3, 7, 8], bpm: 104, wave: 'triangle', prog: [0, -4, -2, -5], seed: 51 },
+    proj: '#c8f0a0', traps: ['turret', 'spiketrap'], trapStyle: 'wood'
+  },
+  { // 9 (play order 8)
+    id: 'ocean', seed: 99, len: 560, hazard: 'spikes', dark: 0.3, sun: false, water: true, particles: 'bubbles',
+    name: { en: 'Sunken Deep', vi: 'Đại Dương Sâu Thẳm' }, sub: { en: 'Hold your breath - the sea is listening', vi: 'Nín thở nhé - biển cả đang lắng nghe' },
+    sky: ['#02101e', '#06243e', '#0a4a6a', '#1a7a9a'], far: '#063050', mid: '#042238', style: 'ocean', tree: ['#0a5a4a', '#1a8a6a'],
+    ground: { top: '#e8d8a0', topDark: '#b8a070', topLight: '#fff0c0', body: '#2a4a6a', dark: '#1a3048', light: '#3a6a8a' },
+    plat: ['#c86a8a', '#7a3a5a'], spike: ['#3a2a5a', '#a07ae0'],
+    decor: [['crystal', { c: 'm', C: 'r' }], ['tuft', { g: 'C', t: 'c', G: 'B' }], ['rock', { d: 'B', l: 'b', D: 'D' }], ['crystal', { c: 'c', C: 'C' }]],
+    enemies: [{ t: 'crab', w: 4, min: 0 }, { t: 'jelly', w: 4, min: 0 }, { t: 'piranha', w: 3, min: 0.05 }, { t: 'seaslime', w: 3, min: 0 }, { t: 'eel', w: 2, min: 0.2 }],
+    music: { root: 57, scale: [0, 2, 4, 7, 9, 11], bpm: 84, wave: 'triangle', prog: [0, 4, 5, 3], seed: 63, density: 0.5 },
+    proj: '#6ee7f2', traps: ['rockfall', 'saw'], trapStyle: 'dark'
+  },
+  { // 10 (play order 9)
+    id: 'tunnels', seed: 111, len: 580, hazard: 'spikes', dark: 0.62, sun: false, particles: 'drips',
+    name: { en: 'Deepdig Tunnels', vi: 'Đường Hầm Sâu' }, sub: { en: 'The ground has teeth, and it is hungry', vi: 'Mặt đất có răng, và nó đang đói' },
+    sky: ['#0a0806', '#1a140e', '#2a2016', '#3a2c1e'], far: '#1e1610', mid: '#140e0a', style: 'tunnel', tree: ['#000', '#000'],
+    ground: { top: '#8a6a4a', topDark: '#5a4430', topLight: '#b08a60', body: '#3a2a1c', dark: '#241a10', light: '#52402c' },
+    plat: ['#8a6a3a', '#4a3418'], spike: ['#c8c0b0', '#6a6050'],
+    decor: [['rock', { d: 'n', l: 'S', D: 'N' }], ['crystal', { c: 'y', C: 'o' }], ['bones'], ['torch']],
+    enemies: [{ t: 'mole', w: 4, min: 0 }, { t: 'rockslime', w: 3, min: 0 }, { t: 'bat', w: 3, min: 0 }, { t: 'cavespider', w: 3, min: 0.1 }, { t: 'minerskel', w: 3, min: 0.2 }],
+    music: { root: 48, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 112, wave: 'square', prog: [0, 1, 0, -2], seed: 72, density: 0.55 },
+    proj: '#ffd34e', movers: true, traps: ['rockfall', 'saw', 'spiketrap'], trapStyle: 'dark'
   }
 ];
+// play order: the three new lands (7, 8, 9) come before the Shadow Citadel (6), which is the last map
+const LORDER = [0, 1, 2, 3, 4, 5, 7, 8, 9, 6];
+const LPOS = li => Math.max(0, LORDER.indexOf(li));
+const LDIFF = li => [0, 1, 2, 3, 4, 5, 6, 5.25, 5.5, 5.75][li] || 0;   // how hard a map is (the Citadel stays the hardest)
 
 const BOSS_MUSIC = { root: 48, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 150, wave: 'square', prog: [0, 1, 3, 1], seed: 77, density: 0.7 };
 const DEVIL_MUSIC = { root: 38, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 68, wave: 'sawtooth', prog: [0, 1, 0, -2], seed: 66, density: 0.3 };
@@ -93,6 +130,9 @@ const NPC_PLAN = {
   3: { start: ['bram', 'trader'], cps: ['gob', 'duong', 'lyra', 'smith'] },
   4: { start: ['trader'], cps: ['angel', 'santree', 'smith'] },
   5: { start: ['trader'], cps: ['gob', 'lyra', 'smith'] },
+  7: { start: ['trader', 'frog'], cps: ['witch', 'bard', 'gob'] },
+  8: { start: ['trader', 'pirate'], cps: ['mermaid', 'fisher', 'bard'] },
+  9: { start: ['trader', 'miner'], cps: ['mole', 'bard', 'smith'] },
   6: { start: ['trader'], cps: ['wizard'], pre: ['lila', 'angel', 'bram', 'quan', 'lyra', 'fairy'] }
 };
 // puzzles per map, easy -> hard
@@ -103,12 +143,15 @@ const PUZZLES = {
   3: ['timed', 'key', 'bombwall'],
   4: ['seqtorch', 'multilever', 'timed'],
   5: ['dragon6', 'timed', 'bombwall', 'trial', 'seqtorch', 'key'],
+  7: ['torches', 'key', 'bombwall', 'multilever', 'timed'],
+  8: ['lever', 'seqtorch', 'key', 'timed'],
+  9: ['bombwall', 'multilever', 'key', 'bombwall', 'seqtorch'],
   6: ['runes', 'fetch', 'seqtorch', 'trial', 'shorty', 'multilever', 'fetch', 'timed', 'trial', 'sy']
 };
 const TRIAL_WAVES = { 0: 2, 2: 3, 5: 4, 6: 5 };
 
 function genLevel(li) {
-  const B = BIOMES[li], rnd = mulberry32(9001 + li * 7919);
+  const B = BIOMES[li], rnd = mulberry32(9001 + li * 7919), lv = LDIFF(li);
   const R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
   const H = 15, W = B.len + 100;
   const grid = []; for (let y = 0; y < H; y++) grid.push(new Array(W).fill(' '));
@@ -119,7 +162,7 @@ function genLevel(li) {
   const maxGap = li === 0 ? 3 : 5;
   const hz = B.hazard === 'lava' ? '~' : '^';
   let x = 0, gy = 10;
-  const diff = () => Math.min(1, 0.08 + li * 0.12 + (x / B.len) * 0.3);
+  const diff = () => Math.min(1, 0.08 + lv * 0.12 + (x / B.len) * 0.3);
   const spawn = (type, tx, ty, ex) => { L.spawns.push(Object.assign({ id: L.id++, type, x: tx * TS + TS / 2, y: ty * TS }, ex)); };
 
   function pick() {
@@ -131,8 +174,8 @@ function genLevel(li) {
   }
   function variant() {
     const r = rnd();
-    if (li >= 3 && r < 0.05 + 0.025 * li) return 'elite';
-    if (li >= 1 && r < 0.12 + 0.03 * li) return 'big';
+    if (li >= 3 && r < 0.05 + 0.025 * lv) return 'elite';
+    if (li >= 1 && r < 0.12 + 0.03 * lv) return 'big';
     if (r > 0.84) return 'small';
     return null;
   }
@@ -366,7 +409,7 @@ function genLevel(li) {
   function mover() {
     const n = R(6, 8);
     for (let i = 0; i < n; i++) { if (hz === '~') { set(x + i, H - 2, '~'); set(x + i, H - 1, '~'); } else set(x + i, H - 1, '^'); }
-    L.plats.push({ x: (x - 1) * TS, y: gy * TS, w: 48, h: 8, x0: (x - 1) * TS, x1: (x + n - 2) * TS, y0: gy * TS, y1: gy * TS, sp: 28 + li * 3, t: 0, dx: 0, dy: 0 });
+    L.plats.push({ x: (x - 1) * TS, y: gy * TS, w: 48, h: 8, x0: (x - 1) * TS, x1: (x + n - 2) * TS, y0: gy * TS, y1: gy * TS, sp: 28 + lv * 3, t: 0, dx: 0, dy: 0 });
     if (hz === '~' && rnd() < 0.7) spawn('lavablob', x + n / 2, H - 1);
     coinsLine(x + 2, gy - 3, 3);
     x += n;

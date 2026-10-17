@@ -1,0 +1,135 @@
+  // ===================== THREE NEW LANDS (played as maps 7-9, before the Shadow Citadel which is now map 10) =====================
+  Object.assign(EN, {
+    bogslime: { spr: 'slime', swap: { g: 'G', t: 'x', G: 'N' }, out: '#7ed957', w: 12, h: 9, hp: 3, sp: 24, ai: 'hop', jump: 190 },
+    mosquito: { spr: 'bat', swap: { p: 'x', P: 'G' }, w: 12, h: 7, hp: 2, sp: 62, ai: 'fly' },
+    bogzombie: { spr: 'zombie', swap: { g: 'x', G: 'G' }, out: '#7ed957', w: 9, h: 14, hp: 5, sp: 24, ai: 'walk' },
+    toxbeetle: { spr: 'beetle', swap: { n: 'g', N: 'G', r: 'p' }, w: 10, h: 6, hp: 3, sp: 40, ai: 'walk' },
+    crab: { spr: 'beetle', swap: { n: 'r', N: 'R', r: 'y' }, out: '#ff9a8a', w: 11, h: 6, hp: 3, sp: 40, ai: 'walk' },
+    jelly: { spr: 'ghost', swap: { w: 'm', k: 'p' }, out: '#ff9fd0', w: 10, h: 11, hp: 3, sp: 26, ai: 'ghost' },
+    piranha: { spr: 'bat', swap: { p: 'b', P: 'B', w: 'r' }, w: 12, h: 7, hp: 2, sp: 66, ai: 'fly' },
+    seaslime: { spr: 'slime', swap: { g: 'c', t: 'w', G: 'B' }, out: '#6ee7f2', w: 12, h: 9, hp: 3, sp: 22, ai: 'hop', jump: 150 },
+    eel: { spr: 'wisp', swap: { c: 'y', w: 'w' }, out: '#ffe44e', w: 8, h: 8, hp: 2, sp: 58, ai: 'ghost', blink: true },
+    mole: { spr: 'beetle', swap: { n: 'N', N: 'k', r: 'm' }, w: 12, h: 7, hp: 4, sp: 36, ai: 'walk', burrow: true },
+    rockslime: { spr: 'slime', swap: { g: 'd', t: 'l', G: 'D' }, out: '#c8c0b0', w: 12, h: 9, hp: 5, sp: 18, ai: 'hop', jump: 170 },
+    minerskel: { spr: 'skeleton', swap: { e: 'y', E: 'Y' }, out: '#ffd34e', w: 9, h: 15, hp: 5, sp: 30, ai: 'charge' }
+  });
+  ['mosquito', 'piranha'].forEach(t => FLY.add(t));
+  BOSS.push(
+    { name: { en: 'Spore Queen', vi: 'Nữ Hoàng Bào Tử' }, w: 40, h: 46, hp: 600, armor: 0.3, smart: 0.55, sp: 24, minion: 'bogslime', proj: '#c8f0a0', skills: ['goo', 'shoot', 'summon', 'rain', 'jump', 'spin'], skills2: ['slam', 'roar', 'erupt'] },
+    { name: { en: 'Abyssal Kraken', vi: 'Thủy Quái Kraken' }, w: 52, h: 44, hp: 660, armor: 0.3, smart: 0.6, sp: 22, minion: 'piranha', proj: '#6ee7f2', skills: ['erupt', 'shoot', 'rain', 'charge', 'summon', 'fan'], skills2: ['spin', 'roar', 'slam'] },
+    { name: { en: 'Gravemaw the Great Worm', vi: 'Sâu Khổng Lồ Gravemaw' }, w: 44, h: 44, hp: 720, armor: 0.35, smart: 0.6, sp: 28, minion: 'mole', proj: '#c8a070', skills: ['burrow', 'burrow', 'charge', 'rain', 'summon'], skills2: ['burrow', 'slam', 'roar'] }
+  );
+  // the worm hides under the ground, rumbles under a hero for a moment, then bursts out - move away in time!
+  BS.burrow = {
+    tele: 0.4,
+    start(b) { b.n = 2 + (b.phase >= 1 ? 1 : 0); b.ph = 0; b.skT = 0.45; b.hide = true; b.vx = 0; const c = bc(b); Snd.play('crumble'); Q.shake = Math.max(Q.shake, 0.4); emit(c.x, b.y + b.h, 26, { col: ['#8a6a4a', '#5a4430', '#c8a070'], sp0: 30, sp1: 120, vy: -60 }); addRing(c.x, b.y + b.h, '#8a6a4a', 50, 0.5); },
+    upd(b, dt) {
+      b.skT -= dt;
+      if (b.ph === 0) { if (b.skT <= 0) { const t = Q.P; b.tx = arenaClamp(t.x + 4); b.ph = 1; b.skT = 1.0 - Math.min(0.3, b.phase * 0.12); } }
+      else if (b.ph === 1) {
+        const gy = groundYAt(b.tx); Q.shake = Math.max(Q.shake, 0.12);
+        if (Math.random() < 0.7) emit(b.tx + rr(-14, 14), gy, 1, { col: ['#8a6a4a', '#c8a070'], sp0: 10, sp1: 50, vy: -50 });
+        if (b.skT <= 0) {
+          b.x = b.tx - b.w / 2; b.y = gy - b.h; b.hide = false; b.vy = -330; b.onGround = false; b.ph = 2; b.skT = 0.75;
+          Snd.play('boom'); Snd.creature(Q.li, 'attack', true); Q.shake = 0.7; emit(b.tx, gy, 40, { col: ['#8a6a4a', '#5a4430', '#fff6e0'], sp0: 40, sp1: 170, vy: -90 }); addRing(b.tx, gy, '#c8a070', 70, 0.5);
+          hitPl({ x: b.tx - b.w / 2 - 6, y: gy - b.h - 20, w: b.w + 12, h: b.h + 20 }, () => hurtPlayer(2, b.tx));
+          for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + (i - 2.5) * 0.35; firePr(b.tx, gy - 10, Math.cos(a) * 130, Math.sin(a) * 160, { col: '#8a6a4a' }); }
+        }
+      } else if (b.ph === 2 && b.skT <= 0) {
+        if (--b.n > 0) { b.hide = true; b.ph = 0; b.skT = 0.35; Snd.play('crumble'); emit(b.x + b.w / 2, b.y + b.h, 20, { col: ['#8a6a4a', '#5a4430'], sp0: 20, sp1: 90, vy: -40 }); }
+        else return true;
+      }
+    }
+  };
+  RELICS.push(
+    { name: { en: 'Spore Charm', vi: 'Bùa Bào Tử' }, desc: { en: 'Your sword poisons what it hits', vi: 'Kiếm của bạn làm trúng độc kẻ địch' } },
+    { name: { en: 'Pearl of Tides', vi: 'Ngọc Trai Thủy Triều' }, desc: { en: '+1 max heart, swim faster', vi: '+1 tim tối đa, bơi nhanh hơn' } },
+    { name: { en: 'Mole Claw', vi: 'Móng Chuột Chũi' }, desc: { en: 'Bombs deal double damage', vi: 'Bom gây sát thương gấp đôi' } }
+  );
+  Object.assign(MAP_STORY, {
+    7: [{ en: 'GLOWCAP SWAMP. After the volcano, the road sinks into a swamp where the mushrooms are taller than houses and glow like lanterns.', vi: 'ĐẦM LẦY NẤM PHÁT QUANG. Sau núi lửa, con đường chìm vào một đầm lầy nơi nấm cao hơn nhà và phát sáng như đèn lồng.' },
+        { en: 'Their light is not warm. It is the cold glow of the Spore Queen, who promised Quoc to choke the last fragment in her roots.', vi: 'Thứ ánh sáng ấy không ấm. Đó là ánh lạnh của Nữ Hoàng Bào Tử, kẻ đã hứa với Quoc sẽ siết chặt mảnh cuối trong rễ của mình.' },
+        { en: 'Watch your step. Breathe through your scarf. And never trust a mushroom that smiles.', vi: 'Nhìn kỹ đường đi. Thở qua khăn quàng. Và đừng bao giờ tin một cây nấm biết cười.' }],
+    8: [{ en: 'SUNKEN DEEP. The swamp drains into the sea, and the sea swallows the road. Ember takes a deep breath... and dives.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Đầm lầy đổ ra biển, và biển nuốt mất con đường. Ember hít một hơi thật sâu... rồi lặn xuống.' },
+        { en: 'Down here you swim: press jump again and again to rise, and let the water carry you down gently.', vi: 'Dưới này bạn phải bơi: nhấn nhảy liên tục để ngoi lên, và để nước nhẹ nhàng đưa bạn xuống.' },
+        { en: 'Somewhere in the dark below, something with eight arms is holding a piece of the Sun like a toy.', vi: 'Đâu đó trong bóng tối bên dưới, một thứ có tám cánh tay đang cầm một mảnh Mặt Trời như món đồ chơi.' }],
+    9: [{ en: 'DEEPDIG TUNNELS. The last road to the Citadel goes under the earth, through tunnels the old miners dug and then ran away from.', vi: 'ĐƯỜNG HẦM SÂU. Con đường cuối cùng tới Thành Trì đi xuyên lòng đất, qua những đường hầm thợ mỏ xưa đã đào rồi bỏ chạy.' },
+        { en: 'They ran because of Gravemaw, a worm so big it swims through rock like water. When the ground shakes under your feet - jump away!', vi: 'Họ bỏ chạy vì Gravemaw, một con sâu to đến mức bơi trong đá như bơi trong nước. Khi mặt đất rung dưới chân - hãy nhảy tránh!' }]
+  });
+  Object.assign(MID_STORY, {
+    7: [{ w: 'ember', en: 'Everything glows here... and everything is watching me.', vi: 'Mọi thứ ở đây đều phát sáng... và đều đang nhìn mình.' },
+        { w: 'narr', en: 'A choir of tiny mushrooms turns their caps to follow the lantern. Somewhere ahead, a great one laughs.', vi: 'Một dàn đồng ca nấm nhỏ xoay mũ theo chiếc đèn. Ở phía trước, một cây nấm khổng lồ cất tiếng cười.' }],
+    8: [{ w: 'ember', en: 'The lantern still burns underwater. The Sun really does not give up.', vi: 'Đèn vẫn cháy dưới nước. Mặt Trời đúng là không chịu bỏ cuộc.' },
+        { w: 'narr', en: 'A shadow passes overhead, longer than a ship. The whole sea goes quiet.', vi: 'Một cái bóng lướt qua trên đầu, dài hơn cả con tàu. Cả biển lặng ngắt.' }],
+    9: [{ w: 'ember', en: 'Did the floor just... breathe?', vi: 'Mặt đất vừa... thở à?' },
+        { w: 'narr', en: 'Far below, something enormous turns over in its sleep. The tunnels groan like an old ship.', vi: 'Sâu bên dưới, một thứ khổng lồ trở mình trong giấc ngủ. Các đường hầm rên lên như một con tàu cũ.' }]
+  });
+  Object.assign(BOSS_LINES, {
+    7: { pre: [{ en: 'Shhh, little flame. Breathe in. Every breath of my swamp makes you mine.', vi: 'Suỵt, ngọn lửa nhỏ. Hít vào đi. Mỗi hơi thở trong đầm lầy này đều biến ngươi thành của ta.' },
+        { w: 'ember', en: 'Then I will hold my breath and swing fast.', vi: 'Vậy ta sẽ nín thở và chém thật nhanh.' }],
+      post: [{ en: 'My garden... will grow again... in the dark...', vi: 'Khu vườn của ta... sẽ mọc lại... trong bóng tối...' },
+        { w: 'narr', en: 'The cold glow fades. For the first time in years, real fireflies return to the swamp.', vi: 'Ánh sáng lạnh tắt dần. Lần đầu tiên sau nhiều năm, đom đóm thật quay về đầm lầy.' }] },
+    8: { pre: [{ en: 'GLUB... SHINY... MINE... ALL EIGHT ARMS SAY MINE!', vi: 'ỌC... LẤP LÁNH... CỦA TA... CẢ TÁM CÁNH TAY ĐỀU NÓI CỦA TA!' },
+        { w: 'ember', en: 'You have eight arms and you still cannot share?', vi: 'Có tám cánh tay mà vẫn không biết chia sẻ à?' }],
+      post: [{ en: 'Glub... the light... tickles...', vi: 'Ọc... ánh sáng... nhột quá...' },
+        { w: 'narr', en: 'The Kraken lets go and sinks into the deep, almost smiling. Sunlight reaches the seabed again.', vi: 'Thủy Quái buông tay, chìm vào đáy sâu, gần như mỉm cười. Ánh nắng lại chạm tới đáy biển.' }] },
+    9: { pre: [{ en: 'RRRRUMBLE... I TASTE LIGHT ABOVE ME. I WILL SWALLOW IT WHOLE.', vi: 'GRỪỪỪ... TA NẾM THẤY ÁNH SÁNG Ở TRÊN. TA SẼ NUỐT CHỬNG NÓ.' },
+        { w: 'ember', en: 'Everyone said this would be the easy part. Everyone lied.', vi: 'Ai cũng bảo đoạn này dễ. Ai cũng nói dối.' }],
+      post: [{ en: 'Too... bright... back to... the deep...', vi: 'Sáng... quá... trở về... lòng đất...' },
+        { w: 'narr', en: 'Gravemaw burrows away for good. Above the tunnels, the black towers of the Shadow Citadel are waiting.', vi: 'Gravemaw đào đi mãi mãi. Phía trên đường hầm, những ngọn tháp đen của Thành Trì Bóng Đêm đang chờ đợi.' }] }
+  });
+  // devil cutscenes: the old "after the volcano" scene now plays after the tunnels, right before the Citadel
+  CUT[9] = CUT[5];
+  CUT[5] = [
+    { w: 'quoc', shout: 1, en: 'THE TITAN IS ASH!! ASH!!! HE WAS MY FAVORITE VOLCANO!', vi: 'TITAN THÀNH TRO RỒI!! TRO!!! HẮN LÀ NGỌN NÚI LỬA YÊU THÍCH CỦA TA!' },
+    { w: 'shorty', en: 'Master, the lantern now walks toward the Glowcap Swamp...', vi: 'Thưa chủ nhân, chiếc đèn giờ đang đi về phía Đầm Lầy Nấm...' },
+    { w: 'quoc', en: 'Good. The Spore Queen will fill its little lungs with my darkness.', vi: 'Tốt. Nữ Hoàng Bào Tử sẽ lấp đầy hai lá phổi bé nhỏ của nó bằng bóng tối của ta.' }
+  ];
+  CUT[7] = [
+    { w: 'quoc', shout: 1, en: 'MY QUEEN... COMPOST?! WHO LETS A CANDLE WALK THROUGH A SWAMP?!', vi: 'NỮ HOÀNG CỦA TA... THÀNH PHÂN BÓN?! AI CHO CÂY NẾN ĐI QUA ĐẦM LẦY VẬY?!' },
+    { w: 'sy', en: 'My lord, the road goes under the sea now. No flame survives the deep.', vi: 'Thưa chủ nhân, con đường giờ đi xuống đáy biển. Không ngọn lửa nào sống nổi dưới đó.' },
+    { w: 'quoc', en: 'Then wake the Kraken. Let it squeeze that light until it pops.', vi: 'Vậy đánh thức Thủy Quái đi. Để nó siết ánh sáng đó tới khi vỡ tan.' }
+  ];
+  CUT[8] = [
+    { w: 'quoc', shout: 1, en: 'IT SWIMS?! THE CANDLE SWIMS?!', vi: 'NÓ BIẾT BƠI?! CÂY NẾN BIẾT BƠI?!' },
+    { w: 'shorty', en: 'It... also tickled the Kraken, master. He looked happy.', vi: 'Nó... còn cù lét Thủy Quái nữa, thưa chủ nhân. Trông hắn vui lắm.' },
+    { w: 'quoc', shout: 1, en: 'NOBODY IS HAPPY IN MY KINGDOM! GRAVEMAW! SWALLOW THE ROAD! SWALLOW EVERYTHING!', vi: 'KHÔNG AI ĐƯỢC VUI TRONG VƯƠNG QUỐC CỦA TA! GRAVEMAW! NUỐT CON ĐƯỜNG! NUỐT HẾT MỌI THỨ!' }
+  ];
+  Object.assign(COOP_MAP, {
+    7: [L2('narr', 'Glowcap Swamp. The mushrooms here are taller than houses, and the Spore Queen rules them all.', 'Đầm Lầy Nấm Phát Quang. Nấm ở đây cao hơn nhà, và Nữ Hoàng Bào Tử cai trị tất cả.'),
+        L2('{p1}', 'Nobody eat anything here. I mean it.', 'Không ai được ăn gì ở đây nhé. Nói thật đó.'),
+        L2('{p0}', 'Not even the glowing one? It looks delicious.', 'Kể cả cây phát sáng kia à? Nhìn ngon mà.')],
+    8: [L2('narr', 'The Sunken Deep. The road dives under the sea. Press jump again and again to swim up.', 'Đại Dương Sâu Thẳm. Con đường lặn xuống biển. Nhấn nhảy liên tục để bơi lên.'),
+        L2('{p0}', 'Can everyone swim? ...Can everyone swim WITH armour?', 'Mọi người biết bơi chứ? ...Biết bơi khi đang mặc giáp chứ?'),
+        L2('{p1}', 'Guess we are about to find out!', 'Chắc sắp biết ngay thôi!')],
+    9: [L2('narr', 'The Deepdig Tunnels. Gravemaw the Great Worm swims through rock like water.', 'Đường Hầm Sâu. Sâu Khổng Lồ Gravemaw bơi trong đá như bơi trong nước.'),
+        L2('{p1}', 'If the ground shakes under you, jump. Do not ask questions, just jump.', 'Đất rung dưới chân thì nhảy. Đừng hỏi, cứ nhảy.'),
+        L2('{p0}', 'Last land before the Citadel. Let us finish this together.', 'Vùng đất cuối trước Thành Trì. Cùng nhau kết thúc nào.')]
+  });
+  // side characters
+  Object.assign(NPCS, {
+    frog: { spr: 'npc_frog', name: { en: 'Old Croak the Frog Sage', vi: 'Ếch Hiền Già Ộp' }, generic: [
+      { en: 'Croak... a lantern in my swamp. I have waited one hundred rainy seasons for you.', vi: 'Ộp... một chiếc đèn trong đầm lầy của ta. Ta đã đợi ngươi một trăm mùa mưa.' },
+      { en: 'The Queen\'s spores make you slow. Keep moving, keep swinging, and never stand in the green clouds.', vi: 'Bào tử của Nữ Hoàng làm ngươi chậm lại. Cứ di chuyển, cứ chém, và đừng bao giờ đứng trong đám mây xanh.' }] },
+    witch: { spr: 'npc_witch', name: { en: 'Granny Moss', vi: 'Bà Rêu' }, gift: { dagger: 3, bomb: 2, flask: 2 }, generic: [
+      { en: 'Heh heh. Not every witch works for Quoc, dearie. Some of us just like soup.', vi: 'Hê hê. Không phải phù thủy nào cũng làm cho Quoc đâu cưng. Có người chỉ thích nấu súp thôi.' },
+      { en: 'Take these. Bombs for mushrooms, flasks for anything that bites. Now shoo!', vi: 'Cầm lấy. Bom cho lũ nấm, bình lửa cho bất cứ thứ gì biết cắn. Giờ thì đi đi!' }] },
+    mermaid: { spr: 'npc_mermaid', name: { en: 'Nami the Mermaid', vi: 'Nàng Tiên Cá Nami' }, generic: [
+      { en: 'A land-walker with a little sun! The fish told me you were coming.', vi: 'Một người trên cạn mang theo mặt trời nhỏ! Lũ cá đã kể với tôi bạn sắp tới.' },
+      { en: 'The Kraken is not evil, just lonely and greedy. Hit it when it opens its arms wide!', vi: 'Thủy Quái không ác đâu, chỉ cô đơn và tham lam thôi. Đánh nó khi nó dang rộng tay nhé!' }] },
+    pirate: { spr: 'npc_pirate', name: { en: 'Captain Redbeard', vi: 'Thuyền Trưởng Râu Đỏ' }, gift: { dagger: 6, bomb: 1, flask: 1 }, generic: [
+      { en: 'Arr! My ship sank chasing that Kraken. Now I live here. The rent is cheap.', vi: 'Arr! Tàu ta chìm vì đuổi theo con Thủy Quái. Giờ ta sống ở đây. Tiền thuê rẻ lắm.' },
+      { en: 'Take my daggers, lad. They fly straight even underwater. Mostly.', vi: 'Cầm dao của ta đi nhóc. Chúng bay thẳng kể cả dưới nước. Phần lớn là vậy.' }] },
+    fisher: { spr: 'npc_fisher', name: { en: 'Old Tu the Fisherman', vi: 'Ông Tư Đánh Cá' }, generic: [
+      { en: 'Forty years I fished these waters and never caught anything like you.', vi: 'Bốn mươi năm ông câu ở vùng nước này, chưa bao giờ câu được thứ gì như cháu.' },
+      { en: 'Star Gems glitter on the coral, high up. Swim up and look around, child.', vi: 'Ngọc Sao lấp lánh trên rạn san hô, ở chỗ cao. Bơi lên mà nhìn quanh nhé cháu.' }] },
+    miner: { spr: 'npc_miner', name: { en: 'Bay the Miner', vi: 'Thợ Mỏ Bảy Búa' }, gift: { dagger: 0, bomb: 4, flask: 0 }, generic: [
+      { en: 'You hear that rumble? That is Gravemaw. He ate my cart. And my lunch. And my other cart.', vi: 'Nghe tiếng ầm ầm không? Đó là Gravemaw. Nó ăn mất xe của tôi. Cả bữa trưa. Cả cái xe kia nữa.' },
+      { en: 'Here, take some bombs. Cracked walls hide shortcuts down here.', vi: 'Đây, cầm ít bom. Dưới này tường nứt hay giấu lối tắt lắm.' }] },
+    mole: { spr: 'npc_mole', name: { en: 'Grandpa Mole', vi: 'Ông Chuột Chũi' }, generic: [
+      { en: 'Eh? Speak up, I cannot see you. I cannot see anyone. I am a mole.', vi: 'Hả? Nói to lên, ông không thấy cháu. Ông chẳng thấy ai cả. Ông là chuột chũi mà.' },
+      { en: 'But I can FEEL the worm. When the dust jumps, he is right below. Run!', vi: 'Nhưng ông CẢM được con sâu. Khi bụi nảy lên là nó ở ngay bên dưới. Chạy!' }] },
+    bard: { spr: 'npc_bard', name: { en: 'Lirio the Bard', vi: 'Lirio Người Hát Rong' }, generic: [
+      { en: 'Ah, the Lanternbearer! I am writing a song about you. So far it has three verses and one rhyme.', vi: 'A, Người Mang Đèn! Tôi đang viết một bài hát về bạn. Hiện có ba đoạn và đúng một vần.' },
+      { en: '"Oh little flame, so brave and bright, you hit the slimes with all your might..." Too much?', vi: '"Ơi ngọn lửa nhỏ dũng cảm sáng ngời, chém lũ slime chẳng nghỉ ngơi..." Hơi lố hả?' }] }
+  });

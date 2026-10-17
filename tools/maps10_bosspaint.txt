@@ -1,0 +1,35 @@
+  // 7 Spore Queen: a towering glowcap with a crown of smaller mushrooms, glowing eyes in the gills and root arms
+  P => {
+    P.both(() => { P.line(14, 30, 4, 40, '#5a3a22', 3); P.line(4, 40, 2, 47, '#5a3a22', 2); P.ell(3, 47, 2, 1, '#3a2a14'); P.ell(8, 26, 4, 3, '#c070ff'); P.px(7, 25, '#fff'); });
+    P.rect(17, 24, 14, 22, '#e8dcc0'); P.rect(17, 24, 3, 22, '#fff6e0'); P.rect(28, 24, 3, 22, '#c8b898');
+    P.rect(19, 44, 10, 3, '#8a6a44'); P.both(() => { P.ell(19, 47, 3, 1, '#5a3a22'); });
+    P.ell(24, 16, 22, 11, '#5a1a6a'); P.ell(24, 14, 21, 10, '#8e2ab0'); P.ell(24, 12, 18, 8, '#c050d0');
+    P.both(() => { P.ell(12, 11, 3, 2, '#ffd0f0'); P.ell(18, 7, 2, 2, '#ffd0f0'); P.px(6, 15, '#ffd0f0'); });
+    P.ell(24, 22, 18, 3, '#3a1040'); for (let i = 0; i < 9; i++) P.rect(9 + i * 4, 21, 1, 4, '#6a2a70');
+    P.both(() => { P.ell(19, 30, 3, 2, 'k'); P.ell(19, 30, 2, 1, '#c8f0a0'); P.px(19, 30, '#fff'); });
+    P.rect(21, 35, 6, 2, '#3a1040'); P.px(22, 36, '#c8f0a0'); P.px(25, 36, '#c8f0a0');
+    P.ell(14, 2, 4, 3, '#ff9fd0'); P.rect(13, 4, 2, 3, '#e8dcc0'); P.ell(24, 0 + 1, 5, 3, '#c8f0a0'); P.rect(23, 3, 2, 3, '#e8dcc0'); P.ell(34, 2, 4, 3, '#6ee7f2'); P.rect(33, 4, 2, 3, '#e8dcc0');
+  },
+  // 8 Abyssal Kraken: a huge octopus head with a beak, glowing eyes, and eight curling tentacles
+  P => {
+    P.both(() => {
+      P.line(20, 34, 6, 40, '#7a2a5a', 4); P.line(6, 40, 2, 34, '#7a2a5a', 3); P.ell(2, 32, 2, 2, '#7a2a5a');
+      P.line(22, 38, 12, 47, '#7a2a5a', 4); P.line(12, 47, 4, 46, '#7a2a5a', 3);
+      P.line(25, 39, 22, 48, '#8a3a6a', 4); P.line(27, 39, 28, 49, '#8a3a6a', 3);
+      for (let i = 0; i < 4; i++) { P.px(8 + i * 4, 41 + (i % 2), '#ffb0d0'); }
+      P.ell(19, 22, 5, 5, '#ffd34e'); P.ell(19, 22, 4, 4, '#fff6c0'); P.rect(18, 19, 2, 7, 'k');
+    });
+    P.ell(30, 18, 19, 18, '#5a1a4a'); P.ell(30, 17, 18, 17, '#9a3a7a'); P.ell(30, 12, 14, 10, '#b84a8a');
+    P.both(() => { P.ell(22, 8, 3, 2, '#e07ab0'); P.ell(17, 14, 2, 2, '#e07ab0'); });
+    P.ell(30, 6, 6, 3, '#d070a8');
+    P.both(() => { P.ell(23, 22, 5, 5, '#ffd34e'); P.ell(23, 22, 4, 4, '#fff6c0'); P.rect(22, 19, 2, 7, 'k'); });
+    P.tri(26, 30, 34, 30, 30, 37, '#3a1a2a'); P.tri(27, 30, 33, 30, 30, 34, '#e8dcc0');
+  },
+  // 9 Gravemaw the Great Worm: a segmented worm bursting from the ground, ringed mouth full of teeth
+  P => {
+    P.ell(25, 46, 24, 4, '#3a2a1c'); P.both(() => { P.ell(4, 44, 4, 3, '#5a4430'); P.ell(10, 46, 3, 2, '#8a6a4a'); });
+    for (let i = 0; i < 5; i++) { const y = 42 - i * 7, r = 12 - i; P.ell(25, y, r + 2, 5, '#7a4a3a'); P.ell(25, y - 1, r + 1, 4, '#c87a6a'); P.rect(25 - r, y - 1, r * 2, 1, '#e8a090'); }
+    P.ell(25, 8, 16, 10, '#7a4a3a'); P.ell(25, 8, 13, 8, '#3a0a10'); P.ell(25, 9, 9, 5, '#14040a');
+    for (let i = 0; i < 12; i++) { const a = i / 12 * 6.283, x = 25 + Math.round(Math.cos(a) * 11), y = 8 + Math.round(Math.sin(a) * 6.5); P.rect(x, y, 2, 2, '#fff6e0'); }
+    P.both(() => { P.ell(12, 16, 2, 2, '#ffd34e'); P.px(12, 16, '#e0453a'); P.ell(10, 22, 1, 1, '#ffd34e'); });
+  }
