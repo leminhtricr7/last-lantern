@@ -1108,6 +1108,7 @@
     const L = Q.L, ar = L.arena;
     for (let y = 0; y < ar.gy; y++) L.grid[y][ar.x0 + 1] = '#';
     Q.arenaSealed = true;
+    if (coop) coopGather();
     Q.state = 'bossintro'; Q.stateT = 0;
     Q.boss.st = 'intro'; Q.boss.max = Q.boss.hp;
     Snd.creature(Q.li, 'alert', true); Snd.music('boss', BOSS_MUSIC); setEmo('angry', 2.6);
@@ -1482,7 +1483,7 @@
     emit(b.x + b.w / 2, b.y + b.h / 2, 50, { col: [bpc(), '#fff', '#ffd34e'], sp0: 40, sp1: 180 }); addRing(b.x + b.w / 2, b.y + b.h, bpc(), 110, 0.7);
     Q.msg = LN(c.name); Q.msgT = 3;
     if (b.id === 'quoc' && FORM_SCENES[idx]) {
-      const P = Q.P, ar = Q.L.arena; P.x = (ar.x0 + 4) * TS; P.y = (ar.gy - 1) * TS - P.h; P.vx = P.vy = 0; P.inv = Math.max(P.inv, 1.5);
+      const P = Q.P, ar = Q.L.arena; P.x = (ar.x0 + 4) * TS; P.y = (ar.gy - 1) * TS - P.h; P.vx = P.vy = 0; P.inv = Math.max(P.inv, 1.5); if (coop) coopGather(true);
       Q.G.flash = 0.6; Snd.play('thunder'); Snd.whisper();
       for (const a of Q.G.allies || []) { a.x = P.x - 12 - a.i * 6; a.y = P.y; a.vx = a.vy = 0; }
       Q.msg = (save.lang === 'vi' ? 'Quoc kéo bạn vào ' : 'Quoc drags you into ') + LN(FORM_SCENES[idx]) + '!'; Q.msgT = 4;
@@ -1533,7 +1534,7 @@
     const L = Q.L, def = MINI[m.who];
     Q.mainBoss = Q.boss; Q.mainArena = L.arena; L.arena = { x0: m.lw, x1: m.rw, gy: m.gy };
     const b = makeFormBoss(def.forms, (m.lw + m.rw) / 2 * TS + 48, m.gy * TS, { id: m.who, who: m.who, mini: m });
-    b.st = 'intro'; b.timer = 0; Q.boss = b; Q.arenaSealed = true; Q.bossDead = false;
+    b.st = 'intro'; b.timer = 0; Q.boss = b; Q.arenaSealed = true; Q.bossDead = false; if (coop) coopGather();
     Q.state = 'bossintro'; Q.stateT = 0; Snd.music('boss', BOSS_MUSIC); setEmo('angry', 2.6); Snd.creature(Q.li, 'alert', true); Q.shake = 0.6;
   }
   function updateMiniEnc() {
@@ -1747,7 +1748,12 @@
     switch (b.st) {
       case 'wait': {
         b.dir = dxp < 0 ? -1 : 1;
-        if (Math.abs(dxp) > b.w / 2 + 36) { moveX(b, b.dir * c.sp * b.fury * dt); b.moveT = 0.12; }
+        // chase: when the hero is far away the boss runs after them first and attacks once it is close (or after ~3s)
+        const far = Math.abs(dxp) > b.w / 2 + 110;
+        b.chaseT = far ? (b.chaseT || 0) + dt : 0;
+        if (Math.abs(dxp) > b.w / 2 + 36) { moveX(b, b.dir * Math.max(c.sp, 45) * (far ? 1.7 : 1.15) * b.fury * dt); b.moveT = 0.12; }
+        if (far && b.chaseT < 3 && b.timer < 0.1) b.timer = 0.1;
+        if (b.onGround && P.y + P.h < b.y + b.h - 30 && Math.abs(dxp) < b.w / 2 + 70 && Math.random() < dt * 1.2) { b.vy = -380; b.onGround = false; Snd.play('whoosh'); emit(cxm, b.y + b.h, 8, { col: '#cfd6e6', sp0: 20, sp1: 60 }); }
         // intelligence: dodge incoming attacks
         const threat = (P.atk > 0 && Math.abs(dxp) < b.w / 2 + 36) || Q.fps.some(p => p.t !== 'blast' && p.t !== 'wave' && Math.abs(p.x - cxm) < b.w / 2 + 46 && Math.abs(p.y - cym) < b.h / 2 + 18 && (p.vx > 0) === (cxm > p.x));
         if (threat && b.evCd <= 0 && Math.random() < c.smart * dt * 9) {
@@ -2081,15 +2087,17 @@
     }
   }
   function updateTalk(dt) {
-    const tk = Q.talk; tk.t += dt;
+    const tk = Q.talk;
+    if (coop && tk.hostDone) { if (coopTalkDone()) endTalk(); return; }
+    tk.t += dt;
     const full = tk.lines[tk.i][save.lang].length;
     { const ln = tk.lines[tk.i][save.lang], n0 = Math.floor((tk.t - dt) * 45), n1 = Math.min(ln.length, Math.floor(tk.t * 45));
       for (let k = n0 + 1; k <= n1; k++) if (k % 2 === 0 && /\S/.test(ln[k - 1] || ' ')) { const sw = tk.lines[tk.i].w || tk.it.who; if (sw.indexOf('boss') === 0) Snd.creature(Q.li, 'idle', true, 0.7); else if (sw !== 'narr') Snd.blip(sw); } }
     if (act.okP || act.talkP || act.atkP) {
       if (tk.t * 45 < full) tk.t = 999;
-      else { tk.i++; tk.t = 0; Snd.play('select'); if (tk.i >= tk.lines.length) endTalk(); }
+      else { tk.i++; tk.t = 0; Snd.play('select'); if (tk.i >= tk.lines.length) coopTalkEnd(tk); }
     }
-    if (Q.talk && (act.backP || act.pauseP)) endTalk();
+    if (Q.talk && (act.backP || act.pauseP)) coopTalkEnd(tk);
   }
   function updateShop() {
     const list = SHOPS[Q.shopWho] || [], n = list.length + 1;
@@ -3049,13 +3057,13 @@
     if (Q.msgT > 0) Q.msgT -= dt;
     updatePlats(dt); updateCrumble(dt);
     if (st === 'bossintro' && !(Q.boss && Q.boss.st === 'intro')) Q.state = 'play'; // never get stuck in the intro
-    if (st === 'bossintro') { asP(coop ? bossTgt() : Q.P, () => updateBoss(dt)); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
+    if (st === 'bossintro') { asP(coop ? bossTgt(dt) : Q.P, () => updateBoss(dt)); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
     if (!Q.P.down) updatePlayer(dt);
     if (coop) coopHostPlayers(dt);
     if (Q.state !== 'play' && Q.state !== 'bossintro') { updateParticles(dt); return; }
     updateGear(dt); updateStatus(dt);
     const edt = dt * (Q.G.slowT > 0 ? 0.4 : 1), bdt = (Q.boss && Q.boss.stunT > 0) ? 0 : edt, ddt = (Q.dragon && Q.dragon.stunT > 0) ? 0 : edt;
-    updateEnemies(edt); { const tg = coop ? bossTgt() : Q.P; asP(tg, () => { updateBoss(bdt); updateDragon(ddt); }); } updateBossDeath(dt); updateTraps(dt); updatePuzzles(dt); updateFps(dt); updateFires(dt); updateProjs(edt); updateZones(dt); updateCreeps(dt); updateItems(dt); updateParticles(dt); updateCam(dt); updateWeather(dt);
+    updateEnemies(edt); { const tg = coop ? bossTgt(dt) : Q.P; asP(tg, () => { updateBoss(bdt); updateDragon(ddt); }); } updateBossDeath(dt); updateTraps(dt); updatePuzzles(dt); updateFps(dt); updateFires(dt); updateProjs(edt); updateZones(dt); updateCreeps(dt); updateItems(dt); updateParticles(dt); updateCam(dt); updateWeather(dt);
   }
   function updateParticles(dt) {
     updateFx(dt);
@@ -3492,6 +3500,7 @@
       wrapText(line.substr(0, n), sp ? 56 : 70).forEach((l, i) => txt(l, tx, Y + 15 + i * 11, { size: 7, col: who === 'narr' ? '#d8dcf0' : '#fff' }));
       if (n >= line.length) { const bob = Math.round(Math.sin(Q.stateT * 8 + Q.t * 8) * 1.5); g.fillStyle = col; g.beginPath(); g.moveTo(X + W - 16, Y + H - 12 + bob); g.lineTo(X + W - 8, Y + H - 12 + bob); g.lineTo(X + W - 12, Y + H - 7 + bob); g.fill(); }
       if (tk.lines.length > 1) txt((tk.i + 1) + '/' + tk.lines.length, X + W - 22, Y + 6, { size: 5, col: '#8892aa', al: 'right' });
+      if (coop) drawTalkWait();
     } else if (st === 'shop') {
       const list = SHOPS[Q.shopWho] || [], hh = 70 + (list.length + 1) * 14;
       g.fillStyle = 'rgba(8,6,20,.94)'; g.fillRect(40, 50, VW - 80, hh);
@@ -4196,9 +4205,17 @@
   }
   function hitPl(box, fn) { let r = false; for (const p of allPl()) if (ov(p, box)) r = asP(p, () => fn(p)) || r; return r; }
   function nearPl(e) { let b = Q.P, bd = 1e9; for (const p of allPl()) { const d = Math.abs(p.x - e.x) + Math.abs(p.y - e.y) * 0.6; if (d < bd) { bd = d; b = p; } } return b; }
-  function bossTgt() {
-    const al = allPl(); if (al.length <= 1) return al[0] || Q.P;
-    Q.btT = (Q.btT || 0) - 1 / 100; if (Q.btT <= 0 || al.indexOf(Q.bt) < 0) { Q.btT = rr(4, 7); Q.bt = al[Math.floor(Math.random() * al.length)]; }
+  function bossTgt(dt) {
+    const al = allPl(); if (al.length <= 1) { Q.bt = al[0] || Q.P; Q.btSlot = Q.bt.slot || 0; return Q.bt; }
+    Q.btT = (Q.btT || 0) - (dt || 0.01);
+    if (Q.btT <= 0 || al.indexOf(Q.bt) < 0) {
+      const byHp = al.slice().sort((x, y) => x.hp / (x.mhp || 1) - y.hp / (y.mhp || 1)), prev = Q.bt;
+      Q.btWeak = !Q.btWeak;
+      if (Q.btWeak) { Q.bt = byHp[0] === prev && byHp.length > 1 && Math.random() < 0.5 ? byHp[1] : byHp[0]; Q.btT = rr(4, 5.5); }   // hunt the weakest...
+      else { const rest = byHp.filter(p => p !== prev); Q.bt = rest[Math.floor(Math.random() * rest.length)] || byHp[0]; Q.btT = rr(5, 7); }   // ...then give them a break
+      if (Q.bt !== prev && Q.boss && Q.arenaSealed) pop(Q.bt.x + 4, Q.bt.y - 18, save.lang === 'vi' ? 'BOSS ĐANG DÍ P' + (Q.bt.slot + 1) + '!' : 'BOSS HUNTS P' + (Q.bt.slot + 1) + '!', '#ff5a4a');
+    }
+    Q.btSlot = Q.bt.slot;
     return Q.bt;
   }
   function setHero(p, id) {
@@ -4328,6 +4345,30 @@
       if (far || out) { emit(p.x + 4, p.y + 7, 10, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 60 }); p.x = out ? (ar.x0 + 4) * TS : lead.x - 10; p.y = out ? (ar.gy - 2) * TS : lead.y - 8; p.vx = p.vy = 0; p.safe = { x: p.x, y: p.y }; emit(p.x + 4, p.y + 7, 10, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 60 }); }
     }
   }
+  function coopGather(all) {
+    const ar = Q.L.arena, L0 = Q.P; let k = 0;
+    for (const p of Q.players || []) {
+      if (p === L0) continue; k++;
+      if (!all && p.x >= (ar.x0 + 2) * TS && p.x <= ar.x1 * TS) continue;
+      emit(p.x + 4, p.y + 7, 12, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 70 });
+      p.x = Math.max((ar.x0 + 2) * TS, L0.x - 12 * k); p.y = L0.y; p.vx = p.vy = 0; p.inv = Math.max(p.inv || 0, 1); p.safe = { x: p.x, y: p.y }; if (p.down) { p.down = false; p.hp = Math.max(1, Math.ceil(p.mhp / 2)); }
+      emit(p.x + 4, p.y + 7, 12, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 70 });
+    }
+  }
+  function coopTalkDone() { const tk = Q.talk; if (!tk) return true; const done = tk.doneList || []; return (Q.players || []).every(p => p === Q.me || done.indexOf(p.slot) >= 0); }
+  function coopTalkEnd(tk) {
+    if (!coop) { endTalk(); return; }
+    tk.i = tk.lines.length - 1; tk.t = 999; tk.hostDone = true; tk.doneList = tk.doneList || []; if (tk.doneList.indexOf(0) < 0) tk.doneList.push(0);
+    if (coopTalkDone()) endTalk();
+  }
+  function drawTalkWait() {
+    const tk = Q.talk; if (!tk) return;
+    const me = coop.me, done = tk.doneList || [], iDone = coop.role === 'host' ? tk.hostDone : coop.tkDone;
+    const wait = (Q.players || []).filter(p => p.slot !== me && done.indexOf(p.slot) < 0).map(p => 'P' + (p.slot + 1));
+    const ready = (Q.players || []).filter(p => done.indexOf(p.slot) >= 0).map(p => 'P' + (p.slot + 1));
+    if (iDone && wait.length) { g.fillStyle = 'rgba(8,6,20,.85)'; g.fillRect(VW / 2 - 110, 124, 220, 14); txt(cvs('Waiting for ', 'Đang chờ ') + wait.join(', ') + cvs(' to finish reading...', ' đọc xong...'), VW / 2, 134, { al: 'center', size: 7, col: '#ffd34e' }); }
+    else if (ready.length) txt(cvs('Ready: ', 'Đã xong: ') + ready.join(', '), VW - 10, 140, { al: 'right', size: 5, col: '#a4ffc0' });
+  }
   function coopRespawn() {
     for (const p of Q.players) { p.down = false; p.hp = p.mhp; p.inv = 1.5; p.vx = p.vy = 0; p.x = Q.P.x - p.slot * 6; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; }
   }
@@ -4389,7 +4430,7 @@
   const QONE = ['boss', 'dragon', 'syFig', 'mainBoss'];
   const GLISTS = ['allies', 'pops', 'bolts', 'holes', 'torn'];
   const GONE = ['god', 'dr', 'lyra'];
-  const QVALS = ['state', 'stateT', 'time', 'shake', 'arenaSealed', 'bossDead', 'msg', 'msgT', 'banner', 'cp', 'talk', 'darkBoost', 'darkBoostT', 'windT', 'windDir', 'shardFlash', 'coinsRun', 'dj', 'dashAb'];
+  const QVALS = ['state', 'stateT', 'time', 'shake', 'arenaSealed', 'bossDead', 'msg', 'msgT', 'banner', 'cp', 'talk', 'darkBoost', 'darkBoostT', 'windT', 'windDir', 'shardFlash', 'coinsRun', 'dj', 'dashAb', 'btSlot'];
   const GVALS = ['slowT', 'powerT', 'flash'];
   function inRange(o) { if (typeof o.x !== 'number') return true; for (const p of Q.players) if (Math.abs(o.x - p.x) < 340 && Math.abs((o.y || 0) - p.y) < 300) return true; return false; }
   function packList(arr, tag) {
@@ -4419,6 +4460,7 @@
     return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
   }
   function coopSnapshot() {
+    if (Q.talk && !Q.talk.id) { Q.talk.id = ++coop.tkN; Q.talk.doneList = Q.talk.doneList || []; }
     const G = Q.G, s = { t: 's', q: packVals(Q, QVALS, 'q'), gv: packVals(G, GVALS, 'g'), l: {}, o: {}, gl: {}, go: {}, pl: Q.players.map(packPlayer), ev: coop.ev.splice(0, 160) };
     for (const k of QLISTS) s.l[k] = packList(Q[k] || [], k);
     for (const k of QONE) s.o[k] = packList(Q[k] ? [Q[k]] : [], k);
@@ -4447,6 +4489,7 @@
     if (!Q) return;
     const G = Q.G;
     for (const k in s.q) { const v = des(s.q[k]); if (v !== undefined) Q[k] = v; }
+    if (Q.talk && Q.state === 'talk') { if (Q.talk.id !== coop.tkId) { coop.tkId = Q.talk.id; coop.tkI = 0; coop.tkT = 0; coop.tkDone = false; } Q.talk.i = Math.min(coop.tkI, Q.talk.lines.length - 1); Q.talk.t = coop.tkT; } else coop.tkId = null;
     for (const k in s.gv) { const v = des(s.gv[k]); if (v !== undefined) G[k] = v; }
     const live = new Set();
     for (const k in s.l) { Q[k] = applyList(s.l[k], Q[k]); for (const n of s.l[k].ids) live.add(n); }
@@ -4502,14 +4545,25 @@
     if (Q.msgT > 0) Q.msgT -= dt;
     if (Q.shake > 0) Q.shake -= dt;
     if (Q.P && Q.P.emoT > 0) Q.P.emoT -= dt;
+    if (Q.state === 'talk' && Q.talk && Q.talk.lines && coop.tkId === Q.talk.id && Q.talk.id) {
+      const tk = Q.talk; coop.tkT += dt;
+      if ((act.okP || act.talkP || act.atkP) && !coop.tkDone) {
+        const full = (tk.lines[coop.tkI][save.lang] || '').length;
+        if (coop.tkT * 45 < full) coop.tkT = 999;
+        else if (coop.tkI < tk.lines.length - 1) { coop.tkI++; coop.tkT = 0; coop.play0 && coop.play0('select'); }
+        else { coop.tkDone = true; coop.tkT = 999; NET.send({ t: 'tkdone', id: tk.id }); coop.play0 && coop.play0('ok'); }
+      }
+      if ((act.backP) && !coop.tkDone) { coop.tkDone = true; coop.tkI = tk.lines.length - 1; coop.tkT = 999; NET.send({ t: 'tkdone', id: tk.id }); }
+      tk.i = coop.tkI; tk.t = coop.tkT;
+    }
     for (const p of Q.players || []) p.anim = (p.anim || 0) + dt;
     updateParticles(dt); updateWeather(dt); updateCam(dt);
-    if (act.pauseP) coopLeave(cvs('You left the room.', 'Bạn đã rời phòng.'));
+    if (act.pauseP && Q.state !== 'talk') coopLeave(cvs('You left the room.', 'Bạn đã rời phòng.'));
   }
   // ---------- lobby, joining and starting ----------
   function coopInit(role) {
     if (!REG) buildReg();
-    coop = { role, me: role === 'host' ? 0 : -1, peers: new Map(), seen: {}, last: new Map(), vlast: {}, objs: new Map(), nid: 0, ev: [], grid: [], sendT: 0, since: 0, inT: 0, lastIn: '', play0: null };
+    coop = { role, me: role === 'host' ? 0 : -1, peers: new Map(), seen: {}, last: new Map(), vlast: {}, objs: new Map(), nid: 0, tkN: 0, tkId: null, tkI: 0, tkT: 0, tkDone: false, ev: [], grid: [], sendT: 0, since: 0, inT: 0, lastIn: '', play0: null };
     if (!coop.play0) { const p0 = Snd.play; coop.play0 = p0; Snd.play = function (n) { if (coop && coop.role === 'host' && scene === 'play' && coop.ev.length < 400) coop.ev.push(['s', n]); return p0.apply(Snd, arguments); }; }
   }
   function coopLeave(msg) {
@@ -4544,7 +4598,8 @@
         const slot = freeSlot(); if (slot < 0) { NET.send({ t: 'full' }, from); return; }
         coop.peers.set(from, { slot, hero: HERO[d.hero] ? d.hero : 'ember', inv: d.inv, pl: null });
         NET.send({ t: 'welcome', slot }, from); sendLobby();
-      } else if (d.t === 'hero' && p) { p.hero = HERO[d.id] ? d.id : p.hero; sendLobby(); }
+      } else if (d.t === 'tkdone' && p && Q && Q.talk && Q.talk.id === d.id) { const dl = Q.talk.doneList || (Q.talk.doneList = []); if (dl.indexOf(p.slot) < 0) dl.push(p.slot); }
+      else if (d.t === 'hero' && p) { p.hero = HERO[d.id] ? d.id : p.hero; sendLobby(); }
       else if (d.t === 'i' && p && p.pl) {
         const pl = p.pl; pl.inp = d; pl.edge = pl.edge || {};
         for (const k of EDGE) if (d[k]) pl.edge[k] = true;
@@ -4714,12 +4769,13 @@
       g.fillStyle = cd <= 0 ? h.sk.col : '#5a5470'; g.fillRect(x, yy - 8, 80, 1); g.fillRect(x, yy + 3, 80, 1);
       txt('R  ' + LN(h.sk.n) + (cd > 0 ? '  ' + cd.toFixed(0) : ''), VW / 2, yy + 1, { al: 'center', size: 5, col: cd <= 0 ? '#fff' : '#a0a0b8' });
     }
-    if (Q.state === 'dead' && coop.role === 'client') txt(cvs('Waiting for the host to restart the team...', 'Chờ chủ phòng cho cả đội chơi lại...'), VW / 2, 150, { al: 'center', size: 7, col: '#ffd34e' });
+    if (Q.state === 'dead') { if (coop.role === 'client') txt(cvs('Waiting for the host to restart the team...', 'Chờ chủ phòng cho cả đội chơi lại...'), VW / 2, 150, { al: 'center', size: 7, col: '#ffd34e' }); }
     else if (P && P.down) { txt(cvs('You are down... a friend can revive you faster', 'Bạn đã gục... đồng đội đứng cạnh để hồi sinh nhanh'), VW / 2, 70, { al: 'center', size: 8, col: '#ff7a7a', bold: true }); txt(Math.max(0, P.downT || 0).toFixed(1) + 's', VW / 2, 84, { al: 'center', size: 10, col: '#fff' }); }
     txt(cvs('Room ', 'Phòng ') + (NET.code || '') + (coop.role === 'host' ? cvs(' (host)', ' (chủ)') : ''), VW - 6, VH - 4, { al: 'right', size: 5, col: '#8892aa' });
   }
   function drawCoopTag(p, x, bot) {
     if (!coop) return;
+    if (Q.boss && Q.arenaSealed && !Q.bossDead && Q.btSlot === p.slot && (Q.players || []).length > 1) { const k = Math.round(Math.sin(Q.t * 8) * 1.5); g.fillStyle = '#ff3a3a'; g.fillRect(x - 1, bot - 40 + k, 3, 6); g.fillRect(x - 1, bot - 32 + k, 3, 2); }
     txt('P' + (p.slot + 1), x, bot - 26, { al: 'center', size: 5, col: PCOL[p.slot] || '#fff', bold: true });
   }
   function drawDown(p, camX, camY) {

@@ -456,14 +456,15 @@ function genLevel(li) {
       L.dark.push(z);
       for (let tx = z.x0; tx < z.x1; tx += R(3, 6)) { const gr = groundRow(tx); if (grid[gr - 1][tx] === ' ') L.creep.push({ x: tx * TS + R(2, 12), y: gr * TS, k: R(0, 3) }); }
     } }
-  const ax0 = x, AW = li === 6 ? 48 : 30;   // the final arena is much wider, with platforms on three floors
+  const ax0 = x, AW = li === 6 ? 48 : 44;   // every boss arena is wide, with platforms on three floors to jump up and dodge
   L.arena = { x0: ax0, x1: ax0 + AW, gy: 10 };
   for (let i = 0; i < AW; i++) col(ax0 + i, 10);
   for (let i = 0; i < AW; i++) solidCol(ax0 + i, 10);
   for (let y = 0; y < H; y++) { set(ax0 + AW, y, '#'); set(ax0 + AW + 1, y, '#'); }
-  if (li === 6) {
-    [[7, 5, 9], [7, 17, 21], [7, 29, 33], [7, 40, 44], [5, 11, 15], [5, 23, 27], [5, 34, 38], [3, 19, 23], [3, 30, 33]].forEach(p => { for (let xx = p[1]; xx <= p[2]; xx++) set(ax0 + xx, p[0], '='); });
-  } else for (let i = 0; i < 4; i++) { set(ax0 + 7 + i, 7, '='); set(ax0 + 19 + i, 7, '='); }
+  const PLATS = li === 6 ? [[7, 5, 9], [7, 17, 21], [7, 29, 33], [7, 40, 44], [5, 11, 15], [5, 23, 27], [5, 34, 38], [3, 19, 23], [3, 30, 33]]
+    : li % 2 ? [[7, 5, 9], [7, 16, 20], [7, 27, 31], [7, 37, 40], [5, 10, 14], [5, 21, 25], [5, 32, 35], [3, 15, 18], [3, 26, 29]]
+    : [[7, 6, 10], [7, 18, 22], [7, 30, 34], [5, 12, 16], [5, 24, 28], [5, 36, 39], [3, 8, 11], [3, 19, 23], [3, 31, 34]];
+  PLATS.forEach(p => { for (let xx = p[1]; xx <= p[2]; xx++) set(ax0 + xx, p[0], '='); });
   L.checkpoints.push({ x: (ax0 - 4) * TS, y: 10 * TS, id: L.id++ });
   L.spawns.push({ id: L.id++, type: 'boss', x: (ax0 + AW - 7) * TS, y: 10 * TS });
   L.endX = (ax0 + AW) * TS;
