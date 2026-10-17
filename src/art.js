@@ -780,19 +780,24 @@ function icon(name, a, b) {
 
 // ---------- story characters (painted) ----------
 const NPC_PAINT = {
-  // Hatsune Miku-style singer: teal twin-tails, headset  (rename in game.js: MIKU_NAME)
-  npc_miku: [28, 38, P => {
-    P.both(() => { P.ell(4, 22, 3, 15, 'c'); P.ell(3, 26, 1, 9, 'C'); P.ell(4, 36, 2, 1, 'C'); P.rect(1, 6, 6, 2, 'D'); P.px(3, 6, 'r'); });
-    P.ell(14, 12, 10, 9, 'c'); P.rect(5, 9, 18, 4, 'c'); P.ell(14, 14, 7, 7, 's');
-    P.both(() => { P.rect(10, 13, 2, 3, 'C'); P.px(10, 13, 'w'); P.px(10, 17, 'm'); P.px(11, 17, 'm'); P.rect(5, 11, 3, 5, 'D'); P.px(6, 12, 'c'); });
+  // Lyra: original songstress - pink twin buns + pigtails, flower & star clips, white blouse, purple skirt
+  npc_lyra: [28, 38, P => {
+    P.both(() => {
+      P.ell(4, 25, 3, 11, 'm'); P.ell(3, 29, 1, 7, 'p'); P.ell(4, 35, 2, 1, 'p'); P.rect(2, 12, 5, 2, 'w'); P.px(4, 12, 'r');
+      P.ell(7, 5, 4, 4, 'm'); P.px(6, 4, 'w'); P.px(8, 7, 'p');
+      P.rect(4, 12, 3, 9, 'm');
+    });
+    P.ell(14, 12, 10, 9, 'm'); P.rect(5, 9, 18, 4, 'm'); P.px(10, 6, 'w'); P.px(11, 6, 'w');
+    P.ell(14, 14, 7, 7, 's');
+    P.both(() => { P.rect(10, 13, 2, 3, 'h'); P.px(10, 13, 'w'); P.px(10, 17, 'm'); P.px(11, 17, 'm'); });
     P.rect(13, 18, 2, 1, 'm'); P.rect(12, 19, 4, 2, 's');
-    P.poly([[6, 11], [8, 4], [14, 2], [20, 4], [22, 11]], 'D', 1);
-    P.line(8, 17, 11, 19, 'D', 1);
-    P.rect(8, 21, 12, 9, 'D'); P.rect(8, 21, 12, 1, 'l');
-    P.both(() => { P.rect(5, 22, 3, 8, 'l'); P.rect(5, 22, 3, 1, 'w'); P.rect(5, 29, 3, 1, 'c'); });
-    P.tri(13, 22, 15, 22, 14, 29, 'c'); P.rect(8, 22, 1, 7, 'c'); P.rect(19, 22, 1, 7, 'c');
-    P.rect(7, 30, 14, 4, 'D'); P.rect(7, 31, 14, 1, 'c'); P.rect(7, 33, 14, 1, 'C');
-    P.both(() => { P.rect(9, 34, 3, 4, 'k'); P.rect(9, 36, 3, 1, 'c'); });
+    P.ell(21, 8, 3, 3, 'w'); P.ell(21, 8, 1, 1, 'y');
+    P.px(8, 7, 'y'); P.px(7, 8, 'y'); P.px(9, 8, 'y'); P.px(8, 9, 'y');
+    P.rect(8, 21, 12, 8, 'w'); P.rect(8, 21, 12, 1, 'l');
+    P.both(() => { P.rect(5, 22, 3, 7, 'w'); P.rect(5, 28, 3, 1, 'm'); P.tri(14, 22, 9, 20, 9, 25, 'm'); });
+    P.rect(13, 22, 2, 3, 'R');
+    P.rect(7, 29, 14, 5, 'p'); P.rect(7, 29, 14, 1, 'h'); P.rect(7, 33, 14, 1, 'y'); P.rect(10, 30, 1, 3, 'P'); P.rect(14, 30, 1, 3, 'P'); P.rect(18, 30, 1, 3, 'P');
+    P.both(() => { P.rect(9, 34, 3, 3, 'w'); P.rect(9, 36, 3, 2, 'm'); });
   }],
   // Mr Shorty Phong: short, dapper villain with top hat, monocle, curled moustache, cane
   npc_shorty: [18, 20, P => {
@@ -858,7 +863,7 @@ function devilSprite() {
   return _cache.devil;
 }
 
-// leek sword (Miku's gift): long glowing negi, handle on the left
+// leek sword (Lyra's gift): long glowing negi, handle on the left
 function leekSprite() {
   if (_cache.leek) return _cache.leek;
   _cache.leek = paint(30, 9, P => {

@@ -90,10 +90,10 @@ const NPC_PLAN = {
   0: { start: ['lila'], cps: ['fairy'] },
   1: { start: ['bram'], cps: ['gob', 'quan', 'wizard'] },
   2: { cps: ['quan', 'smith', 'wizard'] },
-  3: { start: ['bram'], cps: ['gob', 'miku', 'smith'] },
+  3: { start: ['bram'], cps: ['gob', 'lyra', 'smith'] },
   4: { cps: ['angel', 'smith'] },
-  5: { cps: ['gob', 'miku', 'smith'] },
-  6: { cps: ['wizard'], pre: ['lila', 'angel', 'bram', 'quan', 'miku', 'fairy'] }
+  5: { cps: ['gob', 'lyra', 'smith'] },
+  6: { cps: ['wizard'], pre: ['lila', 'angel', 'bram', 'quan', 'lyra', 'fairy'] }
 };
 // puzzles per map, easy -> hard
 const PUZZLES = {
@@ -219,7 +219,7 @@ function genLevel(li) {
     spawn('tablet', x0 + 3, gy, { gate: gid });
     pzGuards(x0, n, 3);
   }
-  function pRescue() { // Miku's cage, guarded
+  function pRescue() { // Lyra's cage, guarded
     const n = 38, x0 = pzFlat(n), grp = L.id++;
     spawn('cage', x0 + n - 8, gy, { grp });
     let placed = 0, tries = 0;

@@ -65,15 +65,13 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 
 ## Story characters
 
-- **Hatsune Miku** (map 1) is locked in a cage guarded by monsters. Defeat the guards, free her, and she gives you her **glowing Leek Blade** - your new sword
+- **Lyra** (an original songstress, map 1) is locked in a cage guarded by monsters. Defeat the guards, free her, and she gives you her **glowing Leek Blade** - your new sword
   (+1 damage, longer reach, green glow and sparkles). She cheers you on in maps 4, 6 and 7 (restores your hearts).
 - **Mr Shorty Phong** (villain) forces a **Trial** on you in maps 2, 4, 6 and 7: the arena seals and waves of monsters spawn; survive to win hearts, coins and a bomb.
 - **QuanSadBoy** (sad bookworm wizard) helps a lot in maps 2 and 3 with advice and free supplies.
 - **Quoc the Devil** - after every map the screen darkens and you see the giant devil screaming at his minions (Shorty and an imp). Press Enter to advance.
 
-> Licensing note: *Hatsune Miku* is a trademarked Crypton Future Media character. Fan use is fine for a free/non-commercial project, but selling it on Steam needs
-> a licence from Crypton - or rename/redesign her (change `MIKU_NAME` in `src/game.js` and the `npc_miku` painter in `src/art.js`). Also get permission from the
-> real people behind Shorty Phong / QuanSadBoy / Quoc before releasing commercially.
+> Mr Shorty Phong, QuanSadBoy and Quoc are named after real friends who agreed to appear in the game - keep that permission in writing if you sell it.
 
 ## Project layout
 
