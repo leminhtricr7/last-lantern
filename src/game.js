@@ -34,7 +34,8 @@
   const SAVEKEY = 'last_lantern_save_v1';
   let save = { cleared: [], shards: {}, coins: 0, lang: 'vi', vol: 0.6, relics: [0, 0, 0, 0, 0, 0, 0], ammo: { dagger: 0, bomb: 0, flask: 0 }, leek: false };
   try { Object.assign(save, JSON.parse(localStorage.getItem(SAVEKEY) || '{}')); } catch (e) { }
-  const writeSave = () => { try { localStorage.setItem(SAVEKEY, JSON.stringify(save)); } catch (e) { } };
+  const DEMO = location.search.indexOf('leekdemo') >= 0; // ?leekdemo: try the leek blade without touching your save
+  const writeSave = () => { if (DEMO) return; try { localStorage.setItem(SAVEKEY, JSON.stringify(save)); } catch (e) { } };
   if (!Array.isArray(save.relics) || save.relics.length < 7) save.relics = [0, 0, 0, 0, 0, 0, 0];
   if (!save.ammo) save.ammo = { dagger: 0, bomb: 0, flask: 0 };
   save.leek = !!save.leek;
@@ -2166,7 +2167,7 @@
     else if (sh === 'ice') { g.fillStyle = '#8fe0f8'; g.fillRect(x - 4, y - 1, 8, 3); g.fillRect(x - 2, y - 3, 4, 7); g.fillStyle = '#fff'; g.fillRect(x - 1, y - 1, 3, 1); }
     else if (sh === 'star') { g.save(); g.translate(x, y); g.rotate(p.rot); g.fillStyle = '#cfd6e6'; g.fillRect(-4, -1, 8, 2); g.fillRect(-1, -4, 2, 8); g.fillStyle = '#14121f'; g.fillRect(-1, -1, 2, 2); g.restore(); }
     else if (sh === 'boom') { g.save(); g.translate(x, y); g.rotate(p.rot); g.fillStyle = '#c8844a'; g.fillRect(-5, -1, 10, 2); g.fillRect(-1, -5, 2, 6); g.fillStyle = '#ffd0a0'; g.fillRect(-5, -1, 10, 1); g.restore(); }
-    else if (sh === 'beam') { const f = p.f; g.globalCompositeOperation = 'lighter'; g.fillStyle = hexA(p.col, 0.5); g.fillRect(x - 10, y - 4, 20, 8); g.fillStyle = '#fff'; g.fillRect(x - 12 + (f > 0 ? 0 : 4), y - 1, 20, 2); g.globalCompositeOperation = 'source-over'; }
+    else if (sh === 'beam') { const f = p.f; g.globalCompositeOperation = 'lighter'; g.fillStyle = hexA(p.col, 0.4); g.fillRect(x - 12, y - 5, 24, 10); g.globalCompositeOperation = 'source-over'; g.fillStyle = p.col; g.fillRect(x - 11 + (f > 0 ? 0 : 2), y - 2, 20, 4); g.fillStyle = '#fff'; g.fillRect(x - 10 + (f > 0 ? 2 : 0), y - 1, 16, 1); }
     else if (sh === 'wind') { g.fillStyle = 'rgba(223,246,255,.75)'; const f = p.f; for (let i = 0; i < 5; i++) g.fillRect(x - f * i * 2 - 2, y - 6 + i * 3 - (i > 2 ? 3 : 0), 5 - (i % 2), 1 + (i === 2 ? 1 : 0)); }
     else if (sh === 'meteor') { disc(g, x, y, 5, '#6a3a2a'); disc(g, x, y, 4, '#ff7a2a'); disc(g, x, y, 2, '#ffd34e'); }
     else if (sh === 'spark') { g.fillStyle = '#ffd34e'; g.fillRect(x - 1, y - 2, 3, 5); g.fillRect(x - 2, y - 1, 5, 3); g.fillStyle = '#fff'; g.fillRect(x, y, 1, 1); }
@@ -3552,5 +3553,6 @@
   let fadeIn = 0;
   enterScene('title');
   requestAnimationFrame(frame);
+  if (DEMO) { save.leek = true; save.cleared = [0]; save.inv.own = ['iron', 'leek']; save.inv.w = ['leek', null]; save.inv.armor = null; save.inv.pet = null; save.ammo = { dagger: 9, bomb: 3, flask: 3 }; startLevel(0); Q.state = 'play'; Q.msg = 'LEEK DEMO: J / click = swing (3 light beams). Hit = heal + 3s stun. Under 20% HP = tornado.'; Q.msgT = 12; }
   if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, hurtBoss, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();
