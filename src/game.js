@@ -8,13 +8,20 @@
   const lg = lightC.getContext('2d');
   const FONT = "'LLPixel','VT323','Pixelify Sans','Consolas','Courier New',monospace";
   let scale = 3, offX = 0, offY = 0;
+  const IS_TOUCH = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  let rotated = false; // phone held upright: we rotate the whole game 90deg so it always plays landscape
   function resize() {
-    cv.width = innerWidth; cv.height = innerHeight;
+    const w = innerWidth, h = innerHeight;
+    rotated = IS_TOUCH && h > w;
+    if (rotated) {
+      cv.width = h; cv.height = w;
+      cv.style.cssText = 'position:fixed;left:0;top:0;transform-origin:0 0;transform:translateX(' + w + 'px) rotate(90deg);width:' + h + 'px;height:' + w + 'px;';
+    } else { cv.width = w; cv.height = h; cv.style.cssText = ''; }
     scale = Math.min(cv.width / VW, cv.height / VH);
     if (scale >= 1) scale = Math.floor(scale);
     offX = Math.floor((cv.width - VW * scale) / 2); offY = Math.floor((cv.height - VH * scale) / 2);
   }
-  addEventListener('resize', resize); resize();
+  addEventListener('resize', resize); addEventListener('orientationchange', () => setTimeout(resize, 150)); resize();
 
   // ---------- helpers ----------
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -56,7 +63,7 @@
     locked: { en: 'LOCKED', vi: 'CHƯA MỞ' },
     ab1: { en: 'NEW: Double Jump — press jump in mid-air', vi: 'MỚI: Nhảy đôi — nhấn nhảy khi đang bay' },
     ab3: { en: 'NEW: Dash — press K / Shift (you are invincible while dashing)', vi: 'MỚI: Lướt — nhấn K / Shift (bất tử khi lướt)' },
-    ctl: { en: 'Move A/D  Jump Space  Attack J  Dash K  Throw L  Switch Q  Talk/Use E', vi: 'Di chuyển A/D  Nhảy Space  Đánh J  Lướt K  Ném L  Đổi đồ Q  Nói chuyện/Dùng E' },
+    ctl: { en: 'Move A/D  Jump Space  Attack J / Click  Throw L / Right-click  Switch Q / Wheel  Dash K  Use E', vi: 'Di chuyển A/D  Nhảy Space  Đánh J / Nhấp chuột  Ném L / Chuột phải  Đổi đồ Q / Lăn chuột  Lướt K  Dùng E' },
     thanks: { en: 'Thank you for playing!', vi: 'Cảm ơn bạn đã chơi!' },
     talk: { en: 'E / Enter: Talk', vi: 'E / Enter: Nói chuyện' },
     use: { en: 'E: Use', vi: 'E: Dùng' }, light: { en: 'E: Light', vi: 'E: Thắp lửa' }, read: { en: 'E: Read', vi: 'E: Đọc' },
@@ -268,7 +275,7 @@
   }
 
   // ---------- touch controls (phones / tablets) ----------
-  const touch = { on: ('ontouchstart' in window) || (navigator.maxTouchPoints > 0), ptr: new Map(), down: {} };
+  const touch = { on: IS_TOUCH, ptr: new Map(), down: {} };
   function touchButtons() {
     const w = cv.width, h = cv.height, s = Math.min(w, h) / 5.2, r = s * 0.5;
     const b = [
@@ -291,14 +298,65 @@
     for (const k in touch.down) if (!now[k] && !btns.some(b => b.k === k)) keys[k] = false;
     touch.down = now;
   }
+  function lockLandscape() {
+    try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => { }); } catch (x) { }
+  }
   function touchEvt(e) {
     e.preventDefault(); Snd.init();
+    if (e.pointerType === 'mouse') { mouseEvt(e); return; }
     const rc = cv.getBoundingClientRect();
     if (e.type === 'pointerup' || e.type === 'pointercancel') touch.ptr.delete(e.pointerId);
+    else if (rotated) touch.ptr.set(e.pointerId, { x: e.clientY, y: innerWidth - e.clientX });
     else touch.ptr.set(e.pointerId, { x: (e.clientX - rc.left) * cv.width / rc.width, y: (e.clientY - rc.top) * cv.height / rc.height });
-    if (e.type === 'pointerdown' && touch.on && !document.fullscreenElement) { try { document.documentElement.requestFullscreen(); } catch (x) { } }
+    if (e.type === 'pointerdown' && touch.on && !document.fullscreenElement) { try { document.documentElement.requestFullscreen().then(lockLandscape).catch(() => { }); } catch (x) { } lockLandscape(); }
     touchUpdate();
   }
+
+  // ---------- mouse (laptop): click menus, click to attack, right-click throw, wheel switch ----------
+  const mouse = { gx: -99, gy: -99 };
+  function gameXY(e) {
+    const rc = cv.getBoundingClientRect();
+    const sx = (e.clientX - rc.left) * cv.width / rc.width, sy = (e.clientY - rc.top) * cv.height / rc.height;
+    return [(sx - offX) / scale, (sy - offY) / scale];
+  }
+  const near = (gx, gy, cx, cy, hw, hh) => Math.abs(gx - cx) <= hw && Math.abs(gy - cy) <= hh;
+  function menuHit(gx, gy, n, cx, y0, dy, hw) { for (let i = 0; i < n; i++) if (near(gx, gy, cx, y0 + i * dy, hw, dy / 2)) return i; return -1; }
+  function mouseEvt(e) {
+    const xy = gameXY(e), gx = xy[0], gy = xy[1]; mouse.gx = gx; mouse.gy = gy;
+    const inPlay = scene === 'play' && Q;
+    if (e.type === 'pointermove') {
+      if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, VW / 2 + 60, 92, 14, 85); if (i >= 0 && i !== titleSel) { titleSel = i; Snd.play('select'); } }
+      else if (inPlay && Q.state === 'pause') { const i = menuHit(gx, gy, 4, VW / 2, 88, 18, 80); if (i >= 0 && i !== Q.menu) { Q.menu = i; Snd.play('select'); } }
+      else if (inPlay && Q.state === 'shop') { const n = (SHOPS[Q.shopWho] || []).length + 1, i = menuHit(gx, gy, n, VW / 2, 96, 14, 110); if (i >= 0 && i !== Q.menu) { Q.menu = i; Snd.play('select'); } }
+      return;
+    }
+    if (e.type !== 'pointerdown') return;
+    if (e.button === 2) { // right click = throw
+      if (inPlay && Q.state === 'play') { faceMouse(gx); pressed.KeyL = true; } else if (inPlay && (Q.state === 'talk' || Q.state === 'tablet')) pressed.Escape = true;
+      return;
+    }
+    if (e.button !== 0) return;
+    if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, VW / 2 + 60, 92, 14, 85); if (i >= 0) { titleSel = i; pressed.Enter = true; } }
+    else if (scene === 'story' || scene === 'ending') pressed.Enter = true;
+    else if (scene === 'map') {
+      for (let i = 0; i < NODES.length; i++) if (near(gx, gy, NODES[i][0], NODES[i][1], 15, 15) && i <= maxPlayable()) { if (mapSel === i) pressed.Enter = true; else { mapSel = i; Snd.play('select'); } }
+      if (near(gx, gy, VW / 2, 195, 150, 20)) pressed.Enter = true;
+    } else if (inPlay) {
+      const st = Q.state;
+      if (st === 'pause') { const i = menuHit(gx, gy, 4, VW / 2, 88, 18, 80); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
+      else if (st === 'shop') { const n = (SHOPS[Q.shopWho] || []).length + 1, i = menuHit(gx, gy, n, VW / 2, 96, 14, 110); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
+      else if (st === 'play') {
+        const wx = gx + Q.cam.x, wy = gy + Q.cam.y;
+        const npc = Q.nearNpc && near(wx, wy, Q.nearNpc.x, Q.nearNpc.y - 14, 16, 20);
+        const pz = Q.nearPz && near(wx, wy, Q.nearPz.x, Q.nearPz.y - 10, 16, 20);
+        if (npc || pz) pressed.KeyE = true; else { faceMouse(gx); pressed.KeyJ = true; }
+      } else pressed.Enter = true; // intro, talk, tablet, dead, complete
+    }
+  }
+  function faceMouse(gx) { const P = Q && Q.P; if (P && P.dash <= 0) P.face = (gx + Q.cam.x) < P.x + 4 ? -1 : 1; }
+  cv.addEventListener('contextmenu', e => e.preventDefault());
+  let lastWheel = 0;
+  cv.addEventListener('wheel', e => { e.preventDefault(); const n = performance.now(); if (n - lastWheel > 220 && scene === 'play' && Q && Q.state === 'play') { pressed.KeyQ = true; lastWheel = n; } }, { passive: false });
   ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'].forEach(t => cv.addEventListener(t, touchEvt, { passive: false }));
   function drawTouch() {
     if (!touch.on) return;
@@ -1600,6 +1658,7 @@
       txt(T('paused'), VW / 2, 52, { al: 'center', size: 16, bold: true });
       ['resume', 'restart', 'tomap', 'totitle'].forEach((k, i) => txt((Q.menu === i ? '> ' : '  ') + T(k), VW / 2, 88 + i * 18, { al: 'center', size: 10, col: Q.menu === i ? '#ffd34e' : '#cfd6e6' }));
       txt('M: ' + (Snd.muted ? 'Sound OFF' : 'Sound ON') + '    F11: ' + T('full'), VW / 2, 200, { al: 'center', size: 6, col: '#8892aa' });
+      txt(save.lang === 'vi' ? 'Nhấp chuột: đánh / chọn menu   Chuột phải: ném   Lăn chuột: đổi đồ' : 'Click: attack / menus   Right-click: throw   Wheel: switch', VW / 2, 210, { al: 'center', size: 5, col: '#8892aa' });
       txt(T('relics'), VW / 2, 166, { al: 'center', size: 6, col: '#8892aa' });
       for (let i = 0; i < 7; i++) { const ic = icon('r' + i); g.globalAlpha = save.relics[i] ? 1 : 0.2; g.drawImage(ic.c, VW / 2 - 7 * 13 + i * 26 + 4, 172); }
       g.globalAlpha = 1;
@@ -1819,6 +1878,7 @@
     else if (scene === 'title') drawTitle();
     else if (scene === 'story' || scene === 'ending') drawStory();
     else if (scene === 'map') drawMap();
+    cv.style.cursor = (scene === 'play' && Q && Q.state === 'play') ? 'crosshair' : (scene === 'play' || scene === 'title' || scene === 'map' ? 'pointer' : 'default');
     const f = fadeTo ? fade : fadeIn;
     if (f > 0) { g.globalAlpha = Math.min(1, f); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height);

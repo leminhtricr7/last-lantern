@@ -26,6 +26,7 @@ Add `?debug` to the URL to expose `window.LL` (used by `tools/bot.js`, an autopl
 | Switch throwable | Q | LB |
 | Talk / use lever, torch, tablet | E / Enter | RB |
 | Pause | Esc / P | Start |
+| Mouse (laptop) | Left click: attack / pick menu items / talk to NPC / use lever. Right click: throw. Wheel: switch throwable | |
 | Mute / Fullscreen | M / F11 | |
 
 ## Content
@@ -50,6 +51,8 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
   **Durin** (dwarf smith - bombs, daggers, fire flasks), **Old Merl** (wizard - puzzle hints), **Pip** (fairy guide), **Seraph** (angel). Talking to Lila/Bram/Seraph restores your hearts.
 - **~25 monster types** incl. small ones (beetle, wisp, imp, mushroom, zombie) and 7 hand-painted bosses.
 - **Traps:** pop-up spikes, dart-shooting totems, sliding saw blades, fire vents, falling rocks/icicles (a red ! marker warns you).
+
+**Phones:** the game always plays landscape - if the phone is held upright, the whole game rotates 90 degrees (and it tries to lock landscape in fullscreen).
 
 ## Items, puzzles & relics
 
