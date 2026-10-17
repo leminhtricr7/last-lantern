@@ -1876,7 +1876,8 @@
     return null;
   }
   function initGear() {
-    Q.G = { shT: 0, regT: 0, petT: 0, flash: 0, slowT: 0, later: [], bolts: [], holes: [], god: null, dr: null, pet: null, hc: {}, kills: 0, half: 0, auraT: 0, rvSw: false, rvPet: false, rings: [], leekHeal: 0, torn: [] };
+    Q.G = { shT: 0, regT: 0, petT: 0, flash: 0, slowT: 0, later: [], bolts: [], holes: [], god: null, dr: null, pet: null, hc: {}, kills: 0, half: 0, auraT: 0, rvSw: false, rvPet: false, rings: [], leekHeal: 0, torn: [], lyra: (Q.li === 1 && save.leek) ? { x: Q.P.x - 20, y: Q.P.y + Q.P.h, t: 0 } : null };
+    if (Q.G.lyra) Q.G.later.push({ t: 8, fn: () => { Q.msg = save.lang === 'vi' ? 'Công chúa Lyra đi cùng bạn! Hãy đưa cô về lâu đài.' : 'Princess Lyra follows you! Bring her safely to the castle.'; Q.msgT = 5; } });
     Q.P.wcd = [0, 0]; Q.P.wmax = [1, 1]; Q.P.sw = null;
     if (aSt('shieldT') || petRole() === 'shield') Q.P.shield = false;
   }
@@ -2065,6 +2066,7 @@
       if (Math.random() < 0.15) Snd.play('breath');
       if (d.life <= 0) G.dr = null;
     }
+    if (G.lyra) { const ly = G.lyra, tx = P.x + 4 - P.face * 26, k = 1 - Math.exp(-5 * dt); ly.t += dt; ly.x += (tx - ly.x) * k; ly.y += (P.y + P.h - ly.y) * (1 - Math.exp(-12 * dt)); if (Math.hypot(tx - ly.x, P.y - ly.y) > 190) { ly.x = tx; ly.y = P.y + P.h; } if (Math.random() < 0.03) emit(ly.x + rr(-6, 6), ly.y - 22, 1, { col: ['#a4ffc0', '#6ee7f2', '#fff'], sp0: 3, sp1: 10, grav: -14, l0: 0.5, l1: 0.9 }); }
     updatePet(dt);
   }
   function updatePet(dt) {
@@ -2122,6 +2124,7 @@
       g.globalAlpha = 0.4 * a; disc(g, x, y, Math.round(h.r * 0.35), '#2a1a4a'); g.globalAlpha = 0.85 * a; disc(g, x, y, Math.round(h.r * 0.18), '#14101e'); disc(g, x, y, 3, '#000'); g.globalAlpha = 1;
       for (let i = 0; i < 14; i++) { const an = Q.t * 6 + i * 0.45, rd = 8 + i * (h.r / 18); g.fillStyle = i % 2 ? '#a15be0' : '#d58bff'; g.fillRect(Math.round(x + Math.cos(an) * rd), Math.round(y + Math.sin(an) * rd * 0.5), 2, 2); }
     }
+    if (G.lyra) { const ly = G.lyra, hop = Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(ly.t * 12)) * 2 : Math.sin(ly.t * 3) * 0.6; drawSpr(g, npcSpr('npc_lyra_leek'), Math.round(ly.x - camX), Math.round(ly.y - camY + hop), ly.x > P.x + 4); }
     const pt = G.pet;
     if (pt) { const sp = petSprite(pt.id), fly = FLY_PET[pt.id], hop = fly ? 0 : (Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(pt.t * 14)) * 2 : 0), off = pt.lunge > 0 ? pt.tdir * 5 : 0; g.globalAlpha = pt.id === 'ghostie' ? 0.75 : 1; drawSpr(g, sp, Math.round(pt.x - camX + off), Math.round(pt.y - camY + hop), pt.f < 0); g.globalAlpha = 1; }
     if (G.god) {
@@ -2521,7 +2524,7 @@
       else if (Q.stateT > 0.8 && act.backP) toScene('map');
       return;
     }
-    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (Q.li >= 6) toScene('ending'); else { cutLevel = Q.li; mapSel = Math.min(6, Q.li + 1); toScene('cutscene'); } } return; }
+    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (Q.li >= 6) toScene('ending'); else if (Q.li === 1 && !save.castle) toScene('castle'); else { cutLevel = Q.li; mapSel = Math.min(6, Q.li + 1); toScene('cutscene'); } } return; }
     // play / bossintro
     if (act.pauseP && st === 'play') { Q.state = 'pause'; Q.menu = 0; return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
@@ -2807,6 +2810,7 @@
     for (const pz of Q.pz) if ((pz.type === 'torch' && pz.lit) || (pz.type === 'rune' && pz.lit)) addL(pz.x, pz.y - 10, 38, 0.9);
     for (const f of Q.fires) addL(f.x, f.y - 8, 34, 0.9);
     for (const p of Q.fps) if (p.t !== 'dagger') addL(p.x, p.y, p.shape === 'beam' ? 46 : 20, 0.8);
+    if (Q.G.lyra) addL(Q.G.lyra.x, Q.G.lyra.y - 12, 44, 0.9);
     { const hs = heldSword(); if (hs && swordGlow(hs.id)) addL(P.x + 4 + P.face * 10, P.y + 2, 38, 0.85); }
     if (Q.boss && Q.boss.st !== 'sleep') addL(Q.boss.x + Q.boss.w / 2, Q.boss.y + Q.boss.h / 2, 60, 0.7);
     for (const d of Q.L.decor) { if (Q.B.decor[d.k][0] === 'torch' || (B.id === 'caves' && Q.B.decor[d.k][0] === 'crystal')) addL(d.x, d.y - 6, 36, 0.8); }
@@ -3194,6 +3198,108 @@
     });
   }
 
+  // ============================== CASTLE CUTSCENE (after map 2): the king, the crowd and a surprise gift ==============================
+  const CS = { narr: { n: { en: 'Story', vi: 'Kể chuyện' }, col: '#cfd6e6', v: null }, king: { n: { en: 'King Aurelius', vi: 'Vua Aurelius' }, col: '#ffd34e', v: 'bram' }, lyra: { n: { en: 'Princess Lyra', vi: 'Công chúa Lyra' }, col: '#6ee7f2', v: 'lyra' }, ember: { n: { en: 'Ember', vi: 'Ember' }, col: '#ff9a4a', v: null }, crowd: { n: { en: 'The crowd', vi: 'Đám đông' }, col: '#ffffff', v: 'lila' } };
+  const CASTLE = [
+    { w: 'narr', en: 'Through the forest and out of the dark, Ember leads Princess Lyra home. At last the white towers of Castle Aurelia rise above the trees.', vi: 'Xuyên qua khu rừng và bóng tối, Ember đưa công chúa Lyra trở về. Cuối cùng, những tòa tháp trắng của Lâu đài Aurelia hiện lên trên ngọn cây.' },
+    { w: 'narr', en: 'The gates fly open. The bells ring for the first time since the Sun fell. The whole kingdom pours into the courtyard.', vi: 'Cổng thành bật mở. Chuông ngân lên lần đầu tiên kể từ khi Mặt Trời rơi. Cả vương quốc đổ ra sân lâu đài.' },
+    { w: 'crowd', cheer: 1, en: 'The princess is alive! LONG LIVE LYRA! LONG LIVE THE LANTERNBEARER!', vi: 'Công chúa còn sống! CÔNG CHÚA LYRA MUÔN NĂM! NGƯỜI MANG ĐÈN MUÔN NĂM!' },
+    { w: 'king', en: 'Lyra! My little songbird! ...I thought the shadow had taken you from me forever.', vi: 'Lyra! Chim non bé bỏng của cha! ...Cha tưởng bóng tối đã cướp con khỏi cha mãi mãi.' },
+    { w: 'lyra', en: 'Father, it was Ember. He fought through the meadow and the forest with only a lantern and a rusty sword. He never once turned back.', vi: 'Cha ơi, là Ember. Cậu ấy đã chiến đấu xuyên đồng cỏ và khu rừng chỉ với một chiếc đèn và thanh kiếm gỉ. Cậu ấy không một lần quay lại.' },
+    { w: 'king', en: 'Young Ember... the whole kingdom owes you its tears and its laughter. And yet I must ask a heavier thing of you.', vi: 'Chàng trai Ember... cả vương quốc nợ cậu nước mắt và tiếng cười. Vậy mà ta vẫn phải nhờ cậu một việc nặng nề hơn.' },
+    { w: 'king', en: 'Quoc\'s guardians sit upon the fragments of the Sun: in caverns, deserts, frozen peaks, fire and shadow. You alone carry a light they fear. Will you defeat them, and let the world be at peace?', vi: 'Thuộc hạ của Quoc trấn giữ các mảnh Mặt Trời: trong hang động, sa mạc, đỉnh băng, lửa và bóng tối. Chỉ mình cậu mang ánh sáng mà chúng sợ. Cậu có chịu đánh bại chúng, để thế giới được bình yên?' },
+    { w: 'ember', en: '...I will. For Lila, for Lyra, and for everyone who still keeps a lantern lit.', vi: '...Cháu đồng ý. Vì Lila, vì Lyra, và vì tất cả những ai vẫn còn giữ một chiếc đèn sáng.' },
+    { w: 'crowd', cheer: 1, en: 'EM-BER! EM-BER! EM-BER!', vi: 'EM-BER! EM-BER! EM-BER!' },
+    { w: 'king', en: 'Then take this. My family has guarded it for a thousand years, waiting for a hero brave enough to ask for nothing in return.', vi: 'Vậy hãy nhận lấy. Gia tộc ta đã canh giữ nó suốt một ngàn năm, chờ một người anh hùng đủ dũng cảm để không đòi hỏi gì.' }
+  ];
+  let castle = null;
+  function kingSprite() {
+    if (_cache.king) return _cache.king;
+    return (_cache.king = paint(24, 32, P => {
+      P.rect(7, 2, 10, 4, 'y'); P.px(7, 1, 'y'); P.px(11, 0, 'y'); P.px(12, 0, 'y'); P.px(16, 1, 'y'); P.px(12, 3, 'r'); P.px(9, 3, 'c'); P.px(15, 3, 'c');
+      P.rect(6, 6, 2, 7, 'w'); P.rect(16, 6, 2, 7, 'w'); P.ell(12, 9, 5, 4, 's'); P.px(10, 8, 'k'); P.px(14, 8, 'k'); P.rect(9, 11, 6, 1, 'w'); P.tri(8, 12, 16, 12, 12, 21, 'w');
+      P.rect(5, 15, 14, 13, 'r'); P.rect(5, 15, 14, 2, 'w'); P.rect(11, 17, 2, 10, 'y'); P.rect(2, 16, 4, 9, 'r'); P.rect(18, 16, 4, 9, 'r'); P.rect(2, 25, 4, 2, 's'); P.rect(18, 25, 4, 2, 's');
+      P.rect(5, 26, 14, 2, 'y'); P.rect(7, 28, 4, 3, 'N'); P.rect(13, 28, 4, 3, 'N');
+    }));
+  }
+  function startCastle() { castle = { i: 0, lt: 0, t: 0, phase: 'talk', gt: 0, gave: false, lastBlip: 0 }; Q = null; Snd.music('title', TITLE_MUSIC); }
+  function castleGift() {
+    const iv = save.inv; castle.gave = true; save.castle = 1;
+    if (iv.own.indexOf('bdragon') < 0) iv.own.push('bdragon');
+    if (!iv.pet) iv.pet = 'bdragon';
+    save.coins += 500; iv.gems += 20; writeSave(); Snd.play('relic'); Snd.hero('cheer');
+  }
+  function updateCastle(dt) {
+    const c = castle; c.t += dt;
+    if (c.phase === 'talk') {
+      c.lt += dt; const ln = CASTLE[c.i], tx = ln[save.lang], n0 = Math.floor((c.lt - dt) * 40), n1 = Math.min(tx.length, Math.floor(c.lt * 40)), v = CS[ln.w].v;
+      if (v) for (let k = n0 + 1; k <= n1; k++) if (k % 3 === 0 && /\S/.test(tx[k - 1] || ' ')) Snd.blip(v);
+      if (act.okP) { if (c.lt * 40 < tx.length) c.lt = 999; else { c.i++; c.lt = 0; if (c.i >= CASTLE.length) { c.phase = 'gift'; c.gt = 0; Snd.play('gate'); } } }
+      if (act.backP) { c.phase = 'gift'; c.gt = 0; }
+    } else {
+      c.gt += dt;
+      if (c.gt > 1.5 && c.gt < 1.6 && !c.s1) { c.s1 = 1; Snd.play('relic'); }
+      if (c.gt > 4.4 && !c.gave) castleGift();
+      if (act.backP) c.gt = Math.max(c.gt, 5.2);
+      if (c.gt > 6 && act.okP) { cutLevel = 1; mapSel = 2; toScene('cutscene'); }
+    }
+  }
+  function drawCastle() {
+    const c = castle, t = c.t;
+    g.fillStyle = '#2a1f3d'; g.fillRect(0, 0, VW, VH);
+    g.fillStyle = '#3d2c55'; g.fillRect(0, 0, VW, 100);
+    for (const wx of [70, 160, 224, 314]) { g.fillStyle = '#14101f'; g.fillRect(wx - 9, 22, 18, 52); g.fillStyle = '#ffd98a'; g.fillRect(wx - 7, 24, 14, 48); g.fillStyle = 'rgba(255,220,140,.12)'; g.beginPath(); g.moveTo(wx - 7, 72); g.lineTo(wx + 7, 72); g.lineTo(wx + 34, 122); g.lineTo(wx - 20, 122); g.fill(); g.fillStyle = '#14101f'; g.fillRect(wx - 1, 24, 2, 48); }
+    for (const px of [24, 118, 266, 360]) { g.fillStyle = '#5a4a72'; g.fillRect(px - 7, 0, 14, 122); g.fillStyle = '#6e5e88'; g.fillRect(px - 7, 0, 3, 122); g.fillStyle = '#463a5c'; g.fillRect(px - 9, 114, 18, 8); }
+    g.fillStyle = '#4a3a5e'; g.fillRect(0, 122, VW, 94); g.fillStyle = '#3a2d4c'; for (let x = 0; x < VW; x += 24) g.fillRect(x, 122, 1, 94);
+    g.fillStyle = '#9a1c2c'; g.fillRect(VW / 2 - 28, 122, 56, 94); g.fillStyle = '#ffd34e'; g.fillRect(VW / 2 - 28, 122, 2, 94); g.fillRect(VW / 2 + 26, 122, 2, 94);
+    g.fillStyle = '#c89a1c'; g.fillRect(VW / 2 - 14, 66, 28, 56); g.fillStyle = '#ffd34e'; g.fillRect(VW / 2 - 12, 68, 24, 52); g.fillStyle = '#9a1c2c'; g.fillRect(VW / 2 - 8, 88, 16, 32);
+    const cheer = CASTLE[Math.min(c.i, CASTLE.length - 1)].cheer && c.phase === 'talk';
+    const crowd = ['npc_lila', 'npc_bram', 'npc_angel', 'npc_lila', 'npc_bram', 'npc_angel'], xs = [34, 62, 92, 292, 322, 352];
+    crowd.forEach((nm, i) => { const hop = cheer || c.phase === 'gift' ? Math.abs(Math.sin(t * 8 + i)) * 7 : Math.abs(Math.sin(t * 2 + i)) * 1; drawSpr(g, npcSpr(nm), xs[i], 144 - Math.round(hop) - (i % 2) * 5, i > 2); });
+    drawSpr(g, kingSprite(), VW / 2, 124 + Math.round(Math.sin(t * 2) * 0.5), false, false, 1.3, 1.3);
+    drawSpr(g, getSprite('hero_idle', {}, Math.floor(t * 3) % 2), 150, 148, false);
+    drawSpr(g, npcSpr('npc_lyra_leek'), 178, 148 + Math.round(Math.sin(t * 3)), false);
+    if (c.phase === 'talk') {
+      const ln = CASTLE[c.i], sp = CS[ln.w], tx = ln[save.lang], n = Math.floor(c.lt * 40);
+      g.fillStyle = 'rgba(0,0,0,.84)'; g.fillRect(8, 152, VW - 16, 58); g.fillStyle = sp.col; g.fillRect(8, 152, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1);
+      txt(LN(sp.n), 18, 162, { size: 8, col: sp.col, bold: true });
+      wrapText(tx.substr(0, n), 66).forEach((l, i) => txt(l, 18, 175 + i * 10, { size: 7, col: ln.cheer ? '#ffe9a0' : '#fff' }));
+      if (n >= tx.length) txt('>', VW - 20, 200, { size: 8, col: sp.col, alpha: 0.5 + 0.5 * Math.sin(t * 8) });
+      return;
+    }
+    // ---- gift sequence ----
+    const gt = c.gt;
+    g.fillStyle = 'rgba(5,3,15,' + Math.min(0.7, gt * 0.6) + ')'; g.fillRect(0, 0, VW, VH);
+    const cx = VW / 2, cy = 120;
+    if (gt < 4.4) {
+      const open = Math.min(1, Math.max(0, (gt - 0.6) / 0.9));
+      g.fillStyle = '#7a4a22'; g.fillRect(cx - 18, cy + 4, 36, 18); g.fillStyle = '#ffd34e'; g.fillRect(cx - 18, cy + 4, 36, 3); g.fillRect(cx - 2, cy + 8, 4, 6);
+      g.fillStyle = '#9a5a2a'; g.fillRect(cx - 18, cy - 10 - open * 8, 36, 14); g.fillStyle = '#ffd34e'; g.fillRect(cx - 18, cy - 10 - open * 8, 36, 2);
+      if (open > 0) { g.globalCompositeOperation = 'lighter'; for (let i = 0; i < 9; i++) { g.fillStyle = 'rgba(255,230,140,' + 0.18 * open + ')'; const a = -1.57 + (i - 4) * 0.22; g.beginPath(); g.moveTo(cx, cy - 4); g.lineTo(cx + Math.cos(a - 0.08) * 150, cy - 4 + Math.sin(a - 0.08) * 150); g.lineTo(cx + Math.cos(a + 0.08) * 150, cy - 4 + Math.sin(a + 0.08) * 150); g.fill(); } g.globalCompositeOperation = 'source-over'; }
+      const rise = Math.min(1, Math.max(0, (gt - 1.5) / 1.0)), ey = cy - 6 - rise * 28 + Math.sin(gt * 3) * 1.5, wob = gt > 2.5 ? Math.sin(gt * 22) * (gt - 2.5) * 1.4 : 0;
+      if (gt > 1.5) {
+        g.save(); g.translate(cx + wob, ey); g.rotate(wob * 0.03);
+        g.fillStyle = '#14121f'; disc(g, 0, 0, 13, '#14121f'); disc(g, 0, 0, 12, '#ffd34e'); disc(g, -3, -3, 6, '#fff2b0');
+        g.fillStyle = '#e0453a'; for (const [dx, dy] of [[-5, 4], [4, 2], [0, -7], [6, -3], [-7, -2]]) g.fillRect(dx, dy, 3, 2);
+        if (gt > 3.4) { g.fillStyle = '#14121f'; g.fillRect(-6, -2, 5, 1); g.fillRect(-1, -1, 3, 1); g.fillRect(2, 0, 5, 1); g.fillRect(-2, 1, 1, 4); g.fillRect(-1, 5, 3, 1); }
+        g.restore();
+      }
+      if (gt > 3.4) { g.globalAlpha = Math.min(0.7, (gt - 3.4) * 0.7); g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+      txt(sv('A mysterious golden egg...', 'Một quả trứng vàng bí ẩn...'), cx, 40, { al: 'center', size: 9, col: '#ffe9a0', alpha: Math.min(1, gt) });
+    } else {
+      const k = Math.min(1, (gt - 4.4) / 0.8), bob = Math.sin(gt * 6) * 3, sp = petSprite('bdragon');
+      g.globalCompositeOperation = 'lighter'; for (let r = 60; r > 10; r -= 12) { g.globalAlpha = 0.05 * k; disc(g, cx, cy, r, '#ffd34e'); } g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+      drawSpr(g, sp, cx, cy + 20 + Math.round(bob), false, false, 4, 4, k);
+      for (let i = 0; i < 46; i++) { const px = (i * 53 + Math.sin(gt + i) * 12) % VW, py = ((gt - 4.4) * (40 + (i % 5) * 14) + i * 29) % VH; g.fillStyle = ['#ffd34e', '#ff7fb0', '#6ee7f2', '#a4e86b', '#fff'][i % 5]; g.fillRect(Math.round(px), Math.round(py), 2, 3); }
+      txt(sv('SURPRISE! THE EGG HATCHES!', 'BẤT NGỜ! QUẢ TRỨNG NỞ RA!'), cx, 30, { al: 'center', size: 12, bold: true, col: '#ffd34e', alpha: k });
+      txt(sv('Baby Dragon joins you as your pet!', 'Bé Rồng Lửa trở thành thú cưng của bạn!'), cx, 52, { al: 'center', size: 8, col: '#ff9a4a', alpha: k });
+      txt(sv('Spits fireballs at monsters. Check it in the Shop > Inventory.', 'Phun cầu lửa vào quái. Xem trong Cửa hàng > Kho đồ.'), cx, 64, { al: 'center', size: 6, col: '#cfd6e6', alpha: k });
+      txt('+500 ' + sv('gold', 'vàng') + '    +20 gem', cx, 168, { al: 'center', size: 9, bold: true, col: '#9ff0ff', alpha: k });
+      txt(sv('"Go, Lanternbearer. The world is waiting." - King Aurelius', '"Đi đi, Người Mang Đèn. Thế giới đang chờ." - Vua Aurelius'), cx, 186, { al: 'center', size: 6.5, col: '#ffe9a0', alpha: k });
+      if (gt > 6) txt(T('press'), cx, 204, { al: 'center', size: 6, col: '#8892aa', alpha: 0.5 + 0.5 * Math.sin(gt * 5) });
+    }
+  }
+
   // ============================== MENUS / SCENES ==============================
   let scene = 'title', titleSel = 0, storyPage = 0, storyT = 0, storyList = STORY, mapSel = 0, sceneT = 0;
   let fade = 0, fadeTo = null;
@@ -3206,6 +3312,7 @@
     if (s === 'ending') { storyPage = 0; storyT = 0; storyList = ENDING; Snd.music('title', TITLE_MUSIC); }
     if (s === 'map') { Snd.music('title', TITLE_MUSIC); Q = null; mapSel = Math.min(mapSel, maxPlayable()); }
     if (s === 'cutscene') startCut();
+    if (s === 'castle') startCastle();
     if (s === 'shop') { Snd.music('title', TITLE_MUSIC); Q = null; shopCard = null; shopIdx = 0; }
   }
 
@@ -3233,7 +3340,7 @@
     const it = [];
     if (save.cleared.length || UNLOCK_ALL) it.push({ k: 'cont', fn: () => { mapSel = UNLOCK_ALL ? 0 : maxPlayable(); toScene('map'); } });
     it.push({ k: 'shopT', fn: () => { shopFrom = 'title'; toScene('shop'); } });
-    it.push({ k: 'newgame', fn: () => { save.seen = {}; save.inv = { own: ['iron'], w: ['iron', null], armor: null, pet: null, gems: save.inv.gems | 0 }; save.cleared = []; save.shards = {}; save.coins = 0; save.leek = false; save.relics = [0, 0, 0, 0, 0, 0, 0]; save.ammo = { dagger: 0, bomb: 0, flask: 0 }; writeSave(); mapSel = 0; toScene('story'); } });
+    it.push({ k: 'newgame', fn: () => { save.castle = 0; save.seen = {}; save.inv = { own: ['iron'], w: ['iron', null], armor: null, pet: null, gems: save.inv.gems | 0 }; save.cleared = []; save.shards = {}; save.coins = 0; save.leek = false; save.relics = [0, 0, 0, 0, 0, 0, 0]; save.ammo = { dagger: 0, bomb: 0, flask: 0 }; writeSave(); mapSel = 0; toScene('story'); } });
     it.push({ k: 'lang', fn: () => { save.lang = save.lang === 'vi' ? 'en' : 'vi'; writeSave(); } });
     it.push({ k: 'sound', fn: () => { Snd.toggleMute(); } });
     it.push({ k: 'full', fn: toggleFull });
@@ -3417,6 +3524,7 @@
         else if (scene === 'story' || scene === 'ending') updateStory(sub);
         else if (scene === 'map') updateMap(sub);
         else if (scene === 'shop') updateShopScene(sub);
+        else if (scene === 'castle') updateCastle(sub);
         else if (scene === 'cutscene') updateCut(sub);
         if (i === 0) clearPressed();
         if (fadeTo) break;
@@ -3430,6 +3538,7 @@
     else if (scene === 'story' || scene === 'ending') drawStory();
     else if (scene === 'map') drawMap();
     else if (scene === 'shop') drawShop();
+    else if (scene === 'castle' && castle) drawCastle();
     else if (scene === 'cutscene' && cut) drawCut();
     cv.style.cursor = (scene === 'play' && Q && Q.state === 'play') ? 'crosshair' : (scene === 'play' || scene === 'title' || scene === 'map' ? 'pointer' : 'default');
     const f = fadeTo ? fade : fadeIn;
