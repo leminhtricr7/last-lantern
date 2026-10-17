@@ -675,14 +675,14 @@
       { name: { en: 'SY, THE VENOM SERPENT', vi: 'SY, RẮN CHÚA ĐỘC' }, spr: 'sy_m', w: 70, h: 62, hp: 680, armor: 0.3, smart: 0.5, sp: 22, minion: 'spider', proj: '#7ed957', skills: ['breath', 'spit', 'lobs', 'wall', 'rain', 'charge', 'slam'], skills2: ['summon', 'curse', 'spin', 'tornado'], skills3: ['blizzard', 'shield', 'roar'] }
     ],
     quoc: [
-      { name: { en: 'Quoc, the Dark Lord', vi: 'Quoc - Quỷ Vương Hắc Ám' }, spr: 'quoc0', w: 32, h: 76, hp: 220, armor: 0.1, smart: 0.9, sp: 40, minion: 'imp', proj: '#ff3a2a', skills: ['shoot', 'fan', 'teleport', 'rush', 'jump', 'crossBeam'], skills2: ['lobs', 'guard', 'summon'] },
-      { name: { en: 'Quoc - Dark Imp', vi: 'Quoc - Tiểu Quỷ Bóng Tối' }, spr: 'quoc1', w: 22, h: 44, hp: 200, armor: 0.1, smart: 0.9, sp: 52, minion: 'imp', proj: '#c07bff', skills: ['jump', 'bounce3', 'charge', 'rush', 'shoot'], skills2: ['teleport', 'fan'] },
-      { name: { en: 'Quoc - Hellhound', vi: 'Quoc - Chó Địa Ngục' }, spr: 'quoc2', w: 56, h: 40, hp: 260, armor: 0.15, smart: 0.7, sp: 54, minion: 'imp', proj: '#ff7a2a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
-      { name: { en: 'Quoc - Chained Demon', vi: 'Quoc - Quỷ Xích' }, spr: 'quoc3', w: 40, h: 68, hp: 340, armor: 0.25, smart: 0.6, sp: 28, minion: 'imp', proj: '#a8b2c8', skills: ['slam', 'stomp', 'charge', 'erupt', 'sweep', 'crossBeam'], skills2: ['spin', 'summon'] },
-      { name: { en: 'Quoc - Iron General', vi: 'Quoc - Đại Tướng Giáp Sắt' }, spr: 'quoc4', w: 38, h: 72, hp: 420, armor: 0.4, smart: 0.6, sp: 26, minion: 'eclipseclone', proj: '#ff8a2a', skills: ['shield', 'guard', 'sweep', 'charge', 'slam', 'lobs', 'crossBeam'], skills2: ['roar', 'erupt', 'meteor'] },
-      { name: { en: 'Quoc - Winged Archdemon', vi: 'Quoc - Đại Quỷ Có Cánh' }, spr: 'quoc5', w: 50, h: 64, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffb02a', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
-      { name: { en: 'Quoc - Ashen Titan', vi: 'Quoc - Titan Tro Tàn' }, spr: 'quoc6', w: 54, h: 92, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
-      { name: { en: 'QUOC, THE ETERNAL ECLIPSE', vi: 'QUOC, NHẬT THỰC VĨNH CỬU' }, spr: 'quoc7', w: 40, h: 106, hp: 780, armor: 0.45, smart: 0.9, sp: 30, minion: 'ghost', eclipse: true, proj: '#d58bff', skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak', 'crossBeam', 'rush'], skills2: ['dark', 'clone', 'summon', 'roar', 'fan', 'lobs'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
+      { name: { en: 'Quoc, the Dark Lord', vi: 'Quoc - Quỷ Vương Hắc Ám' }, spr: 'quoc0', img: 'form0', anim: { idle: [0, 1], move: [0, 1], melee: [2], cast: [3], special: [4] }, w: 34, h: 78, hp: 220, armor: 0.1, smart: 0.9, sp: 40, minion: 'imp', proj: '#ff3a2a', skills: ['shoot', 'fan', 'teleport', 'rush', 'jump', 'crossBeam'], skills2: ['lobs', 'guard', 'summon'] },
+      { name: { en: 'Quoc - Dark Imp', vi: 'Quoc - Tiểu Quỷ Bóng Tối' }, spr: 'quoc1', img: 'form1', anim: { idle: [0, 1], move: [0, 1], air: [2, 3], melee: [4, 5], cast: [4, 5] }, w: 26, h: 46, hp: 200, armor: 0.1, smart: 0.9, sp: 52, minion: 'imp', proj: '#c07bff', skills: ['jump', 'bounce3', 'charge', 'rush', 'shoot'], skills2: ['teleport', 'fan'] },
+      { name: { en: 'Quoc - Hellhound', vi: 'Quoc - Chó Địa Ngục' }, spr: 'quoc2', img: 'form2', anim: { idle: [0, 1], move: [0, 1, 2, 3], air: [3], melee: [2, 3], cast: [4] }, w: 60, h: 46, hp: 260, armor: 0.15, smart: 0.7, sp: 54, minion: 'imp', proj: '#ff7a2a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
+      { name: { en: 'Quoc - Chained Demon', vi: 'Quoc - Quỷ Xích' }, spr: 'quoc3', img: 'form3', anim: { idle: [0, 1], move: [0, 1], melee: [2, 3], cast: [2, 3], slam: [4] }, w: 50, h: 70, hp: 340, armor: 0.25, smart: 0.6, sp: 28, minion: 'imp', proj: '#a8b2c8', skills: ['slam', 'stomp', 'charge', 'erupt', 'sweep', 'crossBeam'], skills2: ['spin', 'summon'] },
+      { name: { en: 'Quoc - Iron General', vi: 'Quoc - Đại Tướng Giáp Sắt' }, spr: 'quoc4', img: 'form4', anim: { idle: [0, 1], move: [0, 1, 2, 3], melee: [4], cast: [4] }, w: 40, h: 74, hp: 420, armor: 0.4, smart: 0.6, sp: 26, minion: 'eclipseclone', proj: '#ff8a2a', skills: ['shield', 'guard', 'sweep', 'charge', 'slam', 'lobs', 'crossBeam'], skills2: ['roar', 'erupt', 'meteor'] },
+      { name: { en: 'Quoc - Winged Archdemon', vi: 'Quoc - Đại Quỷ Có Cánh' }, spr: 'quoc5', img: 'form5', anim: { idle: [0, 1], move: [0, 1], melee: [2], cast: [3, 4] }, w: 50, h: 68, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffb02a', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
+      { name: { en: 'Quoc - Ashen Titan', vi: 'Quoc - Titan Tro Tàn' }, spr: 'quoc6', img: 'form6', anim: { idle: [0, 1], move: [0, 1], melee: [4], cast: [2, 3], slam: [2, 3] }, w: 60, h: 98, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
+      { name: { en: 'QUOC, THE ETERNAL ECLIPSE', vi: 'QUOC, NHẬT THỰC VĨNH CỬU' }, spr: 'quoc7', img: 'form7', anim: { idle: [0], move: [0], melee: [3], cast: [1, 2, 3], special: [4] }, w: 44, h: 106, hp: 780, armor: 0.45, smart: 0.9, sp: 30, minion: 'ghost', eclipse: true, proj: '#d58bff', skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak', 'crossBeam', 'rush'], skills2: ['dark', 'clone', 'summon', 'roar', 'fan', 'lobs'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
     ]
   };
   const MINI = {
@@ -3022,8 +3022,26 @@
       g.fillStyle = e.armor > 0 ? '#cfd6e6' : '#e0453a'; g.fillRect(bx, by, Math.max(0, Math.round(bw * e.hp / e.maxhp)), 2);
     }
   }
+  // Quoc's forms: pick the artist's animation frame that matches what the boss is doing
+  function bossFrame(b) {
+    const c = b.cfg, set = c.img && typeof QUOC_IMG !== 'undefined' && QUOC_IMG[c.img];
+    if (!set || !set.ready) return null;
+    const A = c.anim, sk = b.st === 'tele' ? b.atkSk : b.sk;
+    let list = A.idle, fps = 3;
+    if ((b.st === 'tele' || b.st === 'act') && sk) {
+      if (A.special && ['tornado', 'dark', 'cloak', 'clone', 'summon', 'roar', 'shield', 'teleport'].indexOf(sk) >= 0) list = A.special;
+      else if (A.slam && SLAM_L.indexOf(sk) >= 0) list = A.slam;
+      else if (RANGE_L.indexOf(sk) >= 0 || CAST_L.indexOf(sk) >= 0) list = A.cast;
+      else list = A.melee;
+      if (b.st === 'tele') return set.frames[list[0]];
+      fps = 7;
+    } else if (!b.onGround && A.air) { list = A.air; fps = 6; }
+    else if (b.moveT > 0 || b.st === 'evade') { list = A.move; fps = 8; }
+    return set.frames[list[Math.floor(b.t * fps) % list.length]];
+  }
   function drawBoss(camX, camY) {
     const b = Q.boss; if (b.dead && Q.t % 0.1 > 0.05) return;
+    { const fr = bossFrame(b); if (fr) b.spr = fr; }
     const c = b.cfg, x = Math.round(b.x + b.w / 2 - camX), bot = Math.round(b.y + b.h - camY), gyy = Math.round(Q.L.arena.gy * TS - camY);
     if (b.hide) {
       if (b.sk === 'ambush' && b.ph >= 1) {
@@ -3922,7 +3940,7 @@
     const speak = ln.w === 'quoc';
     g.globalAlpha = speak ? 1 : 0.7; g.drawImage(dv.c, Math.round(VW / 2 - dv.w / 2 + ox), Math.round(10 - dv.h / 2 + 62 + rise + oy + Math.sin(c.pt * 2) * 1.5)); g.globalAlpha = 1;
     g.globalCompositeOperation = 'lighter';
-    if (speak) { const e1 = g.createRadialGradient(VW / 2 - 13 + ox, 76 + rise + oy, 0, VW / 2 - 13 + ox, 76 + rise + oy, 22); e1.addColorStop(0, 'rgba(255,200,60,.55)'); e1.addColorStop(1, 'rgba(255,200,60,0)'); g.fillStyle = e1; g.fillRect(VW / 2 - 40, 50 + rise, 80, 50); const e2 = g.createRadialGradient(VW / 2 + 13 + ox, 76 + rise + oy, 0, VW / 2 + 13 + ox, 76 + rise + oy, 22); e2.addColorStop(0, 'rgba(255,200,60,.55)'); e2.addColorStop(1, 'rgba(255,200,60,0)'); g.fillStyle = e2; g.fillRect(VW / 2 - 14, 50 + rise, 80, 50); }
+    if (speak && !(typeof QUOC_IMG !== 'undefined' && QUOC_IMG.portrait_smirk)) { const e1 = g.createRadialGradient(VW / 2 - 13 + ox, 76 + rise + oy, 0, VW / 2 - 13 + ox, 76 + rise + oy, 22); e1.addColorStop(0, 'rgba(255,200,60,.55)'); e1.addColorStop(1, 'rgba(255,200,60,0)'); g.fillStyle = e1; g.fillRect(VW / 2 - 40, 50 + rise, 80, 50); const e2 = g.createRadialGradient(VW / 2 + 13 + ox, 76 + rise + oy, 0, VW / 2 + 13 + ox, 76 + rise + oy, 22); e2.addColorStop(0, 'rgba(255,200,60,.55)'); e2.addColorStop(1, 'rgba(255,200,60,0)'); g.fillStyle = e2; g.fillRect(VW / 2 - 14, 50 + rise, 80, 50); }
     g.globalCompositeOperation = 'source-over';
     g.globalAlpha = ln.w === 'shorty' ? 1 : 0.55; drawSpr(g, npcSpr('npc_shorty'), 62, 150 + Math.round(Math.sin(c.pt * 3)), false, false, 2, 2);
     if (cutLevel >= 2) { g.globalAlpha = ln.w === 'sy' ? 1 : 0.55; drawSpr(g, npcSpr('npc_sy'), VW - 62, 152 + Math.round(Math.sin(c.pt * 3)), true, false, 2, 2); g.globalAlpha = 1; } else { g.globalAlpha = ln.w === 'imp' ? 1 : 0.55; drawSpr(g, getSprite('imp'), VW - 62, 150 + Math.round(Math.sin(c.pt * 4)), true, false, 3, 3); g.globalAlpha = 1; }
