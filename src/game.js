@@ -35,7 +35,8 @@
   let save = { cleared: [], shards: {}, coins: 0, lang: 'vi', vol: 0.6, relics: [0, 0, 0, 0, 0, 0, 0], ammo: { dagger: 0, bomb: 0, flask: 0 }, leek: false };
   try { Object.assign(save, JSON.parse(localStorage.getItem(SAVEKEY) || '{}')); } catch (e) { }
   const DEMO = location.search.indexOf('leekdemo') >= 0; // ?leekdemo: try the leek blade without touching your save
-  const writeSave = () => { if (DEMO) return; try { localStorage.setItem(SAVEKEY, JSON.stringify(save)); } catch (e) { } };
+  let coop = null, inSwap = 0;   // online co-op session (see ONLINE CO-OP below); inSwap > 0 while a guest's hero is being simulated
+  const writeSave = () => { if (DEMO || inSwap) return; try { localStorage.setItem(SAVEKEY, JSON.stringify(save)); } catch (e) { } };
   if (!Array.isArray(save.relics) || save.relics.length < 7) save.relics = [0, 0, 0, 0, 0, 0, 0];
   if (!save.ammo) save.ammo = { dagger: 0, bomb: 0, flask: 0 };
   save.leek = !!save.leek;
@@ -52,8 +53,9 @@
   const totalShards = () => Object.keys(save.shards).reduce((a, k) => a + save.shards[k].filter(Boolean).length, 0);
   const hasRelic = i => !!save.relics[i];
   const armHP = () => { const a = ITEM[save.inv.armor]; return a ? (a.st.hp || 0) : 0; };
-  const maxHP = () => 3 + Math.floor(totalShards() / 3) + (hasRelic(0) ? 2 : 0) + armHP();
-  const baseDmg = () => (Q && Q.G && Q.G.powerT > 0 ? 2 : 0) + 1 + Math.floor(totalShards() / 7) + (hasRelic(1) ? 1 : 0) + ((ITEM[save.inv.pet] || { st: {} }).st.role === 'rainbow' ? 1 : 0);
+  const baseHP = () => 3 + Math.floor(totalShards() / 3) + (hasRelic(0) ? 2 : 0) + armHP();
+  const maxHP = () => (coop && Q && Q.P && Q.P.mhp) || baseHP();
+  const baseDmg = () => Math.max(1, (Q && Q.P && Q.P.hdmg || 0) + (Q && Q.G && Q.G.powerT > 0 ? 2 : 0) + 1 + Math.floor(totalShards() / 7) + (hasRelic(1) ? 1 : 0) + ((ITEM[save.inv.pet] || { st: {} }).st.role === 'rainbow' ? 1 : 0));
   const swordDmg = () => baseDmg() + save.inv.w.reduce((m, id) => (ITEM[id] && ITEM[id].type === 'sword' ? Math.max(m, ITEM[id].st.dmg || 0) : m), 0);
   const UNLOCK_ALL = false; // set to false for release: then each win unlocks the next map
   const maxPlayable = () => UNLOCK_ALL ? 6 : save.cleared.length ? Math.min(6, Math.max.apply(null, save.cleared) + 1) : 0;
@@ -61,7 +63,7 @@
   Snd.setVol(save.vol);
 
   const STR = {
-    newgame: { en: 'New Game', vi: 'Chơi mới' }, shopT: { en: 'Shop & Inventory', vi: 'Cửa hàng & Kho đồ' }, cont: { en: 'Continue', vi: 'Tiếp tục' },
+    newgame: { en: 'New Game', vi: 'Chơi mới' }, shopT: { en: 'Shop & Inventory', vi: 'Cửa hàng & Kho đồ' }, cont: { en: 'Continue', vi: 'Tiếp tục' }, coopT: { en: 'Online Co-op (5 players)', vi: 'Co-op online (5 người)' },
     lang: { en: 'Language: English', vi: 'Ngôn ngữ: Tiếng Việt' },
     sound: { en: 'Sound', vi: 'Âm thanh' }, full: { en: 'Fullscreen', vi: 'Toàn màn hình' }, quit: { en: 'Quit', vi: 'Thoát' },
     press: { en: 'Press ENTER', vi: 'Nhấn ENTER' },
@@ -515,10 +517,11 @@
     act.leftP = any(pressed, ['ArrowLeft', 'KeyA']) || gpP('l'); act.rightP = any(pressed, ['ArrowRight', 'KeyD']) || gpP('r');
     act.upP = any(pressed, ['ArrowUp', 'KeyW']) || gpP('u'); act.downP = any(pressed, ['ArrowDown', 'KeyS']) || gpP('d');
     act.talkP = pressed.KeyE || pressed.Enter || gpP('rb');
+    act.skillP = any(pressed, ['KeyR']) || gpP('rb');
     act.muteP = pressed.KeyM; act.fullP = pressed.KeyF || pressed.F11;
     gpPrev = gb;
   }
-  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.atk2P = act.throwP = act.swapP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = false; }
+  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.atk2P = act.throwP = act.swapP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = act.skillP = false; }
   function toggleFull() {
     try { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch (e) { }
   }
@@ -912,6 +915,7 @@
 
   // ---------- particles ----------
   function emit(x, y, n, o) {
+    if (coop && coop.role === 'host' && scene === 'play' && coop.ev.length < 400 && (n >= 2 || Math.random() < 0.25)) coop.ev.push(['e', Math.round(x), Math.round(y), n, o]);
     o = o || {};
     for (let i = 0; i < n; i++) {
       if (Q.parts.length > 500) Q.parts.shift();
@@ -1140,6 +1144,7 @@
   }
   function hurtPlayer(n, fromX, noKnock, src) {
     const P = Q.P;
+    if (P.down) return false;
     if (P.inv > 0 || P.dash > 0 || Q.state !== 'play' && Q.state !== 'bossplay') return false;
     if (P.shield) { P.shield = false; P.inv = 1.0; Snd.play('hit'); emit(P.x + 4, P.y + 7, 14, { col: ['#ffd34e', '#fff'], sp0: 30, sp1: 90 }); thornsAndFx(); return false; }
     if (src !== 'pit') {
@@ -1151,12 +1156,13 @@
       if (take <= 0) { P.inv = 0.8; Snd.play('clang'); emit(P.x + 4, P.y + 7, 8, { col: ['#cfd6e6', '#fff'], sp0: 20, sp1: 70 }); thornsAndFx(); return false; }
       n = take;
     }
-    P.hp -= n; P.inv = 1.2; Q.freeze = 0.07; Q.shake = 0.25;
+    P.hp -= n; P.inv = 1.2; if (!coop || P === Q.me) { Q.freeze = 0.07; Q.shake = 0.25; }
     Snd.play('hurt'); Snd.hero('hurt'); setEmo('hurt', 0.45);
     emit(P.x + P.w / 2, P.y + P.h / 2, 10, { col: ['#e0453a', '#f6f3e9'], sp0: 30, sp1: 90 });
     if (!noKnock) { P.vx = (P.x + P.w / 2 < fromX ? -1 : 1) * 130; P.vy = -170; P.atk = 0; }
     if (P.hp <= 0) {
       if (tryRevive()) return true;
+      if (coop) { coopDown(P); return true; }
       P.hp = 0; Q.state = 'dead'; Q.stateT = 0; Snd.play('die'); Snd.hero('die'); setEmo('cry', 99); emit(P.x + 4, P.y + 7, 30, { col: ['#ffd34e', '#e0453a', '#f6f3e9'], sp0: 20, sp1: 120 });
     } else if (src !== 'pit') thornsAndFx();
     return true;
@@ -1193,7 +1199,7 @@
       if (Math.random() < 0.8) emit(P.x + 4, P.y + 8, 1, { col: ['#6ee7f2', '#fff'], sp0: 0, sp1: 12, l0: 0.15, l1: 0.3, grav: 0 });
     } else {
       // horizontal
-      const target = dir * RUN * (P.slow > 0 ? 0.5 : 1) * (1 + aSt('speed') + pSt('speed'));
+      const target = dir * RUN * (P.slow > 0 ? 0.5 : 1) * (1 + aSt('speed') + pSt('speed') + (P.hspd || 0));
       const acc = ice ? 220 : (P.onGround ? 1100 : 750);
       if (dir !== 0 && P.atk <= 0.1) { P.face = dir; }
       if (dir !== 0 || !ice) {
@@ -1213,6 +1219,7 @@
     // attack: slot 1 (J / click) and slot 2 (H / middle-click / LT) - swords swing, special weapons fire
     if (P.dash <= 0) { if (act.atkP) useSlot(0); if (act.atk2P) useSlot(1); }
     P.throwCd -= dt;
+    if (P.hero) { P.skCd = (P.skCd || 0) - dt; if (act.skillP && P.skCd <= 0 && P.dash <= 0) heroSkill(P); }
     if (act.swapP) cycleWeapon();
     if (act.throwP && P.throwCd <= 0 && P.dash <= 0) throwItem();
     if (P.atk > 0) P.atk -= dt;
@@ -1366,11 +1373,12 @@
     return false;
   }
   function updateEnemies(dtG) {
-    const P = Q.P, cx = Q.cam.x + VW / 2;
+    const P0 = Q.P, cx = Q.cam.x + VW / 2;
     for (const e of Q.ents) {
       if (e.dead) continue;
       const dt = e.stunT > 0 ? 0 : dtG * (e.slowT > 0 ? 0.5 : 1);
-      if (Math.abs(e.x - cx) > 260) continue;
+      if (coop ? !Q.players.some(p => Math.abs(e.x - p.x) < 260) : Math.abs(e.x - cx) > 260) continue;
+      const P = coop ? nearPl(e) : P0;
       e.t += dt; if (e.flash > 0) e.flash -= dt;
       if (e.hitT > 0) e.hitT -= dt; if (e.kickT > 0) e.kickT -= dt; if (e.landT > 0) e.landT -= dt;
       if (e.spawnT > 0) { e.spawnT -= dt; continue; }
@@ -1456,7 +1464,7 @@
       }
       if (e.onGround && !wasG && pvy0 > 120 && !e.fly) { e.landT = 0.2; emit(e.x + e.w / 2, e.y + e.h, 4, { col: '#cfd6e6', sp0: 15, sp1: 45, vy: -10, grav: 40, l0: 0.15, l1: 0.3 }); }
       // contact
-      if (!e.dead && !e.hid && !(e.stunT > 0) && (c.ai !== 'blob' || e.st === 'up') && ov(P, { x: e.x + 1, y: e.y + 1, w: e.w - 2, h: e.h - 2 })) hurtPlayer(e.dmg || 1, e.x + e.w / 2);
+      if (!e.dead && !e.hid && !(e.stunT > 0) && (c.ai !== 'blob' || e.st === 'up') && true) hitPl({ x: e.x + 1, y: e.y + 1, w: e.w - 2, h: e.h - 2 }, () => hurtPlayer(e.dmg || 1, e.x + e.w / 2));
     }
     Q.ents = Q.ents.filter(e => !e.dead);
   }
@@ -1689,7 +1697,7 @@
         if (b.ph === 0 && b.vy > 0) { b.ph = 1; b.vy = 540; Snd.play('whoosh'); }
         if (b.ph === 1 && b.onGround) { shockwave(b); const c = bc(b); for (let i = 1; i <= 4; i++) for (const sg of [-1, 1]) { const x = arenaClamp(c.x + sg * i * 24); addZone({ type: 'spike', x: x - 7, y: groundYAt(x) - 30, w: 14, h: 30, tel: 0.15 + i * 0.08, life: 0.4 }); } return true; }
       } },
-    roar: { tele: 0.7, start(b) { b.skT = 1.5; b.rt = 0; b.hitDone = false; b.vx = 0; const c = bc(b); addRing(c.x, b.y + b.h, bpc(), 110, 0.8); if (b.id === 'quoc') Snd.devilRoar(1); else Snd.creature(Q.li, 'alert', true); Snd.play('boom'); }, upd(b, dt) { b.skT -= dt; b.rt -= dt; Q.shake = Math.max(Q.shake, 0.55); const c = bc(b), P = Q.P; if (b.rt <= 0 && b.skT > 0.2) { b.rt = 0.22; addRing(c.x, b.y + b.h * 0.5, bpc(), 60 + Math.random() * 40, 0.45); emit(c.x + rr(-b.w / 2, b.w / 2), b.y + rr(0, b.h * 0.5), 6, { col: ['#fff', bpc()], sp0: 30, sp1: 110 }); } if (!b.hitDone && b.skT < 1.2) { b.hitDone = true; if (Math.hypot(P.x + 4 - c.x, P.y + 7 - c.y) < b.w / 2 + 64) { hurtPlayer(1, c.x); P.vx = (P.x + 4 < c.x ? -1 : 1) * 190; P.vy = -150; } } return b.skT <= 0; } },
+    roar: { tele: 0.7, start(b) { b.skT = 1.5; b.rt = 0; b.hitDone = false; b.vx = 0; const c = bc(b); addRing(c.x, b.y + b.h, bpc(), 110, 0.8); if (b.id === 'quoc') Snd.devilRoar(1); else Snd.creature(Q.li, 'alert', true); Snd.play('boom'); }, upd(b, dt) { b.skT -= dt; b.rt -= dt; Q.shake = Math.max(Q.shake, 0.55); const c = bc(b), P = Q.P; if (b.rt <= 0 && b.skT > 0.2) { b.rt = 0.22; addRing(c.x, b.y + b.h * 0.5, bpc(), 60 + Math.random() * 40, 0.45); emit(c.x + rr(-b.w / 2, b.w / 2), b.y + rr(0, b.h * 0.5), 6, { col: ['#fff', bpc()], sp0: 30, sp1: 110 }); } if (!b.hitDone && b.skT < 1.2) { b.hitDone = true; for (const q of allPl()) if (Math.hypot(q.x + 4 - c.x, q.y + 7 - c.y) < b.w / 2 + 64) asP(q, () => { hurtPlayer(1, c.x); q.vx = (q.x + 4 < c.x ? -1 : 1) * 190; q.vy = -150; }); } return b.skT <= 0; } },
     guard: { tele: 0.4, start(b) { b.guard = 3; b.skT = 3; b.recAfter = 0.4; Snd.play('gate'); addRing(b.x + b.w / 2, b.y + b.h, '#6ee7f2', 50, 0.5); }, upd: wait },
     cloak: { tele: 0.5, start(b) { b.cloak = true; b.skT = 3.0; b.ph = 0; addGhost(b, 'out'); Snd.whisper(); Snd.play('poof'); },
       upd(b, dt) {
@@ -1767,7 +1775,7 @@
       case 'rec': b.timer -= dt; if (b.timer <= 0) { b.st = 'wait'; b.timer = 0.65 / b.fury; } break;
     }
     { const was = b.onGround, pvy = b.vy; moveY(b, b.vy * dt); if (b.onGround && !was && pvy > 140) { b.squashT = 0.22; addRing(cxm, b.y + b.h, '#cfd6e6', 34 + Math.min(40, pvy / 9), 0.4); emit(cxm, b.y + b.h, 8, { col: '#cfd6e6', sp0: 20, sp1: 70, vy: -15, grav: 40 }); } }
-    if (!b.hide && ov(P, { x: b.x + 3, y: b.y + 3, w: b.w - 6, h: b.h - 4 })) hurtPlayer(Q.li >= 3 ? 2 : 1, cxm);
+    if (!b.hide) hitPl({ x: b.x + 3, y: b.y + 3, w: b.w - 6, h: b.h - 4 }, () => hurtPlayer(Q.li >= 3 ? 2 : 1, cxm));
   }
 
   // ===================== ANIMATION / EFFECTS =====================
@@ -1960,7 +1968,7 @@
       case 'flee': d.timer -= dt; d.x += 200 * dt; d.y -= 140 * dt; if (d.timer <= 0) { finishDragon(d); return; } break;
     }
     if (d.st !== 'flee' && d.st !== 'enter') { d.x = clamp(d.x, (tr.lw + 1) * TS, tr.rw * TS - d.w); d.y = clamp(d.y, Q.cam.y - 30, tr.gy * TS - d.h / 2 - 2); }
-    if (!d.hide && d.st !== 'enter' && d.st !== 'talk' && ov(P, { x: d.x + 6, y: d.y + 4, w: d.w - 12, h: d.h - 8 }) && (d.def.kind !== 'young' || (d.st === 'act' && d.sk === 'dive'))) hurtPlayer(d.def.kind === 'young' ? 1 : 2, c.x);
+    if (!d.hide && d.st !== 'enter' && d.st !== 'talk' && (d.def.kind !== 'young' || (d.st === 'act' && d.sk === 'dive'))) hitPl({ x: d.x + 6, y: d.y + 4, w: d.w - 12, h: d.h - 8 }, () => hurtPlayer(d.def.kind === 'young' ? 1 : 2, c.x));
   }
   function drawDragon(camX, camY) {
     const d = Q.dragon; if (!d || d.hide) return;
@@ -1997,15 +2005,15 @@
       }
       if (!(z.t >= z.tel && z.t < z.tel + z.life)) continue;
       const box = { x: z.x, y: z.y, w: z.w, h: z.h };
-      if (z.type === 'poison') { z.tick = (z.tick || 0) - dt; if (ov(P, box) && z.tick <= 0) { z.tick = 0.9; hurtPlayer(1, z.x + z.w / 2, true); } }
-      else if (z.type === 'goo') { if (ov(P, box)) P.slow = Math.max(P.slow || 0, 0.5); }
+      if (z.type === 'poison') { z.tick = (z.tick || 0) - dt; if (z.tick <= 0 && allPl().some(q => ov(q, box))) { z.tick = 0.9; hitPl(box, () => hurtPlayer(1, z.x + z.w / 2, true)); } }
+      else if (z.type === 'goo') hitPl(box, q => { q.slow = Math.max(q.slow || 0, 0.5); });
       else if (z.type === 'pull') {
         const cx = z.x + z.w / 2, dx = cx - (P.x + 4);
         if (Math.abs(dx) < z.w / 2) moveX(P, clamp(dx, -1, 1) * 58 * dt);
         if (Math.random() < 0.5) emit(cx + rr(-z.w / 2, z.w / 2), z.y + rr(0, z.h), 1, { col: z.col, sp0: 10, sp1: 30, vx: (cx - 0) * 0, grav: -10, l0: 0.3, l1: 0.6 });
         if (Math.abs(dx) < 12 && Math.abs(P.y + 7 - (z.y + z.h / 2)) < 26) { z.tick = (z.tick || 0) - dt; if (z.tick <= 0) { z.tick = 0.5; hurtPlayer(1, cx); } }
       }
-      else if (ov(P, box)) hurtPlayer(z.dmg, z.x + z.w / 2, false, (z.type === 'lava' || z.type === 'meteor' || z.type === 'sweep' || z.type === 'beam') ? 'fire' : '');
+      else hitPl(box, () => hurtPlayer(z.dmg, z.x + z.w / 2, false, (z.type === 'lava' || z.type === 'meteor' || z.type === 'sweep' || z.type === 'beam') ? 'fire' : ''));
     }
     Q.zones = Q.zones.filter(z => z.t < z.tel + z.life);
   }
@@ -2043,7 +2051,7 @@
       if (p.type !== 'wave' && solid(tx, ty)) { p.dead = true; emit(p.x, p.y, 5, { col: p.col, sp0: 10, sp1: 40 }); if (p.onLand) { const gy2 = groundYAt(p.x); addZone({ type: p.onLand, x: p.x - 16, y: gy2 - 6, w: 32, h: 6, tel: 0, life: 5, col: p.col }); } continue; }
       if (p.type === 'wave') { if (solid(Math.floor((p.x + Math.sign(p.vx) * 5) / TS), Math.floor(p.y / TS))) { p.dead = true; continue; } if (Math.random() < 0.4) emit(p.x, p.y + 4, 1, { col: p.col, sp0: 5, sp1: 20, vy: -20 }); }
       const hb = p.type === 'wave' ? { x: p.x - 6, y: p.y - 6, w: 12, h: 12 } : (p.big ? { x: p.x - 4, y: p.y - 4, w: 8, h: 8 } : { x: p.x - 2, y: p.y - 2, w: 4, h: 4 });
-      if (ov(P, hb)) { if (hurtPlayer(p.dmg || 1, p.x, false, p.fl ? 'fire' : '')) { p.dead = true; if (p.status) for (const k in p.status) P[k] = Math.max(P[k] || 0, p.status[k]); } }
+      if (!p.dead) hitPl(hb, q => { if (!p.dead && hurtPlayer(p.dmg || 1, p.x, false, p.fl ? 'fire' : '')) { p.dead = true; if (p.status) for (const k in p.status) q[k] = Math.max(q[k] || 0, p.status[k]); } });
       if (p.fl && Math.random() < 0.5) emit(p.x, p.y, 1, { col: ['#ffd34e', '#f08a2b', '#e0453a'], sp0: 3, sp1: 14, grav: -10, l0: 0.15, l1: 0.35 });
     }
     Q.projs = Q.projs.filter(p => !p.dead);
@@ -2106,18 +2114,18 @@
       switch (t.type) {
         case 'spiketrap': {
           const ph = (t.t + t.off) % 3.4; t.warn = ph >= 1.8 && ph < 2.3; t.up = ph >= 2.3 && ph < 3.3;
-          if (t.up && ov(P, { x: t.x - t.w * 8 + 1, y: t.y - 9, w: t.w * 16 - 2, h: 9 })) hurtPlayer(1, t.x);
+          if (t.up) hitPl({ x: t.x - t.w * 8 + 1, y: t.y - 9, w: t.w * 16 - 2, h: 9 }, () => hurtPlayer(1, t.x));
           break;
         }
         case 'jets': {
           const ph = (t.t + t.off) % 3.6; t.warn = ph >= 1.8 && ph < 2.4; t.up = ph >= 2.4 && ph < 3.3;
-          if (t.up) { if (Math.random() < 0.6) emit(t.x + rr(-3, 3), t.y - rr(8, 40), 1, { col: ['#ffd34e', '#f08a2b'], sp0: 3, sp1: 14, vy: -20, grav: -10, l0: 0.2, l1: 0.4 }); if (ov(P, { x: t.x - 5, y: t.y - 40, w: 10, h: 40 })) hurtPlayer(1, t.x); }
+          if (t.up) { if (Math.random() < 0.6) emit(t.x + rr(-3, 3), t.y - rr(8, 40), 1, { col: ['#ffd34e', '#f08a2b'], sp0: 3, sp1: 14, vy: -20, grav: -10, l0: 0.2, l1: 0.4 }); hitPl({ x: t.x - 5, y: t.y - 40, w: 10, h: 40 }, () => hurtPlayer(1, t.x)); }
           break;
         }
         case 'saw': {
           t.ph += dt * (46 + Q.li * 3) / Math.max(16, t.len * 16) * Math.PI;
           t.sx = t.x0 + (t.len * 16 - 16) * (0.5 - 0.5 * Math.cos(t.ph));
-          if (ov(P, { x: t.sx - 6, y: t.y - 15, w: 12, h: 13 })) hurtPlayer(1, t.sx);
+          hitPl({ x: t.sx - 6, y: t.y - 15, w: 12, h: 13 }, () => hurtPlayer(1, t.sx));
           break;
         }
         case 'turret': {
@@ -2983,7 +2991,7 @@
     }
   }
   function updateCam(dt) {
-    const P = Q.P, L = Q.L, k = 1 - Math.exp(-6 * dt);
+    const P = (coop && Q.P.down && Q.players && Q.players.find(p => !p.down)) || Q.P, L = Q.L, k = 1 - Math.exp(-6 * dt);
     let tx = P.x + P.w / 2 - VW / 2 + P.face * 22, ty = P.y - VH * 0.58;
     let minX = 0, maxX = Math.max(0, L.endX + 8 - VW);
     if (Q.arenaSealed) minX = (L.arena.x0 + 1) * TS;
@@ -3017,7 +3025,7 @@
       if (act.pauseP) { Q.state = 'play'; return; }
       if (act.okP) {
         Snd.play('ok');
-        if (Q.menu === 0) Q.state = 'play'; else if (Q.menu === 1) startLevel(Q.li); else if (Q.menu === 2) { toScene('map'); } else toScene('title');
+        if (Q.menu === 0) Q.state = 'play'; else if (Q.menu === 1) startLevel(Q.li); else if (coop) coopBackToLobby(); else if (Q.menu === 2) { toScene('map'); } else toScene('title');
       }
       return;
     }
@@ -3027,11 +3035,11 @@
     if (st === 'tablet') { if (act.okP || act.talkP || act.backP || act.pauseP || act.atkP) { Q.state = 'play'; } return; }
     if (st === 'dead') {
       updateParticles(dt);
-      if (Q.stateT > 0.8 && act.okP) { Snd.play('ok'); respawn(); }
-      else if (Q.stateT > 0.8 && act.backP) toScene('map');
+      if (Q.stateT > 0.8 && act.okP) { Snd.play('ok'); if (coop) Q.P = Q.me; respawn(); if (coop) coopRespawn(); }
+      else if (Q.stateT > 0.8 && act.backP) { if (coop) coopBackToLobby(); else toScene('map'); }
       return;
     }
-    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (Q.li >= 6) toScene('ending'); else if (Q.li === 0 && !save.ride) toScene('ride'); else if (Q.li === 1 && !save.castle) toScene('castle'); else { cutLevel = Q.li; mapSel = Math.min(6, Q.li + 1); toScene('cutscene'); } } return; }
+    if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (coop) { coopBackToLobby(); return; } if (Q.li >= 6) toScene('ending'); else if (Q.li === 0 && !save.ride) toScene('ride'); else if (Q.li === 1 && !save.castle) toScene('castle'); else { cutLevel = Q.li; mapSel = Math.min(6, Q.li + 1); toScene('cutscene'); } } return; }
     // play / bossintro
     if (act.pauseP && st === 'play') { Q.state = 'pause'; Q.menu = 0; return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
@@ -3041,12 +3049,13 @@
     if (Q.msgT > 0) Q.msgT -= dt;
     updatePlats(dt); updateCrumble(dt);
     if (st === 'bossintro' && !(Q.boss && Q.boss.st === 'intro')) Q.state = 'play'; // never get stuck in the intro
-    if (st === 'bossintro') { updateBoss(dt); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
-    updatePlayer(dt);
+    if (st === 'bossintro') { asP(coop ? bossTgt() : Q.P, () => updateBoss(dt)); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
+    if (!Q.P.down) updatePlayer(dt);
+    if (coop) coopHostPlayers(dt);
     if (Q.state !== 'play' && Q.state !== 'bossintro') { updateParticles(dt); return; }
     updateGear(dt); updateStatus(dt);
     const edt = dt * (Q.G.slowT > 0 ? 0.4 : 1), bdt = (Q.boss && Q.boss.stunT > 0) ? 0 : edt, ddt = (Q.dragon && Q.dragon.stunT > 0) ? 0 : edt;
-    updateEnemies(edt); updateBoss(bdt); updateDragon(ddt); updateBossDeath(dt); updateTraps(dt); updatePuzzles(dt); updateFps(dt); updateFires(dt); updateProjs(edt); updateZones(dt); updateCreeps(dt); updateItems(dt); updateParticles(dt); updateCam(dt); updateWeather(dt);
+    updateEnemies(edt); { const tg = coop ? bossTgt() : Q.P; asP(tg, () => { updateBoss(bdt); updateDragon(ddt); }); } updateBossDeath(dt); updateTraps(dt); updatePuzzles(dt); updateFps(dt); updateFires(dt); updateProjs(edt); updateZones(dt); updateCreeps(dt); updateItems(dt); updateParticles(dt); updateCam(dt); updateWeather(dt);
   }
   function updateParticles(dt) {
     updateFx(dt);
@@ -3308,11 +3317,15 @@
     if (glow && Math.random() < 0.35) emit(P.x + 4 + Math.cos(ang) * rad * 0.8 * f + rr(-6, 6), P.y + 5 + Math.sin(ang) * rad * 0.8 + rr(-6, 6), 1, { col: [L.ed, glow, '#fff'], sp0: 2, sp1: 10, grav: -12, l0: 0.3, l1: 0.7 });
   }
   function drawPlayer(camX, camY) {
+    if (coop && Q.players && Q.players.length) { for (const p of Q.players) { if (p.down) drawDown(p, camX, camY); else asP(p, () => drawPlayer1(camX, camY)); } return; }
+    drawPlayer1(camX, camY);
+  }
+  function drawPlayer1(camX, camY) {
     const P = Q.P;
     if (Q.state === 'dead') return;
     if (P.inv > 0 && P.dash <= 0 && Math.floor(P.inv * 20) % 2 === 0) return;
     const x = Math.round(P.x + P.w / 2 - camX), bot = Math.round(P.y + P.h - camY);
-    const av = armorVis(save.inv.armor), swp = av ? av.sw : {};
+    const hh = P.hero && HERO[P.hero], av = hh || armorVis(save.inv.armor), swp = av ? av.sw : {};
     if (av) drawArmorBack(av, x, bot);
     let spr;
     if (!P.onGround) spr = getSprite(P.vy < 0 ? 'hero_jump' : 'hero_fall', swp, 0);
@@ -3330,6 +3343,8 @@
     const sw = heldSword();
     if (sw) drawHeldSword(sw, x, bot);
     if (av) drawArmorFront(av, x, bot);
+    if (hh && hh.hat) drawHat(hh, x, bot, P.face);
+    if (coop) drawCoopTag(P, x, bot);
   }
   function drawLighting() {
     const B = Q.B, P = Q.P, camX = Q.cam.x, camY = Q.cam.y;
@@ -3429,6 +3444,7 @@
     drawWorld(); drawFog(); drawLighting(); drawCreepEyes(Math.round(Q.cam.x), Math.round(Q.cam.y)); drawWeather(); drawGearTop(Math.round(Q.cam.x), Math.round(Q.cam.y));
     g.restore();
     if (Q.state !== 'talk') drawHUD();
+    if (coop && Q.state !== 'talk') drawCoopHUD();
     const st = Q.state;
     if (st === 'intro') {
       const a = Q.stateT < 0.4 ? Q.stateT / 0.4 : (Q.stateT > 2.1 ? Math.max(0, (2.6 - Q.stateT) / 0.5) : 1);
@@ -3964,6 +3980,7 @@
     if (s === 'ending') { storyPage = 0; storyT = 0; storyList = ENDING; Snd.music('title', TITLE_MUSIC); }
     if (s === 'map') { Snd.music('title', TITLE_MUSIC); Q = null; mapSel = Math.min(mapSel, maxPlayable()); }
     if (s === 'cutscene') startCut();
+    if (s === 'coop') { Q = null; Snd.music('title', TITLE_MUSIC); }
     if (s === 'castle') startCastle();
     if (s === 'ride') startRide();
     if (s === 'shop') { Snd.music('title', TITLE_MUSIC); Q = null; shopCard = null; shopIdx = 0; }
@@ -3993,6 +4010,7 @@
     const it = [];
     if (save.cleared.length || UNLOCK_ALL) it.push({ k: 'cont', fn: () => { mapSel = UNLOCK_ALL ? 0 : maxPlayable(); toScene('map'); } });
     it.push({ k: 'shopT', fn: () => { shopFrom = 'title'; toScene('shop'); } });
+    it.push({ k: 'coopT', fn: () => { coopUI.ph = 'menu'; coopUI.sel = 0; coopUI.msg = ''; toScene('coop'); } });
     it.push({ k: 'newgame', fn: () => { save.castle = 0; save.ride = 0; save.seen = {}; save.inv = { own: ['iron'], w: ['iron', null], armor: null, pet: null, gems: save.inv.gems | 0 }; save.cleared = []; save.shards = {}; save.coins = 0; save.leek = false; save.relics = [0, 0, 0, 0, 0, 0, 0]; save.ammo = { dagger: 0, bomb: 0, flask: 0 }; writeSave(); mapSel = 0; toScene('story'); } });
     it.push({ k: 'lang', fn: () => { save.lang = save.lang === 'vi' ? 'en' : 'vi'; writeSave(); } });
     it.push({ k: 'sound', fn: () => { Snd.toggleMute(); } });
@@ -4163,10 +4181,551 @@
   }
 
   // ============================== MAIN LOOP ==============================
+  // ============================== ONLINE CO-OP (up to 5 players) ==============================
+  // The host runs the whole game. Guests send their buttons; the host moves their heroes with the same player code
+  // (by swapping Q.P), and sends the world back ~20 times a second. Guests only draw what they receive.
+  const cvs = (en, vi) => save.lang === 'vi' ? vi : en;
+  const PCOL = ['#ffd34e', '#6ee7f2', '#ff7fb0', '#7ed957', '#c07bff'];
+  const coopUI = { ph: 'menu', sel: 0, code: '', msg: '', msgBad: false, hs: 0, li: 0, slots: [], from: 'lobby' };
+  const myHero = () => (HERO[save.hero] ? save.hero : 'ember');
+  function allPl() { return coop && Q.players ? Q.players.filter(p => !p.down) : [Q.P]; }
+  function asP(p, fn) {
+    if (!p || p === Q.P) return fn();
+    const o = Q.P, os = Q.safe, oi = save.inv; Q.P = p; Q.safe = p.safe || os; if (p.bag) save.inv = p.bag; inSwap++;
+    try { return fn(); } finally { inSwap--; p.safe = Q.safe; Q.P = o; Q.safe = os; save.inv = oi; }
+  }
+  function hitPl(box, fn) { let r = false; for (const p of allPl()) if (ov(p, box)) r = asP(p, () => fn(p)) || r; return r; }
+  function nearPl(e) { let b = Q.P, bd = 1e9; for (const p of allPl()) { const d = Math.abs(p.x - e.x) + Math.abs(p.y - e.y) * 0.6; if (d < bd) { bd = d; b = p; } } return b; }
+  function bossTgt() {
+    const al = allPl(); if (al.length <= 1) return al[0] || Q.P;
+    Q.btT = (Q.btT || 0) - 1 / 100; if (Q.btT <= 0 || al.indexOf(Q.bt) < 0) { Q.btT = rr(4, 7); Q.bt = al[Math.floor(Math.random() * al.length)]; }
+    return Q.bt;
+  }
+  function setHero(p, id) {
+    const h = HERO[id] || HERO.ember; p.hero = h.id; p.mhp = undefined;
+    const base = asP(p, () => baseHP());
+    p.mhp = Math.max(2, base + h.hp); p.hp = p.mhp; p.hspd = h.spd; p.hdmg = h.dmg; p.skCd = 2;
+  }
+  // ---------- hero skills ----------
+  function teamNear(x, y, r) { return (coop ? Q.players.filter(p => !p.down) : [Q.P]).filter(p => Math.hypot(p.x + 4 - x, p.y + 7 - y) < r); }
+  function healP(p, n) { const m = p.mhp || maxHP(); if (p.hp < m) { p.hp = Math.min(m, p.hp + n); Snd.play('heart'); } emit(p.x + 4, p.y + 4, 10, { col: ['#ff7fb0', '#fff', '#a4ffc0'], sp0: 10, sp1: 50, grav: -30 }); }
+  function heroSkill(P) {
+    const h = HERO[P.hero]; if (!h) return; const s = h.sk, f = P.face, cx = P.x + 4, cy = P.y + 6, d = s.d + Math.floor(baseDmg() / 2);
+    P.skCd = s.cd; Snd.play('relic'); pop(cx, cy - 18, LN(s.n), s.col); addRing(cx, cy, s.col, 34, 0.35); emit(cx, cy, 14, { col: [s.col, '#fff'], sp0: 20, sp1: 80 });
+    switch (s.k) {
+      case 'nova': case 'reap': {
+        addRing(cx, cy, s.col, s.r, 0.45); Q.shake = Math.max(Q.shake, 0.25);
+        if (s.k === 'reap') for (let i = 0; i < 16; i++) { const a = i / 16 * 6.283; emit(cx + Math.cos(a) * s.r * 0.8, cy + Math.sin(a) * s.r * 0.5, 2, { col: [s.col, '#14121f'], sp0: 10, sp1: 40 }); }
+        for (const e of foes()) if (Math.hypot(e.x + e.w / 2 - cx, e.y + e.h / 2 - cy) < s.r + e.w / 2) { dmgFoe(e, d, true, true); if (!e.isBoss) { e.vx = (e.x + e.w / 2 < cx ? -1 : 1) * 150; if (!e.fly) e.vy = -120; } }
+        break;
+      }
+      case 'heal': for (const p of teamNear(cx, cy, s.r)) healP(p, s.d); addRing(cx, cy, s.col, s.r, 0.6); break;
+      case 'bless': for (const p of teamNear(cx, cy, s.r)) { healP(p, s.d); p.shield = true; } addRing(cx, cy, s.col, s.r, 0.6); break;
+      case 'shield': for (const p of teamNear(cx, cy, s.r)) { p.shield = true; emit(p.x + 4, p.y + 7, 12, { col: [s.col, '#fff'], sp0: 10, sp1: 50 }); } addRing(cx, cy, s.col, s.r, 0.6); break;
+      case 'volley': for (let i = 0; i < s.n8; i++) { const a = (i - (s.n8 - 1) / 2) * 0.2; later(i * 0.05, () => shootG({ x: P.x + 4 + f * 6, y: P.y + 6, vx: f * Math.cos(a) * 210, vy: Math.sin(a) * 210 - (s.home ? 40 : 0), home: !!s.home, life: 1.7, dmg: d, sz: 3, col: s.col, shape: s.shape || 'orb', f, poison: !!s.poison, trail: s.col, quiet: true })); } break;
+      case 'dash': {
+        P.inv = Math.max(P.inv, 0.5); const x0 = P.x, hit = new Set();
+        for (let k = 0; k < 10; k++) { moveX(P, f * 9); emit(P.x + 4, P.y + 7, 2, { col: [s.col, '#fff', '#14121f'], sp0: 5, sp1: 30, l0: 0.2, l1: 0.4 }); }
+        const box = { x: Math.min(x0, P.x) - 4, y: P.y - 6, w: Math.abs(P.x - x0) + 16, h: P.h + 12 };
+        for (const e of foes()) if (!hit.has(e) && ov(box, e)) { hit.add(e); dmgFoe(e, d, true); emit(e.x + e.w / 2, e.y + e.h / 2, 10, { col: [s.col, '#fff'], sp0: 30, sp1: 110 }); }
+        Snd.play('slash'); Snd.play('clang'); break;
+      }
+      case 'drain': { const t = nearestFoe(cx, cy, 170); if (t) { const tx = t.x + t.w / 2, ty = t.y + t.h / 2; dmgFoe(t, d, true); for (let i = 0; i < 10; i++) emit(lerp(tx, cx, i / 10), lerp(ty, cy, i / 10), 1, { col: [s.col, '#ff3a3a'], sp0: 5, sp1: 20 }); healP(P, 2); } break; }
+      case 'freeze': Q.G.slowT = Math.max(Q.G.slowT, 4); for (const e of foes()) if (Math.hypot(e.x + e.w / 2 - cx, e.y + e.h / 2 - cy) < 220) { dmgFoe(e, d, true, true); e.slowT = Math.max(e.slowT || 0, 5); emit(e.x + e.w / 2, e.y + e.h / 2, 8, { col: ['#fff', s.col], sp0: 10, sp1: 50 }); } addRing(cx, cy, s.col, 200, 0.7); break;
+      case 'meteor': { const t = nearestFoe(cx, cy, 230), tx = t ? t.x + t.w / 2 : cx + f * 90; for (let i = 0; i < 2; i++) later(i * 0.25, () => shootG({ x: tx - f * 40 + i * 14, y: Q.cam.y - 10, vx: f * 50, vy: 280, life: 2, dmg: d, expl: s.r, shape: 'meteor', col: s.col, trail: '#ff7a2a', thru: false })); break; }
+      case 'chain': { const t = nearestFoe(cx, cy, 190); if (t) { zap(cx, cy, t.x + t.w / 2, t.y + t.h / 2); dmgFoe(t, d, true, true); chainZap(t, d, s.n8, 120); Snd.play('zap'); } break; }
+      case 'rain': for (let i = 0; i < s.n8; i++) later(i * 0.06, () => shootG({ x: P.x + 4 + f * (24 + Math.random() * 120), y: Q.cam.y - 6, vx: f * 20, vy: 300, life: 1.4, dmg: d, shape: 'arrow', col: s.col, sz: 3, quiet: true })); break;
+      case 'quake': {
+        Q.shake = Math.max(Q.shake, 0.5); Snd.play('boom'); const gy = P.y + P.h;
+        for (let i = -6; i <= 6; i++) emit(cx + i * s.r / 6, gy, 3, { col: [s.col, '#8a6a44'], sp0: 20, sp1: 70, vy: -60 });
+        for (const e of foes()) if (Math.abs(e.x + e.w / 2 - cx) < s.r && Math.abs(e.y + e.h - gy) < 48) { dmgFoe(e, d, true, true); if (!e.isBoss && !e.fly) e.vy = -180; e.stunT = Math.max(e.stunT || 0, e.isBoss ? 0.4 : 1.2); }
+        break;
+      }
+      case 'hole': Q.G.holes.push({ x: cx + f * 64, y: cy, life: 4, r: s.r, tick: 0.2 }); Snd.play('zap'); break;
+      case 'blades': for (let i = 0; i < s.n8; i++) { const a = i / s.n8 * 6.283; shootG({ x: cx + Math.cos(a) * 10, y: cy + Math.sin(a) * 10, vx: Math.cos(a) * 170, vy: Math.sin(a) * 170, life: 0.9, dmg: d, thru: true, pierceN: 2, shape: 'star', spin: 16, col: s.col, sz: 3, quiet: true }); } Snd.play('whoosh'); break;
+      case 'rage': Q.G.powerT = Math.max(Q.G.powerT || 0, 8); Q.msg = cvs('WAR CRY! The team hits harder!', 'XUNG TRẬN! Cả đội đánh mạnh hơn!'); Q.msgT = 2.5; addRing(cx, cy, s.col, 160, 0.6); break;
+      case 'snipe': shootG({ x: cx + f * 8, y: cy, vx: f * 540, vy: 0, life: 0.9, dmg: d, thru: true, pierceN: 99, shape: 'beam', col: s.col, sz: 4, f }); Snd.play('whoosh'); break;
+      case 'wave': shootG({ x: cx + f * 10, y: cy - 2, vx: f * 190, vy: 0, life: 1, dmg: d, thru: true, pierceN: 99, shape: 'wind', col: s.col, sz: 9, f }); for (let i = 0; i < 12; i++) emit(cx + f * i * 6, cy + 4, 2, { col: [s.col, '#fff'], sp0: 10, sp1: 40, vx: f * 90 }); Snd.play('whoosh'); break;
+    }
+  }
+  // ---------- hats and accessories (drawn on top of the recoloured hero) ----------
+  function drawHat(h, x, bot, f) {
+    const c = h.hatCol || '#fff', t = Q ? Q.t : sceneT, top = bot - 21, R = (a, b, w, hh, col) => { g.fillStyle = col || c; g.fillRect(Math.round(x + (f > 0 ? a : -a - w)), Math.round(top + b), w, hh); }, K = '#1b1626';
+    switch (h.hat) {
+      case 'twin': R(-8, 3, 3, 9); R(5, 3, 3, 9); R(-9, 10, 3, 4); R(6, 10, 3, 4); R(-7, 2, 2, 2, '#ff7fb0'); R(5, 2, 2, 2, '#ff7fb0'); break;
+      case 'hood': case 'hoodg': R(-6, 0, 12, 4, K); R(-5, 1, 10, 3); R(-7, 3, 2, 8); R(5, 3, 2, 8); R(-6, 0, 3, 2); break;
+      case 'mask': R(-5, 7, 10, 2); R(-7, 7, 2, 1); R(-10, 8, 4, 1); R(-12, 9, 3, 1); break;
+      case 'collar': R(-7, 8, 3, 5); R(4, 8, 3, 5); R(-7, 7, 1, 2, '#c0304a'); R(6, 7, 1, 2, '#c0304a'); break;
+      case 'leaf': R(-1, -3, 2, 4, '#2b8a3e'); R(-4, -5, 4, 2); R(1, -6, 4, 2); R(-5, -4, 1, 1); R(4, -5, 1, 1); break;
+      case 'crystal': R(-4, -3, 2, 4); R(-1, -6, 2, 7); R(2, -3, 2, 4); R(-1, -5, 1, 2, '#fff'); break;
+      case 'horns': R(-6, -1, 2, 3); R(-7, -3, 2, 2); R(4, -1, 2, 3); R(5, -3, 2, 2); break;
+      case 'spiky': R(-5, -2, 2, 3); R(-2, -4, 2, 5); R(1, -3, 2, 4); R(4, -2, 2, 3); break;
+      case 'feather': R(3, -6, 2, 7); R(4, -8, 2, 3, '#fff'); R(2, -4, 1, 2); break;
+      case 'helm': R(-6, 0, 12, 4); R(-6, 4, 2, 4); R(4, 4, 2, 4); R(-1, -4, 2, 4, '#e0453a'); R(-3, -3, 2, 2, '#e0453a'); R(-5, 2, 10, 1, '#ffffff'); break;
+      case 'star': { const yy = -7 + Math.round(Math.sin(t * 3)); R(-1, yy - 2, 2, 6); R(-3, yy, 6, 2); R(0, yy, 1, 1, '#fff'); break; }
+      case 'cat': R(-6, -3, 3, 4); R(3, -3, 3, 4); R(-5, -2, 1, 2, '#ff7fb0'); R(4, -2, 1, 2, '#ff7fb0'); break;
+      case 'flower': R(3, 0, 4, 4); R(4, 1, 2, 2, '#ffd34e'); R(2, 1, 1, 2); R(7, 1, 1, 2); break;
+      case 'dino': R(-6, 0, 12, 4); R(-8, 2, 2, 2); R(-8, 5, 2, 2); R(-7, 8, 2, 2); R(-4, -2, 2, 2, '#ff9a4a'); R(0, -3, 2, 3, '#ff9a4a'); R(-5, 4, 1, 1, '#fff'); break;
+      case 'bunny': { const wob = Math.round(Math.sin(t * 5)); R(-4, -9 + wob, 3, 10); R(1, -10, 3, 11); R(-3, -8 + wob, 1, 7, '#ff9fd0'); R(2, -9, 1, 8, '#ff9fd0'); break; }
+      case 'cap': R(-5, 0, 10, 3); R(3, 2, 6, 1); R(-4, 0, 3, 1, '#fff'); break;
+      case 'skull': R(-5, 1, 10, 7); R(-3, 4, 2, 2, K); R(1, 4, 2, 2, K); R(-2, 7, 4, 1, K); R(-6, 0, 12, 1, '#3a3a4a'); break;
+      case 'halo': { const yy = top - 3 + Math.round(Math.sin(t * 3)); g.strokeStyle = c; g.lineWidth = 1; g.beginPath(); g.ellipse(x, yy, 5, 1.6, 0, 0, 7); g.stroke(); g.globalAlpha = 0.35; g.strokeStyle = '#fff'; g.beginPath(); g.ellipse(x, yy, 6, 2.2, 0, 0, 7); g.stroke(); g.globalAlpha = 1; break; }
+      case 'tiara': R(-4, 0, 8, 1); R(-4, -2, 1, 2); R(-1, -3, 2, 3); R(3, -2, 1, 2); R(-1, -2, 2, 1, '#a98bff'); break;
+      case 'goggles': R(-6, 2, 12, 1, '#5a3a22'); R(-4, 1, 3, 3); R(1, 1, 3, 3); R(-3, 2, 1, 1, '#9fe8ff'); R(2, 2, 1, 1, '#9fe8ff'); break;
+      case 'witch': R(-8, 1, 16, 2); R(-5, -2, 10, 3); R(-3, -6, 7, 4); R(0, -10, 4, 4); R(3, -11, 3, 2); R(-5, 0, 10, 1, '#9be564'); break;
+      case 'bandana': R(-6, 1, 12, 3); R(-9, 2, 3, 2); R(-11, 3, 2, 2); R(-4, 2, 2, 1, '#fff'); break;
+      case 'onihorn': R(-1, -5, 3, 6); R(0, -7, 2, 2); R(-5, 0, 2, 2); R(4, 0, 2, 2); break;
+      case 'bun': R(-3, -4, 6, 5); R(-2, -5, 4, 1); R(-1, -3, 2, 1, '#ff9fd0'); break;
+      case 'cowboy': R(-9, 2, 18, 2); R(-5, -2, 10, 4); R(-5, 1, 10, 1, '#e0453a'); break;
+      case 'fox': R(-6, -4, 3, 5); R(3, -4, 3, 5); R(-6, -4, 3, 1, '#ff9a4a'); R(3, -4, 3, 1, '#ff9a4a'); R(-5, -2, 1, 2, '#ff9fd0'); R(4, -2, 1, 2, '#ff9fd0'); break;
+    }
+  }
+  function drawHeroAt(id, x, bot, f, fr, sc) {
+    const h = HERO[id] || HERO.ember; sc = sc || 1;
+    if (sc !== 1) { g.save(); g.translate(x, bot); g.scale(sc, sc); x = 0; bot = 0; }
+    drawSpr(g, getSprite('hero_idle', h.sw, fr || 0), x, bot, f < 0);
+    if (h.hat) drawHat(h, x, bot, f);
+    if (sc !== 1) g.restore();
+  }
+  // ---------- host: guests' heroes ----------
+  const EDGE = ['jumpP', 'atkP', 'atk2P', 'dashP', 'throwP', 'swapP', 'skillP', 'talkP'];
+  const LVL = ['left', 'right', 'up', 'down', 'jump'];
+  function withAct(p, fn) {
+    const keep = {}; for (const k of LVL.concat(EDGE)) { keep[k] = act[k]; act[k] = false; }
+    const inp = p.inp || {}; for (const k of LVL) act[k] = !!inp[k]; for (const k of EDGE) act[k] = !!(p.edge && p.edge[k]);
+    const sh = Snd.hero; Snd.hero = () => {};
+    try { fn(); } finally { Snd.hero = sh; p.edge = {}; for (const k in keep) act[k] = keep[k]; }
+  }
+  function coopDown(P) {
+    P.hp = 0; P.down = true; P.downT = 9; P.vx = P.vy = 0; P.atk = 0; P.shield = false;
+    Snd.play('die'); emit(P.x + 4, P.y + 7, 30, { col: ['#ffd34e', '#e0453a', '#f6f3e9'], sp0: 20, sp1: 120 });
+    Q.msg = cvs('P' + (P.slot + 1) + ' is down! Stand next to them to revive faster.', 'P' + (P.slot + 1) + ' đã gục! Đứng cạnh để hồi sinh nhanh hơn.'); Q.msgT = 3;
+  }
+  function coopHostPlayers(dt) {
+    const me = Q.me, ar = Q.L.arena;
+    for (const p of Q.players) {
+      if (p === me) continue;
+      for (let i = 0; i < 2; i++) if (p.wcd && p.wcd[i] > 0) p.wcd[i] -= dt;
+      if (!p.down) asP(p, () => withAct(p, () => updatePlayer(dt)));
+    }
+    if (Q.state !== 'play' && Q.state !== 'bossintro') return;
+    for (const p of Q.players) if (p !== me && !p.down) asP(p, () => updateItems(0));
+    // downed heroes come back after a while (faster when a friend stands next to them)
+    const alive = Q.players.filter(p => !p.down);
+    for (const p of Q.players) {
+      if (!p.down) continue;
+      const help = alive.find(o => Math.hypot(o.x - p.x, o.y - p.y) < 26);
+      p.downT -= dt * (help ? 4 : 1);
+      if (p.downT <= 0 && alive.length) { const l = help || alive[0]; p.down = false; p.hp = Math.max(2, Math.ceil(p.mhp / 2)); p.x = l.x; p.y = l.y; p.vx = p.vy = 0; p.inv = 2; Snd.play('relic'); emit(p.x + 4, p.y + 7, 24, { col: ['#fff', '#ffd34e', '#a4ffc0'], sp0: 20, sp1: 90 }); addRing(p.x + 4, p.y + 7, '#ffd34e', 40, 0.5); }
+    }
+    if (!alive.length) { Q.state = 'dead'; Q.stateT = 0; Snd.hero('die'); return; }
+    // keep the team together: nobody is left behind a boss wall or far off-screen
+    const lead = me.down ? alive[0] : me;
+    for (const p of alive) {
+      if (p === lead) continue;
+      const far = Math.abs(p.x - lead.x) > 520 || Math.abs(p.y - lead.y) > 300;
+      const out = Q.arenaSealed && (p.x < (ar.x0 + 2) * TS || p.x > ar.x1 * TS);
+      if (far || out) { emit(p.x + 4, p.y + 7, 10, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 60 }); p.x = out ? (ar.x0 + 4) * TS : lead.x - 10; p.y = out ? (ar.gy - 2) * TS : lead.y - 8; p.vx = p.vy = 0; p.safe = { x: p.x, y: p.y }; emit(p.x + 4, p.y + 7, 10, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 60 }); }
+    }
+  }
+  function coopRespawn() {
+    for (const p of Q.players) { p.down = false; p.hp = p.mhp; p.inv = 1.5; p.vx = p.vy = 0; p.x = Q.P.x - p.slot * 6; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; }
+  }
+  // ---------- serialising the world ----------
+  const SKIP = { atkHit: 1, hit: 1, later: 1, L: 1, inp: 1, edge: 1, safe: 1, fn: 1, bag: 1 };
+  let REG = null, REV = null, SPRK = new Map();
+  function buildReg() {
+    REG = new Map(); REV = {};
+    const add = (o, p) => { if (o && typeof o === 'object' && !REG.has(o)) { REG.set(o, p); REV[p] = o; } };
+    for (const k in EN) add(EN[k], 'EN.' + k);
+    BOSS.forEach((b, i) => add(b, 'BOSS.' + i));
+    for (const k in FORMS) FORMS[k].forEach((f, i) => add(f, 'FORMS.' + k + '.' + i));
+    if (typeof MINI !== 'undefined') for (const k in MINI) add(MINI[k], 'MINI.' + k);
+    for (const k in ITEM) add(ITEM[k], 'ITEM.' + k);
+    for (const k in NPCS) add(NPCS[k], 'NPCS.' + k);
+    for (const k in HERO) add(HERO[k], 'HERO.' + k);
+    BIOMES.forEach((b, i) => add(b, 'BIOMES.' + i));
+    if (typeof DRG !== 'undefined') for (const k in DRG) add(DRG[k], 'DRG.' + k);
+  }
+  function sprKey(v) {
+    if (!SPRK.has(v)) { for (const k in _cache) SPRK.set(_cache[k], k); }
+    return SPRK.get(v);
+  }
+  function sprFromKey(k) {
+    if (_cache[k]) return _cache[k];
+    try {
+      if (k.indexOf('|') > 0) { const a = k.split('|'); return getSprite(a[0], JSON.parse(a[1]), +a[2], a[3] || undefined); }
+      if (k.indexOf('np_') === 0) return npcSpr(k.slice(3));
+      if (/^boss\d$/.test(k)) return bossSprite(+k.slice(4));
+    } catch (e) {}
+    return undefined;
+  }
+  function ser(v, d) {
+    if (v === null || v === undefined) return v === null ? null : undefined;
+    const t = typeof v;
+    if (t === 'number') return Number.isFinite(v) ? Math.round(v * 100) / 100 : 0;
+    if (t === 'string' || t === 'boolean') return v;
+    if (t !== 'object') return undefined;
+    const r = REG.get(v); if (r !== undefined) return { $r: r };
+    if (d > 0 && v._n !== undefined) return { $n: v._n };
+    if (v instanceof Set || v instanceof Map || (typeof HTMLCanvasElement !== 'undefined' && v instanceof HTMLCanvasElement) || (typeof Image !== 'undefined' && v instanceof Image) || typeof v.getContext === 'function') return undefined;
+    if (v.c && typeof v.c.getContext === 'function') { const k = sprKey(v); return k ? { $s: k } : undefined; }
+    if (d > 5) return undefined;
+    if (Array.isArray(v)) return v.map(x => { const y = ser(x, d + 1); return y === undefined ? null : y; });
+    const o = {}; for (const k in v) { if (SKIP[k]) continue; const y = ser(v[k], d + 1); if (y !== undefined) o[k] = y; }
+    return o;
+  }
+  function des(v) {
+    if (v === null || typeof v !== 'object') return v;
+    if (Array.isArray(v)) return v.map(des);
+    if (v.$r !== undefined) return REV[v.$r];
+    if (v.$s !== undefined) return sprFromKey(v.$s);
+    if (v.$n !== undefined) return coop.objs.get(v.$n) || null;
+    const o = {}; for (const k in v) o[k] = des(v[k]);
+    return o;
+  }
+  // lists of world objects sent with ids; only the fields that changed are sent again
+  const QLISTS = ['ents', 'projs', 'fps', 'fires', 'zones', 'rings', 'ghosts', 'corpses', 'items', 'traps', 'pz', 'gates', 'trials', 'minis', 'dragons'];
+  const QONE = ['boss', 'dragon', 'syFig', 'mainBoss'];
+  const GLISTS = ['allies', 'pops', 'bolts', 'holes', 'torn'];
+  const GONE = ['god', 'dr', 'lyra'];
+  const QVALS = ['state', 'stateT', 'time', 'shake', 'arenaSealed', 'bossDead', 'msg', 'msgT', 'banner', 'cp', 'talk', 'darkBoost', 'darkBoostT', 'windT', 'windDir', 'shardFlash', 'coinsRun', 'dj', 'dashAb'];
+  const GVALS = ['slowT', 'powerT', 'flash'];
+  function inRange(o) { if (typeof o.x !== 'number') return true; for (const p of Q.players) if (Math.abs(o.x - p.x) < 340 && Math.abs((o.y || 0) - p.y) < 300) return true; return false; }
+  function packList(arr, tag) {
+    const ids = [], ch = {}, seen = coop.seen[tag] || (coop.seen[tag] = new Set()), now = new Set();
+    for (const o of arr) {
+      if (!o || (tag !== 'boss' && !inRange(o))) continue;
+      if (o._n === undefined) o._n = ++coop.nid;
+      ids.push(o._n); now.add(o._n);
+      const last = coop.last.get(o._n) || {}, out = {}; let any = false;
+      for (const k in o) {
+        if (SKIP[k]) continue;
+        const v = ser(o[k], 1), s = (v !== null && typeof v === 'object') ? JSON.stringify(v) : v;
+        if (last[k] !== s) { last[k] = s; out[k] = v === undefined ? null : v; any = true; }
+      }
+      coop.last.set(o._n, last); if (any) ch[o._n] = out;
+    }
+    for (const n of seen) if (!now.has(n)) coop.last.delete(n);
+    coop.seen[tag] = now;
+    return { ids, ch };
+  }
+  function packVals(src, keys, tag) {
+    const out = {}, last = coop.vlast[tag] || (coop.vlast[tag] = {});
+    for (const k of keys) { const v = ser(src[k], 1), s = (v !== null && typeof v === 'object') ? JSON.stringify(v) : String(v); if (last[k] !== s) { last[k] = s; out[k] = v === undefined ? null : v; } }
+    return out;
+  }
+  function packPlayer(p) {
+    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
+  }
+  function coopSnapshot() {
+    const G = Q.G, s = { t: 's', q: packVals(Q, QVALS, 'q'), gv: packVals(G, GVALS, 'g'), l: {}, o: {}, gl: {}, go: {}, pl: Q.players.map(packPlayer), ev: coop.ev.splice(0, 160) };
+    for (const k of QLISTS) s.l[k] = packList(Q[k] || [], k);
+    for (const k of QONE) s.o[k] = packList(Q[k] ? [Q[k]] : [], k);
+    for (const k of GLISTS) s.gl[k] = packList(G[k] || [], 'G' + k);
+    for (const k of GONE) s.go[k] = packList(G[k] ? [G[k]] : [], 'G' + k);
+    s.pf = Q.L.plats.map(p => [Math.round(p.x * 10) / 10, Math.round(p.y * 10) / 10, p.dx, p.dy]);
+    const rows = Q.L.grid.map(r => r.join ? r.join('') : r), gd = {};
+    rows.forEach((r, i) => { if (coop.grid[i] !== r) { coop.grid[i] = r; gd[i] = r; } });
+    s.gd = gd;
+    if (Q.L.arena) s.ar = [Q.L.arena.x0, Q.L.arena.x1, Q.L.arena.gy];
+    coop.ev.length = 0;
+    return s;
+  }
+  function applyList(pk, cur) {
+    const out = [];
+    const keepNew = cur && cur.filter(o => o && o._n === undefined);
+    for (const n of pk.ids) {
+      let o = coop.objs.get(n);
+      if (!o) { o = (keepNew && keepNew.length && pk.ids.length === 1) ? keepNew.shift() : {}; o._n = n; coop.objs.set(n, o); }
+      out.push(o);
+    }
+    for (const n in pk.ch) { const o = coop.objs.get(+n); if (!o) continue; const c = pk.ch[n]; for (const k in c) { const v = des(c[k]); if (v === undefined) continue; o[k] = v; } }
+    return out;
+  }
+  function coopApply(s) {
+    if (!Q) return;
+    const G = Q.G;
+    for (const k in s.q) { const v = des(s.q[k]); if (v !== undefined) Q[k] = v; }
+    for (const k in s.gv) { const v = des(s.gv[k]); if (v !== undefined) G[k] = v; }
+    const live = new Set();
+    for (const k in s.l) { Q[k] = applyList(s.l[k], Q[k]); for (const n of s.l[k].ids) live.add(n); }
+    for (const k in s.o) { const a = applyList(s.o[k], Q[k] ? [Q[k]] : null); Q[k] = a[0] || null; for (const n of s.o[k].ids) live.add(n); }
+    for (const k in s.gl) { G[k] = applyList(s.gl[k], G[k]); for (const n of s.gl[k].ids) live.add(n); }
+    for (const k in s.go) { const a = applyList(s.go[k], G[k] ? [G[k]] : null); G[k] = a[0] || null; for (const n of s.go[k].ids) live.add(n); }
+    for (const n of coop.objs.keys()) if (!live.has(n)) coop.objs.delete(n);
+    // re-link second pass so {$n} references made before their target existed resolve
+    if (s.pf) s.pf.forEach((a, i) => { const p = Q.L.plats[i]; if (p) { p.x = a[0]; p.y = a[1]; p.dx = a[2]; p.dy = a[3]; } });
+    for (const i in s.gd) { const row = Q.L.grid[i]; if (Array.isArray(row)) { const r = s.gd[i]; for (let x = 0; x < r.length; x++) row[x] = r[x]; } }
+    if (s.ar && Q.L.arena) { Q.L.arena.x0 = s.ar[0]; Q.L.arena.x1 = s.ar[1]; Q.L.arena.gy = s.ar[2]; }
+    // players
+    const old = Q.players || [];
+    Q.players = s.pl.map(d => {
+      let p = old.find(o => o.slot === d.s); if (!p) { p = newPlayer(); p.slot = d.s; }
+      for (const k in d) { if (k === 's') continue; if (k === 'pinv') { p.bag = { w: d.pinv.w, armor: d.pinv.armor, pet: null, own: [] }; continue; } const v = des(d[k]); if (v !== undefined) p[k] = v; }
+      return p;
+    });
+    const me = Q.players.find(p => p.slot === coop.me); if (me) { Q.P = me; Q.me = me; }
+    for (const e of s.ev || []) {
+      if (e[0] === 'e') emit(e[1], e[2], e[3], e[4]);
+      else if (e[0] === 's' && coop.play0) coop.play0(e[1]);
+    }
+    coop.since = 0;
+  }
+  // ---------- per-frame network work ----------
+  function coopHostNet(dt) {
+    coop.sendT -= dt;
+    if (coop.sendT > 0 || !Q || !Q.players) return;
+    coop.sendT = 1 / 20;
+    NET.send(coopSnapshot());
+  }
+  function coopClientInput() {
+    if (!coop || coop.role !== 'client' || scene !== 'play') return;
+    const m = { t: 'i' }; let edge = false;
+    for (const k of LVL) m[k] = act[k] ? 1 : 0;
+    for (const k of EDGE) if (act[k]) { m[k] = 1; edge = true; }
+    if (act.okP) { m.okP = 1; edge = true; }
+    const key = LVL.map(k => m[k]).join('');
+    if (edge || key !== coop.lastIn || (coop.inT -= 1 / 60) <= 0) { coop.lastIn = key; coop.inT = 0.25; NET.send(m); }
+  }
+  function coopClientTick(dt) {
+    if (!Q) return;
+    coop.since += dt; Q.t += dt; sceneT += dt;
+    if (coop.since < 0.15) {
+      const mv = o => { if (o && typeof o.vx === 'number' && typeof o.x === 'number' && !o.dead) { o.x += o.vx * dt; if (typeof o.vy === 'number' && !o.onGround) o.y += o.vy * dt; } };
+      for (const p of Q.players || []) if (!p.down) mv(p);
+      for (const e of Q.ents || []) mv(e);
+      for (const p of Q.projs || []) mv(p);
+      for (const p of Q.fps || []) mv(p);
+      if (Q.boss) mv(Q.boss);
+    }
+    if (Q.msgT > 0) Q.msgT -= dt;
+    if (Q.shake > 0) Q.shake -= dt;
+    if (Q.P && Q.P.emoT > 0) Q.P.emoT -= dt;
+    for (const p of Q.players || []) p.anim = (p.anim || 0) + dt;
+    updateParticles(dt); updateWeather(dt); updateCam(dt);
+    if (act.pauseP) coopLeave(cvs('You left the room.', 'Bạn đã rời phòng.'));
+  }
+  // ---------- lobby, joining and starting ----------
+  function coopInit(role) {
+    if (!REG) buildReg();
+    coop = { role, me: role === 'host' ? 0 : -1, peers: new Map(), seen: {}, last: new Map(), vlast: {}, objs: new Map(), nid: 0, ev: [], grid: [], sendT: 0, since: 0, inT: 0, lastIn: '', play0: null };
+    if (!coop.play0) { const p0 = Snd.play; coop.play0 = p0; Snd.play = function (n) { if (coop && coop.role === 'host' && scene === 'play' && coop.ev.length < 400) coop.ev.push(['s', n]); return p0.apply(Snd, arguments); }; }
+  }
+  function coopLeave(msg) {
+    if (coop && coop.play0) Snd.play = coop.play0;
+    NET.close(); coop = null;
+    coopUI.ph = 'menu'; coopUI.msg = msg || ''; coopUI.msgBad = !!msg; coopUI.slots = [];
+    if (scene !== 'coop') toScene('coop');
+  }
+  function lobbySlots() {
+    const sl = [{ slot: 0, hero: myHero(), name: 'P1' }];
+    for (const [id, p] of coop.peers) sl.push({ slot: p.slot, hero: p.hero, name: 'P' + (p.slot + 1), id });
+    return sl.sort((a, b) => a.slot - b.slot);
+  }
+  function sendLobby() { coopUI.slots = lobbySlots(); NET.send({ t: 'lobby', slots: coopUI.slots.map(s => ({ slot: s.slot, hero: s.hero, name: s.name })), li: coopUI.li, code: NET.code }); }
+  function freeSlot() { for (let i = 1; i < 5; i++) { let used = false; for (const p of coop.peers.values()) if (p.slot === i) used = true; if (!used) return i; } return -1; }
+  NET.on('ready', code => { coopUI.ph = 'lobby'; coopUI.msg = ''; coopUI.code = code; sendLobby(); Snd.play('ok'); });
+  NET.on('connected', () => { coopUI.msg = cvs('Connected! Waiting for the host...', 'Đã kết nối! Đang chờ chủ phòng...'); coopUI.msgBad = false; NET.send({ t: 'hello', hero: myHero(), inv: { w: save.inv.w.slice(), armor: save.inv.armor } }); });
+  NET.on('error', e => { const m = e === 'peer-unavailable' ? cvs('Room not found. Check the code.', 'Không tìm thấy phòng. Kiểm tra lại mã.') : e === 'nolib' ? cvs('Network library missing.', 'Thiếu thư viện mạng.') : cvs('Network error: ', 'Lỗi mạng: ') + e; coopLeave(m); });
+  NET.on('lost', () => coopLeave(cvs('Lost connection to the host.', 'Mất kết nối với chủ phòng.')));
+  NET.on('join', id => { if (!coop) return; Snd.play('relic'); });
+  NET.on('leave', id => {
+    if (!coop) return; const p = coop.peers.get(id); coop.peers.delete(id);
+    if (p && Q && Q.players) { Q.players = Q.players.filter(o => o !== p.pl); Q.msg = cvs('P' + (p.slot + 1) + ' left the game.', 'P' + (p.slot + 1) + ' đã rời trận.'); Q.msgT = 3; }
+    sendLobby();
+  });
+  NET.on('msg', (d, from) => {
+    if (!coop || !d) return;
+    if (coop.role === 'host') {
+      const p = coop.peers.get(from);
+      if (d.t === 'hello') {
+        if (scene === 'play') { NET.send({ t: 'busy' }, from); return; }
+        const slot = freeSlot(); if (slot < 0) { NET.send({ t: 'full' }, from); return; }
+        coop.peers.set(from, { slot, hero: HERO[d.hero] ? d.hero : 'ember', inv: d.inv, pl: null });
+        NET.send({ t: 'welcome', slot }, from); sendLobby();
+      } else if (d.t === 'hero' && p) { p.hero = HERO[d.id] ? d.id : p.hero; sendLobby(); }
+      else if (d.t === 'i' && p && p.pl) {
+        const pl = p.pl; pl.inp = d; pl.edge = pl.edge || {};
+        for (const k of EDGE) if (d[k]) pl.edge[k] = true;
+      }
+    } else {
+      if (d.t === 'welcome') { coop.me = d.slot; coopUI.ph = 'lobby'; coopUI.msg = ''; }
+      else if (d.t === 'lobby') { coopUI.slots = d.slots; coopUI.li = d.li; coopUI.code = d.code; if (scene === 'play') { coopUI.ph = 'lobby'; toScene('coop'); } }
+      else if (d.t === 'start') { coopUI.li = d.li; coop.objs.clear(); startLevel(d.li); Q.client = true; Q.players = []; Q.state = 'intro'; scene = 'play'; }
+      else if (d.t === 's') { if (scene === 'play' && Q) coopApply(d); }
+      else if (d.t === 'full') coopLeave(cvs('The room is full (5 players).', 'Phòng đã đủ 5 người.'));
+      else if (d.t === 'busy') coopLeave(cvs('That room is already playing. Try again later.', 'Phòng đang chơi. Hãy thử lại sau.'));
+    }
+  });
+  function coopStart() {
+    const li = coopUI.li; startLevel(li); Q.state = 'intro';
+    coop.seen = {}; coop.last = new Map(); coop.vlast = {}; coop.grid = []; coop.nid = 0;
+    const P = Q.P; P.slot = 0; setHero(P, myHero()); Q.me = P; Q.players = [P];
+    for (const [id, pr] of coop.peers) {
+      const p = newPlayer(); p.slot = pr.slot; p.x = P.x - 10 * pr.slot; p.y = P.y; p.safe = { x: p.x, y: p.y };
+      const w = (pr.inv && Array.isArray(pr.inv.w) ? pr.inv.w : ['iron', null]).map(id2 => (id2 && ITEM[id2]) ? id2 : null); if (!w.some(Boolean)) w[0] = 'iron';
+      p.bag = { w, armor: pr.inv && ITEM[pr.inv.armor] ? pr.inv.armor : null, pet: null, own: w.filter(Boolean) };
+      p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1];
+      setHero(p, pr.hero); pr.pl = p; Q.players.push(p);
+    }
+    Q.players.sort((a, b) => a.slot - b.slot);
+    NET.send({ t: 'start', li });
+  }
+  function coopBackToLobby() { coopUI.ph = 'lobby'; toScene('coop'); setTimeout(() => { if (coop) sendLobby(); }, 50); }
+  addEventListener('keydown', e => {
+    if (scene !== 'coop' || coopUI.ph !== 'code') return;
+    if (e.key === 'Backspace') { coopUI.code = coopUI.code.slice(0, -1); e.preventDefault(); return; }
+    if (/^[a-zA-Z0-9]$/.test(e.key) && coopUI.code.length < 5) { coopUI.code += e.key.toUpperCase(); Snd.play('select'); }
+  });
+  function coopMenuItems() {
+    return [
+      { s: cvs('Create room (host)', 'Tạo phòng (chủ phòng)'), fn: () => { coopInit('host'); coopUI.msg = cvs('Creating room...', 'Đang tạo phòng...'); coopUI.msgBad = false; NET.host(); } },
+      { s: cvs('Join room (code)', 'Vào phòng (nhập mã)'), fn: () => { coopUI.ph = 'code'; coopUI.code = ''; coopUI.msg = ''; } },
+      { s: cvs('Choose hero', 'Chọn hero'), fn: () => { coopUI.ph = 'heroes'; coopUI.from = 'menu'; coopUI.hs = Math.max(0, HEROES.findIndex(h => h.id === myHero())); } },
+      { s: cvs('Back', 'Quay lại'), fn: () => { coopLeave(); toScene('title'); } }
+    ];
+  }
+  function updateCoop(dt) {
+    sceneT += dt;
+    const ph = coopUI.ph;
+    if (ph === 'menu') {
+      const it = coopMenuItems();
+      if (act.upP) { coopUI.sel = (coopUI.sel + it.length - 1) % it.length; Snd.play('select'); }
+      if (act.downP) { coopUI.sel = (coopUI.sel + 1) % it.length; Snd.play('select'); }
+      if (act.okP) { Snd.play('ok'); it[coopUI.sel].fn(); }
+      if (act.backP) { coopLeave(); toScene('title'); }
+    } else if (ph === 'code') {
+      if (pressed.Enter && coopUI.code.length === 5) { coopInit('client'); coopUI.msg = cvs('Connecting...', 'Đang kết nối...'); coopUI.msgBad = false; NET.join(coopUI.code); Snd.play('ok'); }
+      if (pressed.Escape) { coopUI.ph = 'menu'; }
+    } else if (ph === 'heroes') {
+      const n = HEROES.length, C = 10;
+      if (act.leftP) { coopUI.hs = (coopUI.hs + n - 1) % n; Snd.play('select'); }
+      if (act.rightP) { coopUI.hs = (coopUI.hs + 1) % n; Snd.play('select'); }
+      if (act.upP) { coopUI.hs = (coopUI.hs + n - C) % n; Snd.play('select'); }
+      if (act.downP) { coopUI.hs = (coopUI.hs + C) % n; Snd.play('select'); }
+      if (pressed.Enter || pressed.KeyJ || pressed.Space) {
+        save.hero = HEROES[coopUI.hs].id; writeSave(); Snd.play('relic');
+        if (coop && coop.role === 'client') NET.send({ t: 'hero', id: save.hero });
+        if (coop && coop.role === 'host') sendLobby();
+        coopUI.ph = coopUI.from;
+      }
+      if (act.backP) coopUI.ph = coopUI.from;
+    } else if (ph === 'lobby') {
+      if (pressed.KeyC || pressed.KeyH) { coopUI.ph = 'heroes'; coopUI.from = 'lobby'; coopUI.hs = Math.max(0, HEROES.findIndex(h => h.id === myHero())); return; }
+      if (coop && coop.role === 'host') {
+        const mx = maxPlayable();
+        if (act.leftP) { coopUI.li = Math.max(0, coopUI.li - 1); sendLobby(); Snd.play('select'); }
+        if (act.rightP) { coopUI.li = Math.min(mx, coopUI.li + 1); sendLobby(); Snd.play('select'); }
+        if (pressed.Enter) { Snd.play('ok'); coopStart(); }
+      }
+      if (pressed.Escape) { coopLeave(); }
+    }
+  }
+  function drawPanel(x, y, w, h, col) {
+    g.fillStyle = 'rgba(12,10,28,.92)'; g.fillRect(x, y, w, h);
+    g.fillStyle = col || '#c89a1c'; g.fillRect(x, y, w, 1); g.fillRect(x, y + h - 1, w, 1); g.fillRect(x, y, 1, h); g.fillRect(x + w - 1, y, 1, h);
+  }
+  function drawCoop() {
+    drawBgOnly(Math.floor(sceneT / 6) % 7, sceneT * 20, sceneT);
+    g.fillStyle = 'rgba(5,3,15,.55)'; g.fillRect(0, 0, VW, VH);
+    txt(cvs('ONLINE CO-OP', 'CO-OP ONLINE'), VW / 2, 20, { al: 'center', size: 16, bold: true, col: '#ffd34e' });
+    txt(cvs('up to 5 players  •  30 heroes', 'tối đa 5 người  •  30 hero'), VW / 2, 34, { al: 'center', size: 7, col: '#cfd6e6' });
+    const ph = coopUI.ph;
+    if (ph === 'menu') {
+      const it = coopMenuItems();
+      drawHeroAt(myHero(), 80, 150, 1, Math.floor(sceneT * 3) % 2, 3);
+      txt(LN(HERO[myHero()].name), 80, 162, { al: 'center', size: 8, col: '#ffd34e', bold: true });
+      it.forEach((o, i) => txt((coopUI.sel === i ? '> ' : '  ') + o.s + (coopUI.sel === i ? ' <' : ''), VW / 2 + 50, 74 + i * 18, { al: 'center', size: 9, col: coopUI.sel === i ? '#ffd34e' : '#e8eaf5' }));
+      txt(cvs('Each player plays on their own computer and joins with the room code.', 'Mỗi người chơi trên máy riêng, vào phòng bằng mã phòng.'), VW / 2, VH - 26, { al: 'center', size: 6, col: '#8892aa' });
+    } else if (ph === 'code') {
+      txt(cvs('Type the 5-letter room code', 'Nhập mã phòng 5 ký tự'), VW / 2, 70, { al: 'center', size: 9 });
+      for (let i = 0; i < 5; i++) { const x = VW / 2 - 70 + i * 28; drawPanel(x, 84, 24, 30, i === coopUI.code.length ? '#ffd34e' : '#5a4a8a'); txt(coopUI.code[i] || '', x + 12, 104, { al: 'center', size: 14, bold: true, col: '#fff' }); }
+      txt(cvs('Enter = join   •   Esc = back', 'Enter = vào phòng   •   Esc = quay lại'), VW / 2, 134, { al: 'center', size: 7, col: '#8892aa' });
+    } else if (ph === 'heroes') drawHeroPick();
+    else if (ph === 'lobby') {
+      const host = coop && coop.role === 'host';
+      drawPanel(VW / 2 - 70, 42, 140, 22, '#ffd34e');
+      txt(cvs('ROOM CODE: ', 'MÃ PHÒNG: ') + (coopUI.code || '-----'), VW / 2, 57, { al: 'center', size: 9, bold: true, col: '#ffd34e' });
+      const sl = coopUI.slots || [];
+      for (let i = 0; i < 5; i++) {
+        const x = 26 + i * 68, s = sl.find(o => o.slot === i);
+        drawPanel(x, 70, 60, 74, s ? PCOL[i] : '#3a3450');
+        txt('P' + (i + 1), x + 4, 79, { size: 6, col: PCOL[i], bold: true });
+        if (s) {
+          drawHeroAt(s.hero, x + 30, 128, 1, Math.floor(sceneT * 3 + i) % 2, 2);
+          txt(LN(HERO[s.hero].name), x + 30, 138, { al: 'center', size: 5, col: '#fff' });
+          if (s.slot === (coop ? coop.me : 0)) txt(cvs('you', 'bạn'), x + 56, 79, { al: 'right', size: 5, col: '#a4ffc0' });
+        } else txt(cvs('empty', 'trống'), x + 30, 110, { al: 'center', size: 6, col: '#5a5470' });
+      }
+      txt(cvs('Map: ', 'Bản đồ: ') + (coopUI.li + 1) + ' - ' + LN(BIOMES[coopUI.li].name || { en: '', vi: '' }), VW / 2, 158, { al: 'center', size: 8, col: '#cfd6e6' });
+      txt(host ? cvs('←/→ map   •   C = change hero   •   Enter = START   •   Esc = close room', '←/→ chọn map   •   C = đổi hero   •   Enter = BẮT ĐẦU   •   Esc = đóng phòng') : cvs('C = change hero   •   Waiting for the host to start...   •   Esc = leave', 'C = đổi hero   •   Đang chờ chủ phòng bắt đầu...   •   Esc = rời phòng'), VW / 2, 174, { al: 'center', size: 6, col: '#ffd34e' });
+      if (host) txt(cvs('Send the code to your friends. They choose "Join room".', 'Gửi mã cho bạn bè. Họ chọn "Vào phòng".'), VW / 2, 186, { al: 'center', size: 6, col: '#8892aa' });
+    }
+    if (coopUI.msg) txt(coopUI.msg, VW / 2, VH - 12, { al: 'center', size: 7, col: coopUI.msgBad ? '#ff7a7a' : '#a4ffc0' });
+  }
+  function drawHeroPick() {
+    const C = 10, cw = 36, chh = 34, x0 = (VW - C * cw) / 2, y0 = 44;
+    HEROES.forEach((h, i) => {
+      const cx = x0 + (i % C) * cw, cy = y0 + Math.floor(i / C) * chh, on = i === coopUI.hs;
+      g.fillStyle = on ? 'rgba(255,211,78,.18)' : 'rgba(255,255,255,.04)'; g.fillRect(cx + 1, cy, cw - 2, chh - 2);
+      g.fillStyle = HERO_CLS[h.cls].col; g.fillRect(cx + 1, cy + chh - 3, cw - 2, 1);
+      drawHeroAt(h.id, cx + cw / 2, cy + chh - 5, 1, on ? Math.floor(sceneT * 4) % 2 : 0, 1);
+      if (h.id === myHero()) txt('✓', cx + cw - 5, cy + 7, { size: 6, col: '#a4ffc0', al: 'right' });
+      if (on) { g.fillStyle = '#ffd34e'; g.fillRect(cx, cy - 1, cw, 1); g.fillRect(cx, cy + chh - 2, cw, 1); g.fillRect(cx, cy - 1, 1, chh - 1); g.fillRect(cx + cw - 1, cy - 1, 1, chh - 1); }
+    });
+    const h = HEROES[coopUI.hs], cl = HERO_CLS[h.cls], y = y0 + 3 * chh + 4;
+    drawPanel(12, y, VW - 24, VH - y - 6, cl.col);
+    drawHeroAt(h.id, 40, y + 52, 1, Math.floor(sceneT * 3) % 2, 2);
+    txt(LN(h.name), 68, y + 12, { size: 10, bold: true, col: '#ffd34e' });
+    txt(LN(cl), 68 + Math.round(LN(h.name).length * 6.2) + 8, y + 12, { size: 7, col: cl.col });
+    const st = (n, v) => (v > 0 ? '+' : '') + v;
+    txt(cvs('HP ', 'Máu ') + st(0, h.hp) + '   ' + cvs('Speed ', 'Tốc độ ') + st(0, Math.round(h.spd * 100)) + '%   ' + cvs('Damage ', 'Sát thương ') + st(0, h.dmg), 68, y + 25, { size: 7, col: '#cfd6e6' });
+    txt('R / RB: ' + LN(h.sk.n) + '  (' + h.sk.cd + 's)', 68, y + 38, { size: 7, col: h.sk.col, bold: true });
+    txt(LN(SKILL_DESC[h.sk.k]), 68, y + 49, { size: 6, col: '#e8eaf5' });
+    txt(cvs('Arrows = choose   •   Enter = pick   •   Esc = back', 'Mũi tên = chọn   •   Enter = lấy hero   •   Esc = quay lại'), VW / 2, VH - 1, { al: 'center', size: 5, col: '#8892aa' });
+  }
+  function drawCoopHUD() {
+    const P = Q.P, me = coop.me;
+    // team list
+    let y = 52;
+    for (const p of Q.players || []) {
+      if (p === P) continue;
+      const h = HERO[p.hero] || HERO.ember;
+      g.fillStyle = 'rgba(8,6,20,.6)'; g.fillRect(6, y - 7, 74, 10);
+      g.fillStyle = PCOL[p.slot]; g.fillRect(6, y - 7, 2, 10);
+      txt('P' + (p.slot + 1) + ' ' + LN(h.name).slice(0, 9), 11, y, { size: 5, col: p.down ? '#ff7a7a' : '#fff' });
+      const w = 22, f = p.down ? 0 : Math.max(0, p.hp / (p.mhp || 1));
+      g.fillStyle = '#3a1a20'; g.fillRect(55, y - 4, w, 4); g.fillStyle = p.down ? '#5a5470' : '#e0453a'; g.fillRect(55, y - 4, Math.round(w * f), 4);
+      y += 11;
+    }
+    // my skill
+    if (P && P.hero) {
+      const h = HERO[P.hero], cd = Math.max(0, P.skCd || 0), k = 1 - Math.min(1, cd / h.sk.cd), x = VW / 2 - 40, yy = VH - 14;
+      g.fillStyle = 'rgba(8,6,20,.7)'; g.fillRect(x, yy - 8, 80, 12);
+      g.fillStyle = hexA(h.sk.col, 0.45); g.fillRect(x, yy - 8, Math.round(80 * k), 12);
+      g.fillStyle = cd <= 0 ? h.sk.col : '#5a5470'; g.fillRect(x, yy - 8, 80, 1); g.fillRect(x, yy + 3, 80, 1);
+      txt('R  ' + LN(h.sk.n) + (cd > 0 ? '  ' + cd.toFixed(0) : ''), VW / 2, yy + 1, { al: 'center', size: 5, col: cd <= 0 ? '#fff' : '#a0a0b8' });
+    }
+    if (Q.state === 'dead' && coop.role === 'client') txt(cvs('Waiting for the host to restart the team...', 'Chờ chủ phòng cho cả đội chơi lại...'), VW / 2, 150, { al: 'center', size: 7, col: '#ffd34e' });
+    else if (P && P.down) { txt(cvs('You are down... a friend can revive you faster', 'Bạn đã gục... đồng đội đứng cạnh để hồi sinh nhanh'), VW / 2, 70, { al: 'center', size: 8, col: '#ff7a7a', bold: true }); txt(Math.max(0, P.downT || 0).toFixed(1) + 's', VW / 2, 84, { al: 'center', size: 10, col: '#fff' }); }
+    txt(cvs('Room ', 'Phòng ') + (NET.code || '') + (coop.role === 'host' ? cvs(' (host)', ' (chủ)') : ''), VW - 6, VH - 4, { al: 'right', size: 5, col: '#8892aa' });
+  }
+  function drawCoopTag(p, x, bot) {
+    if (!coop) return;
+    txt('P' + (p.slot + 1), x, bot - 26, { al: 'center', size: 5, col: PCOL[p.slot] || '#fff', bold: true });
+  }
+  function drawDown(p, camX, camY) {
+    const x = Math.round(p.x + 4 - camX), bot = Math.round(p.y + p.h - camY);
+    g.fillStyle = '#5a5470'; g.fillRect(x - 4, bot - 10, 8, 10); g.fillRect(x - 6, bot - 7, 12, 3); g.fillStyle = '#8a84a0'; g.fillRect(x - 3, bot - 9, 2, 8);
+    g.strokeStyle = PCOL[p.slot]; g.lineWidth = 2; g.beginPath(); g.arc(x, bot - 18, 5, -Math.PI / 2, -Math.PI / 2 + 6.283 * (1 - Math.max(0, p.downT || 0) / 9)); g.stroke();
+    drawCoopTag(p, x, bot - 6);
+  }
   function frame(now) {
     requestAnimationFrame(frame);
     let dt = Math.min(0.05, (now - (frame.last || now)) / 1000); frame.last = now;
     readInput();
+    coopClientInput();
     if (act.muteP) Snd.toggleMute();
     if (act.fullP) toggleFull();
     // fade transitions
@@ -4180,7 +4739,8 @@
     } else {
       const n = Math.max(1, Math.ceil(dt / (1 / 100))), sub = dt / n;
       for (let i = 0; i < n; i++) {
-        if (scene === 'play') updatePlay(sub);
+        if (scene === 'play') { if (coop && coop.role === 'client') coopClientTick(sub); else updatePlay(sub); }
+        else if (scene === 'coop') updateCoop(sub);
         else if (scene === 'title') updateTitle(sub);
         else if (scene === 'story' || scene === 'ending') updateStory(sub);
         else if (scene === 'map') updateMap(sub);
@@ -4192,6 +4752,7 @@
         if (fadeTo) break;
       }
       if (fadeIn > 0) fadeIn = Math.max(0, fadeIn - dt / 0.25);
+      if (coop && coop.role === 'host' && scene === 'play') coopHostNet(dt);
     }
     // render
     g.imageSmoothingEnabled = false;
@@ -4203,6 +4764,7 @@
     else if (scene === 'castle' && castle) drawCastle();
     else if (scene === 'ride' && ride) drawRide();
     else if (scene === 'cutscene' && cut) drawCut();
+    else if (scene === 'coop') drawCoop();
     cv.style.cursor = (scene === 'play' && Q && Q.state === 'play') ? 'crosshair' : (scene === 'play' || scene === 'title' || scene === 'map' ? 'pointer' : 'default');
     const f = fadeTo ? fade : fadeIn;
     if (f > 0) { g.globalAlpha = Math.min(1, f); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
@@ -4223,5 +4785,5 @@
       const ar = Q.L.arena; Q.P.x = (ar.x0 + 6) * TS; Q.P.y = (ar.gy - 1) * TS - Q.P.h; snapCam();
       seal(); if (n > 0) { applyForm(Q.boss, n); Q.boss.st = 'intro'; Q.boss.timer = 0; Q.boss.invul = 0; } if (n >= 3) spawnAllies();
     }, 400); }
-  if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get coop() { return coop; }, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();

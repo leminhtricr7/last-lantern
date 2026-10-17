@@ -114,6 +114,15 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **Ember shows emotions** (happy, angry, hurt, crying when almost dead).
 - **Progression:** each boss you beat unlocks the next map (`UNLOCK_ALL` in `src/game.js` is `false`; set it to `true` to unlock every map for testing).
 
+## Online co-op (up to 5 players, 30 heroes)
+- Title screen -> **Online Co-op**. One player picks **Create room** and gets a 5-letter room code; friends pick **Join room** on their own computer and type the code.
+- In the lobby everyone presses **C** to choose one of **30 heroes** (Warrior, Mage, Ranger, Guardian, Assassin, Support). Each hero has its own colours and hat, small HP/speed/damage changes and **one special skill on R / gamepad RB** (blasts, heals, shields, meteors, chain lightning, black holes, arrow rain, war cry...).
+- The host picks the map (left/right) and presses Enter. The host's computer runs the game; guests send their buttons and receive the world about 20 times a second (around 30 KB/s per guest).
+- A hero who runs out of hearts falls down and gets back up after 9 seconds (much faster if a friend stands next to them). If the whole team is down, the host restarts everyone from the checkpoint.
+- Enemies chase the nearest hero, bosses switch targets every few seconds, and nobody is left behind a boss wall.
+- Connection uses PeerJS (WebRTC, `src/vendor/peerjs.min.js`) with the free public PeerJS server to find each other; very strict networks may block the direct connection.
+- Dev test page with a host and a guest side by side: `http://localhost:8123/tools/coop_test.html`.
+
 ## Project layout
 
 - `src/art.js` — all pixel art is generated in code (sprites, tilesets, parallax backgrounds)
