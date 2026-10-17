@@ -675,13 +675,14 @@
       { name: { en: 'SY, THE VENOM SERPENT', vi: 'SY, RẮN CHÚA ĐỘC' }, spr: 'sy_m', w: 70, h: 62, hp: 680, armor: 0.3, smart: 0.5, sp: 22, minion: 'spider', proj: '#7ed957', skills: ['breath', 'spit', 'lobs', 'wall', 'rain', 'charge', 'slam'], skills2: ['summon', 'curse', 'spin', 'tornado'], skills3: ['blizzard', 'shield', 'roar'] }
     ],
     quoc: [
-      { name: { en: 'Quoc - Dark Prince', vi: 'Quoc - Hoàng Tử Bóng Tối' }, spr: 'quoc1', w: 30, h: 76, hp: 200, armor: 0.1, smart: 0.9, sp: 44, minion: 'imp', proj: '#ff6a3a', skills: ['jump', 'charge', 'shoot', 'rush', 'fan'], skills2: ['teleport', 'guard'] },
-      { name: { en: 'Quoc - Crimson Aura', vi: 'Quoc - Hào Quang Đỏ Thẫm' }, spr: 'quoc2', w: 30, h: 76, hp: 260, armor: 0.15, smart: 0.8, sp: 48, minion: 'imp', proj: '#ff3a2a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
-      { name: { en: 'Quoc - Blade of Ruin', vi: 'Quoc - Lưỡi Kiếm Hủy Diệt' }, spr: 'quoc3', w: 32, h: 76, hp: 340, armor: 0.25, smart: 0.75, sp: 32, minion: 'imp', proj: '#ff3a5a', skills: ['slam', 'charge', 'rush', 'erupt', 'crossBeam', 'teleport'], skills2: ['spin', 'summon', 'sweep'] },
-      { name: { en: 'Quoc - Dark Sorcerer', vi: 'Quoc - Pháp Sư Hắc Ám' }, spr: 'quoc4', w: 32, h: 76, hp: 420, armor: 0.3, smart: 0.8, sp: 26, minion: 'eclipseclone', proj: '#ff3a2a', skills: ['lobs', 'crossBeam', 'meteor', 'teleport', 'shield', 'fan', 'tornado'], skills2: ['dark', 'guard', 'clone'] },
-      { name: { en: 'Quoc - Burning Wrath', vi: 'Quoc - Cơn Thịnh Nộ Rực Cháy' }, spr: 'quoc5', w: 34, h: 76, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffd34e', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
-      { name: { en: 'Quoc - Titan Lord', vi: 'Quoc - Chúa Tể Khổng Lồ' }, spr: 'quoc6', w: 46, h: 102, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
-      { name: { en: 'QUOC, THE ETERNAL ECLIPSE', vi: 'QUOC, NHẬT THỰC VĨNH CỬU' }, spr: 'quoc7', w: 54, h: 120, hp: 780, armor: 0.45, smart: 0.9, sp: 30, minion: 'ghost', eclipse: true, proj: '#d58bff', skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak', 'crossBeam', 'rush'], skills2: ['dark', 'clone', 'summon', 'roar', 'fan', 'lobs'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
+      { name: { en: 'Quoc, the Dark Lord', vi: 'Quoc - Quỷ Vương Hắc Ám' }, spr: 'quoc0', w: 32, h: 76, hp: 220, armor: 0.1, smart: 0.9, sp: 40, minion: 'imp', proj: '#ff3a2a', skills: ['shoot', 'fan', 'teleport', 'rush', 'jump', 'crossBeam'], skills2: ['lobs', 'guard', 'summon'] },
+      { name: { en: 'Quoc - Dark Imp', vi: 'Quoc - Tiểu Quỷ Bóng Tối' }, spr: 'quoc1', w: 22, h: 44, hp: 200, armor: 0.1, smart: 0.9, sp: 52, minion: 'imp', proj: '#c07bff', skills: ['jump', 'bounce3', 'charge', 'rush', 'shoot'], skills2: ['teleport', 'fan'] },
+      { name: { en: 'Quoc - Hellhound', vi: 'Quoc - Chó Địa Ngục' }, spr: 'quoc2', w: 56, h: 40, hp: 260, armor: 0.15, smart: 0.7, sp: 54, minion: 'imp', proj: '#ff7a2a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
+      { name: { en: 'Quoc - Chained Demon', vi: 'Quoc - Quỷ Xích' }, spr: 'quoc3', w: 40, h: 68, hp: 340, armor: 0.25, smart: 0.6, sp: 28, minion: 'imp', proj: '#a8b2c8', skills: ['slam', 'stomp', 'charge', 'erupt', 'sweep', 'crossBeam'], skills2: ['spin', 'summon'] },
+      { name: { en: 'Quoc - Iron General', vi: 'Quoc - Đại Tướng Giáp Sắt' }, spr: 'quoc4', w: 38, h: 72, hp: 420, armor: 0.4, smart: 0.6, sp: 26, minion: 'eclipseclone', proj: '#ff8a2a', skills: ['shield', 'guard', 'sweep', 'charge', 'slam', 'lobs', 'crossBeam'], skills2: ['roar', 'erupt', 'meteor'] },
+      { name: { en: 'Quoc - Winged Archdemon', vi: 'Quoc - Đại Quỷ Có Cánh' }, spr: 'quoc5', w: 50, h: 64, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffb02a', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
+      { name: { en: 'Quoc - Ashen Titan', vi: 'Quoc - Titan Tro Tàn' }, spr: 'quoc6', w: 54, h: 92, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
+      { name: { en: 'QUOC, THE ETERNAL ECLIPSE', vi: 'QUOC, NHẬT THỰC VĨNH CỬU' }, spr: 'quoc7', w: 40, h: 106, hp: 780, armor: 0.45, smart: 0.9, sp: 30, minion: 'ghost', eclipse: true, proj: '#d58bff', skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak', 'crossBeam', 'rush'], skills2: ['dark', 'clone', 'summon', 'roar', 'fan', 'lobs'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
     ]
   };
   const MINI = {
@@ -716,11 +717,12 @@
       { en: 'Your leek is amusing, boy. But venom spoils every blade. Behold, the true Sy!', vi: 'Cây hành của nhóc thật thú vị. Nhưng nọc độc làm hỏng mọi lưỡi kiếm. Chiêm ngưỡng Sy thực sự đi!' }
     ] },
     quoc: {
-      1: [{ en: 'A SPARK THAT BITES? HOW CUTE. FEEL THE CRIMSON FLAME!', vi: 'MỘT TIA LỬA BIẾT CẮN? DỄ THƯƠNG ĐẤY. HÃY NẾM NGỌN LỬA ĐỎ THẪM!' }],
-      3: [{ en: 'ENOUGH!! I WILL NOT BE SHAMED IN MY OWN HOUSE! TASTE DARK MAGIC!', vi: 'ĐỦ RỒI!! TA SẼ KHÔNG BỊ NHỤC NHÃ TRONG NHÀ CỦA CHÍNH MÌNH! NẾM THỬ HẮC PHÁP!' }],
-      4: [{ en: 'YOU MADE ME ANGRY! THE WHOLE WORLD WILL BURN WITH ME!', vi: 'NGƯƠI ĐÃ LÀM TA GIẬN! CẢ THẾ GIỚI SẼ CHÁY CÙNG TA!' }],
-      5: [{ en: 'I AM THE KING OF EVERY NIGHTMARE! LOOK UP AND TREMBLE!', vi: 'TA LÀ VUA CỦA MỌI CƠN ÁC MỘNG! NGẨNG LÊN VÀ RUN RẨY ĐI!' }],
-      6: [{ en: 'I AM THE ECLIPSE! THE END OF ALL LIGHT! GO DARK... FOREVER!!!', vi: 'TA LÀ NHẬT THỰC! SỰ KẾT THÚC CỦA MỌI ÁNH SÁNG! HÃY TỐI ĐEN... MÃI MÃI!!!' }]
+      1: [{ en: 'YOU CUT MY HUMAN FACE?! THEN MEET MY SHADOW... THE DARK IMP!', vi: 'NGƯƠI DÁM CHÉM KHUÔN MẶT NGƯỜI CỦA TA?! VẬY HÃY GẶP BÓNG TỐI CỦA TA... TIỂU QUỶ!' }],
+      2: [{ en: 'TOO SLOW! SMELL THE HELLFIRE... HELLHOUND!', vi: 'QUÁ CHẬM! HÃY NGỬI MÙI LỬA ĐỊA NGỤC... CHÓ ĐỊA NGỤC!' }],
+      4: [{ en: 'ENOUGH!! IRON GENERAL, CRUSH THEM ALL!', vi: 'ĐỦ RỒI!! ĐẠI TƯỚNG GIÁP SẮT, NGHIỀN NÁT TẤT CẢ!' }],
+      5: [{ en: 'WINGS OF THE ARCHDEMON! THE SKY ITSELF WILL BURN!', vi: 'ĐÔI CÁNH CỦA ĐẠI QUỶ! CẢ BẦU TRỜI SẼ CHÁY!' }],
+      6: [{ en: 'I AM THE ASH OF EVERY VOLCANO! KNEEL!', vi: 'TA LÀ TRO TÀN CỦA MỌI NGỌN NÚI LỬA! QUỲ XUỐNG!' }],
+      7: [{ en: 'I AM THE ECLIPSE! THE END OF ALL LIGHT! GO DARK... FOREVER!!!', vi: 'TA LÀ NHẬT THỰC! SỰ KẾT THÚC CỦA MỌI ÁNH SÁNG! HÃY TỐI ĐEN... MÃI MÃI!!!' }]
     }
   };
   const QUOC_PRE = [
@@ -1402,7 +1404,7 @@
     Snd.play('boom'); Q.shake = 1;
     emit(b.x + b.w / 2, b.y + b.h / 2, 40, { col: ['#fff', '#ffd34e', bpc()], sp0: 30, sp1: 160 });
     const who = b.who || 'quoc', lines = (FORM_LINES[b.id] || {})[idx];
-    if (b.id === 'quoc' && idx === 2) startScripted('quoc', ALLY_STORY, () => { applyForm(b, idx); spawnAllies(); });
+    if (b.id === 'quoc' && idx === 3) startScripted('quoc', ALLY_STORY, () => { applyForm(b, idx); spawnAllies(); });
     else if (lines) startScripted(who, lines, () => applyForm(b, idx));
     else applyForm(b, idx);
     return true;
@@ -3786,6 +3788,7 @@
   }
   function updateStory(dt) {
     storyT += dt;
+    if (storyPage >= storyList.length) return;
     const full = storyList[storyPage][save.lang].length;
     if (act.okP) { if (storyT * 40 < full) storyT = 999; else { storyPage++; storyT = 0; if (storyPage >= storyList.length) { if (storyList === STORY) { mapSel = 0; save.seen = { 0: 1 }; writeSave(); storyLevel = 0; storyList = MAP_STORY[0]; storyPage = 0; storyT = 0; } else if (storyList === ENDING) { toScene('title'); } else startLevelFade(storyLevel); } } }
     if (act.backP && storyList === STORY) { startLevelFade(0); } else if (act.backP && storyList !== ENDING) startLevelFade(storyLevel);
@@ -3806,7 +3809,7 @@
       g.globalAlpha = 0.3 * glow; disc(g, cx, cy, 44, '#ffd34e'); g.globalAlpha = 1;
       disc(g, cx, cy, 22, lerpColor('#2a2240', '#ffe08a', glow)); if (storyPage >= 1) disc(g, cx, cy, 14, '#fff');
     }
-    const s = storyList[storyPage][save.lang], n = Math.min(s.length, Math.floor(storyT * 40));
+    const s = storyList[Math.min(storyPage, storyList.length - 1)][save.lang], n = Math.min(s.length, Math.floor(storyT * 40));
     const lines = wrapText(s.substr(0, n), 46);
     lines.forEach((l, i) => txt(l, VW / 2, 138 + i * 12, { al: 'center', size: 8 }));
     txt(T('press'), VW / 2, VH - 12, { al: 'center', size: 6, col: '#8892aa', alpha: 0.5 + 0.5 * Math.sin(sceneT * 4) });

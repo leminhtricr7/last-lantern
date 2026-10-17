@@ -91,7 +91,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **Map 7 (Shadow Citadel)** is longer and full of monsters, traps and new back-and-forth puzzles (gates that need TWO keys - one lies far behind you). Then:
   1. **Mr Shorty Phong** duel: human form, then he turns into a hat-wearing monster.
   2. More trials and story, then **Mr Sy** duel: plague-doctor form, then a giant venom serpent.
-  3. **Quoc, the Dark Lord** (spiked bone crown, black spiked armour, ragged cape, red eyes) - **7 forms** (Dark Prince, Crimson Aura, Blade of Ruin, Dark Sorcerer, Burning Wrath, Titan Lord, Eternal Eclipse), each with its own look and skills. When form 3 begins, QuanSadBoy, HoangKiller, DuongDracular and Santree join the fight with their own skills.
+  3. **Quoc, the Dark Lord** (spiked bone crown, black spiked armour, ragged cape, red eyes) - **8 stages**: form 0 the Dark Lord himself, then 7 monster forms (Dark Imp, Hellhound, Chained Demon, Iron General, Winged Archdemon, Ashen Titan, Eternal Eclipse), each with its own look and skills. When form 3 (the Chained Demon) begins, QuanSadBoy, HoangKiller, DuongDracular and Santree join the fight with their own skills.
 - Code: `src/foes.js` (all new art), forms/dialogue tables near `FORMS`/`MINI` in `src/game.js`.
 
 ## Bosses, dragon & difficulty
