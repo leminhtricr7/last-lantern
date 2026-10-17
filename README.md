@@ -81,7 +81,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - Swords: burn, freeze, poison, chain lightning, lifesteal, crits, boss damage, beams, black holes. Armors: more hearts, damage reduction, dodge, thorns, auto-shield, regen, revive. Pets: coin magnet, biting, healing, shielding, fireballs, projectile blocking, revive... Special weapons include bows, wands, meteors, a black hole, a time-slowing hourglass, the **Staff of the Thunder God** (a god appears and smites enemies) and the **Dragon Horn**.
 - **Top-up is in TEST MODE** (`TOPUP_TEST = true` in `src/game.js`): it gives free gems. Before selling, replace `topUp()` with a real payment flow.
 - Catalog and item art: `src/items.js`. Music is a chiptune EDM engine in `src/audio.js` (BPM is derived from each level's music definition).
-- **Princess Lyra follows you through map 2.** After you beat map 2 the story moves to **Castle Aurelia**: the crowd cheers, King Aurelius asks you to defeat the guardians, you agree, and a golden egg hatches into a free **Baby Dragon pet** (+500 gold, +20 gems). Plays once per save.
+- **Princess Lyra follows you through map 2.** After you beat map 2 the story moves to **Castle Aurelia**: the crowd cheers, King Aurelius asks you to defeat the guardians, you agree, and a golden egg hatches into a free **Baby Dragon pet** (+500 gold, +20 gems). Plays once per save. Before Ember leaves, Lyra gives him a shy kiss on the cheek and runs into the castle; Quoc's rage scene that follows has its own stormy backdrop.
 - **After map 1:** Ember rides a horse home with Lyra - a short, shy romance scene - before the devil cutscene.
 
 ## The final story (maps 3-7)

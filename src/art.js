@@ -795,6 +795,17 @@ function scaledP(P, k) {
     both: f => P.both(f)
   };
 }
+// tiny chibi princess: big head, flowing aqua hair, tiara, ball gown
+function lyraMini(P, leek) {
+  const H = '#46c9d6', HD = '#2a9aae', HL = '#b5f5f2', SK = '#ffe4d6', G = '#ffd34e', DR = '#f4fbff', DB = '#5aa8e8', PK = '#ff9fb8';
+  P.ell(9, 10, 7, 8, H); P.rect(2, 10, 3, 10, H); P.rect(13, 10, 3, 10, H); P.rect(3, 18, 3, 3, HD); P.rect(12, 18, 3, 3, HD); P.px(3, 12, HL); P.px(14, 12, HL);
+  P.tri(9, 15, 3, 22, 15, 22, DR); P.rect(6, 15, 6, 4, DR); P.rect(6, 17, 6, 1, G); P.px(9, 17, PK); P.rect(3, 21, 12, 1, DB); P.px(5, 19, '#cfe8ff'); P.px(12, 19, '#cfe8ff');
+  P.rect(4, 15, 2, 4, DR); P.rect(12, 15, 2, 4, DR); P.px(4, 19, SK); P.px(13, 19, SK);
+  P.ell(9, 10, 5, 5, SK); P.ell(9, 6, 6, 3, H); P.tri(3, 7, 7, 6, 4, 12, H); P.tri(15, 7, 11, 6, 14, 12, H); P.px(8, 5, HL);
+  P.rect(7, 10, 1, 2, '#2a6ac8'); P.rect(11, 10, 1, 2, '#2a6ac8'); P.px(7, 10, 'w'); P.px(11, 10, 'w'); P.px(6, 12, PK); P.px(12, 12, PK); P.px(9, 13, '#d0405a');
+  P.rect(6, 3, 6, 1, G); P.px(6, 2, G); P.px(9, 1, G); P.px(11, 2, G); P.px(9, 2, '#ff7fb0');
+  if (leek) { P.rect(15, 11, 1, 10, '#e8f5d0'); P.rect(14, 5, 3, 7, '#4fc84f'); P.rect(14, 5, 1, 7, '#8af08a'); P.px(15, 4, '#4fc84f'); }
+}
 function lyraPaint(P, leek) {
   // Princess Lyra: original design - long wavy aqua hair, golden tiara, flowing white-and-azure ball gown
   const H = '#46c9d6', HD = '#2a9aae', HL = '#b5f5f2', SK = '#ffe4d6', G = '#ffd34e', GD = '#c89a1c', DR = '#f4fbff', DB = '#5aa8e8', DD = '#3a78c8';
@@ -829,8 +840,8 @@ function lyraPaint(P, leek) {
 }
 const NPC_PAINT = {
   // Princess Lyra: original aqua-haired princess in a gown. npc_lyra = free, npc_lyra_leek = caged (holding her leek)
-  npc_lyra: [21, 25, P => lyraPaint(scaledP(P, 0.62), false)],
-  npc_lyra_leek: [21, 25, P => lyraPaint(scaledP(P, 0.62), true)],
+  npc_lyra: [14, 17, P => lyraMini(scaledP(P, 0.74), false)],
+  npc_lyra_leek: [14, 17, P => lyraMini(scaledP(P, 0.74), true)],
   // Mr Shorty Phong: short, dapper villain with top hat, monocle, curled moustache, cane
   npc_shorty: [18, 20, P => {
     P.rect(5, 0, 8, 6, 'k'); P.rect(5, 4, 8, 1, 'r'); P.rect(3, 6, 12, 2, 'k'); P.rect(6, 1, 1, 3, 'D');
