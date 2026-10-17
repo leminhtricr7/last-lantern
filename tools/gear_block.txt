@@ -1,0 +1,308 @@
+  // ===================== GEAR: equipment, special weapons, armor, pets =====================
+  const eqIt = s => ITEM[save.inv.w[s]] || null;
+  const armorIt = () => ITEM[save.inv.armor] || null;
+  const petIt = () => ITEM[save.inv.pet] || null;
+  const aSt = k => { const a = armorIt(); return (a && a.st[k]) || 0; };
+  const petRole = () => { const p = petIt(); return p ? p.st.role : ''; };
+  const pSt = k => { const p = petIt(); return (p && p.st[k]) || 0; };
+  const eqHas = k => save.inv.w.some(id => ITEM[id] && ITEM[id].st[k]);
+  const wd = d => d + Math.floor((baseDmg() - 1) / 2);
+  const isBig = e => !!(e.isBoss || e.v === 'elite' || (e.sc || 1) > 1.2 || (e.maxhp || 0) >= 6);
+  const FLY_PET = { birdie: 1, fairy: 1, owl: 1, bat: 1, wisp: 1, bdragon: 1, ghostie: 1, pchick: 1 };
+  const hexA = (h, a) => { const n = parseInt(h.substr(1), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; };
+  function heldSword() {
+    const P = Q && Q.P;
+    if (P && P.sw && save.inv.w.indexOf(P.sw.id) >= 0) return P.sw;
+    for (const id of save.inv.w) if (ITEM[id] && ITEM[id].type === 'sword') return ITEM[id];
+    return null;
+  }
+  function initGear() {
+    Q.G = { shT: 0, regT: 0, petT: 0, flash: 0, slowT: 0, later: [], bolts: [], holes: [], god: null, dr: null, pet: null, hc: {}, kills: 0, half: 0, auraT: 0, rvSw: false, rvPet: false, rings: [] };
+    Q.P.wcd = [0, 0]; Q.P.wmax = [1, 1]; Q.P.sw = null;
+    if (aSt('shieldT') || petRole() === 'shield') Q.P.shield = false;
+  }
+  function resetGearFx() { const G = Q.G; G.later = []; G.bolts = []; G.holes = []; G.god = null; G.dr = null; G.slowT = 0; G.rvSw = false; G.rvPet = false; Q.P.wcd = [0, 0]; }
+  function foes() { return Q.ents.filter(e => !e.dead && !e.hid && !(e.cfg && e.cfg.ai === 'blob' && e.st !== 'up')).concat(bossTargets()); }
+  function nearestFoe(x, y, r, not) {
+    let b = null, bd = r;
+    for (const e of foes()) { if (not && not.has(e)) continue; const d = Math.hypot(e.x + e.w / 2 - x, e.y + e.h / 2 - y); if (d < bd) { bd = d; b = e; } }
+    return b;
+  }
+  const dmgFoe = (e, d, pierce, quiet) => (e.isBoss ? hurtBoss : hurtEnemy)(e, d, pierce, quiet);
+  function later(t, fn) { Q.G.later.push({ t, fn }); }
+  function zap(x1, y1, x2, y2) {
+    const pts = [[x1, y1]], n = Math.max(3, Math.round(Math.hypot(x2 - x1, y2 - y1) / 10));
+    for (let i = 1; i < n; i++) pts.push([lerp(x1, x2, i / n) + rr(-5, 5), lerp(y1, y2, i / n) + rr(-3, 3)]);
+    pts.push([x2, y2]); Q.G.bolts.push({ pts, life: 0.22 });
+    emit(x2, y2, 6, { col: ['#fff', '#ffe44e', '#9fe8ff'], sp0: 20, sp1: 80 });
+  }
+  function chainZap(from, d, n, range) {
+    const done = new Set([from]); let cur = from;
+    for (let i = 0; i < n; i++) {
+      const nx = nearestFoe(cur.x + cur.w / 2, cur.y + cur.h / 2, range, done); if (!nx) break;
+      done.add(nx); zap(cur.x + cur.w / 2, cur.y + cur.h / 2, nx.x + nx.w / 2, nx.y + nx.h / 2); dmgFoe(nx, d, true, true); cur = nx;
+    }
+  }
+  function nova(x, y, r, d, heal) {
+    addRing(x, y, '#ffe08a', r, 0.45); Snd.play('explode'); Q.shake = Math.max(Q.shake, 0.25);
+    emit(x, y, 24, { col: ['#fff', '#ffe08a', '#6ee7f2'], sp0: 40, sp1: 130 });
+    for (const e of foes()) if (Math.hypot(e.x + e.w / 2 - x, e.y + e.h / 2 - y) < r + e.w / 2) { dmgFoe(e, d, true, true); if (!e.isBoss) { e.vx = (e.x + e.w / 2 < x ? -1 : 1) * 150; if (!e.fly) e.vy = -110; } }
+  }
+  const aimVec = sp => { const f = Q.P.face, dy = act.up ? -0.55 : (act.down ? 0.4 : 0), m = Math.hypot(1, dy); return [f * sp / m, dy * sp / m]; };
+  function shootG(o) { Q.fps.push(Object.assign({ t: 'g', vx: 0, vy: 0, g: 0, life: 1.2, dmg: 1, hit: new Set(), shape: 'bolt', col: '#fff', sz: 2, f: 1, age: 0, arm: 0 }, o)); }
+  function gStep(p, dt) {
+    p.age += dt;
+    if (p.life <= 0) { if (p.expl) explode(p.x, p.y, p.expl, p.dmg); p.dead = true; return; }
+    if (p.boom && !p.back && p.life < p.boom) { p.back = true; p.hit.clear(); }
+    if (p.back) { const P = Q.P, dx = P.x + 4 - p.x, dy = P.y + 6 - p.y, d = Math.hypot(dx, dy) || 1; p.vx += dx / d * 900 * dt; p.vy += dy / d * 900 * dt; const s = Math.hypot(p.vx, p.vy); if (s > 230) { p.vx *= 230 / s; p.vy *= 230 / s; } if (d < 9) { p.dead = true; return; } }
+    if (p.home) { const t = nearestFoe(p.x, p.y, 130); if (t) { const dx = t.x + t.w / 2 - p.x, dy = t.y + t.h / 2 - p.y, d = Math.hypot(dx, dy) || 1, sp = Math.max(110, Math.hypot(p.vx, p.vy)), k = Math.min(1, 7 * dt); p.vx += (dx / d * sp - p.vx) * k; p.vy += (dy / d * sp - p.vy) * k; } }
+    p.vy += (p.g || 0) * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.rot = (p.rot || 0) + dt * (p.spin || 0);
+    if (p.trail && Math.random() < 0.7) emit(p.x, p.y, 1, { col: p.trail, sp0: 3, sp1: 14, grav: -8, l0: 0.15, l1: 0.35 });
+    if (!p.boom && !p.thru && p.age > p.arm && solid(Math.floor(p.x / TS), Math.floor(p.y / TS))) { if (p.expl) explode(p.x, p.y, p.expl, p.dmg); else emit(p.x, p.y, 4, { col: p.col, sp0: 10, sp1: 40 }); p.dead = true; return; }
+    const box = { x: p.x - p.sz - 1, y: p.y - p.sz - 1, w: p.sz * 2 + 2, h: p.sz * 2 + 2 };
+    for (const e of foes()) {
+      if (p.hit.has(e) || !ov(box, e)) continue;
+      p.hit.add(e);
+      if (!p.expl) dmgFoe(e, p.dmg, !!p.pierce, !!p.quiet);
+      if (p.burn) e.burnT = Math.max(e.burnT || 0, p.burn);
+      if (p.slow) e.slowT = Math.max(e.slowT || 0, p.slow);
+      if (!p.quiet) Snd.play('hit');
+      if (p.expl) { explode(p.x, p.y, p.expl, p.dmg); p.dead = true; return; }
+      if (p.pierceN !== undefined) { p.pierceN--; if (p.pierceN < 0) { p.dead = true; return; } } else if (!p.thru && !p.boom) { p.dead = true; return; }
+    }
+  }
+  // ---- melee ----
+  function doSwing(it) {
+    const P = Q.P, st = it.st, f = P.face;
+    P.sw = it; P.atk = 0.2; P.atkCd = 0.27 * (st.cd || 1); P.atkHit = new Set(); P.atkDown = !P.onGround && act.down;
+    Snd.play('slash'); if (Math.random() < 0.6) Snd.hero('attack');
+    if (hasRelic(5) && !P.atkDown) { Snd.play('flame'); Q.fps.push({ t: 'wave', x: P.x + 4 + f * 10, y: P.y + 7, vx: f * 150, vy: 0, g: 0, life: 0.55, hit: new Set() }); }
+    if (st.beam && !P.atkDown) { Snd.play('whoosh'); shootG({ x: P.x + 4 + f * 10, y: P.y + 6, vx: f * 270, vy: 0, life: 0.55, dmg: Math.max(2, Math.round((baseDmg() + st.dmg) * 0.6)), thru: true, pierceN: st.beam, shape: 'beam', col: it.id === 'sun' ? '#ffe08a' : '#fff6c0', sz: 3, f, quiet: true }); }
+  }
+  function swordHitFx(e, st, id, dealt) {
+    const P = Q.P, G = Q.G, f = P.face, n = G.hc[id] = (G.hc[id] || 0) + 1;
+    if (st.slow) e.slowT = Math.max(e.slowT || 0, st.slow);
+    if (st.burn) e.burnT = Math.max(e.burnT || 0, st.burn);
+    if (st.poison) { e.poisonT = 4; e.poisonN = Math.min(4, (e.poisonN || 0) + 1); }
+    if (st.chain) chainZap(e, Math.max(1, Math.round(dealt * 0.6)), st.chain, 72);
+    if (st.wind && n % st.wind === 0) { Snd.play('whoosh'); shootG({ x: P.x + 4 + f * 8, y: P.y + 6, vx: f * 240, vy: 0, life: 0.7, dmg: Math.max(2, Math.round(dealt)), thru: true, pierceN: 3, shape: 'wind', col: '#dff6ff', sz: 5, f, quiet: true }); }
+    if (st.ls && n % st.ls === 0 && P.hp < maxHP()) { P.hp++; Snd.play('heart'); emit(P.x + 4, P.y + 4, 8, { col: ['#e0453a', '#ff7fb0'], sp0: 10, sp1: 50 }); }
+    if (st.nova && n % st.nova === 0) nova(P.x + 4 + f * 14, P.y + 7, 52, Math.max(2, Math.round(dealt * 0.8)));
+  }
+  function onKill(e) {
+    const G = Q.G, N = aSt('killHeal');
+    if (N) { G.kills++; if (G.kills % N === 0 && Q.P.hp < maxHP()) { Q.P.hp++; Snd.play('heart'); emit(Q.P.x + 4, Q.P.y + 4, 8, { col: ['#e0453a', '#ff7fb0'], sp0: 10, sp1: 50 }); } }
+    if (curHit && curHit.voidk) G.holes.push({ x: e.x + e.w / 2, y: e.y + e.h / 2, life: 1.6, r: 56, tick: 0.2 });
+  }
+  let curHit = null;
+  // ---- special weapons ----
+  function useSlot(s) {
+    const P = Q.P, it = eqIt(s); if (!it) return;
+    if (it.type === 'sword') { if (P.atkCd <= 0) doSwing(it); }
+    else if (it.type === 'wpn' && P.wcd[s] <= 0) fireWeapon(it, s);
+  }
+  function fireWeapon(it, s) {
+    const P = Q.P, G = Q.G, f = P.face, x = P.x + 4 + f * 6, y = P.y + 6, id = it.id, v = aimVec;
+    P.wcd[s] = P.wmax[s] = it.st.cd; Snd.hero('attack'); P.atkCd = Math.max(P.atkCd, 0.12);
+    emit(x + f * 4, y, 6, { col: ['#fff', '#ffd34e'], sp0: 20, sp1: 60 });
+    const mk = (o, k) => shootG(Object.assign({ x, y, f }, o));
+    if (id === 'bow') { Snd.play('throw'); const a = v(300); mk({ vx: a[0], vy: a[1], life: 1.1, dmg: wd(2), shape: 'arrow', col: '#e8dfc0', sz: 2 }); }
+    else if (id === 'boomerang') { Snd.play('whoosh'); mk({ vx: f * 190, vy: 0, life: 2.2, boom: 1.1, dmg: wd(2), shape: 'boom', spin: 14, sz: 4, thru: true, col: '#c8844a' }); }
+    else if (id === 'firewand') { Snd.play('flame'); const a = v(175); mk({ vx: a[0], vy: a[1], life: 1.4, dmg: wd(3), burn: 3, shape: 'fire', trail: '#ffd34e', sz: 3, col: '#ff7a2a' }); }
+    else if (id === 'icewand') { Snd.play('zap'); const a = v(190); mk({ vx: a[0], vy: a[1], life: 1.4, dmg: wd(2), slow: 3, shape: 'ice', trail: '#bff3ff', sz: 3, col: '#8fe0f8' }); }
+    else if (id === 'crossbow') { for (let i = 0; i < 3; i++) later(i * 0.11, () => { Snd.play('throw'); const a = v(330); shootG({ x: Q.P.x + 4 + f * 6, y: Q.P.y + 6, f, vx: a[0], vy: a[1], life: 1, dmg: wd(3), shape: 'arrow', col: '#cfd6e6', sz: 2 }); }); }
+    else if (id === 'shuriken') { Snd.play('whoosh'); for (let i = 0; i < 5; i++) { const an = -0.5 + i * 0.25; mk({ vx: f * Math.cos(an) * 215, vy: Math.sin(an) * 215, life: 0.9, dmg: wd(2), shape: 'star', spin: 20, pierceN: 1, sz: 3, col: '#cfd6e6' }); } }
+    else if (id === 'rod') {
+      const t = nearestFoe(P.x + 4, P.y + 6, 180); Snd.play('thunder'); G.flash = 0.18;
+      if (t) { const cx = t.x + t.w / 2; zap(cx, Q.cam.y - 6, cx, t.y + t.h / 2); dmgFoe(t, wd(6), true); chainZap(t, wd(5), 3, 80); }
+      else { const cx = P.x + 4 + f * 56; zap(cx, Q.cam.y - 6, cx, P.y + 12); P.wcd[s] = 0.8; }
+    }
+    else if (id === 'launcher') { Snd.play('throw'); for (let i = 0; i < 2; i++) Q.fps.push({ t: 'bomb', x, y: P.y + 3, vx: f * (95 + i * 50) + P.vx * 0.3, vy: -130 + i * 12, g: 520, life: 1.3, f }); }
+    else if (id === 'meteor') {
+      Snd.play('thunder'); G.flash = 0.12;
+      for (let i = 0; i < 6; i++) later(i * 0.22, () => { const mx = Q.P.x + f * (34 + i * 26) + rr(-8, 8); shootG({ x: mx - f * 34, y: Math.max(12, Q.P.y - 110), f, vx: f * 34, vy: 250, life: 2.4, dmg: wd(5), expl: 30, burn: 3, shape: 'meteor', trail: '#ffd34e', sz: 4, col: '#ff7a2a', arm: 0.35 }); });
+    }
+    else if (id === 'cross') {
+      Snd.play('relic'); P.hp = Math.min(maxHP(), P.hp + 2); emit(P.x + 4, P.y + 4, 14, { col: ['#e0453a', '#ff7fb0', '#fff'], sp0: 10, sp1: 60 });
+      nova(P.x + 4, P.y + 7, 74, wd(4)); G.flash = 0.12;
+    }
+    else if (id === 'orb') { Snd.play('zap'); G.holes.push({ x: P.x + 4 + f * 62, y: P.y + 4, life: 4, r: 84, tick: 0.2 }); }
+    else if (id === 'stormbow') {
+      for (let k = 0; k < 3; k++) later(k * 0.16, () => {
+        Snd.play('throw');
+        for (let i = 0; i < 12; i++) { const an = -0.75 + 1.5 * i / 11 + rr(-0.04, 0.04), sp = 300 + rr(-30, 40); shootG({ x: Q.P.x + 4 + f * 6, y: Q.P.y + 5, f, vx: f * Math.cos(an) * sp, vy: Math.sin(an) * sp, life: 0.95, dmg: wd(2), shape: 'arrow', col: '#6ee7f2', pierceN: 1, sz: 2, quiet: true, trail: k === 0 && i % 3 === 0 ? '#bff3ff' : null }); }
+      });
+    }
+    else if (id === 'hourglass') { Snd.play('whoosh'); G.slowT = 6; addRing(P.x + 4, P.y + 7, '#ffd34e', 140, 0.8); G.flash = 0.1; }
+    else if (id === 'thundergod') { Snd.play('thunder'); G.flash = 0.35; G.god = { x: P.x + 4 + f * 34, y: P.y - 34, f, life: 12, t: 0, strike: 0.5 }; zap(P.x + 4, Q.cam.y - 6, P.x + 4 + f * 30, P.y - 22); Q.shake = Math.max(Q.shake, 0.4); Q.msg = save.lang === 'vi' ? 'THẦN SẤM GIÁNG THẾ!' : 'THE THUNDER GOD DESCENDS!'; Q.msgT = 3; }
+    else if (id === 'dragonhorn') { Snd.creature('dragon', 'alert', true); G.dr = { f, life: 5, t: 0, fire: 0, x: 0, y: 0 }; Q.shake = Math.max(Q.shake, 0.4); Q.msg = save.lang === 'vi' ? 'RỒNG LỬA ĐƯỢC TRIỆU HỒI!' : 'THE DRAGON ANSWERS THE HORN!'; Q.msgT = 3; }
+  }
+  // ---- per-frame gear update ----
+  function updateGear(dt) {
+    const P = Q.P, G = Q.G;
+    for (let i = 0; i < 2; i++) if (P.wcd[i] > 0) P.wcd[i] -= dt;
+    if (G.flash > 0) G.flash -= dt;
+    if (G.slowT > 0) G.slowT -= dt;
+    for (const l of G.later) { l.t -= dt; if (l.t <= 0) { l.dead = true; l.fn(); } }
+    G.later = G.later.filter(l => !l.dead);
+    for (const b of G.bolts) b.life -= dt;
+    G.bolts = G.bolts.filter(b => b.life > 0);
+    // auto shield (armor / slime pet)
+    const sT = aSt('shieldT') || (petRole() === 'shield' ? petIt().st.t : 0);
+    if (sT && !P.shield) { G.shT += dt; if (G.shT >= sT) { G.shT = 0; P.shield = true; Snd.play('select'); emit(P.x + 4, P.y + 7, 10, { col: ['#6ee7f2', '#fff'], sp0: 20, sp1: 60 }); } } else if (!sT || P.shield) G.shT = 0;
+    // regeneration (armor / fairy / unicorn)
+    const rT = aSt('regen') || (petRole() === 'heal' ? petIt().st.t : 0) || (petRole() === 'rainbow' ? 25 : 0);
+    if (rT && P.hp < maxHP() && P.hp > 0) { G.regT += dt; if (G.regT >= rT) { G.regT = 0; P.hp++; Snd.play('heart'); emit(P.x + 4, P.y + 4, 10, { col: ['#a4e86b', '#fff', '#ff7fb0'], sp0: 10, sp1: 50 }); } } else G.regT = 0;
+    if (aSt('slowImm')) P.slow = 0;
+    // sun aura
+    if (eqHas('aura')) { G.auraT += dt; if (G.auraT >= 0.5) { G.auraT = 0; for (const e of foes()) if (Math.hypot(e.x + e.w / 2 - (P.x + 4), e.y + e.h / 2 - (P.y + 7)) < 36) { dmgFoe(e, 1, true, true); e.burnT = Math.max(e.burnT || 0, 1.5); } } if (Math.random() < 0.3) emit(P.x + 4 + rr(-16, 16), P.y + 7 + rr(-12, 12), 1, { col: ['#ffe08a', '#fff'], sp0: 2, sp1: 10, grav: -10, l0: 0.3, l1: 0.6 }); }
+    // black holes
+    for (const h of G.holes) {
+      h.life -= dt; h.tick -= dt;
+      for (const e of foes()) {
+        const dx = h.x - (e.x + e.w / 2), dy = h.y - (e.y + e.h / 2), d = Math.hypot(dx, dy);
+        if (d < h.r && d > 3 && !e.isBoss) { const k = 75 * dt / d; e.x += dx * k; if (e.fly) e.y += dy * k; }
+      }
+      if (h.tick <= 0) { h.tick = 0.4; for (const e of foes()) if (Math.hypot(h.x - (e.x + e.w / 2), h.y - (e.y + e.h / 2)) < h.r * 0.65) dmgFoe(e, 1 + Math.floor(baseDmg() / 3), true, true); }
+      if (Math.random() < 0.8) { const a = Math.random() * 6.28, rd = h.r * rr(0.5, 1); emit(h.x + Math.cos(a) * rd, h.y + Math.sin(a) * rd * 0.6, 1, { col: ['#a15be0', '#d58bff', '#fff'], sp0: 0, sp1: 4, vx: -Math.cos(a) * 60, vy: -Math.sin(a) * 40, grav: 0, l0: 0.2, l1: 0.35 }); }
+    }
+    G.holes = G.holes.filter(h => h.life > 0);
+    // Thunder God ally
+    if (G.god) {
+      const gd = G.god; gd.life -= dt; gd.t += dt;
+      const tx = P.x + 4 + P.face * 34, ty = P.y - 34 + Math.sin(gd.t * 2.5) * 3, k = 1 - Math.exp(-4 * dt);
+      gd.x += (tx - gd.x) * k; gd.y += (ty - gd.y) * k; gd.f = P.face;
+      gd.strike -= dt;
+      if (gd.strike <= 0) {
+        gd.strike = 0.7; const t = nearestFoe(gd.x, gd.y, 230);
+        if (t) { const cx = t.x + t.w / 2; Snd.play('thunder'); G.flash = Math.max(G.flash, 0.1); zap(gd.x + gd.f * 8, gd.y, cx, t.y + t.h / 2); zap(cx, Q.cam.y - 6, cx, t.y + t.h / 2); dmgFoe(t, wd(5), true); chainZap(t, wd(3), 2, 70); Q.shake = Math.max(Q.shake, 0.15); }
+      }
+      if (gd.life <= 0) { emit(gd.x, gd.y, 24, { col: ['#fff', '#ffe44e', '#9fe8ff'], sp0: 30, sp1: 120 }); G.god = null; }
+    }
+    // spectral dragon ally
+    if (G.dr) {
+      const d = G.dr; d.life -= dt; d.t += dt;
+      const k = d.t / 5; d.x = Q.cam.x + (d.f > 0 ? -70 + k * (VW + 140) : VW + 70 - k * (VW + 140)); d.y = Q.cam.y + 62 + Math.sin(d.t * 3) * 6;
+      d.fire -= dt;
+      if (d.fire <= 0) { d.fire = 0.085; shootG({ x: d.x + d.f * 30, y: d.y + 12, f: d.f, vx: d.f * (110 + rr(0, 50)), vy: 70 + rr(-20, 45), g: 220, life: 1.6, dmg: wd(3), burn: 3, shape: 'fire', trail: '#ffd34e', sz: 3, col: '#ff7a2a', pierceN: 2, quiet: true }); }
+      if (Math.random() < 0.15) Snd.play('breath');
+      if (d.life <= 0) G.dr = null;
+    }
+    updatePet(dt);
+  }
+  function updatePet(dt) {
+    const it = petIt(), G = Q.G, P = Q.P;
+    if (!it) { G.pet = null; return; }
+    let pt = G.pet;
+    if (!pt || pt.id !== it.id) pt = G.pet = { id: it.id, x: P.x - 10, y: P.y + P.h, f: 1, cd: 1, t: 0, lunge: 0, tdir: 0 };
+    pt.t += dt; if (pt.lunge > 0) pt.lunge -= dt;
+    const fly = FLY_PET[it.id], tx = P.x + 4 - P.face * 15, ty = fly ? P.y - 2 + Math.sin(pt.t * 4) * 3 : P.y + P.h, k = 1 - Math.exp(-7 * dt);
+    if (Math.hypot(tx - pt.x, ty - pt.y) > 170) { pt.x = tx; pt.y = ty; }
+    pt.x += (tx - pt.x) * k; pt.y += (ty - pt.y) * (fly ? k : 1 - Math.exp(-14 * dt)); pt.f = pt.tdir || P.face;
+    pt.tdir = pt.lunge > 0 ? pt.tdir : 0;
+    const role = it.st.role; pt.cd -= dt;
+    if (pt.cd > 0) return;
+    const px = pt.x, py = pt.y - 7;
+    if (role === 'bite') { const t = nearestFoe(px, py, 38); if (t) { dmgFoe(t, 1 + Math.floor(baseDmg() / 4), false, true); pt.cd = 1.2; pt.lunge = 0.18; pt.tdir = t.x + t.w / 2 < px ? -1 : 1; emit(t.x + t.w / 2, t.y + t.h / 2, 5, { col: ['#fff', '#ffd34e'], sp0: 20, sp1: 60 }); Snd.play('hit'); } else pt.cd = 0.25; }
+    else if (role === 'drain') { const t = nearestFoe(px, py, 110); if (t) { dmgFoe(t, 2, true, true); pt.cd = 8; pt.lunge = 0.3; pt.tdir = t.x + t.w / 2 < px ? -1 : 1; G.half += 0.5; emit(t.x + t.w / 2, t.y + t.h / 2, 8, { col: ['#a15be0', '#e0453a'], sp0: 20, sp1: 70 }); if (G.half >= 1 && P.hp < maxHP()) { G.half = 0; P.hp++; Snd.play('heart'); } } else pt.cd = 0.4; }
+    else if (role === 'spark') { const t = nearestFoe(px, py, 160); if (t) { pt.cd = 0.9; shootG({ x: px, y: py - 4, vx: (t.x + t.w / 2 < px ? -1 : 1) * 120, vy: -30, home: true, life: 1.4, dmg: 1 + Math.floor(baseDmg() / 4), sz: 2, col: '#ffd34e', shape: 'spark', quiet: true, trail: '#ffd34e', thru: false }); } else pt.cd = 0.3; }
+    else if (role === 'fire') { const t = nearestFoe(px, py, 170); if (t) { pt.cd = 1.8; Snd.play('flame'); const dx = t.x + t.w / 2 - px, dy = t.y + t.h / 2 - py, d = Math.hypot(dx, dy) || 1; pt.tdir = dx < 0 ? -1 : 1; pt.lunge = 0.25; shootG({ x: px + pt.tdir * 8, y: py, vx: dx / d * 160, vy: dy / d * 160, life: 1.3, dmg: 3 + Math.floor(baseDmg() / 3), burn: 2, sz: 3, col: '#ff7a2a', shape: 'fire', trail: '#ffd34e' }); } else pt.cd = 0.3; }
+    else if (role === 'block') { let hit = null; for (const p of Q.projs) if (!p.dead && Math.hypot(p.x - (P.x + 4), p.y - (P.y + 7)) < 95) { hit = p; break; } if (hit) { hit.dead = true; pt.cd = 4; Snd.play('clang'); emit(hit.x, hit.y, 10, { col: ['#fff', '#cfd6e6'], sp0: 20, sp1: 80 }); addRing(hit.x, hit.y, '#fff', 20, 0.3); } else pt.cd = 0.1; }
+    else pt.cd = 1;
+  }
+  // ---- player damage with armor ----
+  function thornsAndFx() {
+    const P = Q.P, th = aSt('thorns'), fx = armorIt() && armorIt().st.thornFx;
+    if (th || fx) { const t = nearestFoe(P.x + 4, P.y + 7, 46); if (t) { if (th) dmgFoe(t, th, true, true); if (fx === 'slow') t.slowT = Math.max(t.slowT || 0, 3); if (fx === 'burn') t.burnT = Math.max(t.burnT || 0, 3); emit(t.x + t.w / 2, t.y + t.h / 2, 6, { col: fx === 'burn' ? ['#ff7a2a', '#ffd34e'] : ['#fff', '#cfd6e6'], sp0: 20, sp1: 80 }); } }
+    if (aSt('nova')) nova(P.x + 4, P.y + 7, 50, 3);
+    if (aSt('shadow')) { P.inv = Math.max(P.inv, 1.2 + aSt('shadow')); emit(P.x + 4, P.y + 7, 12, { col: ['#a15be0', '#14121f'], sp0: 20, sp1: 70 }); }
+  }
+  function tryRevive() {
+    const P = Q.P, G = Q.G;
+    if (!G.rvSw && eqHas('revive')) { G.rvSw = true; P.hp = Math.ceil(maxHP() / 2); }
+    else if (!G.rvPet && petRole() === 'revive') { G.rvPet = true; P.hp = maxHP(); }
+    else return false;
+    P.inv = 2.5; Snd.play('relic'); Snd.hero('cheer'); Q.shake = 0.6; G.flash = 0.3;
+    emit(P.x + 4, P.y + 7, 40, { col: ['#ffd34e', '#ff7a2a', '#fff'], sp0: 40, sp1: 160 }); addRing(P.x + 4, P.y + 7, '#ff9a2a', 90, 0.6);
+    nova(P.x + 4, P.y + 7, 64, 6); Q.msg = save.lang === 'vi' ? 'HỒI SINH TỪ TRO TÀN!' : 'RISEN FROM THE ASHES!'; Q.msgT = 3;
+    return true;
+  }
+  function updateStatus(dt) {
+    for (const e of Q.ents.concat(bossTargets())) {
+      if (e.dead) continue;
+      if (e.slowT > 0) e.slowT -= dt;
+      if (e.burnT > 0) { e.burnT -= dt; e.burnAcc = (e.burnAcc || 0) + dt; if (Math.random() < 0.4) emit(e.x + rr(0, e.w), e.y + rr(0, e.h), 1, { col: ['#ff7a2a', '#ffd34e'], sp0: 3, sp1: 14, grav: -30, l0: 0.2, l1: 0.4 }); if (e.burnAcc >= 1) { e.burnAcc = 0; dmgFoe(e, 1, true, true); } }
+      if (e.poisonT > 0) { e.poisonT -= dt; e.poisonAcc = (e.poisonAcc || 0) + dt; if (Math.random() < 0.3) emit(e.x + rr(0, e.w), e.y + rr(0, e.h), 1, { col: ['#7ed957', '#d8ff9a'], sp0: 3, sp1: 12, grav: -10, l0: 0.2, l1: 0.4 }); if (e.poisonAcc >= 1) { e.poisonAcc = 0; dmgFoe(e, 0.6 * (e.poisonN || 1), true, true); } if (e.poisonT <= 0) e.poisonN = 0; }
+    }
+  }
+  // ---- rendering ----
+  function drawGearFx(camX, camY) {
+    const G = Q.G, P = Q.P;
+    for (const h of G.holes) {
+      const x = Math.round(h.x - camX), y = Math.round(h.y - camY), a = Math.min(1, h.life);
+      g.globalAlpha = 0.4 * a; disc(g, x, y, Math.round(h.r * 0.35), '#2a1a4a'); g.globalAlpha = 0.85 * a; disc(g, x, y, Math.round(h.r * 0.18), '#14101e'); disc(g, x, y, 3, '#000'); g.globalAlpha = 1;
+      for (let i = 0; i < 14; i++) { const an = Q.t * 6 + i * 0.45, rd = 8 + i * (h.r / 18); g.fillStyle = i % 2 ? '#a15be0' : '#d58bff'; g.fillRect(Math.round(x + Math.cos(an) * rd), Math.round(y + Math.sin(an) * rd * 0.5), 2, 2); }
+    }
+    const pt = G.pet;
+    if (pt) { const sp = petSprite(pt.id), fly = FLY_PET[pt.id], hop = fly ? 0 : (Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(pt.t * 14)) * 2 : 0), off = pt.lunge > 0 ? pt.tdir * 5 : 0; g.globalAlpha = pt.id === 'ghostie' ? 0.75 : 1; drawSpr(g, sp, Math.round(pt.x - camX + off), Math.round(pt.y - camY + hop), pt.f < 0); g.globalAlpha = 1; }
+    if (G.god) {
+      const gd = G.god, gs = godSprite(), x = Math.round(gd.x - camX), y = Math.round(gd.y - camY), a = Math.min(1, gd.life / 0.8, gd.t / 0.4);
+      g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x, y + 10, 0, x, y + 10, 46); gr.addColorStop(0, 'rgba(255,230,90,' + 0.4 * a + ')'); gr.addColorStop(1, 'rgba(255,230,90,0)'); g.fillStyle = gr; g.fillRect(x - 46, y - 40, 92, 100); g.globalCompositeOperation = 'source-over';
+      g.globalAlpha = 0.92 * a; drawSpr(g, gs, x, y + 30, gd.f < 0); g.globalAlpha = 1;
+    }
+    if (G.dr) {
+      const d = G.dr, ds = dragonSprite(1, Math.floor(Q.t * 5) % 2), x = Math.round(d.x - camX), y = Math.round(d.y - camY);
+      g.globalAlpha = 0.72; g.globalCompositeOperation = 'lighter'; g.drawImage(d.f < 0 ? ds.f : ds.c, Math.round(x - ds.w / 2), Math.round(y - ds.h / 2 + 8)); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+    }
+    for (const e of Q.ents) if (!e.dead && !e.hid && (e.slowT > 0 || e.burnT > 0 || e.poisonT > 0)) {
+      const x = Math.round(e.x - camX), y = Math.round(e.y - camY);
+      g.globalAlpha = 0.28; g.fillStyle = e.burnT > 0 ? '#ff7a2a' : (e.poisonT > 0 ? '#7ed957' : '#8fe0f8'); g.fillRect(x, y, e.w, e.h); g.globalAlpha = 1;
+      if (e.slowT > 0 && !(e.burnT > 0)) { g.fillStyle = '#fff'; g.fillRect(x + 1, y + 1, 2, 1); g.fillRect(x + e.w - 3, y + e.h - 2, 2, 1); }
+    }
+  }
+  function drawGearTop(camX, camY) {
+    const G = Q.G;
+    for (const b of G.bolts) {
+      const a = Math.min(1, b.life * 6);
+      g.globalAlpha = a; g.strokeStyle = '#9fe8ff'; g.lineWidth = 3; g.beginPath(); b.pts.forEach((p, i) => i ? g.lineTo(p[0] - camX, p[1] - camY) : g.moveTo(p[0] - camX, p[1] - camY)); g.stroke();
+      g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke(); g.globalAlpha = 1;
+    }
+    if (G.flash > 0) { g.globalAlpha = Math.min(0.55, G.flash * 1.6); g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+    if (G.slowT > 0) { g.globalAlpha = 0.1 + 0.05 * Math.sin(Q.t * 6); g.fillStyle = '#ffd34e'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+  }
+  function drawGHot(p, x, y) {
+    const sh = p.shape;
+    if (sh === 'arrow') { const a = Math.atan2(p.vy, p.vx); g.save(); g.translate(x, y); g.rotate(a); g.fillStyle = '#5a3a22'; g.fillRect(-6, -1, 8, 1); g.fillStyle = p.col; g.fillRect(2, -1, 3, 1); g.fillRect(4, -2, 2, 3); g.fillStyle = '#fff'; g.fillRect(-7, -2, 2, 1); g.fillRect(-7, 1, 2, 1); g.restore(); }
+    else if (sh === 'fire') { disc(g, x, y, 4, '#e0453a'); disc(g, x, y, 3, '#ff7a2a'); disc(g, x, y, 1, '#fff6c0'); }
+    else if (sh === 'ice') { g.fillStyle = '#8fe0f8'; g.fillRect(x - 4, y - 1, 8, 3); g.fillRect(x - 2, y - 3, 4, 7); g.fillStyle = '#fff'; g.fillRect(x - 1, y - 1, 3, 1); }
+    else if (sh === 'star') { g.save(); g.translate(x, y); g.rotate(p.rot); g.fillStyle = '#cfd6e6'; g.fillRect(-4, -1, 8, 2); g.fillRect(-1, -4, 2, 8); g.fillStyle = '#14121f'; g.fillRect(-1, -1, 2, 2); g.restore(); }
+    else if (sh === 'boom') { g.save(); g.translate(x, y); g.rotate(p.rot); g.fillStyle = '#c8844a'; g.fillRect(-5, -1, 10, 2); g.fillRect(-1, -5, 2, 6); g.fillStyle = '#ffd0a0'; g.fillRect(-5, -1, 10, 1); g.restore(); }
+    else if (sh === 'beam') { const f = p.f; g.globalCompositeOperation = 'lighter'; g.fillStyle = hexA(p.col, 0.5); g.fillRect(x - 10, y - 4, 20, 8); g.fillStyle = '#fff'; g.fillRect(x - 12 + (f > 0 ? 0 : 4), y - 1, 20, 2); g.globalCompositeOperation = 'source-over'; }
+    else if (sh === 'wind') { g.fillStyle = 'rgba(223,246,255,.75)'; const f = p.f; for (let i = 0; i < 5; i++) g.fillRect(x - f * i * 2 - 2, y - 6 + i * 3 - (i > 2 ? 3 : 0), 5 - (i % 2), 1 + (i === 2 ? 1 : 0)); }
+    else if (sh === 'meteor') { disc(g, x, y, 5, '#6a3a2a'); disc(g, x, y, 4, '#ff7a2a'); disc(g, x, y, 2, '#ffd34e'); }
+    else if (sh === 'spark') { g.fillStyle = '#ffd34e'; g.fillRect(x - 1, y - 2, 3, 5); g.fillRect(x - 2, y - 1, 5, 3); g.fillStyle = '#fff'; g.fillRect(x, y, 1, 1); }
+    else { g.fillStyle = p.col; g.fillRect(x - 2, y - 1, 4, 3); }
+  }
+  function drawGearHUD() {
+    const P = Q.P, G = Q.G;
+    for (let s = 0; s < 2; s++) {
+      const it = eqIt(s), bx = VW - 62 + s * 30, by = VH - 32;
+      g.fillStyle = 'rgba(10,6,22,.6)'; g.fillRect(bx, by, 26, 26);
+      if (it) {
+        const ic = itemIcon(it.id); g.drawImage(ic.c, bx, by);
+        const cdn = it.type === 'wpn' ? P.wcd[s] / (P.wmax[s] || 1) : Math.max(0, P.atkCd) / (0.27 * (it.st.cd || 1));
+        if (cdn > 0) { g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(bx + 1, by + 1, 24, Math.round(24 * Math.min(1, cdn))); }
+        else if (it.type === 'wpn') { g.fillStyle = 'rgba(255,255,255,.14)'; g.fillRect(bx + 1, by + 1, 24, 24); }
+      } else { g.fillStyle = '#434d6e'; g.fillRect(bx, by, 26, 1); g.fillRect(bx, by + 25, 26, 1); g.fillRect(bx, by, 1, 26); g.fillRect(bx + 25, by, 1, 26); }
+      txt(s ? 'H' : 'J', bx + 3, by + 21, { size: 6, col: '#ffd34e' });
+    }
+    { let sy = 48 + (Math.ceil(maxHP() / 8) - 1) * 10; const chip = (t, c) => { txt(t, VW - 8, sy, { al: 'right', size: 6, col: c }); sy += 9; };
+      sy = 14 + (P.slow > 0 ? 10 : 0) + (P.rev > 0 ? 10 : 0) + (Q.windT > 0 ? 10 : 0);
+      if (G.slowT > 0) chip((save.lang === 'vi' ? 'THỜI GIAN CHẬM ' : 'TIME SLOW ') + G.slowT.toFixed(1), '#ffd34e');
+      if (G.god) chip((save.lang === 'vi' ? 'THẦN SẤM ' : 'THUNDER GOD ') + G.god.life.toFixed(1), '#ffe44e');
+      if (G.dr) chip((save.lang === 'vi' ? 'RỒNG ' : 'DRAGON ') + G.dr.life.toFixed(1), '#ff9a2a'); }
+    if (petRole() === 'scout') {
+      let best = null, bd = 1e9; for (const it of Q.items) if (it.kind === 'shard' && !it.dead) { const d = Math.hypot(it.x - P.x, it.y - P.y); if (d < bd) { bd = d; best = it; } }
+      if (best && bd > 40) { const an = Math.atan2(best.y - P.y, best.x - P.x), cx = P.x + 4 - Q.cam.x + Math.cos(an) * 26, cy = P.y + 4 - Q.cam.y + Math.sin(an) * 26; g.save(); g.translate(Math.round(cx), Math.round(cy)); g.rotate(an); g.fillStyle = '#6ee7f2'; g.beginPath(); g.moveTo(5, 0); g.lineTo(-3, -4); g.lineTo(-3, 4); g.fill(); g.restore(); txt(Math.round(bd / 16) + 'm', cx, cy - 8, { al: 'center', size: 5, col: '#6ee7f2' }); }
+    }
+  }

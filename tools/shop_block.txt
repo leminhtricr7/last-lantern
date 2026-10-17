@@ -1,0 +1,211 @@
+  // ============================== SHOP / INVENTORY SCENE ==============================
+  // TEST MODE: top-up gives free gems so you can try the economy. For release, replace topUp() with a real
+  // payment (Steam microtransactions via your server) and set TOPUP_TEST = false.
+  const TOPUP_TEST = true;
+  const TOPUP_PACKS = [{ gems: 60, vnd: '20.000đ', usd: '$0.99' }, { gems: 330, vnd: '99.000đ', usd: '$4.99' }, { gems: 700, vnd: '199.000đ', usd: '$9.99' }, { gems: 1500, vnd: '399.000đ', usd: '$19.99' }, { gems: 4000, vnd: '999.000đ', usd: '$49.99' }];
+  const SH_TABS = [['sword', { en: 'Swords', vi: 'Kiếm' }], ['armor', { en: 'Armor', vi: 'Giáp' }], ['pet', { en: 'Pets', vi: 'Thú cưng' }], ['wpn', { en: 'Weapons', vi: 'Vũ khí' }], ['bag', { en: 'Inventory', vi: 'Kho đồ' }], ['topup', { en: 'Top-up', vi: 'Nạp' }]];
+  const TYPE_NAME = { sword: { en: 'Sword', vi: 'Kiếm' }, armor: { en: 'Armor', vi: 'Giáp' }, pet: { en: 'Pet', vi: 'Thú cưng' }, wpn: { en: 'Special weapon', vi: 'Vũ khí đặc biệt' } };
+  const sv = (en, vi) => save.lang === 'vi' ? vi : en;
+  let shopTab = 0, shopIdx = 0, shopFrom = 'title', shopCard = null, shopMsg = '', shopMsgT = 0, shopBad = false;
+  const owned = id => save.inv.own.indexOf(id) >= 0;
+  const isEq = it => it.type === 'armor' ? save.inv.armor === it.id : (it.type === 'pet' ? save.inv.pet === it.id : save.inv.w.indexOf(it.id) >= 0);
+  function shopItems() {
+    const t = SH_TABS[shopTab][0];
+    if (t === 'bag') { const ord = { sword: 0, wpn: 1, armor: 2, pet: 3 }; return save.inv.own.map(id => ITEM[id]).filter(Boolean).sort((a, b) => ord[a.type] - ord[b.type] || a.tier - b.tier); }
+    if (t === 'topup') return TOPUP_PACKS;
+    return shopList(t);
+  }
+  function shopSay(s, bad) { shopMsg = s; shopMsgT = 2.6; shopBad = !!bad; Snd.play(bad ? 'hurt' : 'ok'); }
+  function setTab(i) { shopTab = (i + SH_TABS.length) % SH_TABS.length; shopIdx = 0; shopCard = null; Snd.play('select'); }
+  function grantLeek() {
+    const iv = save.inv; if (iv.own.indexOf('leek') < 0) iv.own.push('leek');
+    if (iv.w.indexOf('leek') < 0) { if (iv.w[0] && ITEM[iv.w[0]].type === 'sword') iv.w[0] = 'leek'; else iv.w[1] = 'leek'; }
+  }
+  function equipItem(it, slot) {
+    const iv = save.inv;
+    if (it.type === 'armor') iv.armor = it.id;
+    else if (it.type === 'pet') iv.pet = it.id;
+    else {
+      const w = iv.w.slice(), other = 1 - slot; if (w[other] === it.id) w[other] = null; w[slot] = it.id;
+      if (!w.some(id => id && ITEM[id].type === 'sword')) { shopSay(sv('You must keep at least one sword equipped.', 'Phải giữ ít nhất một thanh kiếm.'), true); return false; }
+      iv.w = w;
+    }
+    writeSave(); return true;
+  }
+  function unequipItem(it) {
+    const iv = save.inv;
+    if (it.type === 'armor') iv.armor = null; else if (it.type === 'pet') iv.pet = null;
+    else { const w = iv.w.slice(), i = w.indexOf(it.id); if (i >= 0) w[i] = null; if (!w.some(id => id && ITEM[id].type === 'sword')) { shopSay(sv('You must keep at least one sword equipped.', 'Phải giữ ít nhất một thanh kiếm.'), true); return false; } iv.w = w; }
+    writeSave(); return true;
+  }
+  function howTo(it) {
+    const cd = it.st.cd ? it.st.cd + 's' : '';
+    if (it.type === 'sword') return sv('Equip it in Slot 1 (J / left-click) or Slot 2 (H / middle-click), then press that key to swing. Hold Down in mid-air to bounce off enemies.', 'Trang bị vào Ô 1 (J / chuột trái) hoặc Ô 2 (H / chuột giữa), rồi bấm phím đó để chém. Giữ Xuống khi đang nhảy để nảy lên đầu quái.');
+    if (it.type === 'wpn') return sv('Equip it in Slot 1 (J / left-click) or Slot 2 (H / middle-click), then press that key to use it. Hold Up or Down to aim. Cooldown: ' + cd + '.', 'Trang bị vào Ô 1 (J / chuột trái) hoặc Ô 2 (H / chuột giữa), rồi bấm phím đó để dùng. Giữ Lên hoặc Xuống để ngắm. Hồi chiêu: ' + cd + '.');
+    if (it.type === 'armor') return sv('Passive. Just equip it - the armor protects you automatically in every level.', 'Bị động. Chỉ cần trang bị - giáp tự bảo vệ bạn ở mọi màn chơi.');
+    return sv('Passive. Equip it and your pet follows you and helps all by itself.', 'Bị động. Trang bị xong, thú cưng tự đi theo và giúp bạn chiến đấu.');
+  }
+  function cardOpts() {
+    const it = shopCard.it, o = [];
+    if (!owned(it.id)) { o.push({ k: 'gold' }); o.push({ k: 'gems' }); }
+    else if (it.type === 'armor' || it.type === 'pet') o.push({ k: isEq(it) ? 'uneq' : 'eq' });
+    else { o.push({ k: 'slot0' }); o.push({ k: 'slot1' }); if (isEq(it)) o.push({ k: 'uneq' }); }
+    o.push({ k: 'close' }); return o;
+  }
+  function optLabel(o, it) {
+    switch (o.k) {
+      case 'gold': return sv('Buy ' + it.gold + ' gold', 'Mua ' + it.gold + ' vàng');
+      case 'gems': return sv('Buy ' + it.gems + ' gems', 'Mua ' + it.gems + ' gem');
+      case 'eq': return sv('Equip', 'Trang bị');
+      case 'slot0': return sv('Slot 1 (J)', 'Ô 1 (J)') + (save.inv.w[0] === it.id ? ' *' : '');
+      case 'slot1': return sv('Slot 2 (H)', 'Ô 2 (H)') + (save.inv.w[1] === it.id ? ' *' : '');
+      case 'uneq': return sv('Unequip', 'Tháo ra');
+      default: return sv('Close', 'Đóng');
+    }
+  }
+  function cardAct(o) {
+    const it = shopCard.it, iv = save.inv;
+    if (o.k === 'close') { shopCard = null; Snd.play('select'); return; }
+    if (o.k === 'gold' || o.k === 'gems') {
+      if (o.k === 'gold') { if (save.coins < it.gold) { shopSay(sv('Not enough gold! Collect more coins in the levels.', 'Không đủ vàng! Hãy nhặt thêm xu trong màn chơi.'), true); return; } save.coins -= it.gold; }
+      else { if (iv.gems < it.gems) { shopSay(sv('Not enough gems! Open the Top-up tab.', 'Không đủ gem! Vào mục Nạp.'), true); return; } iv.gems -= it.gems; }
+      iv.own.push(it.id); writeSave(); Snd.play('relic'); shopSay(sv('Purchased! Now equip it.', 'Đã mua! Hãy trang bị nó.')); shopCard.opt = 0; return;
+    }
+    if (o.k === 'uneq') { if (unequipItem(it)) { Snd.play('select'); shopCard.opt = 0; } return; }
+    const slot = o.k === 'slot1' ? 1 : 0;
+    if (equipItem(it, slot)) { shopSay(sv('Equipped!', 'Đã trang bị!')); Snd.play('ok'); shopCard = null; }
+  }
+  function topUp(p) {
+    if (TOPUP_TEST) { save.inv.gems += p.gems; writeSave(); Snd.play('relic'); shopSay(sv('TEST MODE: +' + p.gems + ' gems (free - no real money charged)', 'CHẾ ĐỘ TEST: +' + p.gems + ' gem (miễn phí - không trừ tiền thật)')); return; }
+    shopSay(sv('Payments are not connected yet.', 'Chưa kết nối thanh toán.'), true);
+  }
+  function updateShopScene(dt) {
+    sceneT += dt; if (shopMsgT > 0) shopMsgT -= dt;
+    if (shopCard) {
+      const o = cardOpts(), n = o.length;
+      if (shopCard.opt >= n) shopCard.opt = 0;
+      if (act.leftP) { shopCard.opt = (shopCard.opt + n - 1) % n; Snd.play('select'); }
+      if (act.rightP) { shopCard.opt = (shopCard.opt + 1) % n; Snd.play('select'); }
+      if (act.backP || act.pauseP) { shopCard = null; Snd.play('select'); return; }
+      if (act.okP) cardAct(o[shopCard.opt]);
+      return;
+    }
+    const list = shopItems(), n = list.length, t = SH_TABS[shopTab][0];
+    if (act.swapP) setTab(shopTab - 1);
+    if (pressed.KeyE || pressed.Tab) setTab(shopTab + 1);
+    const mv = d => { const ni = clamp(shopIdx + d, 0, n - 1); if (ni !== shopIdx) { shopIdx = ni; Snd.play('select'); } };
+    if (t === 'topup') { if (act.upP) mv(-1); if (act.downP) mv(1); }
+    else { if (act.leftP) mv(-1); if (act.rightP) mv(1); if (act.upP) mv(-5); if (act.downP) mv(5); }
+    shopIdx = clamp(shopIdx, 0, Math.max(0, n - 1));
+    if (act.okP) {
+      if (t === 'topup') topUp(list[shopIdx]);
+      else if (list[shopIdx]) { shopCard = { it: list[shopIdx], opt: 0 }; Snd.play('ok'); }
+    }
+    if (act.backP || act.pauseP) { Snd.play('select'); toScene(shopFrom); }
+  }
+  const SH_GX = 12, SH_GY = 30, SH_STEP = 34;
+  function shopMouse(gx, gy, click) {
+    if (shopCard) {
+      const o = cardOpts(), n = o.length;
+      for (let i = 0; i < n; i++) if (near(gx, gy, VW / 2 + (i - (n - 1) / 2) * 84, 192, 39, 8)) { if (shopCard.opt !== i) { shopCard.opt = i; Snd.play('select'); } if (click) pressed.Enter = true; return; }
+      if (click && !near(gx, gy, VW / 2, 106, 168, 100)) pressed.Escape = true;
+      return;
+    }
+    for (let i = 0; i < SH_TABS.length; i++) if (near(gx, gy, 6 + i * 62 + 30, 13, 30, 8)) { if (click && i !== shopTab) setTab(i); return; }
+    if (click && near(gx, gy, VW - 20, VH - 7, 20, 6)) { pressed.Escape = true; return; }
+    const t = SH_TABS[shopTab][0], list = shopItems();
+    if (t === 'topup') {
+      for (let i = 0; i < list.length; i++) if (near(gx, gy, VW / 2, 42 + i * 24, 170, 11)) { if (shopIdx !== i) { shopIdx = i; Snd.play('select'); } if (click) pressed.Enter = true; return; }
+      return;
+    }
+    const page = Math.floor(shopIdx / 15);
+    for (let k = 0; k < 15; k++) {
+      const idx = page * 15 + k; if (idx >= list.length) break;
+      if (near(gx, gy, SH_GX + (k % 5) * SH_STEP + 15, SH_GY + Math.floor(k / 5) * SH_STEP + 15, 16, 16)) { if (shopIdx !== idx) { shopIdx = idx; Snd.play('select'); } if (click) pressed.Enter = true; return; }
+    }
+  }
+  function drawCoinIc(x, y) { disc(g, x, y, 3, '#c89a1c'); disc(g, x, y, 2, '#ffd34e'); g.fillStyle = '#fff6c0'; g.fillRect(x - 1, y - 1, 1, 1); }
+  function drawGemIc(x, y) { g.fillStyle = '#2c9ab8'; g.fillRect(x - 1, y - 3, 3, 1); g.fillRect(x - 3, y - 2, 7, 2); g.fillRect(x - 2, y, 5, 1); g.fillRect(x - 1, y + 1, 3, 1); g.fillRect(x, y + 2, 1, 1); g.fillStyle = '#9ff0ff'; g.fillRect(x - 2, y - 2, 2, 1); g.fillRect(x - 1, y - 3, 1, 1); }
+  function drawEqBox(it, x, y, label) {
+    g.fillStyle = 'rgba(255,255,255,.07)'; g.fillRect(x, y, 26, 26);
+    if (it) { g.drawImage(itemIcon(it.id).c, x, y); } else { g.fillStyle = '#434d6e'; g.fillRect(x, y, 26, 1); g.fillRect(x, y + 25, 26, 1); g.fillRect(x, y, 1, 26); g.fillRect(x + 25, y, 1, 26); }
+    txt(label, x + 13, y - 5, { al: 'center', size: 5, col: '#8892aa' });
+  }
+  function drawShop() {
+    g.fillStyle = '#0c0a1c'; g.fillRect(0, 0, VW, VH);
+    { const r = mulberry32(5); for (let i = 0; i < 46; i++) { g.fillStyle = r() < 0.2 ? '#6a5a9a' : '#241d44'; g.fillRect((r() * VW) | 0, (r() * VH) | 0, 1 + (r() * 2 | 0), 1); } }
+    SH_TABS.forEach((t, i) => {
+      const x = 6 + i * 62, on = i === shopTab;
+      g.fillStyle = on ? '#2a2548' : '#151230'; g.fillRect(x, 6, 60, 15); g.fillStyle = on ? '#ffd34e' : '#434d6e'; g.fillRect(x, 6, 60, 1); g.fillRect(x, 20, 60, 1);
+      txt(LN(t[1]), x + 30, 14, { al: 'center', size: 6.5, col: on ? '#ffd34e' : '#8892aa', bold: on });
+    });
+    const t = SH_TABS[shopTab][0], list = shopItems();
+    if (t === 'topup') {
+      txt(sv('Top-up gems', 'Nạp gem'), VW / 2, 31, { al: 'center', size: 7, col: '#cfd6e6' });
+      list.forEach((p, i) => {
+        const y = 42 + i * 24, on = i === shopIdx;
+        g.fillStyle = on ? 'rgba(255,211,78,.16)' : 'rgba(255,255,255,.05)'; g.fillRect(VW / 2 - 170, y - 10, 340, 21);
+        if (on) { g.fillStyle = '#ffd34e'; g.fillRect(VW / 2 - 170, y - 10, 340, 1); g.fillRect(VW / 2 - 170, y + 10, 340, 1); }
+        drawGemIc(VW / 2 - 150, y); txt('+' + p.gems + ' gem', VW / 2 - 138, y, { size: 8, bold: true, col: '#9ff0ff' });
+        txt(save.lang === 'vi' ? p.vnd + '  (' + p.usd + ')' : p.usd + '  (' + p.vnd + ')', VW / 2 + 160, y, { al: 'right', size: 7, col: '#cfd6e6' });
+      });
+      txt(TOPUP_TEST ? sv('TEST MODE: top-up is free and charges no real money. Connect a real payment before release.', 'CHẾ ĐỘ TEST: nạp miễn phí, không trừ tiền thật. Cần nối cổng thanh toán thật trước khi phát hành.') : '', VW / 2, 170, { al: 'center', size: 5.5, col: '#ff9a8a' });
+      drawGemIc(VW / 2 - 52, 186); txt(sv('Gems: ', 'Gem: ') + save.inv.gems, VW / 2 - 44, 186, { size: 8, col: '#9ff0ff' });
+      drawCoinIc(VW / 2 + 28, 186); txt(String(save.coins), VW / 2 + 36, 186, { size: 8, col: '#ffd34e' });
+    } else {
+      const page = Math.floor(shopIdx / 15), pages = Math.max(1, Math.ceil(list.length / 15));
+      for (let k = 0; k < 15; k++) {
+        const idx = page * 15 + k; if (idx >= list.length) break;
+        const it = list[idx], x = SH_GX + (k % 5) * SH_STEP, y = SH_GY + Math.floor(k / 5) * SH_STEP, on = idx === shopIdx;
+        g.drawImage(itemIcon(it.id).c, x + 2, y + 2);
+        if (owned(it.id)) { g.fillStyle = '#5fcf5a'; g.fillRect(x + 21, y + 3, 5, 5); g.fillStyle = '#14121f'; g.fillRect(x + 22, y + 5, 1, 2); g.fillRect(x + 23, y + 6, 1, 1); g.fillRect(x + 24, y + 4, 1, 2); }
+        if (isEq(it)) txt('E', x + 25, y + 26, { al: 'right', size: 6, col: '#ffd34e', bold: true });
+        if (on) { g.fillStyle = '#ffd34e'; g.fillRect(x, y, 30, 1); g.fillRect(x, y + 29, 30, 1); g.fillRect(x, y, 1, 30); g.fillRect(x + 29, y, 1, 30); }
+      }
+      if (pages > 1) txt(sv('Page ', 'Trang ') + (page + 1) + '/' + pages, SH_GX + 80, SH_GY + 3 * SH_STEP + 4, { al: 'center', size: 5.5, col: '#8892aa' });
+      const it = list[shopIdx];
+      g.fillStyle = 'rgba(255,255,255,.05)'; g.fillRect(186, 28, 188, 108);
+      if (it) {
+        const col = RARITY_COL[it.rar];
+        g.fillStyle = col; g.fillRect(186, 28, 188, 1);
+        g.drawImage(itemIcon(it.id).c, 192, 34, 52, 52);
+        txt(LN(it.name), 250, 40, { size: 8, bold: true, col });
+        txt(LN(RARITY_NAME[it.rar]) + ' · ' + LN(TYPE_NAME[it.type]), 250, 52, { size: 5.5, col });
+        if (owned(it.id)) txt(isEq(it) ? sv('Equipped', 'Đang trang bị') : sv('Owned', 'Đã sở hữu'), 250, 64, { size: 6.5, col: '#a4e86b' });
+        else { drawCoinIc(253, 65); txt(String(it.gold), 259, 65, { size: 7, col: '#ffd34e' }); drawGemIc(300, 65); txt(String(it.gems), 306, 65, { size: 7, col: '#9ff0ff' }); }
+        wrapText(LN(it.desc), 46).slice(0, 7).forEach((l, i) => txt(l, 192, 96 + i * 8, { size: 5.8, col: '#e8eaf5' }));
+        txt(sv('Enter: details / buy', 'Enter: xem chi tiết / mua'), 280, 130, { al: 'center', size: 5, col: '#8892aa' });
+      }
+      // equipment strip
+      const ex = 12, ey = 156;
+      drawEqBox(eqIt(0), ex, ey, sv('Slot 1', 'Ô 1')); drawEqBox(eqIt(1), ex + 34, ey, sv('Slot 2', 'Ô 2')); drawEqBox(armorIt(), ex + 76, ey, sv('Armor', 'Giáp')); drawEqBox(petIt(), ex + 110, ey, sv('Pet', 'Thú cưng'));
+      drawCoinIc(186, 164); txt(sv('Gold: ', 'Vàng: ') + save.coins, 193, 164, { size: 7, col: '#ffd34e' });
+      drawGemIc(186, 178); txt(sv('Gems: ', 'Gem: ') + save.inv.gems, 193, 178, { size: 7, col: '#9ff0ff' });
+      txt(sv('HP ', 'Máu ') + maxHP() + '   ' + sv('DMG ', 'Sát thương ') + swordDmg(), 270, 164, { size: 6, col: '#a4e86b' });
+    }
+    txt(sv('Arrows: move   Enter: select   Q/E: tabs   Esc: back', 'Mũi tên: chọn   Enter: chọn mua   Q/E: đổi mục   Esc: thoát'), 8, VH - 7, { size: 5.5, col: '#8892aa' });
+    txt(sv('[ BACK ]', '[ THOÁT ]'), VW - 8, VH - 7, { al: 'right', size: 6, col: '#cfd6e6' });
+    if (shopCard) drawShopCard();
+    if (shopMsgT > 0) { g.fillStyle = 'rgba(0,0,0,.7)'; g.fillRect(0, 198, VW, 11); txt(shopMsg, VW / 2, 203.5, { al: 'center', size: 6.5, col: shopBad ? '#ff9a8a' : '#a4e86b', alpha: Math.min(1, shopMsgT * 2) }); }
+  }
+  function drawShopCard() {
+    const it = shopCard.it, col = RARITY_COL[it.rar], has = owned(it.id), o = cardOpts();
+    g.fillStyle = 'rgba(3,2,10,.85)'; g.fillRect(0, 0, VW, VH);
+    g.fillStyle = '#12102a'; g.fillRect(24, 8, 336, 200); g.fillStyle = col; g.fillRect(24, 8, 336, 1); g.fillRect(24, 207, 336, 1); g.fillRect(24, 8, 1, 200); g.fillRect(359, 8, 1, 200);
+    g.drawImage(itemIcon(it.id).c, 34, 18, 52, 52);
+    txt(LN(it.name), 96, 26, { size: 10, bold: true, col });
+    txt(LN(RARITY_NAME[it.rar]) + ' · ' + LN(TYPE_NAME[it.type]), 96, 40, { size: 6, col });
+    if (has) txt(isEq(it) ? sv('Equipped', 'Đang trang bị') : sv('Owned', 'Đã sở hữu'), 96, 54, { size: 7, col: '#a4e86b' });
+    else { drawCoinIc(99, 55); txt(it.gold + sv(' gold', ' vàng'), 106, 55, { size: 7, col: save.coins >= it.gold ? '#ffd34e' : '#ff9a8a' }); drawGemIc(172, 55); txt(it.gems + ' gem', 179, 55, { size: 7, col: save.inv.gems >= it.gems ? '#9ff0ff' : '#ff9a8a' }); }
+    txt(sv('What it does', 'Công dụng'), 34, 80, { size: 6.5, col: '#ffd34e', bold: true });
+    wrapText(LN(it.desc), 76).slice(0, 4).forEach((l, i) => txt(l, 34, 91 + i * 9, { size: 6.2 }));
+    txt(sv('How to use', 'Cách dùng'), 34, 131, { size: 6.5, col: '#6ee7f2', bold: true });
+    wrapText(howTo(it), 76).slice(0, 4).forEach((l, i) => txt(l, 34, 142 + i * 9, { size: 6.2, col: '#cfd6e6' }));
+    txt(sv('Gold: ', 'Vàng: ') + save.coins + '    ' + sv('Gems: ', 'Gem: ') + save.inv.gems, VW / 2, 178, { al: 'center', size: 6, col: '#8892aa' });
+    o.forEach((op, i) => {
+      const cx = VW / 2 + (i - (o.length - 1) / 2) * 84, on = i === shopCard.opt, bad = (op.k === 'gold' && save.coins < it.gold) || (op.k === 'gems' && save.inv.gems < it.gems);
+      g.fillStyle = on ? 'rgba(255,211,78,.22)' : 'rgba(255,255,255,.06)'; g.fillRect(cx - 38, 184, 76, 16);
+      g.fillStyle = on ? '#ffd34e' : '#434d6e'; g.fillRect(cx - 38, 184, 76, 1); g.fillRect(cx - 38, 199, 76, 1);
+      txt(optLabel(op, it), cx, 192, { al: 'center', size: 6.2, col: bad ? '#ff9a8a' : (on ? '#ffd34e' : '#e8eaf5'), bold: on });
+    });
+  }
