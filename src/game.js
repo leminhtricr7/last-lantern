@@ -1487,10 +1487,20 @@
     Snd.play('boom'); Q.shake = 1;
     emit(b.x + b.w / 2, b.y + b.h / 2, 40, { col: ['#fff', '#ffd34e', bpc()], sp0: 30, sp1: 160 });
     const who = b.who || 'quoc', lines = (FORM_LINES[b.id] || {})[idx];
-    if (b.id === 'quoc' && idx === 3) startScripted('quoc', ALLY_STORY, () => { applyForm(b, idx); spawnAllies(); });
-    else if (lines) startScripted(who, lines, () => applyForm(b, idx));
-    else applyForm(b, idx);
+    b.flash = 0; b.st = 'rec'; b.sk = null;
+    if (b.id === 'quoc' && idx === 3) startScripted('quoc', ALLY_STORY, () => formMorph(b, idx, true));
+    else if (lines) startScripted(who, lines, () => formMorph(b, idx));
+    else formMorph(b, idx);
     return true;
+  }
+  // transformation: the old body shakes, shrinks into swirling shadow, and the new form grows out of it
+  function formMorph(b, idx, allies) { b.morph = { t: 0, idx, allies, swapped: false }; b.invul = 99; b.st = 'rec'; b.flash = 0; if (b.id === 'quoc') Snd.devilRoar(0.8); else Snd.creature(Q.li, 'alert', true); }
+  function morphTick(b, dt) {
+    const m = b.morph; m.t += dt; Q.shake = Math.max(Q.shake, m.t < 1.1 ? 0.45 : 0.25);
+    const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+    for (let i = 0; i < 3; i++) { const a = Math.random() * 6.283, r = 30 + Math.random() * 40; emit(cx + Math.cos(a) * r, cy + Math.sin(a) * r * 0.8, 1, { col: ['#a15be0', '#14101e', bpc(), '#ff3a2a'], sp0: 0, sp1: 4, vx: -Math.cos(a) * r * 2.2, vy: -Math.sin(a) * r * 1.8, grav: 0, l0: 0.3, l1: 0.5 }); }
+    if (!m.swapped && m.t >= 1.1) { m.swapped = true; applyForm(b, m.idx); b.invul = 99; if (m.allies) spawnAllies(); emit(b.x + b.w / 2, b.y + b.h / 2, 40, { col: ['#14101e', '#a15be0', '#fff'], sp0: 40, sp1: 160 }); }
+    if (m.t >= 1.9) { b.morph = null; b.invul = 0.6; b.st = 'rec'; b.timer = 0.6; }
   }
   function miniDeath(b) {
     const m = b.mini; b.dead = true; b.hp = 0; Q.freeze = 0.2; Q.shake = 1; Snd.play('boom'); Snd.stop();
@@ -1717,6 +1727,7 @@
     b.t += dt; if (b.flash > 0) b.flash -= dt; if (b.shield > 0) b.shield -= dt; if (b.evCd > 0) b.evCd -= dt; if (b.invul > 0) b.invul -= dt;
     if (b.squashT > 0) b.squashT -= dt; if (b.kick > 0) b.kick -= dt; if (b.guard > 0) b.guard -= dt; if (b.revT > 0) b.revT -= dt; if (b.moveT > 0) b.moveT -= dt;
     b.fury = 1 + (1 - b.hp / (b.max || b.hp)) * 0.7;
+    if (b.morph) { morphTick(b, dt); return; }
     if (b.st === 'sleep') return;
     if (b.st === 'intro') { b.timer += dt; if (b.timer > 2.2) { b.st = 'wait'; b.timer = 0.8; Q.state = 'play'; } return; }
     const pct = b.hp / b.max, ph = pct < 0.33 ? 2 : (pct < 0.66 ? 1 : 0);
@@ -1823,6 +1834,7 @@
     if (b.squashT > 0) { const k = b.squashT / 0.22; sy *= 1 - 0.32 * k; sx *= 1 + 0.28 * k; }
     if (b.kick > 0) { const k = b.kick / 0.16; sx *= 1 + 0.12 * k; ox -= dir * 3 * k; }
     if (b.cloak) al = 0.1 + 0.07 * Math.sin(t * 9);
+    if (b.morph) { const mt = b.morph.t, k = mt < 1.1 ? 1 - 0.8 * (mt / 1.1) : 0.2 + 0.8 * Math.min(1, (mt - 1.1) / 0.8); sx *= k; sy *= k; if (mt < 1.1) { rot += Math.sin(mt * 40) * 0.1; ox += (Math.random() - 0.5) * 4; } aura = ['#a15be0', 0.9]; circle = true; }
     if (b.st === 'act' && b.sk === 'roar') { sy *= 1.08; sx *= 1.06; ox += (Math.random() - 0.5) * 3; aura = [bpc(), 0.6]; }
     if (b.guard > 0) { sx *= 1.05; sy *= 0.94; }
     return { sx, sy, rot, ox, oy, al, aura, circle };
