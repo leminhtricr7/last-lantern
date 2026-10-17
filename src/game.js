@@ -3309,6 +3309,7 @@
   // TEST MODE: top-up gives free gems so you can try the economy. For release, replace topUp() with a real
   // payment (Steam microtransactions via your server) and set TOPUP_TEST = false.
   const TOPUP_TEST = true;
+  SHOP_SHOW_STORY = true; // TEST BUILD: the Leek Blade can be taken from the shop without rescuing Lyra
   const SHOP_FREE = true; // TEST BUILD: everything in the shop is free. Set to false before selling the game.
   const TOPUP_PACKS = [{ gems: 60, vnd: '20.000đ', usd: '$0.99' }, { gems: 330, vnd: '99.000đ', usd: '$4.99' }, { gems: 700, vnd: '199.000đ', usd: '$9.99' }, { gems: 1500, vnd: '399.000đ', usd: '$19.99' }, { gems: 4000, vnd: '999.000đ', usd: '$49.99' }];
   const SH_TABS = [['sword', { en: 'Swords', vi: 'Kiếm' }], ['armor', { en: 'Armor', vi: 'Giáp' }], ['pet', { en: 'Pets', vi: 'Thú cưng' }], ['wpn', { en: 'Weapons', vi: 'Vũ khí' }], ['bag', { en: 'Inventory', vi: 'Kho đồ' }], ['topup', { en: 'Top-up', vi: 'Nạp' }]];

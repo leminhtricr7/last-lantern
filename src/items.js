@@ -131,7 +131,8 @@ const ARMOR_LOOK = {
 ].forEach(a => addItem({ id: a[0], type: 'wpn', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6] }));
 
 const ITEM_TABS = ['sword', 'armor', 'pet', 'wpn'];
-const shopList = type => ITEMS.filter(i => i.type === type && !i.starter && !i.story).sort((a, b) => a.tier - b.tier);
+let SHOP_SHOW_STORY = false; // test builds list the story blades (e.g. the Leek Blade) in the shop too
+const shopList = type => ITEMS.filter(i => i.type === type && !i.starter && (SHOP_SHOW_STORY || !i.story)).sort((a, b) => a.tier - b.tier);
 
 // ---------------- painters ----------------
 function swordPaint(P, o) {
