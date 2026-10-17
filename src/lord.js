@@ -132,4 +132,4 @@ function devilSprite(roar) {
   return (_cache[key] = paint(150, 128, P => lordPaint(sP(P, 2.7, 10, 30), roar ? { aura: true, flames: true, roar: true } : { aura: true }), '#0a0408'));
 }
 // small dialogue portrait (head and crown)
-NPC_PAINT.npc_quoc = [24, 26, P => lordPaint(sP(P, 1, -12, 13), { roar: false })];
+NPC_PAINT.npc_quoc = [24, 26, P => lordPaint(sP(P, 0.8, -7, 9), { roar: false })];

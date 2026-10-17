@@ -3,6 +3,11 @@ const http = require('http'), fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '..');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.ttf': 'font/ttf', '.json': 'application/json' };
 http.createServer((req, res) => {
+  if (req.method === 'POST' && req.url.indexOf('/save?name=') === 0) { // dev helper: store a PNG posted by the page into ./sheets
+    const name = path.basename(decodeURIComponent(req.url.split('=')[1])), dir = path.join(root, 'sheets'), chunks = [];
+    req.on('data', d => chunks.push(d)); req.on('end', () => { fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, name), Buffer.concat(chunks)); res.writeHead(200); res.end('ok'); });
+    return;
+  }
   let p = decodeURIComponent(req.url.split('?')[0]);
   if (p === '/') p = '/index.html';
   const f = path.join(root, p);
