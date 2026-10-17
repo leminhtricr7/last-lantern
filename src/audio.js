@@ -74,6 +74,9 @@ const Snd = (() => {
     relic() { [392, 523, 659, 784, 1047, 1319, 1568].forEach((f, i) => tone(f, 0.35, 'triangle', 0.16, 0, ac && ac.currentTime + i * 0.1)); [262, 330, 392].forEach(f => tone(f, 1.2, 'sine', 0.1, 0, ac && ac.currentTime + 0.3)); },
     buy() { tone(1319, 0.06, 'square', 0.1); tone(1760, 0.14, 'square', 0.1, 0, ac && ac.currentTime + 0.06); },
     thunder() { noise(1.4, 0.55, 50); tone(46, 1.2, 'sawtooth', 0.3, -20); noise(0.5, 0.4, 3000); },
+    poof() { noise(0.28, 0.2, 1800); tone(500, 0.25, 'sine', 0.1, 600); },
+    clang() { tone(1500, 0.08, 'square', 0.12, -400); tone(2200, 0.1, 'triangle', 0.08, -800); noise(0.05, 0.12, 4000); },
+    whoosh() { noise(0.3, 0.16, 600); tone(200, 0.3, 'triangle', 0.08, 300); },
     flap() { noise(0.22, 0.14, 180); tone(70, 0.22, 'sine', 0.12, -30); },
     breath() { noise(1.5, 0.3, 250); tone(110, 1.4, 'sawtooth', 0.12, -40); noise(0.6, 0.2, 2500); },
     flame() { noise(0.4, 0.2, 700); tone(220, 0.4, 'sawtooth', 0.08, 120); }
