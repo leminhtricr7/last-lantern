@@ -97,22 +97,22 @@ const NPC_PLAN = {
 };
 // puzzles per map, easy -> hard
 const PUZZLES = {
-  0: ['lever', 'rescue', 'bombwall'],
-  1: ['key', 'trial', 'lever', 'torches'],
-  2: ['torches', 'bombwall', 'multilever'],
-  3: ['timed', 'trial', 'key', 'bombwall'],
+  0: ['dragon', 'lever', 'rescue', 'trial', 'bombwall'],
+  1: ['key', 'lever', 'torches'],
+  2: ['torches', 'trial', 'bombwall', 'multilever'],
+  3: ['timed', 'key', 'bombwall'],
   4: ['seqtorch', 'multilever', 'timed'],
-  5: ['timed', 'bombwall', 'trial', 'seqtorch', 'key'],
+  5: ['dragon6', 'timed', 'bombwall', 'trial', 'seqtorch', 'key'],
   6: ['runes', 'seqtorch', 'trial', 'multilever', 'timed']
 };
-const TRIAL_WAVES = { 1: 2, 3: 3, 5: 3, 6: 4 };
+const TRIAL_WAVES = { 0: 2, 2: 3, 5: 4, 6: 5 };
 
 function genLevel(li) {
   const B = BIOMES[li], rnd = mulberry32(9001 + li * 7919);
   const R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
   const H = 15, W = B.len + 70;
   const grid = []; for (let y = 0; y < H; y++) grid.push(new Array(W).fill(' '));
-  const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], id: 0 };
+  const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], dragons: [], dark: [], creep: [], id: 0 };
   const set = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) grid[y][x] = c; };
   const col = (x, top) => { for (let y = top; y < H; y++) grid[y][x] = (B.ice && rnd() < 0.55) ? 'I' : '#'; };
   const solidCol = (x, top) => { for (let y = top; y < H; y++) grid[y][x] = '#'; };
@@ -129,9 +129,16 @@ function genLevel(li) {
     for (const e of c) { r -= e.w; if (r <= 0) return e.t; }
     return c[0].t;
   }
+  function variant() {
+    const r = rnd();
+    if (li >= 3 && r < 0.05 + 0.025 * li) return 'elite';
+    if (li >= 1 && r < 0.12 + 0.03 * li) return 'big';
+    if (r > 0.84) return 'small';
+    return null;
+  }
   function addEnemy(tx, ground) {
-    const t = pick();
-    if (FLY.has(t)) spawn(t, tx, ground - R(3, 5)); else spawn(t, tx, ground);
+    const t = pick(), v = variant();
+    if (FLY.has(t)) spawn(t, tx, ground - R(3, 5), { v }); else spawn(t, tx, ground, { v });
   }
   function coinsLine(tx, ty, n) { for (let i = 0; i < n; i++) spawn('coin', tx + i, ty); }
 
@@ -141,7 +148,7 @@ function genLevel(li) {
     for (let i = 0; i < n; i++) col(x + i, gy);
     for (let i = 0; i < n; i++) if (rnd() < 0.2) L.decor.push({ x: (x + i) * TS + R(0, 8), y: gy * TS, k: R(0, B.decor.length - 1) });
     if (!o.safe && n >= 5) {
-      const cnt = rnd() < 0.78 + d * 0.2 ? 1 + (d > 0.45 && rnd() < 0.6 ? 1 : 0) + (d > 0.8 && rnd() < 0.5 ? 1 : 0) + (n >= 9 && rnd() < 0.7 ? 1 : 0) : 0;
+      const cnt = rnd() < 0.78 + d * 0.2 ? 1 + (d > 0.45 && rnd() < 0.6 ? 1 : 0) + (d > 0.8 && rnd() < 0.5 ? 1 : 0) + (n >= 9 && rnd() < 0.7 ? 1 : 0) + (li >= 2 && rnd() < 0.35 ? 1 : 0) : 0;
       for (let c = 0; c < cnt; c++) addEnemy(x + R(2, n - 2), gy);
     }
     if (o.cp) { L.checkpoints.push({ x: (x + 2) * TS + 8, y: gy * TS, id: L.id++ }); }
@@ -230,16 +237,28 @@ function genLevel(li) {
     spawn('heart', x0 + 10, gy - 2);
     coinsLine(x0 + 14, gy - 2, 4);
   }
-  function pTrial() { // Mr Shorty Phong's trial: sealed arena, waves of monsters
-    const n = 42, x0 = pzFlat(n);
-    L.trials.push({ id: L.id++, lw: x0 + 8, rw: x0 + n - 6, trig: x0 + 10, gy, waves: TRIAL_WAVES[li] || 3 });
-    spawn('spiketrap', x0 + 17, gy, { w: 2, off: rnd() * 3 });
-    spawn('spiketrap', x0 + 26, gy, { w: 2, off: rnd() * 3 });
-    for (let i = 0; i < 3; i++) set(x0 + 20 + i, gy - 3, '=');
+  function pTrial() { // Mr Shorty Phong's trial: sealed arena, waves of monsters AND a torch puzzle to open the exit
+    const n = 46, x0 = pzFlat(n), cnt = li >= 5 ? 4 : 3, cs = perm(5).slice(0, cnt), seq = perm(cnt), rw = x0 + n - 5;
+    const gid = gateAt(rw, 'seq', { count: cnt, seq, seqColors: seq.map(t => cs[t]) });
+    L.trials.push({ id: L.id++, lw: x0 + 8, rw, trig: x0 + 10, gy, waves: TRIAL_WAVES[li] || 3, gate: gid });
+    spawn('tablet', x0 + 12, gy, { gate: gid });
+    for (let i = 0; i < cnt; i++) spawn('torch', x0 + 17 + i * 6, gy, { gate: gid, ci: cs[i], tid: i });
+    spawn('spiketrap', x0 + 15, gy, { w: 2, off: rnd() * 3 });
+    spawn('spiketrap', x0 + 30, gy, { w: 2, off: rnd() * 3 });
+    if (li >= 5) spawn('saw', x0 + 20, gy, { len: 12 });
+    for (let i = 0; i < 3; i++) { set(x0 + 14 + i, gy - 3, '='); set(x0 + 28 + i, gy - 3, '='); }
+  }
+  function pDragon(kind) {
+    const n = 50, x0 = pzFlat(n);
+    L.dragons.push({ id: L.id++, lw: x0 + 8, rw: x0 + n - 6, trig: x0 + 11, gy, kind });
+    for (let i = 0; i < 4; i++) { set(x0 + 16 + i, gy - 4, '='); set(x0 + 30 + i, gy - 4, '='); }
+    spawn('heart', x0 + 4, gy - 2);
   }
   function runPuzzle(t) {
     if (t === 'rescue') { pRescue(); return; }
     if (t === 'trial') { pTrial(); return; }
+    if (t === 'dragon') { pDragon('young'); return; }
+    if (t === 'dragon6') { pDragon('map6'); return; }
     if (t === 'lever') pLever(); else if (t === 'key') pKey();
     else if (t === 'torches') pTorches(li < 3 ? 2 : 3, false); else if (t === 'seqtorch') pTorches(li < 6 ? 3 : 4, true);
     else if (t === 'bombwall') pBombWall(); else if (t === 'timed') pTimed();
@@ -255,7 +274,7 @@ function genLevel(li) {
   function patrol() {
     const n = R(8, 12), x0 = x;
     flat(n, { safe: true });
-    const k = (li > 0 ? 2 : 1) + (rnd() < 0.45 ? 1 : 0);
+    const k = 2 + (rnd() < 0.45 ? 1 : 0) + (li >= 2 ? 1 : 0);
     for (let c = 0; c < k; c++) addEnemy(x0 + 2 + c * 3 + R(0, 1), gy);
   }
   function trapRun() {
@@ -379,7 +398,7 @@ function genLevel(li) {
   if (li === 0) spawn('pk', 14, gy, { what: 'dagger' });
   let cpNpcIdx = 0;
   const pzList = PUZZLES[li] || []; let pzIdx = 0;
-  const pzAt = pzList.map((_, i) => Math.floor(B.len * (0.14 + 0.7 * (i + 0.5) / pzList.length)));
+  const pzAt = pzList.map((t, i) => (t === 'dragon' && li === 0) ? 26 : Math.floor(B.len * (0.14 + 0.7 * (i + 0.5) / pzList.length)));
   let nextCp = 42, placed = 0;
   const shardAt = [0.2, 0.5, 0.76].map(f => Math.floor(B.len * f));
   while (x < B.len - 16) {
@@ -394,7 +413,7 @@ function genLevel(li) {
     else if (r < 0.54) chain();
     else if (r < 0.57) tower();
     else if (r < 0.60) drop();
-    else if (r < 0.74) patrol();
+    else if (r < 0.78) patrol();
     else if (r < 0.81 && li >= 2) { if (rnd() < 0.5 || !B.movers) mover(); else mover2(); }
     else if (r < 0.95) { if (li >= 1 && rnd() < 0.4) arena(); else trapRun(); }
     else flat(R(6, 10));
@@ -402,6 +421,13 @@ function genLevel(li) {
   { const ax = x; flat(plan.pre ? 16 : 8, { safe: true, cp: true, heart: true }); (plan.pre || []).forEach((w, i) => spawn('npc', ax + 3 + i * 2, gy, { who: w })); }
   gy = 10; flat(4, { safe: true }); // return to arena height (visual step handled by stairs guard)
   // make sure arena ground is continuous: previous ground may differ -> already flat() uses gy.
+  // ---- dark zones: every map has pitch-black stretches full of creepy things ----
+  { const zn = li >= 2 ? 3 : 2, groundRow = tx => { for (let y = 3; y < H - 2; y++) if (grid[y][tx] === '#' || grid[y][tx] === 'I') return y; return 10; };
+    for (let i = 0; i < zn; i++) {
+      const cx = Math.floor(B.len * (0.2 + 0.58 * (i + 0.5) / zn)), z = { x0: cx - 20, x1: cx + 20, a: Math.max(0.82, B.dark + 0.2) };
+      L.dark.push(z);
+      for (let tx = z.x0; tx < z.x1; tx += R(3, 6)) { const gr = groundRow(tx); if (grid[gr - 1][tx] === ' ') L.creep.push({ x: tx * TS + R(2, 12), y: gr * TS, k: R(0, 3) }); }
+    } }
   const ax0 = x;
   L.arena = { x0: ax0, x1: ax0 + 30, gy: 10 };
   for (let i = 0; i < 30; i++) col(ax0 + i, 10);

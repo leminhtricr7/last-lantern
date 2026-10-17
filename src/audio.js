@@ -74,6 +74,8 @@ const Snd = (() => {
     relic() { [392, 523, 659, 784, 1047, 1319, 1568].forEach((f, i) => tone(f, 0.35, 'triangle', 0.16, 0, ac && ac.currentTime + i * 0.1)); [262, 330, 392].forEach(f => tone(f, 1.2, 'sine', 0.1, 0, ac && ac.currentTime + 0.3)); },
     buy() { tone(1319, 0.06, 'square', 0.1); tone(1760, 0.14, 'square', 0.1, 0, ac && ac.currentTime + 0.06); },
     thunder() { noise(1.4, 0.55, 50); tone(46, 1.2, 'sawtooth', 0.3, -20); noise(0.5, 0.4, 3000); },
+    flap() { noise(0.22, 0.14, 180); tone(70, 0.22, 'sine', 0.12, -30); },
+    breath() { noise(1.5, 0.3, 250); tone(110, 1.4, 'sawtooth', 0.12, -40); noise(0.6, 0.2, 2500); },
     flame() { noise(0.4, 0.2, 700); tone(220, 0.4, 'sawtooth', 0.08, 120); }
   });
   function play(n) { if (ac && sfx[n]) sfx[n](); }
@@ -125,25 +127,26 @@ const Snd = (() => {
     b3: { f: 115, s: 0.65, type: 'sawtooth', wob: 40, wobHz: 7, noise: 0.12, dur: 1.1, vol: 0.2, lp: 700 },
     b4: { f: 170, s: 0.5, type: 'sawtooth', wob: 45, wobHz: 8, noise: 0.35, nHP: 800, dur: 1.2, vol: 0.18 },
     b5: { f: 60, s: 0.55, type: 'sawtooth', wob: 30, wobHz: 25, noise: 0.4, nHP: 100, dur: 1.2, vol: 0.24, lp: 450 },
+    bdragon: { f: 52, s: 0.5, type: 'sawtooth', wob: 45, wobHz: 7, noise: 0.5, nHP: 90, dur: 1.6, vol: 0.34, lp: 460 },
     b7: { f: 48, s: 0.55, type: 'sawtooth', wob: 38, wobHz: 9, noise: 0.45, nHP: 90, dur: 1.5, vol: 0.3, lp: 420 },
     b6: { f: 75, s: 0.5, type: 'sawtooth', wob: 55, wobHz: 6, noise: 0.3, nHP: 300, dur: 1.5, vol: 0.24, lp: 650 }
   };
   const CMAP = { slime: 'slime', iceslime: 'slime', shadeslime: 'slime', lavaslime: 'lavaslime', bat: 'bat', icebat: 'bat', firebat: 'bat', bee: 'bee', vulture: 'vulture', spider: 'spider', cavespider: 'spider', mummy: 'skel', burnt: 'skel', shadowskel: 'skel', skeleton: 'skel', scorpion: 'scorp', snowman: 'snow', fire: 'fire', ghost: 'ghost', knight: 'knight', beetle: 'beetle', sandbeetle: 'beetle', wisp: 'wisp', shadewisp: 'wisp', imp: 'imp', shadeimp: 'imp', shroom: 'shroom', zombie: 'zombie', lavablob: 'blob' };
   const lastV = {};
   // evt: idle | alert | hurt | die | attack
-  function creature(kind, evt, boss) {
+  function creature(kind, evt, boss, volf, pit) {
     if (!ac) return;
     const key = boss ? 'b' + kind : CMAP[kind];
     const b = CV[key]; if (!b) return;
     const now = ac.currentTime, lk = key + (evt === 'idle' ? 'i' : '');
     if (lastV[lk] && now - lastV[lk] < (evt === 'hurt' ? 0.12 : 0.35)) return;
     lastV[lk] = now;
-    let f0 = b.f * (0.93 + Math.random() * 0.14), f1 = f0 * b.s, dur = b.dur, vol = b.vol;
+    let f0 = b.f * (0.93 + Math.random() * 0.14) * (pit || 1), f1 = f0 * b.s, dur = b.dur, vol = b.vol * (volf === undefined ? 1 : volf) * 1.25;
     if (evt === 'hurt') { f0 *= 1.35; f1 = f0 * 0.7; dur *= 0.55; vol *= 1.1; }
     else if (evt === 'die') { f0 *= 0.95; f1 = f0 * 0.4; dur *= 1.7; vol *= 1.15; }
     else if (evt === 'alert') { f0 *= 1.1; dur *= 1.15; vol *= 1.15; }
     else if (evt === 'attack') { f0 *= 1.2; f1 = f0 * 0.8; dur *= 0.9; vol *= 1.1; }
-    else if (evt === 'idle') { vol *= 0.6; dur *= 0.9; }
+    else if (evt === 'idle') { vol *= 0.9; dur *= 0.9; }
     if (b.burst) {
       const n = b.burst + (evt === 'die' ? 3 : 0);
       for (let i = 0; i < n; i++) voice({ f0: f0 * (1 + i * 0.03), f1: f0 * 0.9, type: b.type, dur: Math.max(0.04, dur / (b.dur < 0.1 ? 1 : n)), vol, noise: b.noise, nHP: b.nHP, delay: i * (b.dur < 0.1 ? 0.07 : 0.09), wob: b.wob, wobHz: b.wobHz });
@@ -160,8 +163,18 @@ const Snd = (() => {
     dash: () => { voice({ f0: 260, f1: 520, type: 'triangle', dur: 0.12, vol: 0.08 }); },
     cheer: () => { voice({ f0: 400, f1: 700, type: 'triangle', dur: 0.2, vol: 0.1 }); voice({ f0: 500, f1: 900, type: 'triangle', dur: 0.25, vol: 0.1, delay: 0.15 }); }
   };
+  function whisper() {
+    if (!ac) return;
+    const t = ac.currentTime, src = ac.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 9;
+    bp.frequency.setValueAtTime(500 + Math.random() * 500, t); bp.frequency.linearRampToValueAtTime(900 + Math.random() * 1100, t + 1.5);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.16, t + 0.55); g.gain.exponentialRampToValueAtTime(0.001, t + 1.7);
+    src.connect(bp); bp.connect(g); g.connect(sfxG); src.start(t, Math.random() * 0.5); src.stop(t + 1.8);
+    voice({ f0: 105, f1: 66, type: 'sawtooth', dur: 1.6, vol: 0.05, wob: 18, wobHz: 5, lp: 380 });
+  }
+  function sting() { voice({ f0: 1900, f1: 520, type: 'square', dur: 0.28, vol: 0.05, wob: 160, wobHz: 38 }); voice({ f0: 300, f1: 120, type: 'sawtooth', dur: 0.4, vol: 0.08, lp: 600 }); }
   function hero(evt) { if (HV[evt]) HV[evt](); }
-  const NV = { lyra: ['triangle', 1100, 1700, 0.07], shorty: ['square', 340, 470, 0.05], quan: ['triangle', 380, 500, 0.06], quoc: ['sawtooth', 62, 105, 0.1], lila: ['sine', 720, 980, 0.07], bram: ['square', 130, 190, 0.06], gob: ['sawtooth', 380, 620, 0.06], angel: ['sine', 880, 1320, 0.07], smith: ['square', 95, 135, 0.07], wizard: ['triangle', 280, 520, 0.09], fairy: ['sine', 1500, 2200, 0.05] };
+  const NV = { dragon: ['sawtooth', 58, 96, 0.1], lyra: ['triangle', 1100, 1700, 0.07], shorty: ['square', 340, 470, 0.05], quan: ['triangle', 380, 500, 0.06], quoc: ['sawtooth', 62, 105, 0.1], lila: ['sine', 720, 980, 0.07], bram: ['square', 130, 190, 0.06], gob: ['sawtooth', 380, 620, 0.06], angel: ['sine', 880, 1320, 0.07], smith: ['square', 95, 135, 0.07], wizard: ['triangle', 280, 520, 0.09], fairy: ['sine', 1500, 2200, 0.05] };
   function blip(who) {
     if (!ac) return;
     const v = NV[who] || NV.lila, f = v[1] + Math.random() * (v[2] - v[1]);
@@ -207,5 +220,5 @@ const Snd = (() => {
       if (s % 2 === 1) noise(0.03, 0.05, 6000, t, musicG);
     }
   }
-  return { init, play, creature, hero, blip, music, stop, setVol, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
+  return { init, play, creature, hero, blip, whisper, sting, music, stop, setVol, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
 })();

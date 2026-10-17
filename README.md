@@ -73,6 +73,18 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 
 > Mr Shorty Phong, QuanSadBoy and Quoc are named after real friends who agreed to appear in the game - keep that permission in writing if you sell it.
 
+## Bosses, dragon & difficulty
+
+- **Boss fights are long** (roughly 1-3 minutes each, longer later), have **armor** (bombs and flames pierce it), **dodge** your attacks and use their own signature skills:
+  slime goo/splits, spider webs + ceiling ambush, golem crystal eruptions + shield (break it with a bomb), pharaoh curse (reversed controls) + sand tornado,
+  frost king ice cage + blizzard, magma titan lava columns + meteors + fire sweep, the Eclipse darkness + shadow clones + black hole.
+- **Ignarok the Ashwing** - a giant talking dragon. Map 1: fight it near the start, it flees at 25% health. Map 6: it returns in 3 forms (red, three-headed, shadow).
+- **Monsters** come in sizes: small (fast), big (tanky), elite (armored); later maps have more, faster and tougher enemies.
+- **Mr Shorty's trials** (maps 1, 3, 6, 7) now mix waves of monsters with a torch puzzle; reinforcements keep coming until you solve it.
+- **Every map has pitch-black stretches** with glowing eyes, watching shadows, fog, skulls and whispers.
+- **Ember shows emotions** (happy, angry, hurt, crying when almost dead).
+- **Test mode:** `UNLOCK_ALL = true` in `src/game.js` unlocks every map. Set it to `false` for release so each win unlocks the next map.
+
 ## Project layout
 
 - `src/art.js` — all pixel art is generated in code (sprites, tilesets, parallax backgrounds)

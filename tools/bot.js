@@ -1,5 +1,5 @@
 // Debug autoplayer. Load the game with ?debug, then eval this file in the console and call runBot(levelIndex, seconds).
-window.runBot = function (li, maxSec) {
+window.runBot = function (li, maxSec, god) {
   LL.save.cleared = [0, 1, 2, 3, 4, 5]; LL.startLevel(li);
   const dt = 0.01, TS = 16; let lastX = -1, stuck = 0, deaths = 0, stucks = [], atkT = 0, bestX = 0, t = 0;
   const deathAt = [];
@@ -7,16 +7,18 @@ window.runBot = function (li, maxSec) {
     const Q = LL.Q, P = Q.P, a = LL.act; t += dt;
     if (Q.gates && Q.gates.some(gd => !gd.open) && Q.state === 'play') LL.solveAll();
     P.keys = 0;
+    if (god) { P.hp = 9999; P.inv = Math.max(P.inv, 0.3); }
     a.left = false; a.right = true; a.jump = false; a.jumpP = false; a.atkP = false; a.dashP = false; a.down = false; a.okP = false; a.pauseP = false; a.up = false; a.backP = false;
     if (Q.state === 'talk' || Q.state === 'reward' || Q.state === 'tablet' || Q.state === 'shop') { a.okP = true; a.right = false; LL.updatePlay(dt); LL.clearPressed(); continue; }
     if (Q.state === 'intro') { a.okP = true; LL.updatePlay(dt); LL.clearPressed(); continue; }
     if (Q.state === 'dead') { deaths++; deathAt.push(Math.round(P.x / TS)); a.okP = true; for (let k = 0; k < 100; k++) LL.updatePlay(dt); LL.updatePlay(dt); LL.clearPressed(); continue; }
     if (Q.state === 'complete') return { li, done: true, t: Math.round(t), deaths, deathAt, stucks };
+    if (Q.dragon && !Q.dragon.dead && Q.state === 'play') { a.right = false; if (t % 1 < dt) LL.hurtBoss(Q.dragon, 60); LL.updatePlay(dt); LL.clearPressed(); continue; }
     if (Q.boss && Q.arenaSealed && !Q.bossDead) {
       a.right = false; const b = Q.boss;
       if (Math.abs(b.x - P.x) > 30) { a.right = b.x > P.x; a.left = b.x < P.x; }
       atkT -= dt; if (atkT <= 0) { a.atkP = true; atkT = 0.3; }
-      if (b.st !== 'intro' && b.st !== 'sleep' && t % 2 < dt) LL.hurtBoss(b, 3);
+      if (b.st !== 'intro' && b.st !== 'sleep' && t % 1 < dt) LL.hurtBoss(b, 40);
       LL.updatePlay(dt); LL.clearPressed(); continue;
     }
     const fy = Math.floor((P.y + P.h) / TS);
