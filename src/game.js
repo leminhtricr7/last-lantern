@@ -116,8 +116,14 @@
   let storyLevel = 0;
   const MAP_STORY = {
     0: [
-      { en: 'VERDANT MEADOW. The grass is still green here, but it has stopped swaying. Even the bees fly low and afraid.', vi: 'ĐỒNG CỎ XANH. Cỏ vẫn xanh nhưng đã thôi lay động. Ngay cả đàn ong cũng bay thấp, run rẩy.' },
-      { en: 'Somewhere ahead a girl is singing, soft and shaky, from inside a cage. Her song is the only warm thing left in the meadow.', vi: 'Đâu đó phía trước, một cô gái đang hát khe khẽ, run run, từ trong một chiếc lồng. Bài hát của cô là thứ ấm áp duy nhất còn sót lại trên đồng cỏ.' }
+      { en: 'VERDANT MEADOW. Ember walks out of the village at dawn that is not a dawn. The sky is the colour of old ash.', vi: 'ĐỒNG CỎ XANH. Ember bước ra khỏi làng vào một buổi bình minh không còn là bình minh. Bầu trời mang màu tro cũ.' },
+      { en: 'The meadow was once the happiest place in Aurelia. Children raced kites here. Now the grass lies flat and the kites hang torn in the branches.', vi: 'Đồng cỏ từng là nơi vui nhất Aurelia. Bọn trẻ thả diều ở đây. Giờ cỏ rạp xuống và những chiếc diều rách treo trên cành cây.' },
+      { en: 'Ember grips the rusty sword Lila gave him. His lantern shakes in his other hand. He is afraid, and he walks on anyway.', vi: 'Ember siết thanh kiếm gỉ Lila trao. Chiếc đèn rung trong tay còn lại. Cậu sợ, nhưng vẫn bước tiếp.' },
+      { en: 'Slimes ooze across the path. Bees buzz with a cold, angry hum. Quoc\'s shadow has soured everything that once was sweet.', vi: 'Slime trườn qua lối đi. Ong vo ve bằng tiếng ù lạnh lẽo, giận dữ. Bóng của Quoc đã làm chua mọi thứ từng ngọt ngào.' },
+      { en: 'Then, from far away, a voice. A girl, singing. Her song is thin and trembling, but it is the first warm sound Ember has heard in three nights.', vi: 'Rồi từ xa vọng lại một giọng hát. Một cô gái. Tiếng hát mỏng manh, run rẩy, nhưng là âm thanh ấm áp đầu tiên Ember nghe được sau ba đêm.' },
+      { en: 'Lila\'s words come back to him: \"A small flame beats a big darkness, if it keeps burning.\" He lifts the lantern higher.', vi: 'Lời Lila vang lại: \"Ngọn lửa nhỏ thắng bóng tối lớn, nếu nó cứ cháy.\" Cậu giơ chiếc đèn lên cao hơn.' },
+      { en: 'Above the meadow, a shape with great ash-grey wings circles slowly. Ignarok the Ashwing is hunting for the last flame in Aurelia.', vi: 'Trên đồng cỏ, một bóng đen với đôi cánh xám tro khổng lồ lượn vòng chậm rãi. Ignarok Cánh Tro đang săn ngọn lửa cuối cùng của Aurelia.' },
+      { en: 'Find the singer. Survive the Ashwing. Take the first fragment of the Sun. Your journey begins now, Ember.', vi: 'Hãy tìm người hát. Sống sót trước Cánh Tro. Lấy mảnh Mặt Trời đầu tiên. Hành trình của bạn bắt đầu từ bây giờ, Ember.' }
     ],
     1: [
       { en: 'WHISPERING FOREST. Here the trees listen. Old mechanisms of the Lanternbearers still sleep among the roots.', vi: 'RỪNG THÌ THẦM. Ở đây cây cối biết lắng nghe. Những cơ quan cổ của các Người Mang Đèn vẫn ngủ yên giữa rễ cây.' },
@@ -146,9 +152,17 @@
     ]
   };
   const ENDING = [
-    { en: 'The seventh fragment trembles in your hands... and the Eclipse screams, and breaks.', vi: 'Mảnh thứ bảy rung lên trong tay bạn... Nhật Thực gào thét rồi vỡ tan.' },
-    { en: 'Seven fragments rise into the sky. They find each other. They burn.', vi: 'Bảy mảnh bay lên trời. Chúng tìm thấy nhau. Chúng bừng cháy.' },
-    { en: 'Dawn breaks over Aurelia. Your little lantern flickers, and goes quiet — its work is done.', vi: 'Bình minh ló rạng trên Aurelia. Ngọn đèn nhỏ của bạn chập chờn rồi lặng đi — nhiệm vụ đã xong.' },
+    { en: 'The Shadow Citadel trembles. The seventh fragment burns in Ember\'s hand, brighter than anything he has ever held.', vi: 'Thành Trì Bóng Đêm rung chuyển. Mảnh thứ bảy cháy trong tay Ember, sáng hơn bất cứ thứ gì cậu từng cầm.' },
+    { en: 'The Eclipse screams. For a heartbeat it is no longer a hunger, only a shadow of something that was once lonely and afraid.', vi: 'Nhật Thực gào thét. Trong một nhịp tim, nó không còn là cơn đói, chỉ còn là cái bóng của thứ từng cô đơn và sợ hãi.' },
+    { en: 'The Eclipse breaks. The darkness pours out of the sky like water out of a cracked bowl, and the stars come back behind it.', vi: 'Nhật Thực vỡ tan. Bóng tối đổ khỏi bầu trời như nước chảy khỏi chiếc bát nứt, và các vì sao hiện về phía sau nó.' },
+    { en: 'Seven fragments rise out of the ruins. They find each other. They turn, slowly, around a place in the sky where the Sun used to be.', vi: 'Bảy mảnh vỡ bay lên từ đống đổ nát. Chúng tìm thấy nhau. Chúng xoay chậm quanh nơi Mặt Trời từng ngự trị.' },
+    { en: 'They join with a sound like a thousand bells. The Sun is whole again, and it burns.', vi: 'Chúng hợp lại với âm thanh như ngàn chiếc chuông. Mặt Trời nguyên vẹn trở lại, và nó bừng cháy.' },
+    { en: 'Dawn breaks over Aurelia. In the village, every lantern lights by itself, one after another, all the way to the sea.', vi: 'Bình minh ló rạng trên Aurelia. Trong làng, mọi chiếc đèn tự thắp sáng, cái này đến cái khác, cho tới tận biển.' },
+    { en: 'Lila runs through the square laughing. Captain Bram takes off his helmet. Princess Lyra stands on the meadow and sings, and this time the whole world sings with her.', vi: 'Lila chạy qua quảng trường, cười vang. Đội trưởng Bram bỏ mũ giáp. Công chúa Lyra đứng trên đồng cỏ cất tiếng hát, và lần này cả thế giới hát cùng cô.' },
+    { en: 'Even QuanSadBoy closes his thick book and smiles for the first time. Mr Shorty Phong, from the top of a tree, sulks that he did not win. Then, quietly, he waves.', vi: 'Ngay cả QuanSadBoy cũng gấp cuốn sách dày lại và mỉm cười lần đầu tiên. Mr Shorty Phong, từ trên ngọn cây, hờn dỗi vì không thắng. Rồi lặng lẽ vẫy tay.' },
+    { en: 'And Ember? His little lantern flickers in the sunlight. It does not need to burn so hard anymore. It dims, softly, like a friend finally allowed to rest.', vi: 'Còn Ember? Chiếc đèn nhỏ chập chờn trong nắng. Nó không cần cháy gắt như trước nữa. Nó dịu đi, nhẹ nhàng, như một người bạn cuối cùng được nghỉ ngơi.' },
+    { en: 'Ember sets it down on the windowsill of his grandmother\'s house. The light of the Sun falls on it, and for a moment it seems to glow back.', vi: 'Ember đặt nó lên bệ cửa sổ nhà bà. Ánh sáng Mặt Trời rọi xuống, và trong khoảnh khắc nó dường như sáng đáp lại.' },
+    { en: 'The last Lanternbearer has done what no one thought possible. A small flame, and a stubborn heart.', vi: 'Người Mang Đèn cuối cùng đã làm điều không ai tin nổi. Một ngọn lửa nhỏ, và một trái tim bướng bỉnh.' },
     { en: 'Thank you, Ember.', vi: 'Cảm ơn bạn, Ember.' }
   ];
 
@@ -284,9 +298,11 @@
   };
   for (const k in DLG3) DLG[k] = Object.assign(DLG[k] || {}, DLG3[k]);
   const RESCUE = [
-    { en: 'You... you came for me? Thank you! I was locked in that cage when the Sun shattered.', vi: 'Bạn... bạn đến cứu mình sao? Cảm ơn bạn! Mình bị nhốt trong chiếc lồng này từ lúc Mặt Trời vỡ.' },
-    { en: 'Please take this - my leek! It sings when it shines. It will be your sword now.', vi: 'Bạn hãy nhận lấy - cây hành của mình! Nó hát mỗi khi phát sáng. Từ giờ nó là thanh kiếm của bạn.' },
-    { en: 'Sing with the light, Ember! La la laaa~ ♪', vi: 'Hãy hát cùng ánh sáng nhé, Ember! La la laaa~ ♪' }
+    { en: 'You... you came for me? The cage is open! Oh, thank the light!', vi: 'Bạn... bạn đến cứu mình sao? Lồng mở rồi! Ôi, tạ ơn ánh sáng!' },
+    { en: 'I am Lyra, Princess of the Singing Meadow. When the Sun shattered, Quoc\'s minions locked me up to silence my song.', vi: 'Mình là Lyra, công chúa của Đồng Cỏ Hát Ca. Khi Mặt Trời vỡ, thuộc hạ của Quoc nhốt mình lại để dập tắt bài hát.' },
+    { en: 'My song is the only thing that makes the leek-blade shine. It is a royal treasure, and it has waited for a Lanternbearer.', vi: 'Bài hát của mình là thứ duy nhất làm cây kiếm hành phát sáng. Nó là bảo vật hoàng gia, và đã chờ một Người Mang Đèn.' },
+    { en: 'Please take it! Hold it high and it will sing with your flame. It is stronger than your rusty sword, and it will grow brighter with every fragment you find.', vi: 'Xin hãy nhận lấy! Giơ cao lên và nó sẽ hát cùng ngọn lửa của bạn. Nó mạnh hơn thanh kiếm gỉ, và sẽ sáng hơn sau mỗi mảnh vỡ bạn tìm được.' },
+    { en: 'I will not forget this, Ember. Whenever you are tired, listen... I will sing for you. La la laaa~ ♪', vi: 'Mình sẽ không quên ơn này, Ember. Mỗi khi mệt mỏi, hãy lắng nghe... mình sẽ hát cho bạn. La la laaa~ ♪' }
   ];
   const TRIAL = {
     0: { intro: [
@@ -1444,7 +1460,7 @@
 
   // ===================== DRAGON =====================
   const dc = d => ({ x: d.x + d.w / 2, y: d.y + d.h / 2 });
-  const dHover = d => d.tr.gy * TS - 50 - d.h * 0.45, dLow = d => d.tr.gy * TS - 24;
+  const dHover = d => d.tr.gy * TS - (d.def.kind === 'young' ? 30 : 50) - d.h * (d.def.kind === 'young' ? 0.28 : 0.45), dLow = d => d.tr.gy * TS - 24;
   function dMove(d, tx, ty, k, dt) { const f = Math.min(1, k * dt); d.x += (tx - d.w / 2 - d.x) * f; d.y += (ty - d.h / 2 - d.y) * f; }
   function dMouth(d) { return { x: d.x + d.w / 2 + d.dir * d.w * 0.46, y: d.y + d.h * 0.4 }; }
   function dFire(d, a, sp, o) { const m = dMouth(d); firePr(m.x, m.y, Math.cos(a) * sp, Math.sin(a) * sp, Object.assign({ boss: true, fl: true, silent: true, life: 0.85, col: '#ff9a2a' }, o || {})); }
@@ -1561,7 +1577,7 @@
       case 'flee': d.timer -= dt; d.x += 200 * dt; d.y -= 140 * dt; if (d.timer <= 0) { finishDragon(d); return; } break;
     }
     if (d.st !== 'flee' && d.st !== 'enter') { d.x = clamp(d.x, (tr.lw + 1) * TS, tr.rw * TS - d.w); d.y = clamp(d.y, Q.cam.y - 30, tr.gy * TS - d.h / 2 - 2); }
-    if (!d.hide && d.st !== 'enter' && d.st !== 'talk' && ov(P, { x: d.x + 6, y: d.y + 4, w: d.w - 12, h: d.h - 8 })) hurtPlayer(d.def.kind === 'young' ? 1 : 2, c.x);
+    if (!d.hide && d.st !== 'enter' && d.st !== 'talk' && ov(P, { x: d.x + 6, y: d.y + 4, w: d.w - 12, h: d.h - 8 }) && (d.def.kind !== 'young' || (d.st === 'act' && d.sk === 'dive'))) hurtPlayer(d.def.kind === 'young' ? 1 : 2, c.x);
   }
   function drawDragon(camX, camY) {
     const d = Q.dragon; if (!d || d.hide) return;
@@ -2373,11 +2389,11 @@
       else if (pz.type === 'tablet') drawSpr(g, icon('tablet'), x, y, false);
       else if (pz.type === 'cage') {
         const sp = npcSpr('npc_lyra_leek'); drawSpr(g, sp, x, y - 1 + Math.round(Math.sin(Q.t * 2) * 0.6), false, false);
-        drawSpr(g, npcSpr('cage'), x, y + 1, false);
-        if (Q.ents.some(e => !e.dead && e.grp === pz.grp)) { g.fillStyle = '#e0453a'; g.fillRect(x - 1, y - 52, 3, 7); g.fillRect(x - 1, y - 43, 3, 3); }
+        g.globalAlpha = 0.5; drawSpr(g, npcSpr('cage'), x, y + 1, false); g.globalAlpha = 1;
+        if (Q.ents.some(e => !e.dead && e.grp === pz.grp)) { g.fillStyle = '#e0453a'; g.fillRect(x - 1, y - 48, 3, 7); g.fillRect(x - 1, y - 39, 3, 3); }
       }
       else if (pz.type === 'rune') drawSpr(g, icon('rune', pz.ci, pz.lit ? 1 : 0), x, y + 1, false);
-      if (Q.nearPz === pz && Q.state === 'play') txt(pz.type === 'torch' ? T('light') : (pz.type === 'tablet' ? T('read') : (pz.type === 'cage' ? T('free') : T('use'))), x, y - (pz.type === 'cage' ? 56 : 26), { al: 'center', size: 6, col: '#ffd34e' });
+      if (Q.nearPz === pz && Q.state === 'play') txt(pz.type === 'torch' ? T('light') : (pz.type === 'tablet' ? T('read') : (pz.type === 'cage' ? T('free') : T('use'))), x, y - (pz.type === 'cage' ? 52 : 26), { al: 'center', size: 6, col: '#ffd34e' });
     }
     for (const gd of Q.gates) {
       if (gd.open && gd.need !== 'timed') continue;
@@ -2706,7 +2722,7 @@
   }
   function drawHeldSword(sw, x, bot) {
     const P = Q.P, f = P.face, hx = x + f * 3, hy = bot - 9, glow = swordGlow(sw.id), L = SWORD_LOOK[sw.id] || SWORD_LOOK.iron, pulse = 0.6 + Math.sin(Q.t * 6) * 0.25;
-    const swinging = P.atk > 0 && P.sw === sw, rad = Math.round(L.len * 0.8 + 6);
+    const SC = sw.id === 'leek' ? 1 : 0.7, swinging = P.atk > 0 && P.sw === sw, rad = Math.round((L.len * 0.8 + 6) * SC);
     let ang;
     if (swinging) { const t = 1 - P.atk / 0.2; ang = P.atkDown ? 1.5 : lerp(-1.5, 1.0, t); } else ang = -2.15;
     const tipx = hx + Math.cos(ang) * rad * 0.8 * f, tipy = hy + Math.sin(ang) * rad * 0.8;
@@ -2723,7 +2739,7 @@
     } else if (swinging && P.atkDown) {
       g.fillStyle = L.ed; for (let i = 0; i < 6; i++) { const a = Math.PI * (0.15 + 0.7 * (i / 5)); g.fillRect(Math.round(x + Math.cos(a) * 12 * f), Math.round(bot + Math.sin(a) * 12 - 2), 2, 2); }
     }
-    g.save(); g.translate(hx, hy); g.scale(f, 1); g.rotate(ang);
+    g.save(); g.translate(hx, hy); g.scale(f, 1); g.rotate(ang); g.scale(SC, SC);
     if (sw.id === 'leek') { const lk = leekSprite(); g.drawImage(lk.c, -1, -lk.h / 2); } else { const sp = swordSprite(sw.id); g.drawImage(sp.c, -1, -8); }
     g.restore();
     if (glow && Math.random() < 0.35) emit(P.x + 4 + Math.cos(ang) * rad * 0.8 * f + rr(-6, 6), P.y + 5 + Math.sin(ang) * rad * 0.8 + rr(-6, 6), 1, { col: [L.ed, glow, '#fff'], sp0: 2, sp1: 10, grav: -12, l0: 0.3, l1: 0.7 });
@@ -2895,7 +2911,8 @@
       g.globalCompositeOperation = 'lighter';
       for (let r = 70; r > 10; r -= 12) { g.globalAlpha = 0.05 * a; disc(g, VW / 2, 96, Math.round(r + pulse * 3), '#6effaa'); }
       g.globalCompositeOperation = 'source-over'; g.globalAlpha = a;
-      g.save(); g.translate(VW / 2, 96); g.rotate(-0.5 + Math.sin(Q.stateT * 2) * 0.1); g.scale(3, 3); g.drawImage(lk.c, -lk.w / 2, -lk.h / 2); g.restore(); g.globalAlpha = 1;
+      g.save(); g.translate(VW / 2 + 36, 92); g.rotate(-0.5 + Math.sin(Q.stateT * 2) * 0.1); g.scale(3, 3); g.drawImage(lk.c, -lk.w / 2, -lk.h / 2); g.restore(); g.globalAlpha = 1;
+      drawSpr(g, npcSpr('npc_lyra'), VW / 2 - 62, 126 + Math.round(Math.sin(Q.stateT * 3)), false, false, 3, 3, a);
       for (let i = 0; i < 10; i++) { const an = Q.stateT * 1.5 + i * 0.63, rd = 50 + Math.sin(Q.stateT * 3 + i) * 8; g.fillStyle = i % 2 ? '#c8ffd8' : '#6ee7b0'; g.fillRect(Math.round(VW / 2 + Math.cos(an) * rd), Math.round(96 + Math.sin(an) * rd * 0.6), 2, 2); }
       txt(T('leekT'), VW / 2, 38, { al: 'center', size: 13, bold: true, col: '#a4ffc0', alpha: a });
       txt(LN(LYRA_NAME) + ' - ' + (save.lang === 'vi' ? 'Kiếm Hành Lá' : 'Leek Blade'), VW / 2, 150, { al: 'center', size: 9, bold: true, alpha: a });
@@ -3215,7 +3232,7 @@
   function updateStory(dt) {
     storyT += dt;
     const full = storyList[storyPage][save.lang].length;
-    if (act.okP) { if (storyT * 40 < full) storyT = 999; else { storyPage++; storyT = 0; if (storyPage >= storyList.length) { if (storyList === STORY) { mapSel = 0; startLevelFade(0); } else if (storyList === ENDING) { toScene('title'); } else startLevelFade(storyLevel); } } }
+    if (act.okP) { if (storyT * 40 < full) storyT = 999; else { storyPage++; storyT = 0; if (storyPage >= storyList.length) { if (storyList === STORY) { mapSel = 0; save.seen = { 0: 1 }; writeSave(); storyLevel = 0; storyList = MAP_STORY[0]; storyPage = 0; storyT = 0; } else if (storyList === ENDING) { toScene('title'); } else startLevelFade(storyLevel); } } }
     if (act.backP && storyList === STORY) { startLevelFade(0); } else if (act.backP && storyList !== ENDING) startLevelFade(storyLevel);
   }
   function startLevelFade(li) { fadeTo = 'play:' + li; fade = 0; }

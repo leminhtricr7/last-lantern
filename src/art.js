@@ -783,6 +783,18 @@ function icon(name, a, b) {
 }
 
 // ---------- story characters (painted) ----------
+// scale a painter down so a sprite drawn on a big grid comes out smaller (chibi princess)
+function scaledP(P, k) {
+  const r = v => Math.round(v * k), m = v => Math.max(1, Math.round(v * k));
+  return {
+    px: (a, b, c) => P.px(r(a), r(b), c), rect: (a, b, w, h, c) => P.rect(r(a), r(b), m(w), m(h), c),
+    ell: (cx, cy, rx, ry, c) => P.ell(r(cx), r(cy), m(rx), m(ry), c),
+    tri: (a, b, c, d, e, f, col) => P.tri(r(a), r(b), r(c), r(d), r(e), r(f), col),
+    line: (a, b, c, d, col, t) => P.line(r(a), r(b), r(c), r(d), col, t ? m(t) : 1),
+    poly: (pts, col, t) => P.poly(pts.map(p => [r(p[0]), r(p[1])]), col, t),
+    both: f => P.both(f)
+  };
+}
 function lyraPaint(P, leek) {
   // Princess Lyra: original design - long wavy aqua hair, golden tiara, flowing white-and-azure ball gown
   const H = '#46c9d6', HD = '#2a9aae', HL = '#b5f5f2', SK = '#ffe4d6', G = '#ffd34e', GD = '#c89a1c', DR = '#f4fbff', DB = '#5aa8e8', DD = '#3a78c8';
@@ -817,8 +829,8 @@ function lyraPaint(P, leek) {
 }
 const NPC_PAINT = {
   // Princess Lyra: original aqua-haired princess in a gown. npc_lyra = free, npc_lyra_leek = caged (holding her leek)
-  npc_lyra: [32, 38, P => lyraPaint(P, false)],
-  npc_lyra_leek: [32, 38, P => lyraPaint(P, true)],
+  npc_lyra: [21, 25, P => lyraPaint(scaledP(P, 0.62), false)],
+  npc_lyra_leek: [21, 25, P => lyraPaint(scaledP(P, 0.62), true)],
   // Mr Shorty Phong: short, dapper villain with top hat, monocle, curled moustache, cane
   npc_shorty: [18, 20, P => {
     P.rect(5, 0, 8, 6, 'k'); P.rect(5, 4, 8, 1, 'r'); P.rect(3, 6, 12, 2, 'k'); P.rect(6, 1, 1, 3, 'D');
