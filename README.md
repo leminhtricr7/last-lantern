@@ -66,7 +66,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 ## Story characters
 
 - **Princess Lyra** (map 1) is locked in a cage guarded by monsters. Defeat the guards, free her, and she gives you her **glowing Leek Blade** - your new sword
-  (+1 damage, longer reach, green glow and sparkles). She cheers you on in maps 4, 6 and 7 (restores your hearts).
+  (+1 damage, longer reach, green glow). Special: every swing shoots 3 light beams (lights dark maps, long range); a hit heals 1 heart (once per 5s) and stuns the target for 3s; any monster or boss under 20% health is finished by a leek tornado. She cheers you on in maps 4, 6 and 7 (restores your hearts).
 - **Mr Shorty Phong** (villain) forces a **Trial** on you in maps 2, 4, 6 and 7: the arena seals and waves of monsters spawn; survive to win hearts, coins and a bomb.
 - **QuanSadBoy** (sad bookworm wizard) helps a lot in maps 2 and 3 with advice and free supplies.
 - **Quoc the Devil** - after every map the screen darkens and you see the giant devil screaming at his minions (Shorty and an imp). Press Enter to advance.

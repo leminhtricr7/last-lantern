@@ -1141,7 +1141,7 @@
     const P = Q.P, cx = Q.cam.x + VW / 2;
     for (const e of Q.ents) {
       if (e.dead) continue;
-      const dt = dtG * (e.slowT > 0 ? 0.5 : 1);
+      const dt = e.stunT > 0 ? 0 : dtG * (e.slowT > 0 ? 0.5 : 1);
       if (Math.abs(e.x - cx) > 260) continue;
       e.t += dt; if (e.flash > 0) e.flash -= dt;
       if (e.hitT > 0) e.hitT -= dt; if (e.kickT > 0) e.kickT -= dt; if (e.landT > 0) e.landT -= dt;
@@ -1228,7 +1228,7 @@
       }
       if (e.onGround && !wasG && pvy0 > 120 && !e.fly) { e.landT = 0.2; emit(e.x + e.w / 2, e.y + e.h, 4, { col: '#cfd6e6', sp0: 15, sp1: 45, vy: -10, grav: 40, l0: 0.15, l1: 0.3 }); }
       // contact
-      if (!e.dead && !e.hid && (c.ai !== 'blob' || e.st === 'up') && ov(P, { x: e.x + 1, y: e.y + 1, w: e.w - 2, h: e.h - 2 })) hurtPlayer(e.dmg || 1, e.x + e.w / 2);
+      if (!e.dead && !e.hid && !(e.stunT > 0) && (c.ai !== 'blob' || e.st === 'up') && ov(P, { x: e.x + 1, y: e.y + 1, w: e.w - 2, h: e.h - 2 })) hurtPlayer(e.dmg || 1, e.x + e.w / 2);
     }
     Q.ents = Q.ents.filter(e => !e.dead);
   }
@@ -1876,7 +1876,7 @@
     return null;
   }
   function initGear() {
-    Q.G = { shT: 0, regT: 0, petT: 0, flash: 0, slowT: 0, later: [], bolts: [], holes: [], god: null, dr: null, pet: null, hc: {}, kills: 0, half: 0, auraT: 0, rvSw: false, rvPet: false, rings: [] };
+    Q.G = { shT: 0, regT: 0, petT: 0, flash: 0, slowT: 0, later: [], bolts: [], holes: [], god: null, dr: null, pet: null, hc: {}, kills: 0, half: 0, auraT: 0, rvSw: false, rvPet: false, rings: [], leekHeal: 0, torn: [] };
     Q.P.wcd = [0, 0]; Q.P.wmax = [1, 1]; Q.P.sw = null;
     if (aSt('shieldT') || petRole() === 'shield') Q.P.shield = false;
   }
@@ -1936,10 +1936,12 @@
     P.sw = it; P.atk = 0.2; P.atkCd = 0.27 * (st.cd || 1); P.atkHit = new Set(); P.atkDown = !P.onGround && act.down;
     Snd.play('slash'); if (Math.random() < 0.6) Snd.hero('attack');
     if (hasRelic(5) && !P.atkDown) { Snd.play('flame'); Q.fps.push({ t: 'wave', x: P.x + 4 + f * 10, y: P.y + 7, vx: f * 150, vy: 0, g: 0, life: 0.55, hit: new Set() }); }
+    if (st.beam3 && !P.atkDown) { Snd.play('whoosh'); for (const an of [-0.16, 0, 0.16]) shootG({ x: P.x + 4 + f * 10, y: P.y + 6, vx: f * Math.cos(an) * 250, vy: Math.sin(an) * 250, life: 0.85, dmg: Math.max(1, Math.round((baseDmg() + st.dmg) * 0.5)), thru: true, pierceN: 2, shape: 'beam', col: '#a4ffc0', sz: 3, f, quiet: true }); }
     if (st.beam && !P.atkDown) { Snd.play('whoosh'); shootG({ x: P.x + 4 + f * 10, y: P.y + 6, vx: f * 270, vy: 0, life: 0.55, dmg: Math.max(2, Math.round((baseDmg() + st.dmg) * 0.6)), thru: true, pierceN: st.beam, shape: 'beam', col: it.id === 'sun' ? '#ffe08a' : '#fff6c0', sz: 3, f, quiet: true }); }
   }
   function swordHitFx(e, st, id, dealt) {
     const P = Q.P, G = Q.G, f = P.face, n = G.hc[id] = (G.hc[id] || 0) + 1;
+    if (st.leek) leekPower(e);
     if (st.slow) e.slowT = Math.max(e.slowT || 0, st.slow);
     if (st.burn) e.burnT = Math.max(e.burnT || 0, st.burn);
     if (st.poison) { e.poisonT = 4; e.poisonN = Math.min(4, (e.poisonN || 0) + 1); }
@@ -1947,6 +1949,19 @@
     if (st.wind && n % st.wind === 0) { Snd.play('whoosh'); shootG({ x: P.x + 4 + f * 8, y: P.y + 6, vx: f * 240, vy: 0, life: 0.7, dmg: Math.max(2, Math.round(dealt)), thru: true, pierceN: 3, shape: 'wind', col: '#dff6ff', sz: 5, f, quiet: true }); }
     if (st.ls && n % st.ls === 0 && P.hp < maxHP()) { P.hp++; Snd.play('heart'); emit(P.x + 4, P.y + 4, 8, { col: ['#e0453a', '#ff7fb0'], sp0: 10, sp1: 50 }); }
     if (st.nova && n % st.nova === 0) nova(P.x + 4 + f * 14, P.y + 7, 52, Math.max(2, Math.round(dealt * 0.8)));
+  }
+  // Princess Lyra's leek blade: heal (5s), stun (3s) and a tornado that finishes anything under 20% health
+  function leekPower(e) {
+    const G = Q.G, P = Q.P, mx = e.isBoss ? e.max : e.maxhp;
+    if (G.leekHeal <= 0 && P.hp < maxHP()) { P.hp++; G.leekHeal = 5; Snd.play('heart'); emit(P.x + 4, P.y + 4, 10, { col: ['#a4ffc0', '#e0453a', '#fff'], sp0: 10, sp1: 55 }); }
+    if (e.dead) return;
+    if (mx && e.hp > 0 && e.hp / mx <= 0.2) {
+      G.torn.push({ x: e.x + e.w / 2, y: e.y + e.h, h: Math.max(40, e.h + 20), life: 1.1, t: 0 }); Snd.play('whoosh'); Snd.play('thunder'); Q.shake = Math.max(Q.shake, 0.35);
+      emit(e.x + e.w / 2, e.y + e.h / 2, 24, { col: ['#a4ffc0', '#4fc84f', '#fff'], sp0: 40, sp1: 140 });
+      if (e.isBoss) hurtBoss(e, (e.hp + 1) * 12, true, true); else hurtEnemy(e, e.hp + 99, true);
+    } else if ((e.stunCd || 0) <= 0) {
+      e.stunT = 3; e.stunCd = e.isBoss ? 10 : 5; Snd.play('zap'); emit(e.x + e.w / 2, e.y, 8, { col: ['#ffd34e', '#fff'], sp0: 20, sp1: 60 });
+    }
   }
   function onKill(e) {
     const G = Q.G, N = aSt('killHeal');
@@ -2002,6 +2017,9 @@
     for (let i = 0; i < 2; i++) if (P.wcd[i] > 0) P.wcd[i] -= dt;
     if (G.flash > 0) G.flash -= dt;
     if (G.slowT > 0) G.slowT -= dt;
+    if (G.leekHeal > 0) G.leekHeal -= dt;
+    for (const t of G.torn) { t.life -= dt; t.t += dt; }
+    G.torn = G.torn.filter(t => t.life > 0);
     for (const l of G.later) { l.t -= dt; if (l.t <= 0) { l.dead = true; l.fn(); } }
     G.later = G.later.filter(l => !l.dead);
     for (const b of G.bolts) b.life -= dt;
@@ -2090,6 +2108,8 @@
     for (const e of Q.ents.concat(bossTargets())) {
       if (e.dead) continue;
       if (e.slowT > 0) e.slowT -= dt;
+      if (e.stunT > 0) { e.stunT -= dt; if (Math.random() < 0.3) emit(e.x + e.w / 2 + rr(-6, 6), e.y - 2, 1, { col: '#ffd34e', sp0: 3, sp1: 10, grav: -5, l0: 0.3, l1: 0.5 }); }
+      if (e.stunCd > 0) e.stunCd -= dt;
       if (e.burnT > 0) { e.burnT -= dt; e.burnAcc = (e.burnAcc || 0) + dt; if (Math.random() < 0.4) emit(e.x + rr(0, e.w), e.y + rr(0, e.h), 1, { col: ['#ff7a2a', '#ffd34e'], sp0: 3, sp1: 14, grav: -30, l0: 0.2, l1: 0.4 }); if (e.burnAcc >= 1) { e.burnAcc = 0; dmgFoe(e, 1, true, true); } }
       if (e.poisonT > 0) { e.poisonT -= dt; e.poisonAcc = (e.poisonAcc || 0) + dt; if (Math.random() < 0.3) emit(e.x + rr(0, e.w), e.y + rr(0, e.h), 1, { col: ['#7ed957', '#d8ff9a'], sp0: 3, sp1: 12, grav: -10, l0: 0.2, l1: 0.4 }); if (e.poisonAcc >= 1) { e.poisonAcc = 0; dmgFoe(e, 0.6 * (e.poisonN || 1), true, true); } if (e.poisonT <= 0) e.poisonN = 0; }
     }
@@ -2113,6 +2133,13 @@
       const d = G.dr, ds = dragonSprite(1, Math.floor(Q.t * 5) % 2), x = Math.round(d.x - camX), y = Math.round(d.y - camY);
       g.globalAlpha = 0.72; g.globalCompositeOperation = 'lighter'; g.drawImage(d.f < 0 ? ds.f : ds.c, Math.round(x - ds.w / 2), Math.round(y - ds.h / 2 + 8)); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
     }
+    for (const t of G.torn) {
+      const x = Math.round(t.x - camX), y = Math.round(t.y - camY), k = Math.min(1, t.life / 0.4);
+      g.globalAlpha = k;
+      for (let i = 0; i < 26; i++) { const u = i / 26, yy = y - u * t.h, rd = 3 + u * 13, an = t.t * 14 + u * 9; g.fillStyle = i % 3 === 0 ? '#e8f5d0' : (i % 3 === 1 ? '#4fc84f' : '#a4ffc0'); g.fillRect(Math.round(x + Math.cos(an) * rd), Math.round(yy), 4, 2); }
+      g.globalAlpha = 1;
+    }
+    for (const e of Q.ents) if (!e.dead && !e.hid && e.stunT > 0) { const x = Math.round(e.x + e.w / 2 - camX), y = Math.round(e.y - camY) - 5; for (let i = 0; i < 3; i++) { const an = Q.t * 6 + i * 2.1; g.fillStyle = '#ffd34e'; g.fillRect(Math.round(x + Math.cos(an) * 6), Math.round(y + Math.sin(an) * 2), 2, 2); } }
     for (const e of Q.ents) if (!e.dead && !e.hid && (e.slowT > 0 || e.burnT > 0 || e.poisonT > 0)) {
       const x = Math.round(e.x - camX), y = Math.round(e.y - camY);
       g.globalAlpha = 0.28; g.fillStyle = e.burnT > 0 ? '#ff7a2a' : (e.poisonT > 0 ? '#7ed957' : '#8fe0f8'); g.fillRect(x, y, e.w, e.h); g.globalAlpha = 1;
@@ -2507,8 +2534,8 @@
     updatePlayer(dt);
     if (Q.state !== 'play' && Q.state !== 'bossintro') { updateParticles(dt); return; }
     updateGear(dt); updateStatus(dt);
-    const edt = dt * (Q.G.slowT > 0 ? 0.4 : 1);
-    updateEnemies(edt); updateBoss(edt); updateDragon(edt); updateBossDeath(dt); updateTraps(dt); updatePuzzles(dt); updateFps(dt); updateFires(dt); updateProjs(edt); updateZones(dt); updateCreeps(dt); updateItems(dt); updateParticles(dt); updateCam(dt); updateWeather(dt);
+    const edt = dt * (Q.G.slowT > 0 ? 0.4 : 1), bdt = (Q.boss && Q.boss.stunT > 0) ? 0 : edt, ddt = (Q.dragon && Q.dragon.stunT > 0) ? 0 : edt;
+    updateEnemies(edt); updateBoss(bdt); updateDragon(ddt); updateBossDeath(dt); updateTraps(dt); updatePuzzles(dt); updateFps(dt); updateFires(dt); updateProjs(edt); updateZones(dt); updateCreeps(dt); updateItems(dt); updateParticles(dt); updateCam(dt); updateWeather(dt);
   }
   function updateParticles(dt) {
     updateFx(dt);
@@ -2779,7 +2806,7 @@
     for (const p of Q.projs) addL(p.x, p.y, 24, 0.9);
     for (const pz of Q.pz) if ((pz.type === 'torch' && pz.lit) || (pz.type === 'rune' && pz.lit)) addL(pz.x, pz.y - 10, 38, 0.9);
     for (const f of Q.fires) addL(f.x, f.y - 8, 34, 0.9);
-    for (const p of Q.fps) if (p.t !== 'dagger') addL(p.x, p.y, 20, 0.8);
+    for (const p of Q.fps) if (p.t !== 'dagger') addL(p.x, p.y, p.shape === 'beam' ? 46 : 20, 0.8);
     { const hs = heldSword(); if (hs && swordGlow(hs.id)) addL(P.x + 4 + P.face * 10, P.y + 2, 38, 0.85); }
     if (Q.boss && Q.boss.st !== 'sleep') addL(Q.boss.x + Q.boss.w / 2, Q.boss.y + Q.boss.h / 2, 60, 0.7);
     for (const d of Q.L.decor) { if (Q.B.decor[d.k][0] === 'torch' || (B.id === 'caves' && Q.B.decor[d.k][0] === 'crystal')) addL(d.x, d.y - 6, 36, 0.8); }
