@@ -54,6 +54,18 @@ const PROP_PAINT = {
   glowcluster: [18, 14, P => { const C = ['c', 'h', 'x']; for (let i = 0; i < 4; i++) { const x = 2 + i * 4, h = 5 + ((i * 7) % 5); P.rect(x, 14 - h, 1, h, 'e'); P.ell(x, 14 - h, 2 + (i % 2), 2, C[i % 3]); P.px(x, 13 - h, 'w'); } }],
   stiltlantern: [12, 26, P => { P.line(6, 26, 6, 6, 'N', 2); P.rect(2, 4, 8, 2, 'N'); P.rect(8, 6, 1, 4, 'n'); P.rect(6, 10, 5, 6, '#2a4a2a'); P.rect(7, 11, 3, 4, 'x'); P.px(8, 12, '#fff'); }],
   lilyrock: [20, 8, P => { P.ell(10, 5, 9, 3, 'D'); P.ell(10, 4, 8, 2, 'd'); P.ell(5, 3, 3, 1, 'g'); P.ell(14, 2, 3, 1, 'g'); P.px(14, 1, 'm'); }],
+  // ---- the giant forest before the Spore Queen ----
+  hugeshroom: [56, 92, P => { P.rect(23, 38, 11, 54, 'e'); P.rect(23, 38, 3, 54, 'w'); P.rect(31, 38, 3, 54, 'E'); P.both(() => { P.tri(23, 80, 14, 92, 24, 92, 'E'); P.line(24, 60, 16, 70, 'E', 2); });
+    P.ell(28, 28, 27, 20, 'P'); P.ell(28, 26, 26, 18, 'p'); P.ell(28, 22, 21, 12, 'h'); P.rect(2, 36, 52, 3, 'D'); for (let i = 0; i < 13; i++) P.rect(4 + i * 4, 38, 1, 4, 'P');
+    for (const [x, y, r] of [[14, 20, 4], [30, 12, 3], [42, 24, 4], [22, 30, 2], [36, 32, 2]]) { P.ell(x, y, r, Math.max(1, r - 1), 'w'); P.px(x - 1, y - 1, '#ffffff'); } P.px(46, 14, 'm'); P.px(10, 30, 'm'); }],
+  hugeshroomB: [56, 80, P => { P.rect(24, 34, 9, 46, 'e'); P.rect(24, 34, 2, 46, 'w'); P.both(() => { P.tri(24, 70, 16, 80, 25, 80, 'E'); });
+    P.ell(28, 24, 26, 17, 'C'); P.ell(28, 22, 25, 15, 'c'); P.ell(28, 18, 19, 10, '#a4ffe8'); P.rect(3, 31, 50, 3, '#0a5a5a'); for (let i = 0; i < 12; i++) P.rect(5 + i * 4, 33, 1, 3, 'C');
+    for (const [x, y, r] of [[16, 16, 3], [32, 9, 3], [42, 20, 3], [24, 24, 2]]) { P.ell(x, y, r, r - 1, '#e8fff8'); } P.px(20, 10, '#ffffff'); P.px(38, 14, '#ffffff'); }],
+  hugetree: [64, 104, P => { P.rect(26, 40, 14, 64, 'N'); P.rect(26, 40, 4, 64, 'n'); P.both(() => { P.tri(26, 88, 8, 104, 28, 104, 'N'); P.tri(28, 70, 14, 80, 28, 84, 'N'); P.line(27, 50, 8, 34, 'N', 4); P.line(8, 34, 2, 22, 'N', 3); });
+    P.line(38, 54, 58, 36, 'N', 4); P.line(58, 36, 62, 24, 'N', 3);
+    P.ell(14, 20, 14, 10, '#12301f'); P.ell(34, 12, 18, 12, '#1a4a2c'); P.ell(52, 24, 13, 9, '#12301f'); P.ell(30, 24, 22, 8, '#0e2a1a');
+    for (const [x, y] of [[10, 18], [22, 8], [38, 8], [46, 16], [54, 26], [30, 24], [16, 28]]) { P.px(x, y, '#c8f0a0'); P.px(x + 1, y, '#8ad060'); }
+    for (const x of [8, 20, 30, 44, 54]) { P.line(x, 30, x + 1, 44 + (x % 3) * 6, '#2b8a3e', 1); P.px(x + 1, 44 + (x % 3) * 6, '#a4ffc0'); } }],
   // ---- ocean ----
   shell: [12, 8, P => { P.ell(6, 5, 5, 3, 'm'); for (let i = 0; i < 4; i++) P.line(6, 8, 2 + i * 3, 3, '#ffd0e0'); P.rect(4, 7, 4, 1, 'm'); }],
   starfish: [12, 8, P => { P.ell(6, 5, 2, 2, 'o'); P.line(6, 5, 6, 0, 'o', 2); P.line(6, 5, 1, 3, 'o', 2); P.line(6, 5, 11, 3, 'o', 2); P.line(6, 5, 2, 8, 'o', 2); P.line(6, 5, 10, 8, 'o', 2); P.px(6, 4, 'y'); }],
@@ -82,7 +94,7 @@ const BIOME_PROPS = {
   tunnels: ['minecart', 'crate', 'barrel', 'pickrock', 'minelamp', 'rails', 'crate']
 };
 // props that glow in the dark (light colour)
-const PROP_GLOW = { lamp: '#ffd34e', lanternpole: '#ff9a2a', shrine: '#ffd34e', crystalbig: '#6ee7f2', glowshroom: '#6ee7f2', gemrock: '#c07bff', frozenlamp: '#9fe8ff', vent: '#ff7a2a', magmarock: '#ff7a2a', candelabra: '#ffb04a', glowcluster: '#a4ffc0', stiltlantern: '#c8f0a0', minelamp: '#ffd34e', icecrystal: '#bfeaff' };
+const PROP_GLOW = { lamp: '#ffd34e', lanternpole: '#ff9a2a', shrine: '#ffd34e', crystalbig: '#6ee7f2', glowshroom: '#6ee7f2', gemrock: '#c07bff', frozenlamp: '#9fe8ff', vent: '#ff7a2a', magmarock: '#ff7a2a', candelabra: '#ffb04a', glowcluster: '#a4ffc0', hugeshroom: '#c07bff', hugeshroomB: '#6ee7f2', hugetree: '#a4ffc0', stiltlantern: '#c8f0a0', minelamp: '#ffd34e', icecrystal: '#bfeaff' };
 function propSprite(k) { const key = 'prop_' + k; if (!_cache[key]) { const d = PROP_PAINT[k]; _cache[key] = paint(d[0], d[1], d[2], '#14121f'); } return _cache[key]; }
 
 // ---------------- hidden easter eggs (homages only: no names, no logos) ----------------

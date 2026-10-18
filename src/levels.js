@@ -81,7 +81,7 @@ const BIOMES = [
     proj: '#d58bff', movers: true, traps: ['saw', 'turret', 'spiketrap'], trapStyle: 'dark'
   },
   { // 8 (play order 7)
-    id: 'swamp', seed: 88, len: 540, hazard: 'spikes', dark: 0.35, sun: false, particles: 'spores',
+    id: 'swamp', seed: 88, len: 430, hazard: 'spikes', dark: 0.35, sun: false, particles: 'spores',
     name: { en: 'Glowcap Swamp', vi: 'Đầm Lầy Nấm Phát Quang' }, sub: { en: 'Everything here glows, and everything here bites', vi: 'Mọi thứ ở đây đều phát sáng, và đều biết cắn' },
     sky: ['#06120e', '#0f2a20', '#1f4a34', '#3f6a3a'], far: '#14301f', mid: '#0b1f16', style: 'swamp', tree: ['#0c2018', '#1d4a35'],
     ground: { top: '#4a7a3a', topDark: '#2a4a22', topLight: '#7ab04a', body: '#3a2e22', dark: '#241c14', light: '#54442e' },
@@ -103,7 +103,7 @@ const BIOMES = [
     proj: '#6ee7f2', traps: ['rockfall', 'saw'], trapStyle: 'dark'
   },
   { // 10 (play order 9)
-    id: 'tunnels', seed: 111, len: 580, deep: 14, arenaW: 52, zoom: 0.72, hazard: 'spikes', dark: 0.62, sun: false, particles: 'drips',
+    id: 'tunnels', seed: 111, len: 580, deep: 34, arenaW: 72, lake: true, zoom: 0.55, hazard: 'spikes', dark: 0.62, sun: false, particles: 'drips',
     name: { en: 'Deepdig Tunnels', vi: 'Đường Hầm Sâu' }, sub: { en: 'The ground has teeth, and it is hungry', vi: 'Mặt đất có răng, và nó đang đói' },
     sky: ['#0a0806', '#1a140e', '#2a2016', '#3a2c1e'], far: '#1e1610', mid: '#140e0a', style: 'tunnel', tree: ['#000', '#000'],
     ground: { top: '#8a6a4a', topDark: '#5a4430', topLight: '#b08a60', body: '#3a2a1c', dark: '#241a10', light: '#52402c' },
@@ -225,7 +225,7 @@ function genLevel(li) {
   if (li === 8) return genOcean(BIOMES[li], li);
   const B = BIOMES[li], rnd = mulberry32(9001 + li * 7919), lv = LDIFF(li);
   const R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
-  let H = 15; const W = B.len + 100;
+  let H = 15; const W = B.len + (li === 7 ? 190 : 100);
   const grid = []; for (let y = 0; y < H; y++) grid.push(new Array(W).fill(' '));
   const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], dragons: [], minis: [], dark: [], creep: [], id: 0 };
   const set = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) grid[y][x] = c; };
@@ -562,6 +562,21 @@ function genLevel(li) {
     else flat(R(6, 10));
   }
   { const ax = x; flat(plan.pre ? 16 : 8, { safe: true, cp: true, heart: true }); (plan.pre || []).forEach((w, i) => spawn('npc', ax + 3 + i * 2, gy, { who: w })); }
+  if (li === 7) {   // THE GIANT FOREST: a long dark stretch of huge glowing mushrooms and trees, full of monsters, ending at the Spore Queen's glade
+    gy = 10; flat(6, { safe: true, cp: true, heart: true }); const f0 = x;
+    for (let i = 0; i < 7; i++) {
+      const n = R(13, 17), x0 = x;
+      flat(n, { heart: i % 3 === 2, cp: i === 3 });
+      for (let c = 0; c < 2 + (i >> 1); c++) addEnemy(x0 + R(2, n - 2), gy);
+      ledges(x0, i % 2 ? [[2, 3, 4], [8, 5, 4], [12, 3, 3]] : [[4, 3, 4], [9, 6, 4]]);
+      coinsLine(x0 + 4, gy - 5, 4);
+      if (i % 2 === 1) spawn('pk', x0 + R(3, n - 3), gy, { what: pickWhat() });
+      if (i === 5) { L.checkpoints.push({ x: (x0 + 6) * TS, y: gy * TS, id: L.id++ }); }
+    }
+    L.forest = { x0: f0, x1: x }; L.dark.push({ x0: f0, x1: x, a: 0.6 });
+    for (let tx = f0; tx < x; tx += R(3, 5)) { let gr = 10; for (let y = 3; y < H - 2; y++) if (grid[y][tx] === '#') { gr = y; break; } if (grid[gr - 1][tx] === ' ') L.creep.push({ x: tx * TS + R(2, 12), y: gr * TS, k: R(0, 3) }); }
+    flat(8, { safe: true, cp: true, heart: true });
+  }
   gy = 10; flat(4, { safe: true }); // return to arena height (visual step handled by stairs guard)
   // make sure arena ground is continuous: previous ground may differ -> already flat() uses gy.
   // ---- dark zones: every map has pitch-black stretches full of creepy things ----
@@ -573,6 +588,7 @@ function genLevel(li) {
     } }
   // the Sunken Deep and the Deepdig Tunnels end in a huge cavern far below: the world gets deeper and you drop into it
   if (B.deep) { for (let k = 0; k < B.deep; k++) grid.push(grid[H - 1].map(c => (c === ' ' ? ' ' : '#'))); H += B.deep; L.H = H; }
+  const GY0 = (ag, up) => ag - up;
   const ax0 = x, AW = B.arenaW || (li === 6 ? 48 : 44), AG = B.deep ? H - 3 : 10;   // every boss arena is wide, with platforms on several floors
   L.arena = { x0: ax0, x1: ax0 + AW, gy: AG };
   for (let i = 0; i < AW; i++) col(ax0 + i, AG);
@@ -585,6 +601,11 @@ function genLevel(li) {
     for (let k = 0; k < 6; k++) { const r = 10 + Math.round(rows * (k + 1) / 7), x0 = 3 + ((k * 13) % (AW - 12)); for (let xx = x0; xx < x0 + 6; xx++) set(ax0 + xx, r, '='); }
     for (let k = 0; k < 5; k++) { const r = AG - 3 - (k % 2) * 3, x0 = 6 + k * Math.floor((AW - 12) / 5); for (let xx = x0; xx < x0 + 5; xx++) set(ax0 + xx, r, '='); }
     L.checkpoints.push({ x: (ax0 - 10) * TS, y: 10 * TS, id: L.id++ });
+    if (B.lake) {   // the cavern is a huge flooded lake: you fall in and have to swim and fight
+      L.waterY = 14; L.wet = true;
+      [[6, 14], [28, 12], [50, 14]].forEach(p => { for (let xx = p[0]; xx < p[0] + p[1]; xx++) set(ax0 + xx, 15, '='); });
+      for (let k = 0; k < 4; k++) { const x0 = 8 + k * 16; for (let xx = x0; xx < x0 + 5; xx++) set(ax0 + xx, GY0(AG, 8 + k * 2), '='); }
+    }
   } else {
     const PLATS = li === 6 ? [[7, 5, 9], [7, 17, 21], [7, 29, 33], [7, 40, 44], [5, 11, 15], [5, 23, 27], [5, 34, 38], [3, 19, 23], [3, 30, 33]]
       : li % 2 ? [[7, 5, 9], [7, 16, 20], [7, 27, 31], [7, 37, 40], [5, 10, 14], [5, 21, 25], [5, 32, 35], [3, 15, 18], [3, 26, 29]]

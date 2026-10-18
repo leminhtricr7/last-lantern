@@ -156,6 +156,11 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - Underwater the hero tilts and kicks while swimming and lunges when attacking.
 - Every boss slowly heals if nobody hits it for 30 seconds.
 
+## Ranks, the giant forest and the lake
+- **Ranks**: every sword, armor, pet and weapon has a grade from **F** up to **SSS** (SSS / SS / S / A / B / C / D / E / F), shown as a badge on each item and in the details. A rank row above the shop grid filters by grade (click it or press **[** and **]**).
+- **Giant Forest** (map 7, Glowcap Swamp): the last part of the level is a long, dark forest of huge glowing mushrooms and trees, full of monsters on the ground and in the canopy. At the end the **Spore Queen** does not walk in: a shadow shows up on the ground, locks on you and she crashes down from the sky - run out of the shadow in time!
+- **The Lake** (map 9, Deepdig Tunnels): the pit at the end of the tunnels drops you into a huge flooded cavern. You swim and fight Gravemaw in the water; it digs through the lake bed and bursts out under you. A few islands at the surface give you dry ground.
+
 ## Project layout
 
 - `src/art.js` — all pixel art is generated in code (sprites, tilesets, parallax backgrounds)

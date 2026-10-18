@@ -427,3 +427,8 @@ Object.assign(WPN_PAINT, {
   ['singularity', 20, 'Singularity Cannon', 'Pháo Điểm Kỳ Dị', 'Opens a huge black hole for 5s that swallows enemies, then collapses in a blast.', 'Mở một hố đen khổng lồ 5 giây nuốt kẻ địch, rồi sụp đổ thành vụ nổ.', { cd: 20 }]
 ].forEach(a => addItem({ id: a[0], type: 'wpn', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6] }));
 ITEMS.forEach(it => { if (it.tier >= 16) it.rar = 6; });
+
+// ================= RANKS: every item gets a grade from F up to SSS so the shop reads at a glance =================
+const RANKS = ['SSS', 'SS', 'S', 'A', 'B', 'C', 'D', 'E', 'F'];
+const RANK_COL = { SSS: '#ff4af0', SS: '#ff5a5a', S: '#ffb03a', A: '#a98bff', B: '#6ec8ff', C: '#6ee89a', D: '#9aa4b8', E: '#7a8294', F: '#5a6272' };
+function rankOf(it) { const t = it.tier | 0; return t >= 19 ? 'SSS' : t >= 17 ? 'SS' : t >= 15 ? 'S' : t >= 12 ? 'A' : t >= 9 ? 'B' : t >= 6 ? 'C' : t >= 3 ? 'D' : t >= 1 ? 'E' : 'F'; }
