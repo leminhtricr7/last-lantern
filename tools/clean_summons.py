@@ -92,6 +92,10 @@ for kind, strips in man.items():
         frames = [f for f in frames if f is not None]
         area = [int((f[..., 3] > 40).sum()) for f in frames]
         frames = [f for f, ar in zip(frames, area) if ar >= max(area or [0]) * (0.12 if name == 'death' else 0.3)]
+        if name == 'walk' and len(frames) > 3:   # frames that still hold a piece of the neighbouring figure are much wider: drop them
+            wd = [bbox(f)[2] - bbox(f)[0] for f in frames]; med = float(np.median(wd))
+            keep = [f for f, w in zip(frames, wd) if w <= med * 1.3]
+            if len(keep) >= 3: frames = keep
         out, m = pack(frames) if frames else (None, None)
         if out is None or (name == 'death' and m['n'] < 2):
             del strips[name]; print('dropped', kind, name); continue
