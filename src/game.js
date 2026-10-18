@@ -5807,11 +5807,32 @@
     G.sums = G.sums.filter(s => s.life > 0);
     if (G.slashes) { for (const sl of G.slashes) sl.life -= dt; G.slashes = G.slashes.filter(sl => sl.life > 0); }
   }
+  // optional artist sprites: assets/summons/<kind>_idle|walk|attack.png (horizontal strips of square frames)
+  const SUM_IMG = {};
+  function sumSheet(k) {
+    let o = SUM_IMG[k]; if (o) return o;
+    o = SUM_IMG[k] = { idle: null, walk: null, attack: null };
+    for (const n of ['idle', 'walk', 'attack']) { const im = new Image(); im.onload = () => { o[n] = im; }; im.onerror = () => {}; im.src = 'assets/summons/' + k + '_' + n + '.png'; }
+    return o;
+  }
+  function drawSumSheet(s, x, y, a) {
+    const o = sumSheet(s.kind); if (!o.idle && !o.walk && !o.attack) return false;
+    const atk = s.atkT > 0, im = (atk && o.attack) || (s.mv && o.walk) || o.idle || o.walk || o.attack;
+    const n = Math.max(1, Math.round(im.width / im.height)), fh = im.height, fw = im.width / n;
+    const fi = atk && im === o.attack ? Math.min(n - 1, Math.floor((1 - s.atkT / 0.35) * n)) : Math.floor(s.t * 8) % n;
+    const H = GIANT[s.kind] ? (GIANT[s.kind].small ? 70 : 118) : 64, sc = H / fh, flip = s.f < 0;
+    const fly = !!BEAST[s.kind] && s.kind !== 'thunderkirin' && s.kind !== 'ninetail' && s.kind !== 'clones';
+    g.save(); g.globalAlpha = a; g.imageSmoothingEnabled = true; g.translate(x, y + (fly ? H / 2 : 0)); g.scale(flip ? -1 : 1, 1);
+    const dx = s.kind === 'golems' ? [-26, 26] : [0];
+    for (const d of dx) g.drawImage(im, fi * fw, 0, fw, fh, -fw * sc / 2 + d, -fh * sc, fw * sc, fh * sc);
+    g.restore(); return true;
+  }
   function drawSummons(camX, camY) {
     const G = Q.G; if (!G.sums) return;
     for (const s of G.sums) {
       const a = Math.min(1, s.t / 0.45, s.life / 0.6), sp = summonSprite(s.kind), x = Math.round(s.x - camX), y = Math.round(s.y - camY), info = GIANT[s.kind] || BEAST[s.kind];
       g.globalCompositeOperation = 'lighter'; const R = 60, gr = g.createRadialGradient(x, y - 40, 0, x, y - 40, R); gr.addColorStop(0, hexA(info.glow, 0.32 * a)); gr.addColorStop(1, hexA(info.glow, 0)); g.fillStyle = gr; g.fillRect(x - R, y - 40 - R, R * 2, R * 2); g.globalCompositeOperation = 'source-over';
+      if (drawSumSheet(s, x, y, 0.95 * a)) continue;
       if (s.kind === 'clones') { for (let i = 0; i < 3; i++) { const cx = x + (i - 1) * 22 + Math.round(Math.sin(s.t * 6 + i) * 3); g.globalAlpha = 0.6 * a; drawSpr(g, getSprite('hero_run', { a: '#5a5a6a', A: '#2a2a3a', q: '#14121f', b: '#3a2a5a', r: '#a15be0', f: '#a15be0', o: '#14121f' }, Math.floor(s.t * 10 + i) % 4), cx, y, s.f < 0); } g.globalAlpha = 1; continue; }
       if (s.kind === 'dragonking' || s.kind === 'dragonform') { const ds = dragonSprite(s.kind === 'dragonking' ? 2 : 1, Math.floor(Q.t * 6) % 2); g.globalAlpha = 0.95 * a; g.drawImage(s.f < 0 ? ds.f : ds.c, Math.round(x - ds.w / 2), Math.round(y - ds.h / 2)); if (s.kind === 'dragonking') { g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35 * a; g.drawImage(s.f < 0 ? ds.f : ds.c, Math.round(x - ds.w / 2), Math.round(y - ds.h / 2)); g.globalCompositeOperation = 'source-over'; } g.globalAlpha = 1; continue; }
       if (!sp) continue;
@@ -6367,5 +6388,5 @@
       seal(); if (n > 0) { applyForm(Q.boss, n); Q.boss.st = 'intro'; Q.boss.timer = 0; Q.boss.invul = 0; } if (n >= 3) spawnAllies();
     }, 400); }
   { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
-  if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (location.search.indexOf('debug') >= 0) window.LL = { summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();
