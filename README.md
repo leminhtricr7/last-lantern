@@ -151,6 +151,8 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - The Spore Queen, the Kraken and Gravemaw use the artist's designs (`assets/ref/new_bosses.webp`, cut by `tools/cut_bosses.py`), move like living creatures and have their own horror voices.
 - The Kraken waits in a huge sea cave: the camera pulls back so the hero looks tiny next to it. Gravemaw's arena is a cavern at the bottom of a deep pit in the tunnels.
 - Shortcuts to hear and see each deep boss right away: `?boss=7` (Spore Queen), `?boss=8` (Kraken), `?boss=9` (Gravemaw). Click the game once so the browser allows sound.
+- **The Sunken Deep is now a vertical dive** (`genOcean` in `src/levels.js`): you start on a shore with Nami the mermaid, Captain Redbeard and the trader (an opening scene gives the quest), then swim down through six dark zones separated by stone shelves with a hole to the next zone. The deeper you go, the darker it gets and the stronger the currents pushing you away from the way down. Three **Sea Pearls** are hidden in side caves in the walls (other caves hold Star Gems and a secret); bringing all three near the **Tide Door** opens the Kraken's cavern.
+- The Kraken fights in a huge tall cavern: it hovers and follows your height, so you fight both on the floor and swimming up; its "tentacle sweep" fills the cavern with bands of tentacles with a single safe gap to swim into.
 - Underwater the hero tilts and kicks while swimming and lunges when attacking.
 - Every boss slowly heals if nobody hits it for 30 seconds.
 

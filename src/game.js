@@ -866,6 +866,7 @@
   // ============================== GAMEPLAY STATE ==============================
   let Q = null; // current play context
   const GRAV = 820, JUMP = 292, DJUMP = 262, RUN = 112;
+  const wetP = e => !!Q.B.water && (Q.L.waterY === undefined || e.y + e.h / 2 >= Q.L.waterY * TS);   // swimming physics only below the surface
 
   function ch(tx, ty) {
     const L = Q.L;
@@ -950,6 +951,7 @@
       arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0, minisDone: new Set(), mainBoss: null, mainArena: null, syFig: null
     };
     if (!save.shards[li]) save.shards[li] = [0, 0, 0];
+    Q.pearls = 0; Q.questShown = false; Q.qT = 0;
     initGear();
     initEntities();
     initWeather();
@@ -982,6 +984,7 @@
       else if (s.type === 'boss') Q.boss = makeBoss(s);
       else if (s.type === 'egg') Q.items.push({ kind: 'egg', k: s.k, x: s.x, y: s.y, id: s.id, ph: 0 });
       else if (s.type === 'orb') { if (save.orbs.indexOf(Q.li) < 0) Q.items.push({ kind: 'orb', n: s.n, x: s.x, y: s.y, id: s.id, ph: Math.random() * 6 }); }
+      else if (s.type === 'pearl') Q.items.push({ kind: 'pearl', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'rare') { if ((save.rareGot[Q.li] || []).indexOf(s.k) < 0) Q.items.push({ kind: 'rare', x: s.x, y: s.y, id: s.id, k: s.k, ph: Math.random() * 6 }); }
       else if (s.type === 'cage') { if (save.leek) Q.items.push({ kind: 'npc', who: 'lyra', x: s.x, y: s.y, id: s.id, ph: 0 }); else Q.pz.push({ type: 'cage', x: s.x, y: s.y, grp: s.grp, open: false }); }
       else if (s.type === 'pk') Q.items.push({ kind: 'pk', what: s.what, amt: s.what === 'dagger' ? 5 : 2, keep: !!s.keep, x: s.x, y: s.y - 7, id: s.id, ph: Math.random() * 6 });
@@ -1040,7 +1043,7 @@
   }
   function updateCreeps(dt) {
     const P = Q.P, pc = { x: P.x + 4, y: P.y + 7 };
-    Q.darkCur = lerp(Q.darkCur, Math.min(0.97, darkAt(P.x)), 1 - Math.exp(-2.5 * dt));
+    Q.darkCur = lerp(Q.darkCur, Math.min(0.97, Math.max(darkAt(P.x), Q.L.waterY !== undefined && P.y > Q.L.waterY * TS ? Math.min(Q.arenaSealed ? 0.42 : 1, 0.1 + 0.72 * depthDark(P.y)) : 0)), 1 - Math.exp(-2.5 * dt));
     if (Q.darkBoostT > 0) { Q.darkBoostT -= dt; if (Q.darkBoostT <= 0) Q.darkBoost = 0; }
     const inDark = Q.darkCur > 0.45;
     for (const e of Q.eyes) {
@@ -1120,7 +1123,7 @@
   }
   function seal() {
     const L = Q.L, ar = L.arena;
-    for (let y = 0; y < ar.gy; y++) L.grid[y][ar.x0 + 1] = '#';
+    if (ar.rects) for (const r of ar.rects) for (let y = r[1]; y <= r[3]; y++) for (let x = r[0]; x <= r[2]; x++) L.grid[y][x] = '#'; else for (let y = 0; y < ar.gy; y++) L.grid[y][ar.x0 + 1] = '#';
     Q.arenaSealed = true;
     if (coop) coopGather();
     Q.state = 'bossintro'; Q.stateT = 0;
@@ -1130,7 +1133,7 @@
     if (Q.li === 6) startScripted('quoc', QUOC_PRE, () => { Q.state = 'bossintro'; Q.stateT = 0; });
     else bossPre();
   }
-  function unseal() { const L = Q.L, ar = L.arena; for (let y = 0; y < ar.gy; y++) L.grid[y][ar.x0 + 1] = ' '; }
+  function unseal() { const L = Q.L, ar = L.arena; if (ar.rects) { for (const r of ar.rects) for (let y = r[1]; y <= r[3]; y++) for (let x = r[0]; x <= r[2]; x++) L.grid[y][x] = ' '; } else for (let y = 0; y < ar.gy; y++) L.grid[y][ar.x0 + 1] = ' '; }
 
   // ============================== UPDATE ==============================
   function setEmo(type, dur) { const P = Q && Q.P; if (!P) return; P.emo = type; P.emoT = dur; }
@@ -1214,7 +1217,7 @@
       if (Math.random() < 0.8) emit(P.x + 4, P.y + 8, 1, { col: ['#6ee7f2', '#fff'], sp0: 0, sp1: 12, l0: 0.15, l1: 0.3, grav: 0 });
     } else {
       // horizontal
-      const target = dir * RUN * (Q.B.water ? (hasRelic(8) ? 0.95 : 0.8) : 1) * (P.slow > 0 ? 0.5 : 1) * (1 + aSt('speed') + pSt('speed') + (P.hspd || 0));
+      const target = dir * RUN * (wetP(P) ? (hasRelic(8) ? 0.95 : 0.8) : 1) * (P.slow > 0 ? 0.5 : 1) * (1 + aSt('speed') + pSt('speed') + (P.hspd || 0));
       const acc = ice ? 220 : (P.onGround ? 1100 : 750);
       if (dir !== 0 && P.atk <= 0.1) { P.face = dir; }
       if (dir !== 0 || !ice) {
@@ -1222,7 +1225,7 @@
         if (P.vx < target) P.vx = Math.min(target, P.vx + a); else if (P.vx > target) P.vx = Math.max(target, P.vx - a);
       } else { P.vx *= (1 - 0.8 * dt); }
       // swimming: every jump press is a stroke upwards, the water slows the fall
-      if (Q.B.water) { if (act.jumpP && P.dash <= 0) { P.vy = Math.min(P.vy, -150 - (hasRelic(8) ? 30 : 0)); P.jumps = 1; P.jumpBuf = 0; Snd.play('jump'); emit(P.x + 4, P.y + 2, 4, { col: ['#bfeaff', '#fff'], sp0: 5, sp1: 25, vy: -30, grav: -40, l0: 0.4, l1: 0.8 }); } else P.jumpBuf = 0; }
+      if (wetP(P)) { if (act.jumpP && P.dash <= 0) { P.vy = Math.min(P.vy, -150 - (hasRelic(8) ? 30 : 0)); P.jumps = 1; P.jumpBuf = 0; Snd.play('jump'); emit(P.x + 4, P.y + 2, 4, { col: ['#bfeaff', '#fff'], sp0: 5, sp1: 25, vy: -30, grav: -40, l0: 0.4, l1: 0.8 }); } else P.jumpBuf = 0; }
       // jump
       if (P.jumpBuf > 0) {
         if (act.down && P.onGround && ch(Math.floor((P.x + 4) / TS), Math.floor((P.y + P.h + 1) / TS)) === '=') { P.drop = 0.22; P.jumpBuf = 0; P.y += 2; }
@@ -1231,7 +1234,7 @@
       }
       if (!act.jump && P.vy < -110) P.vy *= (1 - 9 * dt);
       const g2 = (act.jump && Math.abs(P.vy) < 50) ? GRAV * 0.62 : GRAV;
-      if (Q.B.water) { P.vy = Math.min(85, P.vy + g2 * 0.3 * dt); P.vx *= 1 - 1.2 * dt; if (Math.random() < 0.03) emit(P.x + 4 + P.face * 3, P.y + 3, 1, { col: '#bfeaff', sp0: 2, sp1: 6, vy: -20, grav: -30, l0: 0.6, l1: 1.2 }); }
+      if (wetP(P)) { P.vy = Math.min(85, P.vy + g2 * 0.3 * dt); P.vx *= 1 - 1.2 * dt; if (Math.random() < 0.03) emit(P.x + 4 + P.face * 3, P.y + 3, 1, { col: '#bfeaff', sp0: 2, sp1: 6, vy: -20, grav: -30, l0: 0.6, l1: 1.2 }); }
       else P.vy = Math.min(380, P.vy + g2 * dt);
     }
     // attack: slot 1 (J / click) and slot 2 (H / middle-click / LT) - swords swing, special weapons fire
@@ -1288,7 +1291,7 @@
     // sword
     if (P.atk > 0) swordHit();
     // arena trigger
-    if (!Q.arenaSealed && !Q.bossDead && Q.boss && P.x > (L.arena.x0 + 4) * TS) seal();
+    if (!Q.arenaSealed && !Q.bossDead && Q.boss && P.x > (L.arena.x0 + 4) * TS && (L.arena.y0 === undefined || P.y > L.arena.y0 * TS)) seal();
   }
   function swordRect() {
     const P = Q.P;
@@ -1663,7 +1666,7 @@
     bounce3: { tele: 0.5, start(b) { b.n = 3; bounceJump(b); }, upd(b, dt) { b.jt += dt; moveX(b, b.vx * dt); if (b.onGround && b.jt > 0.18) { shockwave(b, true); if (--b.n > 0) bounceJump(b); else return true; } } },
     charge: { tele: 0.6, start(b) { b.dir = Q.P.x < b.x ? -1 : 1; b.skT = 1.3; b.recAfter = 1.1; }, upd(b, dt) { b.skT -= dt; if (moveX(b, b.dir * 155 * b.fury * dt)) { Q.shake = 0.4; Snd.play('boom'); return true; } if (Math.random() < 0.5) emit(b.x + b.w / 2 - b.dir * b.w / 2, b.y + b.h, 1, { col: '#cfd6e6', sp0: 5, sp1: 20, vy: -10, grav: 20 }); return b.skT <= 0; } },
     shoot: { tele: 0.55, start(b) { b.n = 2 + (Q.li > 3 ? 1 : 0); b.skT = 0; }, upd(b, dt) { b.skT -= dt; if (b.skT <= 0) { const c = bc(b), P = Q.P, a0 = Math.atan2(P.y + 7 - c.y, P.x + 4 - c.x), k = Q.li > 4 ? 2 : 1; for (let i = -k; i <= k; i++) firePr(c.x, c.y, Math.cos(a0 + i * 0.28) * 105, Math.sin(a0 + i * 0.28) * 105, { boss: true }); if (--b.n <= 0) return true; b.skT = 0.55 / b.fury; } } },
-    rain: { tele: 0.5, start(b) { b.skT = 2.4; b.drop = 0; }, upd(b, dt) { b.skT -= dt; b.drop -= dt; const ar = Q.L.arena; if (b.drop <= 0) { b.drop = 0.2 / b.fury; Q.projs.push({ x: rr((ar.x0 + 3) * TS, (ar.x1 - 2) * TS), y: (ar.gy - 12) * TS, vx: 0, vy: 30, life: 3, grav: 260, col: bpc(), type: 'fall', boss: true }); } return b.skT <= 0; } },
+    rain: { tele: 0.5, start(b) { b.skT = 2.4; b.drop = 0; }, upd(b, dt) { b.skT -= dt; b.drop -= dt; const ar = Q.L.arena; if (b.drop <= 0) { b.drop = 0.2 / b.fury; Q.projs.push({ x: rr((ar.x0 + 3) * TS, (ar.x1 - 2) * TS), y: (ar.y0 !== undefined ? ar.y0 + 2 : ar.gy - 12) * TS, vx: 0, vy: 30, life: 3, grav: 260, col: bpc(), type: 'fall', boss: true }); } return b.skT <= 0; } },
     spin: { tele: 0.55, start(b) { b.n = 2 + (Q.li > 4 ? 1 : 0); b.skT = 0; b.rot = 0; b.recAfter = 1.0; }, upd(b, dt) { b.skT -= dt; if (b.skT <= 0) { const c = bc(b); b.rot += 0.26; for (let i = 0; i < 12; i++) { const a = b.rot + i / 12 * Math.PI * 2; firePr(c.x, c.y, Math.cos(a) * 80, Math.sin(a) * 80, { boss: true }); } if (--b.n <= 0) return true; b.skT = 0.8 / b.fury; } } },
     summon: { tele: 0.5, start(b) {
       let alive = Q.ents.filter(e => !e.dead).length;
@@ -1735,7 +1738,7 @@
     crossBeam: { tele: 0.9, start(b) { const ar = Q.L.arena, gt = ar.gy * TS; addZone({ type: 'beam', x: ar.x0 * TS + 8, y: gt - 9, w: (ar.x1 - ar.x0) * TS - 16, h: 10, tel: 0.9, life: 0.5 }); addZone({ type: 'beam', x: ar.x0 * TS + 8, y: gt - 27, w: (ar.x1 - ar.x0) * TS - 16, h: 10, tel: 1.8, life: 0.5 }); b.skT = 2.8; Snd.play('flame'); }, upd: wait },
     rush: { tele: 0.55, start(b) { b.n = 3; b.dir = Q.P.x < b.x ? -1 : 1; b.skT = 0.8; b.recAfter = 1.0; }, upd(b, dt) { b.skT -= dt; const hit = moveX(b, b.dir * 190 * b.fury * dt); if (Math.random() < 0.6) emit(b.x + b.w / 2 - b.dir * b.w / 2, b.y + b.h, 1, { col: '#cfd6e6', sp0: 5, sp1: 25, vy: -10, grav: 20 }); if (hit || b.skT <= 0) { Q.shake = 0.3; Snd.play('boom'); if (--b.n <= 0) return true; b.dir = Q.P.x < b.x ? -1 : 1; b.skT = 0.8; } } }
   };
-  function groundYAt(x) { const tx = Math.floor(x / TS); for (let ty = 3; ty < Q.L.H; ty++) if (solid(tx, ty)) return ty * TS; return Q.L.arena.gy * TS; }
+  function groundYAt(x) { const tx = Math.floor(x / TS); for (let ty = (Q.L.arena && Q.L.arena.y0) || 3; ty < Q.L.H; ty++) if (solid(tx, ty)) return ty * TS; return Q.L.arena.gy * TS; }
   const MELEE = ['jump', 'stomp', 'charge', 'erupt', 'teleport', 'bounce3', 'ambush', 'slam', 'cloak', 'rush'], RANGED = ['shoot', 'web', 'spit', 'curse', 'breath', 'rain', 'beam', 'meteor', 'lavaCols', 'sweep', 'spin', 'fan', 'lobs', 'crossBeam'];
   function pickSkill(b) {
     const c = b.cfg, P = Q.P; let list = c.skills.slice();
@@ -1779,6 +1782,7 @@
     if (ph > b.phase) { b.phase = ph; b.invul = 1.0; Q.shake = 0.8; Snd.creature(Q.li, 'alert', true); emit(b.x + b.w / 2, b.y + b.h / 2, 30, { col: ['#fff', bpc()], sp0: 40, sp1: 160 }); Q.msg = save.lang === 'vi' ? 'Boss nổi điên!' : 'The boss is enraged!'; Q.msgT = 3; }
     if (b.hide) { const sk = BS[b.sk]; if (sk && sk.upd(b, dt)) endSkill(b); return; }
     b.vy = Math.min(420, b.vy + GRAV * dt);
+    if (c.swim && !b.hide && Q.L.arena.y0 !== undefined) { const ar = Q.L.arena, ty = clamp(P.y + 7 - b.h * 0.5, ar.y0 * TS + 14, ar.gy * TS - b.h); b.vy = clamp((ty - b.y) * 1.4, -62, 62); }
     const cxm = b.x + b.w / 2, cym = b.y + b.h / 2, dxp = (P.x + 4) - cxm;
     switch (b.st) {
       case 'wait': {
@@ -2277,6 +2281,9 @@
       } else if (it.kind === 'buff') {
         if (d < 12) { it.dead = true; Snd.play('relic'); emit(it.x, it.y, 16, { col: it.what === 'shield' ? ['#6ee7f2', '#fff'] : ['#ff5a3a', '#ffd34e'], sp0: 20, sp1: 80 });
           if (it.what === 'shield') { P.shield = true; Q.msg = save.lang === 'vi' ? 'Nhận khiên bảo vệ!' : 'Shield!'; } else { Q.G.powerT = 10; Q.msg = save.lang === 'vi' ? 'Sức mạnh x2 trong 10 giây!' : 'Power up for 10 seconds!'; } Q.msgT = 2.5; }
+      } else if (it.kind === 'pearl') {
+        if (d < 13) { it.dead = true; Q.taken.add(it.id); Q.pearls = (Q.pearls || 0) + 1; Snd.play('shard'); emit(it.x, it.y, 28, { col: ['#ffffff', '#bfeaff', '#ffd0f0'], sp0: 20, sp1: 110 }); addRing(it.x, it.y, '#bfeaff', 40, 0.5);
+          Q.msg = Q.pearls >= 3 ? (save.lang === 'vi' ? 'Đủ 3 Ngọc Trai! Mang xuống Cánh Cửa Thủy Triều ở đáy biển.' : 'All 3 Sea Pearls! Take them to the Tide Door at the bottom.') : (save.lang === 'vi' ? 'Ngọc Trai Biển ' : 'Sea Pearl ') + Q.pearls + '/3'; Q.msgT = 4; }
       } else if (it.kind === 'egg') {
         if (d < 26 && !it.seen && Q.state === 'play') { it.seen = true; const E = EGGS[it.k]; const first = !save.eggs[it.k]; save.eggs[it.k] = 1; writeSave(); Snd.play('relic'); emit(it.x, it.y - 10, 20, { col: ['#ffd34e', '#fff', '#ff7fb0'], sp0: 20, sp1: 70 });
           startScripted('narr', [{ en: E.en, vi: E.vi }, { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + Object.keys(EGGS).length + ')' + (first ? ' +1 Star Gem' : ''), vi: 'Tìm thấy bí mật! (' + Object.keys(save.eggs).length + ' / ' + Object.keys(EGGS).length + ')' + (first ? ' +1 Ngọc Sao' : '') }], null); if (first) save.rare++; }
@@ -2314,7 +2321,7 @@
 
   function saveResume() {
     if (coop || DEMO) return;
-    save.resume = { li: Q.li, cp: Q.cp, taken: [...Q.taken], solved: [...Q.solved], brokenX: [...Q.brokenX], trialsDone: [...Q.trialsDone], dragonsDone: [...Q.dragonsDone], minisDone: [...Q.minisDone], coinsRun: Q.coinsRun, time: Q.time, cpCount: Q.cpCount || 0, midDone: !!Q.midDone, ammo: save.ammo };
+    save.resume = { li: Q.li, pearls: Q.pearls || 0, cp: Q.cp, taken: [...Q.taken], solved: [...Q.solved], brokenX: [...Q.brokenX], trialsDone: [...Q.trialsDone], dragonsDone: [...Q.dragonsDone], minisDone: [...Q.minisDone], coinsRun: Q.coinsRun, time: Q.time, cpCount: Q.cpCount || 0, midDone: !!Q.midDone, ammo: save.ammo };
     writeSave();
   }
   function resumeLevel() {
@@ -2322,6 +2329,7 @@
     startLevel(r.li);
     Q.taken = new Set(r.taken || []); Q.solved = new Set(r.solved || []); Q.brokenX = new Set(r.brokenX || []); Q.trialsDone = new Set(r.trialsDone || []); Q.dragonsDone = new Set(r.dragonsDone || []); Q.minisDone = new Set(r.minisDone || []);
     Q.cp = r.cp; Q.cpCount = r.cpCount; Q.midDone = r.midDone; Q.coinsRun = r.coinsRun || 0; Q.time = r.time || 0;
+    Q.pearls = r.pearls || 0; Q.questShown = true; if (Q.L.pearlGate && Q.pearls >= 3) { const pg = Q.L.pearlGate; pg.open = true; for (let y = pg.y0; y <= pg.y1; y++) for (let x = pg.x0; x <= pg.x1; x++) Q.L.grid[y][x] = ' '; }
     initEntities(); Q.scn = buildScene();
     if (Q.cp) { Q.P.x = Q.cp.x - Q.P.w / 2; Q.P.y = Q.cp.y - Q.P.h; Q.safe = { x: Q.P.x, y: Q.P.y }; }
     snapCam(); Q.state = 'intro'; Q.stateT = 0; Q.msg = sv('Welcome back! Continuing from your last checkpoint.', 'Chào mừng trở lại! Chơi tiếp từ checkpoint cuối.'); Q.msgT = 4;
@@ -2416,7 +2424,7 @@
   // ---- melee ----
   function doSwing(it) {
     const P = Q.P, st = it.st, f = P.face;
-    if (Q.B.water && !P.onGround) { P.vx += f * 70; if (act.up) P.vy = Math.min(P.vy, -90); emit(P.x + 4, P.y + 7, 6, { col: ['#bfeaff', '#fff'], sp0: 10, sp1: 40, vx: -f * 40, grav: -40 }); }
+    if (wetP(P) && !P.onGround) { P.vx += f * 70; if (act.up) P.vy = Math.min(P.vy, -90); emit(P.x + 4, P.y + 7, 6, { col: ['#bfeaff', '#fff'], sp0: 10, sp1: 40, vx: -f * 40, grav: -40 }); }
     P.sw = it; P.atk = 0.2; P.atkCd = 0.27 * (st.cd || 1); P.atkHit = new Set(); P.atkDown = !P.onGround && act.down;
     Snd.play('slash'); if (Math.random() < 0.6) Snd.hero('attack');
     if (hasRelic(5) && !P.atkDown) { Snd.play('flame'); Q.fps.push({ t: 'wave', x: P.x + 4 + f * 10, y: P.y + 7, vx: f * 150, vy: 0, g: 0, life: 0.55, hit: new Set() }); }
@@ -2723,6 +2731,7 @@
       if (G.god) chip((save.lang === 'vi' ? 'THẦN SẤM ' : 'THUNDER GOD ') + G.god.life.toFixed(1), '#ffe44e');
       if (G.dr) chip((save.lang === 'vi' ? 'RỒNG ' : 'DRAGON ') + G.dr.life.toFixed(1), '#ff9a2a');
       if (G.powerT > 0) chip((save.lang === 'vi' ? 'SỨC MẠNH ' : 'POWER ') + G.powerT.toFixed(1), '#ff5a3a');
+      if (Q.L.pearlGate && !Q.bossDead) chip(Q.L.pearlGate.open ? (save.lang === 'vi' ? 'Hạ Kraken!' : 'Defeat the Kraken!') : (save.lang === 'vi' ? 'Ngọc trai ' : 'Sea Pearls ') + (Q.pearls || 0) + '/3', Q.L.pearlGate.open ? '#ff7a8a' : '#bfeaff');
       for (const id of summonItems()) { const cd = (G.sumCd && G.sumCd[id]) || 0, k = ITEM[id].st.summon; chip('T ' + sumName(k) + (cd > 0 ? ' ' + Math.ceil(cd) + 's' : sv(' READY', ' SẴN SÀNG')), cd > 0 ? '#8892aa' : '#ff4af0'); }
       { const pe = petIt(); if (pe && pe.st.form) { const k = pe.st.form; chip(sumName(k) + ' ' + (G.petForm > 0 ? G.petForm.toFixed(1) : Math.max(0, Math.ceil(G.formCd === undefined ? 25 : G.formCd)) + 's'), G.petForm > 0 ? '#ff9a2a' : '#8892aa'); } } }
     if (petRole() === 'scout') {
@@ -3086,7 +3095,7 @@
     }
   }
   function updateCam(dt) {
-    { const L = Q.L, B = Q.B, tz = B.zoom && !Q.bossDead && L.arena && Q.P.x > (L.arena.x0 - 9) * TS ? B.zoom : 1; Q.zoom = (Q.zoom || 1) + (tz - (Q.zoom || 1)) * Math.min(1, dt * 2.2); if (Math.abs(Q.zoom - tz) < 0.002) Q.zoom = tz; }
+    { const L = Q.L, B = Q.B, tz = B.zoom && !Q.bossDead && L.arena && (L.arena.y0 !== undefined ? Q.P.y > (L.arena.y0 - 7) * TS : Q.P.x > (L.arena.x0 - 9) * TS) ? B.zoom : 1; Q.zoom = (Q.zoom || 1) + (tz - (Q.zoom || 1)) * Math.min(1, dt * 2.2); if (Math.abs(Q.zoom - tz) < 0.002) Q.zoom = tz; }
     VW = BVW / (Q.zoom || 1); VH = BVH / (Q.zoom || 1);
     try { updateCam0(dt); } finally { VW = BVW; VH = BVH; }
   }
@@ -3159,7 +3168,7 @@
     if (Q.state !== 'play' && Q.state !== 'bossintro') { updateParticles(dt); return; }
     updateGear(dt); updateStatus(dt);
     const edt = dt * (Q.G.slowT > 0 ? 0.4 : 1), bdt = (Q.boss && Q.boss.stunT > 0) ? 0 : edt, ddt = (Q.dragon && Q.dragon.stunT > 0) ? 0 : edt;
-    updateEnemies(edt); { const tg = coop ? bossTgt(dt) : Q.P; asP(tg, () => { updateBoss(bdt); updateDragon(ddt); }); } updateBossDeath(dt); updateTraps(dt); updatePuzzles(dt); updateFps(dt); updateFires(dt); updateProjs(edt); updateZones(dt); updateCreeps(dt); updateItems(dt); updateParticles(dt); updateCam(dt); updateWeather(dt);
+    updateEnemies(edt); { const tg = coop ? bossTgt(dt) : Q.P; asP(tg, () => { updateBoss(bdt); updateDragon(ddt); }); } updateBossDeath(dt); updateTraps(dt); updatePuzzles(dt); updateFps(dt); updateFires(dt); updateProjs(edt); updateZones(dt); updateCreeps(dt); updateItems(dt); updateOcean(dt); updateParticles(dt); updateCam(dt); updateWeather(dt);
   }
   function updateParticles(dt) {
     updateFx(dt);
@@ -3187,6 +3196,7 @@
       const y = Math.round(ly.anchor === 'top' ? ly.y - camY * 0.1 + 24 * 0.1 : ly.y + (24 - cam.y) * ly.f + (VH - BVH) + Math.max(0, cam.y - (Q.L.H - 15) * TS) * 0);
       g.drawImage(ly.c, Math.round(ox), y); g.drawImage(ly.c, Math.round(ox) + 512, y);
     }
+    drawSurface(camX, camY);
     { const hz = g.createLinearGradient(0, VH * 0.42, 0, VH); hz.addColorStop(0, hexA(B.sky[2], 0)); hz.addColorStop(1, hexA(B.sky[2], B.dark > 0.5 ? 0.1 : 0.22)); g.fillStyle = hz; g.fillRect(0, VH * 0.42, VW, VH * 0.58); }
     if (Q.li === 6 && Q.boss && Q.boss.id === 'quoc' && Q.arenaSealed && Q.boss.fi > 0) drawFormScene(Q.boss.fi);
     const tx0 = Math.floor(camX / TS), tx1 = Math.floor((camX + VW) / TS), ty0 = Math.floor(camY / TS), ty1 = Math.floor((camY + VH) / TS);
@@ -3268,6 +3278,11 @@
         g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35; disc(g, x, by, 9, c); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
         disc(g, x, by, 5, '#14121f'); disc(g, x, by, 4, c);
         g.fillStyle = '#fff'; if (it.what === 'shield') { g.fillRect(x - 2, by - 2, 5, 3); g.fillRect(x - 1, by + 1, 3, 1); g.fillRect(x, by + 2, 1, 1); } else { g.fillRect(x, by - 3, 1, 6); g.fillRect(x - 2, by + 1, 5, 1); }
+      } else if (it.kind === 'pearl') {
+        const by = y + Math.round(Math.sin(it.ph * 2.4) * 2);
+        g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.4 + Math.sin(it.ph * 4) * 0.12; disc(g, x, by, 11, '#bfeaff'); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+        disc(g, x, by, 5, '#3a4a7a'); disc(g, x, by, 4, '#f0f6ff'); disc(g, x - 1, by - 1, 2, '#ffffff'); g.fillStyle = '#ffd0f0'; g.fillRect(x + 1, by + 1, 2, 2);
+        if (Math.random() < 0.15) emit(it.x + rr(-6, 6), it.y + rr(-8, 4), 1, { col: ['#ffffff', '#bfeaff'], sp0: 2, sp1: 8, grav: -14, l0: 0.5, l1: 1 });
       } else if (it.kind === 'egg') {
         drawSpr(g, eggSprite(EGGS[it.k].k), x, y, false);
         if (!it.seen && Math.sin(Q.t * 3 + it.x) > 0.6) { g.fillStyle = '#fff'; g.fillRect(x + 6, y - 20, 1, 3); g.fillRect(x + 5, y - 19, 3, 1); }
@@ -3460,7 +3475,7 @@
     if (Q.state === 'dead') return;
     if (P.inv > 0 && P.dash <= 0 && Math.floor(P.inv * 20) % 2 === 0) return;
     const x = Math.round(P.x + P.w / 2 - camX), bot = Math.round(P.y + P.h - camY);
-    const swim = Q.B.water && !P.onGround;
+    const swim = wetP(P) && !P.onGround;
     if (swim) { const rot = clamp(-P.vy / 320, -0.45, 0.45) * P.face + (P.atk > 0 ? P.face * 0.15 : 0); g.save(); g.translate(x, bot - 10); g.rotate(rot); g.translate(-x, -(bot - 10)); }
     const hh = P.hero && HERO[P.hero]; let av = hh || armorVis(save.inv.armor);
     if (!hh && !coop && (save.cos.aura || save.cos.wings)) av = Object.assign({ sw: {} }, av || {}, save.cos.aura ? { aura: '#ffd34e' } : {}, save.cos.wings && !(av && av.wings) ? { wings: 'dragon' } : {});
@@ -3501,7 +3516,7 @@
     for (const p of Q.fps) if (p.t !== 'dagger') addL(p.x, p.y, p.shape === 'beam' ? 46 : 20, 0.8);
     if (Q.G.lyra) addL(Q.G.lyra.x, Q.G.lyra.y - 12, 44, 0.9);
     { const hs = heldSword(); if (hs && swordGlow(hs.id)) addL(P.x + 4 + P.face * 10, P.y + 2, 38, 0.85); }
-    if (Q.boss && Q.boss.st !== 'sleep') addL(Q.boss.x + Q.boss.w / 2, Q.boss.y + Q.boss.h / 2, 60, 0.7);
+    if (Q.boss && Q.boss.st !== 'sleep') addL(Q.boss.x + Q.boss.w / 2, Q.boss.y + Q.boss.h / 2, Math.max(60, Q.boss.w * 0.6), 0.8);
     if (Q.scn) for (const p of Q.scn.props) if (PROP_GLOW[p.k]) addL(p.x, p.y - 10, 40, 0.8);
     for (const d of Q.L.decor) { if (Q.B.decor[d.k][0] === 'torch' || (B.id === 'caves' && Q.B.decor[d.k][0] === 'crystal')) addL(d.x, d.y - 6, 36, 0.8); }
     if (B.hazard === 'lava') { const tx0 = Math.floor(camX / TS), tx1 = Math.floor((camX + VW) / TS); for (let tx = tx0; tx <= tx1; tx += 2) { if (tx >= 0 && tx < Q.L.W && Q.L.grid[Q.L.H - 2][tx] === '~') addL(tx * TS + 8, (Q.L.H - 2) * TS, 40, 0.8); } }
@@ -3523,7 +3538,11 @@
   }
   function drawWeather() {
     const t = Q.wtype;
-    if (Q.B.water) { g.fillStyle = 'rgba(20,90,140,.16)'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 0.05 + Math.sin(Q.t * 0.7) * 0.02; g.fillStyle = '#bfeaff'; for (let i = 0; i < 6; i++) g.fillRect(((i * 73 + Q.t * 9) % (VW + 40)) - 20, 0, 10, VH); g.globalAlpha = 1; }
+    if (Q.B.water) {
+      const sy = Q.L.waterY !== undefined ? Math.max(0, Math.round(Q.L.waterY * TS - Q.cam.y)) : 0, dp = Q.L.waterY !== undefined ? clamp((Q.cam.y + VH / 2) / TS / Q.L.H, 0, 1) : 0;
+      if (sy < VH) { g.fillStyle = 'rgba(' + Math.round(20 - dp * 14) + ',' + Math.round(90 - dp * 60) + ',' + Math.round(140 - dp * 60) + ',' + (0.14 + dp * 0.3).toFixed(2) + ')'; g.fillRect(0, sy, VW, VH - sy);
+        g.globalAlpha = Math.max(0, 0.05 + Math.sin(Q.t * 0.7) * 0.02 - dp * 0.06); g.fillStyle = '#bfeaff'; for (let i = 0; i < 6; i++) g.fillRect(((i * 73 + Q.t * 9) % (VW + 40)) - 20, sy, 10, VH - sy); g.globalAlpha = 1; }
+    }
     for (const w of Q.weather) {
       const x = Math.round(w.x), y = Math.round(w.y);
       switch (t) {
@@ -3549,6 +3568,7 @@
     const hdy = (Math.ceil(mh / 8) - 1) * 10;
     g.fillStyle = '#ffd34e'; g.fillRect(8, 20 + hdy, 5, 5); g.fillStyle = '#c89a1c'; g.fillRect(12, 21 + hdy, 1, 3);
     txt('x' + Q.coinsRun + '   (' + save.coins + ')', 16, 23 + hdy, { size: 7 });
+    if (Q.L.waterY !== undefined && P.y > Q.L.waterY * TS) txt(sv('Depth ', 'Độ sâu ') + depthM(P.y) + ' m', VW / 2, 8, { al: 'center', size: 6, col: '#bfeaff' });
     drawRareIc(78, 22 + hdy, 0.8); txt('x' + save.rare, 84, 23 + hdy, { size: 7, col: '#d8b8ff' }); txt(sv('B: bag/shop', 'B: túi đồ/shop'), 104, 23 + hdy, { size: 5, col: '#8892aa' });
     if (P.shield) { g.fillStyle = '#6ee7f2'; g.fillRect(12 + 3 * 11 + 6, 38 + hdy, 6, 7); g.fillStyle = '#fff'; g.fillRect(12 + 3 * 11 + 8, 40 + hdy, 2, 3); }
     const sh = save.shards[Q.li] || [0, 0, 0], ss = getSprite('shard');
@@ -4628,7 +4648,7 @@
   const QONE = ['boss', 'dragon', 'syFig', 'mainBoss'];
   const GLISTS = ['allies', 'pops', 'bolts', 'holes', 'torn', 'sums', 'slashes'];
   const GONE = ['god', 'dr', 'lyra'];
-  const QVALS = ['state', 'stateT', 'time', 'shake', 'arenaSealed', 'bossDead', 'msg', 'msgT', 'banner', 'cp', 'talk', 'darkBoost', 'darkBoostT', 'windT', 'windDir', 'shardFlash', 'coinsRun', 'dj', 'dashAb', 'btSlot'];
+  const QVALS = ['state', 'stateT', 'time', 'shake', 'arenaSealed', 'bossDead', 'msg', 'msgT', 'banner', 'cp', 'talk', 'darkBoost', 'darkBoostT', 'windT', 'windDir', 'shardFlash', 'coinsRun', 'pearls', 'dj', 'dashAb', 'btSlot'];
   const GVALS = ['slowT', 'powerT', 'flash'];
   function inRange(o) { if (typeof o.x !== 'number') return true; for (const p of Q.players) if (Math.abs(o.x - p.x) < 340 && Math.abs((o.y || 0) - p.y) < 300) return true; return false; }
   function packList(arr, tag) {
@@ -5095,7 +5115,7 @@
   ['mosquito', 'piranha'].forEach(t => FLY.add(t));
   BOSS.push(
     { name: { en: 'Spore Queen', vi: 'Nữ Hoàng Bào Tử' }, art: 'shroom', w: 64, h: 88, hp: 600, armor: 0.3, smart: 0.55, sp: 24, minion: 'bogslime', proj: '#c8f0a0', skills: ['goo', 'shoot', 'summon', 'rain', 'jump', 'spin'], skills2: ['slam', 'roar', 'erupt'] },
-    { name: { en: 'Abyssal Kraken', vi: 'Thủy Quái Kraken' }, art: 'kraken', artScale: 1.35, w: 170, h: 150, hp: 660, armor: 0.3, smart: 0.6, sp: 22, minion: 'piranha', proj: '#6ee7f2', skills: ['erupt', 'shoot', 'rain', 'charge', 'summon', 'fan'], skills2: ['spin', 'roar', 'slam'] },
+    { name: { en: 'Abyssal Kraken', vi: 'Thủy Quái Kraken' }, art: 'kraken', swim: true, artScale: 1.35, w: 170, h: 150, hp: 660, armor: 0.3, smart: 0.6, sp: 26, minion: 'piranha', proj: '#6ee7f2', skills: ['erupt', 'shoot', 'rain', 'charge', 'summon', 'fan', 'tentacles'], skills2: ['spin', 'roar', 'tentacles', 'tentacles'] },
     { name: { en: 'Gravemaw the Great Worm', vi: 'Sâu Khổng Lồ Gravemaw' }, art: 'worm', artScale: 1.15, w: 84, h: 108, hp: 720, armor: 0.35, smart: 0.6, sp: 28, minion: 'mole', proj: '#c8a070', skills: ['burrow', 'burrow', 'charge', 'rain', 'summon'], skills2: ['burrow', 'slam', 'roar'] }
   );
   [7, 8, 9].forEach(i => { NPCS['boss' + i] = { spr: 'boss:' + i, name: BOSS[i].name }; });   // so their pre/post-fight dialogue has a speaker
@@ -5120,6 +5140,16 @@
         else return true;
       }
     }
+  };
+  // the Kraken sweeps its tentacles across the cavern in bands: only one band is safe - swim there!
+  BS.tentacles = {
+    tele: 0.5,
+    start(b) {
+      const ar = Q.L.arena, n = 5, safe = Math.floor(Math.random() * n), base = ar.gy * TS - 14;
+      for (let k = 0; k < n; k++) if (k !== safe) { const y = base - k * 58 - 6, dir = Math.random() < 0.5 ? 1 : -1; addZone({ type: 'beam', x: ar.x0 * TS + 12, y, w: (ar.x1 - ar.x0) * TS - 24, h: 24, tel: 1.5, life: 0.55, col: '#a02a6a', dmg: 1 }); }
+      Snd.monster(8, 'attack', 1); b.skT = 2.6; Q.msg = save.lang === 'vi' ? 'Xúc tu quét ngang! Bơi vào khoảng trống!' : 'Tentacle sweep! Swim into the gap!'; Q.msgT = 2.5;
+    },
+    upd: wait
   };
   RELICS.push(
     { name: { en: 'Spore Charm', vi: 'Bùa Bào Tử' }, desc: { en: 'Your sword poisons what it hits', vi: 'Kiếm của bạn làm trúng độc kẻ địch' } },
@@ -5226,6 +5256,7 @@
     }
     // props on high ledges too
     for (let x = 4; x < endX && kinds.length; x++) for (let y = 2; y < 8; y++) if (L.grid[y][x] === '=' && L.grid[y][x + 1] === '=' && L.grid[y - 1][x] === ' ' && rn() < 0.05) props.push({ k: kinds[Math.floor(rn() * kinds.length)], x: x * TS + 12, y: y * TS, f: rn() < 0.5, small: true });
+    if (L.waterY !== undefined) for (let y = 11; y < L.H - 3; y++) for (let x = 4; x < L.W - 4; x++) { if (L.grid[y][x] === '#' && L.grid[y - 1][x] === ' ' && L.grid[y][x + 1] === '#' && L.grid[y - 1][x + 1] === ' ' && rn() < 0.07 && !busy(x)) props.push({ k: kinds[Math.floor(rn() * kinds.length)], x: x * TS + 8, y: y * TS, f: rn() < 0.5 }); }
     const fg = []; for (let x = 120; x < L.W * TS * 1.3; x += 180 + Math.floor(rn() * 260)) fg.push({ x, h: 26 + Math.floor(rn() * 30), s: rn() });
     const clouds = []; for (let i = 0; i < 9; i++) clouds.push({ x: rn() * (VW + 200), y: 14 + rn() * 60, w: 22 + rn() * 40, v: 2 + rn() * 5 });
     const flocks = []; for (let i = 0; i < 3; i++) flocks.push({ x: rn() * 600, y: 26 + rn() * 50, v: 12 + rn() * 10, n: 3 + Math.floor(rn() * 4), ph: rn() * 6 });
@@ -5509,6 +5540,76 @@
     if (id === 'chakram') { Snd.play('whoosh'); shootG({ x, y, f, vx: f * 280, vy: 0, life: 2.5, dmg: wdd(6), burn: 3, bounces: 8, thru: true, shape: 'chakram', spin: 20, sz: 5, col: '#ffd34e', trail: '#ff9a2a' }); return true; }
     if (id === 'singularity') { const hx = P.x + 4 + f * 100, hy = P.y; Snd.play('zap'); G.holes.push({ x: hx, y: hy, life: 5, r: 150, tick: 0.12 }); later(5, () => { explode(hx, hy, 110, wdd(16)); addRing(hx, hy, '#7a4cff', 140, 0.6); }); Q.msg = save.lang === 'vi' ? 'ĐIỂM KỲ DỊ!' : 'SINGULARITY!'; Q.msgT = 1.4; return true; }
     return false;
+  }
+  // ===================== THE SUNKEN DEEP: quest, pearls, currents, depth =====================
+  const QUEST8 = [
+    { w: 'narr', en: 'The end of the land. Beyond the cliff the sea falls away into darkness, and somewhere far below, a piece of the Sun is trapped.', vi: 'Tận cùng của đất liền. Sau vách đá, biển khơi đổ xuống bóng tối, và đâu đó rất sâu bên dưới, một mảnh Mặt Trời đang bị giam giữ.' },
+    { w: 'mermaid', en: 'Lanternbearer! You came! My village at the bottom of the sea has been dark for three months.', vi: 'Người Mang Đèn! Bạn đã tới! Làng của tôi dưới đáy biển đã tối suốt ba tháng.' },
+    { w: 'mermaid', en: 'The Kraken keeps the Sun fragment in the deepest cavern and locks it with the Tide Door. The door opens only for three Sea Pearls.', vi: 'Thủy Quái Kraken giữ mảnh Mặt Trời trong hang sâu nhất và khóa bằng Cánh Cửa Thủy Triều. Cửa chỉ mở cho ba Ngọc Trai Biển.' },
+    { w: 'ember', en: 'And where are the pearls?', vi: 'Vậy ngọc trai ở đâu?' },
+    { w: 'mermaid', en: 'Its fish hid them in three rock pockets carved into the walls, on the way down. Swim into the side caves and search!', vi: 'Lũ cá của nó giấu chúng trong ba hốc đá khoét vào vách, trên đường đi xuống. Hãy bơi vào các hang bên và tìm!' },
+    { w: 'pirate', en: 'Arr, listen, lad. Hammer the Jump button again and again to swim up, let yourself sink to go down. The deeper you go, the darker and the stronger the currents.', vi: 'Arr, nghe này nhóc. Nhấn Nhảy liên tục để bơi lên, buông ra để chìm xuống. Càng sâu càng tối và dòng nước càng mạnh.' },
+    { w: 'pirate', en: 'Every stone shelf has a lamp post: that is a safe spot to rest. And swing your sword while you swim, the fish will not wait for you!', vi: 'Mỗi bệ đá đều có cột đèn: đó là chỗ nghỉ an toàn. Và cứ vung kiếm khi đang bơi, bọn cá không chờ bạn đâu!' },
+    { w: 'ember', en: 'Three pearls, one door and one giant octopus. A normal day, then.', vi: 'Ba viên ngọc, một cánh cửa và một con bạch tuộc khổng lồ. Một ngày bình thường thôi mà.' },
+    { w: 'mermaid', en: 'Swim fast, Ember. The sea is very deep... and the fish are hungry.', vi: 'Bơi nhanh nhé, Ember. Biển rất sâu... và lũ cá đang đói.' },
+    { w: 'narr', en: 'QUEST: find the 3 Sea Pearls in the side caves, open the Tide Door at the bottom, and face the Kraken.', vi: 'NHIỆM VỤ: tìm 3 Ngọc Trai Biển trong các hang bên, mở Cánh Cửa Thủy Triều ở đáy và đối đầu Thủy Quái.' }
+  ];
+  DLG[8] = {
+    mermaid: [
+      { en: 'Three Sea Pearls, hidden in the side caves of the walls. Look for the dark openings on the left and right as you dive.', vi: 'Ba Ngọc Trai Biển, giấu trong các hang bên của vách đá. Hãy tìm các cửa hang tối ở trái và phải khi lặn.' },
+      { en: 'Bring all three to the Tide Door at the very bottom. It will open by itself.', vi: 'Mang cả ba tới Cánh Cửa Thủy Triều ở tận đáy. Nó sẽ tự mở.' }],
+    pirate: [
+      { en: 'Hit Jump again and again to swim up. And keep swinging while you swim: the fish bite harder than they look.', vi: 'Nhấn Nhảy liên tục để bơi lên. Và cứ vung kiếm khi đang bơi: lũ cá cắn đau hơn vẻ ngoài của chúng.' }],
+    fisher: [
+      { en: 'The currents get stronger below here. They push you away from the hole in each shelf. Swim hard, or ride them and loop back!', vi: 'Dưới đây dòng nước mạnh hơn. Chúng đẩy bạn ra xa cái lỗ ở mỗi bệ đá. Bơi thật mạnh, hoặc cứ để trôi rồi vòng lại!' },
+      { en: 'I saw a pearl glowing in a cave on the left, three shelves down.', vi: 'Ông thấy một viên ngọc trai phát sáng trong hang bên trái, ba bệ đá bên dưới.' }],
+    bard: [
+      { en: '"Down, down, down the lantern goes, where the quiet kraken dozes..." I can never find a rhyme for dozes.', vi: '"Xuống, xuống, xuống đèn đi mãi, nơi quái vật ngủ yên..." Tôi chẳng bao giờ tìm được vần cho chữ "yên".' }],
+    mole: [
+      { en: 'Hm? A mole in the sea? Do not ask. I followed a worm and got a bit lost.', vi: 'Hử? Chuột chũi ở biển ư? Đừng hỏi. Ông theo một con sâu rồi hơi bị lạc.' }]
+  };
+  MAP_STORY[8] = [
+    { en: 'SUNKEN DEEP. The road ends at a cliff above the sea. Far below, the Kraken sleeps on the Sun\'s sixth shard.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Con đường dừng lại ở vách đá phía trên biển. Rất sâu bên dưới, Thủy Quái đang ngủ trên mảnh Mặt Trời thứ sáu.' },
+    { en: 'A mermaid waits on the shore. She needs help: the Kraken locked its cave with a Tide Door that opens only for three Sea Pearls.', vi: 'Một nàng tiên cá đang đợi trên bờ. Cô cần giúp đỡ: Thủy Quái đã khóa hang bằng Cánh Cửa Thủy Triều chỉ mở cho ba Ngọc Trai Biển.' },
+    { en: 'You will dive from the surface into the deep: swim down through six dark zones, fight what lives there and search the side caves. The deeper you go, the stronger the currents.', vi: 'Bạn sẽ lặn từ mặt biển xuống vực sâu: bơi qua sáu tầng tối, chiến đấu với những gì sống ở đó và tìm trong các hang bên. Càng sâu, dòng nước càng mạnh.' }
+  ];
+  COOP_MAP[8] = [L2('narr', 'The Sunken Deep. A mermaid begs for help: three Sea Pearls open the Tide Door above the Kraken.', 'Đại Dương Sâu Thẳm. Một nàng tiên cá cầu xin giúp đỡ: ba Ngọc Trai Biển mở Cánh Cửa Thủy Triều trên đầu Thủy Quái.'),
+    L2('{p0}', 'Swim into the side caves and look for the pearls. Stay close and shout if you get swept away.', 'Bơi vào các hang bên và tìm ngọc trai. Đi sát nhau và hét lên nếu bị cuốn đi.'),
+    L2('{p1}', 'I will take the left caves. Whoever finds a pearl, yell!', 'Mình lo mấy hang bên trái. Ai thấy ngọc trai thì hét lên nhé!')];
+  const depthM = y => Math.max(0, Math.round((y / TS - Q.L.waterY) * 2));
+  const depthDark = y => clamp(((y / TS) - 12) / (Q.L.H - 28), 0, 1);
+  function openTideDoor(pg) {
+    pg.open = true; for (let y = pg.y0; y <= pg.y1; y++) for (let x = pg.x0; x <= pg.x1; x++) Q.L.grid[y][x] = ' ';
+    Snd.play('gate'); Snd.play('boom'); Q.shake = 0.6; const cx = (pg.x0 + pg.x1) / 2 * TS, cy = pg.y0 * TS;
+    for (let i = 0; i < 40; i++) emit(cx + rr(-150, 150), cy + rr(0, 30), 1, { col: ['#bfeaff', '#fff', '#6ee7f2'], sp0: 20, sp1: 120, vy: 60 });
+    addRing(cx, cy, '#6ee7f2', 120, 0.8); Q.msg = save.lang === 'vi' ? 'Cánh Cửa Thủy Triều đã mở! Kraken đang đợi bên dưới...' : 'The Tide Door opens! The Kraken waits below...'; Q.msgT = 5;
+  }
+  function updateOcean(dt) {
+    const L = Q.L; if (L.waterY === undefined || Q.state !== 'play') return;
+    const P = Q.P;
+    if (!Q.questShown) { Q.qT = (Q.qT || 0) + dt; if (Q.qT > 1.2 && P.onGround) { Q.questShown = true; startScripted('mermaid', QUEST8, null); return; } }
+    // currents
+    for (const c of L.currents) {
+      const x0 = c.x0 * TS, x1 = c.x1 * TS, y0 = c.y0 * TS, y1 = c.y1 * TS;
+      for (const p of allPl()) if (p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1) { if (c.vx) moveX(p, c.vx * dt); if (c.vy) { p.y += c.vy * dt; } }
+      if (Math.abs((x0 + x1) / 2 - Q.cam.x - VW / 2) < VW / 2 + (x1 - x0) / 2 && Math.random() < 0.5) { const sx = rr(Math.max(x0, Q.cam.x), Math.min(x1, Q.cam.x + VW)), sy = rr(Math.max(y0, Q.cam.y), Math.min(y1, Q.cam.y + VH)); emit(sx, sy, 1, { col: ['#bfeaff', '#ffffff'], sp0: 0, sp1: 4, vx: c.vx * 1.6, vy: c.vy * 1.6, grav: 0, l0: 0.5, l1: 1.0 }); }
+    }
+    // the Tide Door
+    const pg = L.pearlGate;
+    if (pg && !pg.open) {
+      const cx = (pg.x0 + pg.x1) / 2 * TS, cy = (pg.y0 + 1) * TS, d = Math.hypot(P.x - cx, P.y - cy);
+      if (Q.pearls >= 3 && d < 160) openTideDoor(pg);
+      else if (d < 110 && Q.t - (Q.doorMsgT || -99) > 6) { Q.doorMsgT = Q.t; Q.msg = (save.lang === 'vi' ? 'Cánh Cửa Thủy Triều cần 3 Ngọc Trai Biển (' : 'The Tide Door needs 3 Sea Pearls (') + (Q.pearls || 0) + '/3)'; Q.msgT = 4; }
+    }
+  }
+  // paints the sky and the sea surface when the camera can see above the water
+  function drawSurface(camX, camY) {
+    const L = Q.L; if (L.waterY === undefined) return;
+    const sy = Math.round(L.waterY * TS - camY); if (sy <= 0) return;
+    const h = Math.min(sy, VH), gr = g.createLinearGradient(0, 0, 0, sy); gr.addColorStop(0, '#4a90d8'); gr.addColorStop(0.55, '#a8d0f0'); gr.addColorStop(1, '#ffe0b0');
+    g.fillStyle = gr; g.fillRect(0, 0, VW, h);
+    if (Q.scn) for (const c of Q.scn.clouds.slice(0, 5)) { const x = ((c.x - camX * 0.06 + Q.t * c.v * 0.6) % (VW + 200) + VW + 200) % (VW + 200) - 100, cs = cloudSprite('rgba(255,255,255,.8)', Math.round(c.w)); g.globalAlpha = cs.alpha; g.drawImage(cs, Math.round(x), Math.round(10 + c.y * 0.9 - camY * 0.04)); g.globalAlpha = 1; }
+    if (sy < VH + 4) { for (let x = 0; x < VW; x += 2) { const wy = sy + Math.round(Math.sin((x + camX) * 0.09 + Q.t * 2.2) * 1.4); g.fillStyle = '#d8f4ff'; g.fillRect(x, wy - 1, 2, 2); g.fillStyle = 'rgba(160,220,255,.5)'; g.fillRect(x, wy + 1, 2, 3); } }
   }
   function frame(now) {
     requestAnimationFrame(frame);

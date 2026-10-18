@@ -1,0 +1,70 @@
+  // ===================== THE SUNKEN DEEP: quest, pearls, currents, depth =====================
+  const QUEST8 = [
+    { w: 'narr', en: 'The end of the land. Beyond the cliff the sea falls away into darkness, and somewhere far below, a piece of the Sun is trapped.', vi: 'Tận cùng của đất liền. Sau vách đá, biển khơi đổ xuống bóng tối, và đâu đó rất sâu bên dưới, một mảnh Mặt Trời đang bị giam giữ.' },
+    { w: 'mermaid', en: 'Lanternbearer! You came! My village at the bottom of the sea has been dark for three months.', vi: 'Người Mang Đèn! Bạn đã tới! Làng của tôi dưới đáy biển đã tối suốt ba tháng.' },
+    { w: 'mermaid', en: 'The Kraken keeps the Sun fragment in the deepest cavern and locks it with the Tide Door. The door opens only for three Sea Pearls.', vi: 'Thủy Quái Kraken giữ mảnh Mặt Trời trong hang sâu nhất và khóa bằng Cánh Cửa Thủy Triều. Cửa chỉ mở cho ba Ngọc Trai Biển.' },
+    { w: 'ember', en: 'And where are the pearls?', vi: 'Vậy ngọc trai ở đâu?' },
+    { w: 'mermaid', en: 'Its fish hid them in three rock pockets carved into the walls, on the way down. Swim into the side caves and search!', vi: 'Lũ cá của nó giấu chúng trong ba hốc đá khoét vào vách, trên đường đi xuống. Hãy bơi vào các hang bên và tìm!' },
+    { w: 'pirate', en: 'Arr, listen, lad. Hammer the Jump button again and again to swim up, let yourself sink to go down. The deeper you go, the darker and the stronger the currents.', vi: 'Arr, nghe này nhóc. Nhấn Nhảy liên tục để bơi lên, buông ra để chìm xuống. Càng sâu càng tối và dòng nước càng mạnh.' },
+    { w: 'pirate', en: 'Every stone shelf has a lamp post: that is a safe spot to rest. And swing your sword while you swim, the fish will not wait for you!', vi: 'Mỗi bệ đá đều có cột đèn: đó là chỗ nghỉ an toàn. Và cứ vung kiếm khi đang bơi, bọn cá không chờ bạn đâu!' },
+    { w: 'ember', en: 'Three pearls, one door and one giant octopus. A normal day, then.', vi: 'Ba viên ngọc, một cánh cửa và một con bạch tuộc khổng lồ. Một ngày bình thường thôi mà.' },
+    { w: 'mermaid', en: 'Swim fast, Ember. The sea is very deep... and the fish are hungry.', vi: 'Bơi nhanh nhé, Ember. Biển rất sâu... và lũ cá đang đói.' },
+    { w: 'narr', en: 'QUEST: find the 3 Sea Pearls in the side caves, open the Tide Door at the bottom, and face the Kraken.', vi: 'NHIỆM VỤ: tìm 3 Ngọc Trai Biển trong các hang bên, mở Cánh Cửa Thủy Triều ở đáy và đối đầu Thủy Quái.' }
+  ];
+  DLG[8] = {
+    mermaid: [
+      { en: 'Three Sea Pearls, hidden in the side caves of the walls. Look for the dark openings on the left and right as you dive.', vi: 'Ba Ngọc Trai Biển, giấu trong các hang bên của vách đá. Hãy tìm các cửa hang tối ở trái và phải khi lặn.' },
+      { en: 'Bring all three to the Tide Door at the very bottom. It will open by itself.', vi: 'Mang cả ba tới Cánh Cửa Thủy Triều ở tận đáy. Nó sẽ tự mở.' }],
+    pirate: [
+      { en: 'Hit Jump again and again to swim up. And keep swinging while you swim: the fish bite harder than they look.', vi: 'Nhấn Nhảy liên tục để bơi lên. Và cứ vung kiếm khi đang bơi: lũ cá cắn đau hơn vẻ ngoài của chúng.' }],
+    fisher: [
+      { en: 'The currents get stronger below here. They push you away from the hole in each shelf. Swim hard, or ride them and loop back!', vi: 'Dưới đây dòng nước mạnh hơn. Chúng đẩy bạn ra xa cái lỗ ở mỗi bệ đá. Bơi thật mạnh, hoặc cứ để trôi rồi vòng lại!' },
+      { en: 'I saw a pearl glowing in a cave on the left, three shelves down.', vi: 'Ông thấy một viên ngọc trai phát sáng trong hang bên trái, ba bệ đá bên dưới.' }],
+    bard: [
+      { en: '"Down, down, down the lantern goes, where the quiet kraken dozes..." I can never find a rhyme for dozes.', vi: '"Xuống, xuống, xuống đèn đi mãi, nơi quái vật ngủ yên..." Tôi chẳng bao giờ tìm được vần cho chữ "yên".' }],
+    mole: [
+      { en: 'Hm? A mole in the sea? Do not ask. I followed a worm and got a bit lost.', vi: 'Hử? Chuột chũi ở biển ư? Đừng hỏi. Ông theo một con sâu rồi hơi bị lạc.' }]
+  };
+  MAP_STORY[8] = [
+    { en: 'SUNKEN DEEP. The road ends at a cliff above the sea. Far below, the Kraken sleeps on the Sun\'s sixth shard.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Con đường dừng lại ở vách đá phía trên biển. Rất sâu bên dưới, Thủy Quái đang ngủ trên mảnh Mặt Trời thứ sáu.' },
+    { en: 'A mermaid waits on the shore. She needs help: the Kraken locked its cave with a Tide Door that opens only for three Sea Pearls.', vi: 'Một nàng tiên cá đang đợi trên bờ. Cô cần giúp đỡ: Thủy Quái đã khóa hang bằng Cánh Cửa Thủy Triều chỉ mở cho ba Ngọc Trai Biển.' },
+    { en: 'You will dive from the surface into the deep: swim down through six dark zones, fight what lives there and search the side caves. The deeper you go, the stronger the currents.', vi: 'Bạn sẽ lặn từ mặt biển xuống vực sâu: bơi qua sáu tầng tối, chiến đấu với những gì sống ở đó và tìm trong các hang bên. Càng sâu, dòng nước càng mạnh.' }
+  ];
+  COOP_MAP[8] = [L2('narr', 'The Sunken Deep. A mermaid begs for help: three Sea Pearls open the Tide Door above the Kraken.', 'Đại Dương Sâu Thẳm. Một nàng tiên cá cầu xin giúp đỡ: ba Ngọc Trai Biển mở Cánh Cửa Thủy Triều trên đầu Thủy Quái.'),
+    L2('{p0}', 'Swim into the side caves and look for the pearls. Stay close and shout if you get swept away.', 'Bơi vào các hang bên và tìm ngọc trai. Đi sát nhau và hét lên nếu bị cuốn đi.'),
+    L2('{p1}', 'I will take the left caves. Whoever finds a pearl, yell!', 'Mình lo mấy hang bên trái. Ai thấy ngọc trai thì hét lên nhé!')];
+  const depthM = y => Math.max(0, Math.round((y / TS - Q.L.waterY) * 2));
+  const depthDark = y => clamp(((y / TS) - 12) / (Q.L.H - 28), 0, 1);
+  function openTideDoor(pg) {
+    pg.open = true; for (let y = pg.y0; y <= pg.y1; y++) for (let x = pg.x0; x <= pg.x1; x++) Q.L.grid[y][x] = ' ';
+    Snd.play('gate'); Snd.play('boom'); Q.shake = 0.6; const cx = (pg.x0 + pg.x1) / 2 * TS, cy = pg.y0 * TS;
+    for (let i = 0; i < 40; i++) emit(cx + rr(-150, 150), cy + rr(0, 30), 1, { col: ['#bfeaff', '#fff', '#6ee7f2'], sp0: 20, sp1: 120, vy: 60 });
+    addRing(cx, cy, '#6ee7f2', 120, 0.8); Q.msg = save.lang === 'vi' ? 'Cánh Cửa Thủy Triều đã mở! Kraken đang đợi bên dưới...' : 'The Tide Door opens! The Kraken waits below...'; Q.msgT = 5;
+  }
+  function updateOcean(dt) {
+    const L = Q.L; if (L.waterY === undefined || Q.state !== 'play') return;
+    const P = Q.P;
+    if (!Q.questShown) { Q.qT = (Q.qT || 0) + dt; if (Q.qT > 1.2 && P.onGround) { Q.questShown = true; startScripted('mermaid', QUEST8, null); return; } }
+    // currents
+    for (const c of L.currents) {
+      const x0 = c.x0 * TS, x1 = c.x1 * TS, y0 = c.y0 * TS, y1 = c.y1 * TS;
+      for (const p of allPl()) if (p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1) { if (c.vx) moveX(p, c.vx * dt); if (c.vy) { p.y += c.vy * dt; } }
+      if (Math.abs((x0 + x1) / 2 - Q.cam.x - VW / 2) < VW / 2 + (x1 - x0) / 2 && Math.random() < 0.5) { const sx = rr(Math.max(x0, Q.cam.x), Math.min(x1, Q.cam.x + VW)), sy = rr(Math.max(y0, Q.cam.y), Math.min(y1, Q.cam.y + VH)); emit(sx, sy, 1, { col: ['#bfeaff', '#ffffff'], sp0: 0, sp1: 4, vx: c.vx * 1.6, vy: c.vy * 1.6, grav: 0, l0: 0.5, l1: 1.0 }); }
+    }
+    // the Tide Door
+    const pg = L.pearlGate;
+    if (pg && !pg.open) {
+      const cx = (pg.x0 + pg.x1) / 2 * TS, cy = (pg.y0 + 1) * TS, d = Math.hypot(P.x - cx, P.y - cy);
+      if (Q.pearls >= 3 && d < 160) openTideDoor(pg);
+      else if (d < 110 && Q.t - (Q.doorMsgT || -99) > 6) { Q.doorMsgT = Q.t; Q.msg = (save.lang === 'vi' ? 'Cánh Cửa Thủy Triều cần 3 Ngọc Trai Biển (' : 'The Tide Door needs 3 Sea Pearls (') + (Q.pearls || 0) + '/3)'; Q.msgT = 4; }
+    }
+  }
+  // paints the sky and the sea surface when the camera can see above the water
+  function drawSurface(camX, camY) {
+    const L = Q.L; if (L.waterY === undefined) return;
+    const sy = Math.round(L.waterY * TS - camY); if (sy <= 0) return;
+    const h = Math.min(sy, VH), gr = g.createLinearGradient(0, 0, 0, sy); gr.addColorStop(0, '#4a90d8'); gr.addColorStop(0.55, '#a8d0f0'); gr.addColorStop(1, '#ffe0b0');
+    g.fillStyle = gr; g.fillRect(0, 0, VW, h);
+    if (Q.scn) for (const c of Q.scn.clouds.slice(0, 5)) { const x = ((c.x - camX * 0.06 + Q.t * c.v * 0.6) % (VW + 200) + VW + 200) % (VW + 200) - 100, cs = cloudSprite('rgba(255,255,255,.8)', Math.round(c.w)); g.globalAlpha = cs.alpha; g.drawImage(cs, Math.round(x), Math.round(10 + c.y * 0.9 - camY * 0.04)); g.globalAlpha = 1; }
+    if (sy < VH + 4) { for (let x = 0; x < VW; x += 2) { const wy = sy + Math.round(Math.sin((x + camX) * 0.09 + Q.t * 2.2) * 1.4); g.fillStyle = '#d8f4ff'; g.fillRect(x, wy - 1, 2, 2); g.fillStyle = 'rgba(160,220,255,.5)'; g.fillRect(x, wy + 1, 2, 3); } }
+  }

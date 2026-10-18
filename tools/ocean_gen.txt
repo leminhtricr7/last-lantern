@@ -1,0 +1,70 @@
+
+// ============ THE SUNKEN DEEP: a vertical level. You start on the shore, dive, and swim down through six zones to the Kraken ============
+function genOcean(B, li) {
+  const rnd = mulberry32(9001 + li * 7919), R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+  const W = 84, H = 132, WY = 10, SH = [26, 40, 54, 68, 82, 96], ARY0 = 99, GY = H - 4;
+  const grid = []; for (let y = 0; y < H; y++) grid.push(new Array(W).fill(' '));
+  const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], dragons: [], minis: [], dark: [], creep: [], id: 0, waterY: WY, currents: [], nooks: [] };
+  const set = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) grid[y][x] = c; };
+  const rect = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) set(x, y, c); };
+  const spawn = (type, tx, ty, ex) => { L.spawns.push(Object.assign({ id: L.id++, type, x: tx * TS + TS / 2, y: ty * TS }, ex)); };
+  const cp = (tx, ty) => L.checkpoints.push({ x: tx * TS + TS / 2, y: ty * TS, id: L.id++ });
+  const gapOf = k => (k % 2 === 0 ? [52, 71] : [12, 31]);          // even shelves open on the right, odd ones on the left
+  const spanOf = k => (k % 2 === 0 ? [10, 51] : [32, 73]);        // the part of the shelf you can stand on
+  // the shore, the walls, the shelves
+  rect(0, WY, 21, 24, '#'); rect(0, WY, 9, H - 1, '#'); rect(W - 10, 8, W - 1, H - 1, '#');
+  SH.forEach((s, k) => { rect(10, s, W - 11, s + 2, '#'); const g = gapOf(k); rect(g[0], s, g[1], s + 2, ' '); });
+  // side pockets hidden in the thick walls: three hold Sea Pearls, the others Star Gems and a secret
+  const AL = [{ s: 1, r: 30, it: 'rare', k: 0 }, { s: -1, r: 46, it: 'pearl' }, { s: -1, r: 60, it: 'egg', k: 1 }, { s: 1, r: 64, it: 'rare', k: 3 }, { s: 1, r: 74, it: 'pearl' }, { s: -1, r: 88, it: 'pearl', k: 2 }];
+  for (const a of AL) {
+    if (a.s < 0) rect(3, a.r, 9, a.r + 3, ' '); else rect(74, a.r, 80, a.r + 3, ' ');
+    const tx = a.s < 0 ? 5 : 78, ty = a.r + 4;
+    if (a.it === 'pearl') spawn('pearl', tx, ty);
+    if (a.it === 'egg') { spawn('egg', tx, ty, { k: 'ocean' }); spawn('rare', tx + 1, ty, { k: a.k, y: ty * TS - 6 }); }
+    else if (a.it === 'rare' || a.k !== undefined) spawn('rare', tx + (a.it === 'pearl' ? 2 : 0), ty, { k: a.k, y: ty * TS - 6 });
+    for (let i = 0; i < 4; i++) spawn('coin', (a.s < 0 ? 4 : 75) + i * 1.5, a.r + 2);
+    spawn('piranha', a.s < 0 ? 13 : 70, a.r + 1); if (a.it === 'pearl') spawn('piranha', a.s < 0 ? 15 : 68, a.r + 2);
+  }
+  const alcoveNear = (side, y) => AL.some(a => a.s === side && y >= a.r - 4 && y <= a.r + 6);
+  // zones between the shelves
+  for (let k = 0; k < 6; k++) {
+    const s = SH[k], top = s + 3, bot = (k < 5 ? SH[k + 1] : ARY0) - 1, sideA = k % 2 === 0 ? 1 : -1, sp = spanOf(k);
+    for (let i = 0; i < 3; i++) {   // floating ledges to rest on
+      const w = R(4, 6), x0 = R(14, 64), y = top + 3 + R(0, Math.max(1, bot - top - 6));
+      for (let xx = x0; xx < x0 + w; xx++) if (grid[y][xx] === ' ') set(xx, y, '=');
+      for (let c = 0; c < 3; c++) spawn('coin', x0 + 1 + c, y - 2);
+      if (k >= 1 && rnd() < 0.55) spawn('crab', x0 + (w >> 1), y);
+    }
+    { const y = top + R(3, 7), side = sideA; if (!alcoveNear(side, y)) { if (side > 0) rect(70, y, 73, y + 1, '#'); else rect(10, y, 13, y + 1, '#'); if (k >= 2) spawn('crab', side > 0 ? 71 : 11, y); } }
+    // the shelf top: spikes, crabs, plants
+    for (let x = sp[0]; x <= sp[1]; x++) if (rnd() < 0.3) L.decor.push({ x: x * TS + R(0, 8), y: s * TS, k: R(0, B.decor.length - 1) });
+    if (k >= 1) { const x0 = sp[0] + R(10, sp[1] - sp[0] - 14); rect(x0, s - 1, x0 + 2, s - 1, '^'); }
+    for (let c = 0; c < Math.min(3, 1 + (k >> 1)); c++) spawn(k >= 3 && c === 1 ? 'seaslime' : 'crab', sp[0] + R(6, sp[1] - sp[0] - 6), s);
+    for (let c = 0; c < 4; c++) spawn('coin', sp[0] + 8 + c * 2, s - 1);
+    if (k % 2 === 1) spawn('pk', sp[0] + R(8, 24), s, { what: rnd() < 0.5 ? 'bomb' : 'dagger' });
+    // free swimmers, more of them the deeper you go
+    const put = (type, n) => { for (let c = 0; c < n; c++) for (let t = 0; t < 12; t++) { const x = R(14, 68), y = R(top + 2, bot - 2); if (grid[y][x] === ' ') { spawn(type, x, y); break; } } };
+    put('jelly', 2 + k); if (k >= 1) put('piranha', 1 + k); if (k >= 3) put('eel', k - 1);
+    // currents that push you away from the way down, stronger every zone
+    if (k >= 2) L.currents.push({ x0: 12, y0: top + 2, x1: 72, y1: bot - 1, vx: -sideA * (24 + k * 8), vy: 0 });
+    if (k === 1) L.currents.push({ x0: 36, y0: top + 1, x1: 56, y1: bot - 1, vx: 0, vy: 34 });   // a gentle downdraft to learn swimming
+    // checkpoint and friends on the safe side of every shelf
+    cp(sideA > 0 ? 16 : 66, s);
+    spawn('heart', sideA > 0 ? 18 : 64, s - 1);
+  }
+  spawn('npc', 24, SH[1], { who: 'fisher' }); spawn('npc', 58, SH[3], { who: 'bard' }); spawn('npc', 20, SH[4], { who: 'mole' });
+  // the shore: three friends and a checkpoint
+  cp(14, WY); spawn('npc', 8, WY, { who: 'trader' }); spawn('npc', 11, WY, { who: 'pirate' }); spawn('npc', 19, WY, { who: 'mermaid' });
+  for (let i = 0; i < 4; i++) spawn('coin', 4 + i * 2, WY - 2);
+  L.start = { x: 5 * TS, y: WY * TS };
+  // the Tide Door: three Sea Pearls open it
+  rect(12, 96, 31, 97, 'G'); L.pearlGate = { x0: 12, x1: 31, y0: 96, y1: 97, open: false };
+  // the Kraken's cavern
+  rect(4, ARY0, W - 5, GY - 1, ' '); rect(0, GY, W - 1, H - 1, '#');
+  [[GY - 6, 14, 20], [GY - 6, 40, 46], [GY - 6, 64, 70], [GY - 12, 26, 32], [GY - 12, 54, 60], [GY - 18, 12, 18], [GY - 18, 40, 46], [GY - 18, 66, 72]].forEach(p => { for (let x = p[1]; x <= p[2]; x++) set(x, p[0], '='); });
+  for (let i = 0; i < 8; i++) L.decor.push({ x: (10 + i * 9) * TS, y: GY * TS, k: R(0, B.decor.length - 1) });
+  L.arena = { x0: 3, x1: W - 3, gy: GY, y0: ARY0, rects: [[12, 96, 31, 98]] };
+  L.spawns.push({ id: L.id++, type: 'boss', x: (W - 24) * TS, y: GY * TS });
+  L.endX = W * TS;
+  return L;
+}
