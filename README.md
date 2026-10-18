@@ -166,6 +166,11 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - C-B guns have special ammo (fire, ice that freezes every 5th shot, plasma bursts, tesla lightning, grenades), A guns are heavy (railgun that pierces everything, Gatling that spins up to 14 shots/s, void pistol that leaves black holes).
 - **S**: Solar Cannon (sun bolts every 5th shot), The Judge (lightning from the sky + thunder nova). **SS**: Supernova Rifle (homing stars, star ring, supernova blast), Dragon Breath (cone of dragon fire, summons a dragon). **SSS**: OMEGA (reality-tearing beams, void lightning, orbital barrage of 14 sky beams, black hole) and Celestial Judgment (3 homing holy bullets, summons an Archangel and the Sun Emperor, and a Divine Judgment that strikes every enemy on screen and heals you).
 
+## Title screen and world map (UI redesign)
+- **Title**: a twilight scene with a burning Eclipse rising behind layered mountains and a ruined castle, fireflies, embers, mist and the hero beside his lantern; a big gold glowing logo with lantern ornaments; the menu is a glass panel with a glowing selection bar and a bobbing lantern pointer.
+- **World map**: each of the 10 lands has its own emblem (hills, pine, crystal, pyramid, snowflake, volcano, mushroom, waves, mine, tower) inside a ringed medallion with a colour glow; the road is a glowing golden path with moving sparks (dark and dotted where locked); cleared lands carry a gold star badge, locked lands are fogged with a padlock; the hero walks to the chosen land; a bottom info panel shows the land, difficulty, puzzles, length, Sun Shards and its relic; the top bar shows the title ribbon, progress, gold, gems and Star Gems.
+- Text can now have gradients, outlines, glow and letter spacing (`txt(..., { grad, ol, glow, ls })`).
+
 ## Project layout
 
 - `src/art.js` — all pixel art is generated in code (sprites, tilesets, parallax backgrounds)

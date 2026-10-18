@@ -470,15 +470,19 @@
 
   // ---------- text queue (drawn at native resolution after blit) ----------
   let texts = [];
-  function txt(s, x, y, o) { o = o || {}; texts.push({ s, x, y, size: o.size || 8, col: o.col || '#fff', al: o.al || 'left', sh: o.sh === undefined ? true : o.sh, alpha: o.alpha === undefined ? 1 : o.alpha, bold: o.bold }); }
+  function txt(s, x, y, o) { o = o || {}; texts.push({ grad: o.grad, ol: o.ol, glow: o.glow, ls: o.ls, s, x, y, size: o.size || 8, col: o.col || '#fff', al: o.al || 'left', sh: o.sh === undefined ? true : o.sh, alpha: o.alpha === undefined ? 1 : o.alpha, bold: o.bold }); }
   function flushTexts() {
     ctx.textBaseline = 'middle';
     for (const t of texts) {
       ctx.font = (t.bold ? 'bold ' : '') + Math.round(t.size * scale) + 'px ' + FONT;
       ctx.textAlign = t.al; ctx.globalAlpha = t.alpha;
       const px = offX + t.x * scale, py = offY + t.y * scale;
-      if (t.sh) { ctx.fillStyle = '#0a0612'; ctx.fillText(t.s, px + scale, py + scale); }
-      ctx.fillStyle = t.col; ctx.fillText(t.s, px, py);
+      ctx.letterSpacing = t.ls ? Math.round(t.ls * scale) + 'px' : '0px';
+      if (t.sh && !t.ol) { ctx.fillStyle = '#0a0612'; ctx.fillText(t.s, px + scale, py + scale); }
+      if (t.ol) { ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(2, Math.round(scale * 1.7)); ctx.strokeStyle = t.ol; ctx.strokeText(t.s, px, py); }
+      if (t.glow) { ctx.shadowColor = t.glow; ctx.shadowBlur = Math.round(scale * 4); }
+      if (t.grad) { const hh = t.size * scale / 2, gr = ctx.createLinearGradient(0, py - hh, 0, py + hh); t.grad.forEach((c, i) => gr.addColorStop(i / (t.grad.length - 1), c)); ctx.fillStyle = gr; } else ctx.fillStyle = t.col;
+      ctx.fillText(t.s, px, py); ctx.shadowBlur = 0; ctx.letterSpacing = '0px';
     }
     ctx.globalAlpha = 1; texts = [];
   }
@@ -592,7 +596,7 @@
     const xy = gameXY(e), gx = xy[0], gy = xy[1]; mouse.gx = gx; mouse.gy = gy;
     const inPlay = scene === 'play' && Q;
     if (e.type === 'pointermove') {
-      if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, VW / 2 + 60, 92, 14, 85); if (i >= 0 && i !== titleSel) { titleSel = i; Snd.play('select'); } }
+      if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, 293, 92, 12, 79); if (i >= 0 && i !== titleSel) { titleSel = i; Snd.play('select'); } }
       else if (inPlay && Q.state === 'pause') { const i = menuHit(gx, gy, 4, VW / 2, 88, 18, 80); if (i >= 0 && i !== Q.menu) { Q.menu = i; Snd.play('select'); } }
       else if (inPlay && Q.state === 'shop') { const n = (SHOPS[Q.shopWho] || []).length + 1, i = menuHit(gx, gy, n, VW / 2, 96, 14, 110); if (i >= 0 && i !== Q.menu) { Q.menu = i; Snd.play('select'); } }
       else if (scene === 'shop') shopMouse(gx, gy, false);
@@ -605,7 +609,7 @@
     }
     if (e.button === 1) { if (inPlay && Q.state === 'play') { faceMouse(gx); pressed.KeyH = true; } return; }
     if (e.button !== 0) return;
-    if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, VW / 2 + 60, 92, 14, 85); if (i >= 0) { titleSel = i; pressed.Enter = true; } }
+    if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, 293, 92, 12, 79); if (i >= 0) { titleSel = i; pressed.Enter = true; } }
     else if (scene === 'story' || scene === 'ending') pressed.Enter = true;
     else if (scene === 'shop') shopMouse(gx, gy, true);
     else if (scene === 'map') {
@@ -4251,7 +4255,7 @@
     if (s === 'mstory') { scene = 'story'; storyPage = 0; storyT = 0; storyList = MAP_STORY[storyLevel]; Snd.music('title', TITLE_MUSIC); }
     if (s === 'story') { storyPage = 0; storyT = 0; storyList = STORY; Snd.music('title', TITLE_MUSIC); }
     if (s === 'ending') { storyPage = 0; storyT = 0; storyList = ENDING; Snd.music('title', TITLE_MUSIC); }
-    if (s === 'map') { Snd.music('title', TITLE_MUSIC); Q = null; mapSel = Math.min(mapSel, maxPlayable()); }
+    if (s === 'map') { MAPHERO.x = -1; Snd.music('title', TITLE_MUSIC); Q = null; mapSel = Math.min(mapSel, maxPlayable()); }
     if (s === 'cutscene') startCut();
     if (s === 'coop') { Q = null; Snd.music('title', TITLE_MUSIC); }
     if (s === 'castle') startCastle();
@@ -4292,21 +4296,186 @@
     it.push({ k: 'quit', fn: () => { try { window.close(); } catch (e) { } } });
     return it;
   }
-  function drawTitle() {
-    const gy = drawBgOnly(0, title.cam, sceneT);
-    // hero running
-    const hs = getSprite('hero_run', {}, Math.floor(sceneT * 9) % 4);
-    drawSpr(g, hs, 80, gy, false, false, 2, 2);
-    g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(94, gy - 14, 0, 94, gy - 14, 50); gr.addColorStop(0, 'rgba(255,190,90,.35)'); gr.addColorStop(1, 'rgba(255,190,90,0)'); g.fillStyle = gr; g.fillRect(40, gy - 70, 110, 110); g.globalCompositeOperation = 'source-over';
-    g.fillStyle = 'rgba(5,3,15,.35)'; g.fillRect(0, 0, VW, VH);
-    txt('LAST LANTERN', VW / 2, 34, { al: 'center', size: 26, bold: true, col: '#ffd34e' });
-    txt(save.lang === 'vi' ? 'Ngọn Đèn Cuối Cùng' : 'The Shattered Sun', VW / 2, 56, { al: 'center', size: 10, col: '#cfd6e6' });
-    const items = titleItems();
-    items.forEach((it, i) => {
-      let s = it.k === 'resume' ? sv('Resume: map ', 'Chơi tiếp: map ') + (LPOS(save.resume.li) + 1) + ' ' + LN(BIOMES[save.resume.li].name) : T(it.k); if (it.k === 'sound') s += ': ' + (Snd.muted ? 'OFF' : 'ON');
-      txt((titleSel === i ? '> ' : '  ') + s + (titleSel === i ? ' <' : ''), VW / 2 + 60, 92 + i * 14, { al: 'center', size: 9, col: titleSel === i ? '#ffd34e' : '#e8eaf5' });
+  // ===================== NEW TITLE SCREEN AND WORLD MAP =====================
+  const UIC = {};
+  const fitTxt = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
+  function lanternIc(x, y, a) {
+    a = a === undefined ? 1 : a; g.globalAlpha = a;
+    g.fillStyle = '#2a1a10'; g.fillRect(x - 1, y - 7, 3, 1); g.fillRect(x - 3, y - 6, 7, 2);
+    g.fillStyle = '#c89a1c'; g.fillRect(x - 3, y - 5, 7, 1);
+    g.fillStyle = '#2a1a10'; g.fillRect(x - 3, y - 4, 1, 7); g.fillRect(x + 3, y - 4, 1, 7);
+    g.fillStyle = '#ffd34e'; g.fillRect(x - 2, y - 4, 5, 7); g.fillStyle = '#fff6c0'; g.fillRect(x - 1, y - 3, 3, 4); g.fillStyle = '#ffffff'; g.fillRect(x, y - 2, 1, 2);
+    g.fillStyle = '#c89a1c'; g.fillRect(x - 3, y + 3, 7, 1); g.fillStyle = '#2a1a10'; g.fillRect(x - 2, y + 4, 5, 1);
+    g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x, y - 1, 0, x, y - 1, 12); gr.addColorStop(0, 'rgba(255,190,80,.5)'); gr.addColorStop(1, 'rgba(255,190,80,0)'); g.fillStyle = gr; g.fillRect(x - 12, y - 13, 24, 24); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+  }
+  function titleArt() {
+    if (UIC.t) return UIC.t;
+    const T = {}, W = 768, GY = 170;
+    { const [c, x] = mkCanvas(VW, VH), st = [[0, '#07041a'], [0.3, '#170a38'], [0.58, '#44165a'], [0.78, '#b83e5a'], [0.9, '#ff8a4a'], [1, '#ffcf80']];
+      for (let y = 0; y <= GY; y++) { const t = y / GY; let i = 0; while (i < st.length - 2 && t > st[i + 1][0]) i++; const a = st[i], b = st[i + 1]; x.fillStyle = lerpColor(a[1], b[1], clamp((t - a[0]) / (b[0] - a[0]), 0, 1)); x.fillRect(0, y, VW, 1); }
+      x.fillStyle = '#0a0414'; x.fillRect(0, GY, VW, VH - GY); T.sky = c; }
+    const ridge = (base, amp, col, rim, seed, extra) => {
+      const [c, x] = mkCanvas(W, 130), q = mulberry32(seed), ph = [q() * 6, q() * 6, q() * 6, q() * 6];
+      for (let px = 0; px < W; px++) { const y = Math.round(base + Math.sin(px / W * 6.2832 * 2 + ph[0]) * amp + Math.sin(px / W * 6.2832 * 5 + ph[1]) * amp * 0.5 + Math.sin(px / W * 6.2832 * 11 + ph[2]) * amp * 0.25); x.fillStyle = col; x.fillRect(px, y, 1, 130 - y); x.fillStyle = rim; x.fillRect(px, y, 1, 1); }
+      if (extra) extra(x); return c;
+    };
+    T.m1 = ridge(34, 18, '#3a1a52', '#8a3a72', 11);
+    T.m2 = ridge(40, 14, '#26103e', '#5a2a62', 22, x => {   // a ruined castle on the far ridge
+      const q = mulberry32(5); x.fillStyle = '#1a0a2e';
+      for (const [dx, w, h] of [[0, 16, 38], [20, 11, 26], [-18, 11, 30], [34, 9, 20], [-30, 8, 16]]) { x.fillRect(540 + dx, 44 - h, w, h + 10); for (let k = 0; k < w; k += 4) x.fillRect(540 + dx + k, 44 - h - 3, 2, 3); }
+      x.fillStyle = '#1a0a2e'; for (const [dx, w] of [[0, 16], [-18, 11]]) for (let i = 0; i < 12; i++) { const hw = Math.round((1 - i / 12) * w / 2); x.fillRect(540 + dx + w / 2 - hw, 44 - 38 - 3 - i, hw * 2, 1); }
+      x.fillStyle = '#ffb04a'; for (const [dx, y] of [[6, 18], [7, 28], [-14, 24], [23, 30], [36, 34]]) x.fillRect(540 + dx, y, 1, 2);
     });
-    txt('© Your Studio  •  v1.0', VW - 6, VH - 8, { al: 'right', size: 5, col: '#8892aa' });
+    T.m3 = ridge(46, 10, '#150a24', '#3a1a48', 33);
+    // foreground pines on both sides
+    { const [c, x] = mkCanvas(130, 120); const q = mulberry32(99); x.fillStyle = '#05020a';
+      for (let i = 0; i < 9; i++) { const px = 6 + i * 13 + ((q() * 6) | 0), h = 40 + ((q() * 60) | 0), w = 12 + ((q() * 10) | 0); x.fillRect(px - 1, 120 - 14, 3, 14); for (let k = 0; k < h; k++) { const hw = Math.round(k / h * w / 2); x.fillRect(px - hw, 120 - 14 - h + k, hw * 2 + 1, 1); } }
+      T.pines = c; }
+    { const [c, x] = mkCanvas(VW, VH), v = x.createRadialGradient(VW / 2, VH * 0.5, VH * 0.3, VW / 2, VH * 0.5, VW * 0.65); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(2,0,8,.65)'); x.fillStyle = v; x.fillRect(0, 0, VW, VH); T.vig = c; }
+    const q = mulberry32(2024); T.stars = []; for (let i = 0; i < 70; i++) T.stars.push({ x: (q() * VW) | 0, y: (q() * 110) | 0, s: q() < 0.15 ? 2 : 1, v: 1 + q() * 3, p: q() * 6, c: q() < 0.25 ? '#ffd8a0' : '#cfd6ff' });
+    T.flies = []; for (let i = 0; i < 26; i++) T.flies.push({ x: q() * VW, y: GY - 8 - q() * 70, ph: q() * 6, sp: 0.3 + q() * 0.7, r: 6 + q() * 20 });
+    T.embers = []; for (let i = 0; i < 24; i++) T.embers.push({ x: q() * VW, o: q() * 100, v: 8 + q() * 16, ph: q() * 6 });
+    T.tufts = []; for (let x = 0; x < VW; x += 3) T.tufts.push({ x, h: 2 + ((q() * 5) | 0), p: q() * 6 });
+    return (UIC.t = T);
+  }
+  function drawTitle() {
+    const t = sceneT, A = titleArt(), GY = 170, cam = title.cam;
+    g.drawImage(A.sky, 0, 0);
+    for (const s of A.stars) { g.globalAlpha = 0.3 + 0.7 * Math.abs(Math.sin(t * s.v + s.p)); g.fillStyle = s.c; g.fillRect(s.x, s.y, s.s, s.s); } g.globalAlpha = 1;
+    // the Eclipse: a black sun with a burning crescent and a slowly turning corona
+    { const ex = 112, ey = 108;
+      g.globalCompositeOperation = 'lighter'; const cg = g.createRadialGradient(ex, ey, 10, ex, ey, 86 + Math.sin(t * 1.3) * 4); cg.addColorStop(0, 'rgba(255,170,70,.55)'); cg.addColorStop(0.35, 'rgba(200,70,110,.22)'); cg.addColorStop(1, 'rgba(120,40,160,0)'); g.fillStyle = cg; g.fillRect(ex - 90, ey - 90, 180, 180);
+      for (let i = 0; i < 28; i++) { const a = i / 28 * 6.2832 + t * 0.05, l = 30 + (i % 3) * 12 + Math.sin(t * 2 + i) * 4; g.strokeStyle = 'rgba(255,190,90,' + (0.1 + (i % 2) * 0.08) + ')'; g.lineWidth = 1; g.beginPath(); g.moveTo(ex + Math.cos(a) * 24, ey + Math.sin(a) * 24); g.lineTo(ex + Math.cos(a) * (24 + l), ey + Math.sin(a) * (24 + l)); g.stroke(); }
+      g.globalCompositeOperation = 'source-over'; disc(g, ex, ey, 26, '#ffd890'); disc(g, ex, ey, 25, '#ff9a4a'); disc(g, ex + 3, ey + 2, 25, '#05020c'); }
+    for (const [im, f, y] of [[A.m1, 0.02, 84], [A.m2, 0.05, 106], [A.m3, 0.1, 128]]) { const ox = -((cam * f) % 768); g.drawImage(im, Math.round(ox), y); g.drawImage(im, Math.round(ox) + 768, y); }
+    // ground, lit from the horizon, with swaying grass
+    { const gg = g.createLinearGradient(0, GY, 0, VH); gg.addColorStop(0, '#2a1426'); gg.addColorStop(0.15, '#120816'); gg.addColorStop(1, '#05020a'); g.fillStyle = gg; g.fillRect(0, GY, VW, VH - GY); g.fillStyle = 'rgba(255,150,70,.6)'; g.fillRect(0, GY, VW, 1); g.fillStyle = '#0a0412'; for (const f of A.tufts) g.fillRect(f.x, GY - f.h + Math.round(Math.sin(t * 2 + f.p) * 0.6), 1, f.h); }
+    g.drawImage(A.pines, -22, VH - 120); g.save(); g.translate(VW + 22, 0); g.scale(-1, 1); g.drawImage(A.pines, 0, VH - 120); g.restore();
+    // mist
+    for (let i = 0; i < 3; i++) for (let k = 0; k < 6; k++) { g.globalAlpha = 0.05; g.fillStyle = '#ffb4a0'; g.fillRect(((k * 90 + t * (6 + i * 4) + i * 40) % (VW + 120)) - 60, GY - 16 + i * 6, 100, 6); } g.globalAlpha = 1;
+    // fireflies and embers
+    for (const f of A.flies) { const x = f.x + Math.sin(t * f.sp + f.ph) * f.r, y = f.y + Math.cos(t * f.sp * 1.3 + f.ph) * 6, a = 0.4 + 0.6 * Math.max(0, Math.sin(t * 2 + f.ph)); g.globalAlpha = a; g.fillStyle = '#ffe066'; g.fillRect(Math.round(x), Math.round(y), 2, 2); g.globalAlpha = a * 0.3; g.fillRect(Math.round(x) - 1, Math.round(y) - 1, 4, 4); } g.globalAlpha = 1;
+    for (const e of A.embers) { const y = GY - ((e.o + t * e.v) % 130), x = e.x + Math.sin(t + e.ph) * 6; g.globalAlpha = clamp((GY - y) / 40, 0, 1) * clamp(y / 60, 0, 1) * 0.8; g.fillStyle = Math.sin(t * 8 + e.ph) > 0 ? '#ffd34e' : '#ff7a2a'; g.fillRect(Math.round(x), Math.round(y), 1, 1); } g.globalAlpha = 1;
+    // the hero beside his lantern: a big warm light pool
+    { const hx = 150, fl = 1 + Math.sin(t * 9) * 0.04 + Math.sin(t * 5.3) * 0.03;
+      g.globalCompositeOperation = 'lighter'; const lg2 = g.createRadialGradient(hx + 12, GY - 20, 0, hx + 12, GY - 20, 78 * fl); lg2.addColorStop(0, 'rgba(255,190,90,.5)'); lg2.addColorStop(0.5, 'rgba(255,140,60,.18)'); lg2.addColorStop(1, 'rgba(255,120,40,0)'); g.fillStyle = lg2; g.fillRect(hx - 70, GY - 100, 160, 130);
+      g.fillStyle = 'rgba(255,170,70,.18)'; for (let i = 0; i < 28; i++) g.fillRect(hx - 40 + i * 3 + Math.round(Math.sin(i + t) * 1), GY, 3, 1);
+      g.globalCompositeOperation = 'source-over'; drawSpr(g, getSprite('hero_idle', {}, Math.floor(t * 2.5) % 2), hx, GY + 3, false, false, 2, 2); }
+    g.drawImage(A.vig, 0, 0);
+    // ---- logo ----
+    { const pulse = 0.6 + Math.sin(t * 1.6) * 0.4;
+      g.globalCompositeOperation = 'lighter'; const lgl = g.createRadialGradient(VW / 2, 36, 0, VW / 2, 36, 140); lgl.addColorStop(0, 'rgba(255,170,60,' + (0.16 + pulse * 0.08) + ')'); lgl.addColorStop(1, 'rgba(255,120,40,0)'); g.fillStyle = lgl; g.fillRect(0, 0, VW, 100); g.globalCompositeOperation = 'source-over';
+      lanternIc(VW / 2 - 124, 36 + Math.round(Math.sin(t * 2) * 1.5)); lanternIc(VW / 2 + 124, 36 + Math.round(Math.sin(t * 2 + 1.5) * 1.5));
+      txt('LAST LANTERN', VW / 2, 36, { al: 'center', size: 30, bold: true, col: '#ffd34e', grad: ['#fffbe0', '#ffd34e', '#e08a1a'], ol: '#2a0a10', glow: 'rgba(255,160,50,.85)', ls: 2, sh: false });
+      g.fillStyle = 'rgba(255,211,78,.7)'; g.fillRect(VW / 2 - 110, 56, 70, 1); g.fillRect(VW / 2 + 40, 56, 70, 1); g.fillRect(VW / 2 - 3, 54, 7, 5); g.fillStyle = '#ffffff'; g.fillRect(VW / 2 - 1, 55, 3, 3); g.fillStyle = '#ffd34e'; g.fillRect(VW / 2 - 130, 56, 18, 1); g.fillRect(VW / 2 + 112, 56, 18, 1);
+      txt(save.lang === 'vi' ? 'NGỌN ĐÈN CUỐI CÙNG' : 'THE SHATTERED SUN', VW / 2, 67, { al: 'center', size: 8.5, bold: true, col: '#ffe9b8', ls: 3, ol: '#1a0814', glow: 'rgba(255,120,60,.6)', sh: false }); }
+    // ---- menu ----
+    const items = titleItems(), n = items.length, MX0 = 214, MW = 158, MY = 92, DY = 12;
+    g.fillStyle = 'rgba(8,3,18,.55)'; g.fillRect(MX0, MY - 8, MW, n * DY + 8); g.fillStyle = 'rgba(255,200,100,.35)'; g.fillRect(MX0, MY - 8, MW, 1); g.fillRect(MX0, MY + n * DY - 1, MW, 1);
+    g.fillStyle = '#ffd34e'; for (const [cx, cy] of [[MX0, MY - 8], [MX0 + MW - 3, MY - 8], [MX0, MY + n * DY - 1], [MX0 + MW - 3, MY + n * DY - 1]]) g.fillRect(cx, cy, 3, 1);
+    items.forEach((it, i) => {
+      const y = MY + i * DY, sel = titleSel === i;
+      let s = it.k === 'resume' ? sv('Resume: ', 'Chơi tiếp: ') + (LPOS(save.resume.li) + 1) + '. ' + LN(BIOMES[save.resume.li].name) : T(it.k); if (it.k === 'sound') s += ': ' + (Snd.muted ? 'OFF' : 'ON');
+      if (sel) { const bg = g.createLinearGradient(MX0, 0, MX0 + MW, 0); bg.addColorStop(0, 'rgba(255,170,60,0)'); bg.addColorStop(0.2, 'rgba(255,170,60,.45)'); bg.addColorStop(0.8, 'rgba(255,170,60,.45)'); bg.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = bg; g.fillRect(MX0, y - 5, MW, 11); g.fillStyle = '#ffe9b8'; g.fillRect(MX0 + 10, y - 5, MW - 20, 1); g.fillRect(MX0 + 10, y + 5, MW - 20, 1);
+        lanternIc(MX0 + 11 + Math.round(Math.sin(t * 6) * 1), y, 1); g.fillStyle = '#ffd34e'; g.fillRect(MX0 + MW - 12, y - 1, 3, 3); g.fillRect(MX0 + MW - 10 + Math.round(Math.sin(t * 6)), y, 2, 1); }
+      txt(fitTxt(s, 28), MX0 + MW / 2 + (sel ? 4 : 0), y, { al: 'center', size: sel ? 8 : 7.5, bold: sel, col: sel ? '#ffffff' : '#c8c4dc', ol: sel ? '#3a1408' : null, glow: sel ? 'rgba(255,170,70,.8)' : null, sh: !sel });
+    });
+    txt(sv('Up/Down: choose    Enter: confirm', 'Lên/Xuống: chọn    Enter: xác nhận'), 8, VH - 8, { size: 5.5, col: '#8a7fa8' });
+    txt('© Your Studio  •  v1.0', VW - 6, VH - 8, { al: 'right', size: 5, col: '#8a7fa8' });
+  }
+
+  const MAPHERO = { x: -1, y: -1 };
+  function mapArt() {
+    if (UIC.m) return UIC.m;
+    const M = {}, q = mulberry32(777);
+    { const [c, x] = mkCanvas(VW, VH), st = [[0, '#04061a'], [0.45, '#10184a'], [0.75, '#2a2a6a'], [1, '#5a3a7a']];
+      for (let y = 0; y < VH; y++) { const t = y / VH; let i = 0; while (i < st.length - 2 && t > st[i + 1][0]) i++; const a = st[i], b = st[i + 1]; x.fillStyle = lerpColor(a[1], b[1], clamp((t - a[0]) / (b[0] - a[0]), 0, 1)); x.fillRect(0, y, VW, 1); }
+      for (let i = 0; i < 90; i++) { x.fillStyle = q() < 0.2 ? '#ffffff' : '#8a8ad0'; x.globalAlpha = 0.4 + q() * 0.6; x.fillRect((q() * VW) | 0, (q() * 80) | 0, 1, 1); } x.globalAlpha = 1;
+      // faraway mountain range
+      for (let px = 0; px < VW; px++) { const y = Math.round(78 + Math.sin(px * 0.021) * 9 + Math.sin(px * 0.06 + 2) * 5 + Math.sin(px * 0.13) * 2); x.fillStyle = '#1a2058'; x.fillRect(px, y, 1, 110); x.fillStyle = '#3a4a98'; x.fillRect(px, y, 1, 1); }
+      // the land the road crosses
+      for (let px = 0; px < VW; px++) { const y = Math.round(96 + Math.sin(px * 0.034 + 1) * 8 + Math.sin(px * 0.011) * 10 + Math.sin(px * 0.09) * 2); const gg = x.createLinearGradient(0, y, 0, 172); gg.addColorStop(0, '#2c4a52'); gg.addColorStop(0.3, '#1c3040'); gg.addColorStop(1, '#0c1226'); x.fillStyle = gg; x.fillRect(px, y, 1, 172 - y); x.fillStyle = '#6ac8a0'; x.globalAlpha = 0.55; x.fillRect(px, y, 1, 1); x.globalAlpha = 1; }
+      // trees and rocks on the land
+      for (let i = 0; i < 70; i++) { const px = (q() * VW) | 0, py = 108 + ((q() * 54) | 0), s = 2 + ((q() * 3) | 0); x.fillStyle = '#0f2a30'; if (q() < 0.6) { for (let k = 0; k < s * 2; k++) { const hw = Math.round(k / (s * 2) * s); x.fillRect(px - hw, py - s * 2 + k, hw * 2 + 1, 1); } } else { x.fillStyle = '#1a2a3a'; x.fillRect(px - 2, py - 1, 5, 2); } }
+      M.bg = c; }
+    { const [c, x] = mkCanvas(VW, VH), v = x.createRadialGradient(VW / 2, VH * 0.48, VH * 0.35, VW / 2, VH * 0.48, VW * 0.62); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(2,2,12,.6)'); x.fillStyle = v; x.fillRect(0, 0, VW, VH); M.vig = c; }
+    M.clouds = []; for (let i = 0; i < 6; i++) M.clouds.push({ x: q() * VW, y: 24 + q() * 40, w: 26 + q() * 30, v: 1.5 + q() * 3 });
+    return (UIC.m = M);
+  }
+  // little emblems for each land
+  function nodeIcon(id, x, y, lock) {
+    const C = lock ? { a: '#4a4f78', b: '#363a5c', c: '#5a5f88' } : null, R = (a, b, w, h, col) => { g.fillStyle = C ? C.a : col; g.fillRect(x + a, y + b, w, h); };
+    switch (id) {
+      case 'meadow': R(-5, 1, 10, 3, '#5fcf5a'); R(-3, -1, 6, 2, '#5fcf5a'); R(-1, -2, 2, 1, '#a4e86b'); R(3, -5, 3, 3, '#ffd34e'); break;
+      case 'forest': for (const dx of [-3, 3]) { R(dx - 1, 3, 2, 2, '#5a3a22'); R(dx - 3, 1, 6, 1, '#2f7a4a'); R(dx - 2, -1, 4, 2, '#2f7a4a'); R(dx - 1, -3, 2, 2, '#4aa05a'); } break;
+      case 'caves': R(-1, -5, 2, 2, '#bff3ff'); R(-2, -3, 4, 3, '#6ee7f2'); R(-3, 0, 6, 3, '#2c9ab8'); R(-1, -4, 1, 6, '#ffffff'); break;
+      case 'desert': for (let i = 0; i < 6; i++) R(-i, -4 + i, i * 2 + 1, 1, i < 3 ? '#ffe8a8' : '#e0b060'); R(-5, 2, 11, 2, '#c8964a'); break;
+      case 'frost': R(-1, -5, 2, 10, '#e8fbff'); R(-5, -1, 10, 2, '#e8fbff'); R(-4, -4, 2, 2, '#9fe0f0'); R(2, -4, 2, 2, '#9fe0f0'); R(-4, 2, 2, 2, '#9fe0f0'); R(2, 2, 2, 2, '#9fe0f0'); break;
+      case 'volcano': for (let i = 0; i < 6; i++) R(-i - 1, -2 + i, i * 2 + 3, 1, '#5a4a55'); R(-2, -4, 5, 2, '#ff7a2a'); R(0, -5, 1, 1, '#ffd34e'); R(-1, -6, 1, 1, '#ff9a4a'); break;
+      case 'swamp': R(-1, 0, 2, 5, '#e8dcc0'); R(-5, -4, 10, 4, '#a15be0'); R(-3, -5, 6, 1, '#c07bff'); R(-3, -3, 1, 1, '#fff'); R(1, -2, 1, 1, '#fff'); break;
+      case 'ocean': for (let k = 0; k < 3; k++) { R(-5, -3 + k * 3, 3, 1, '#6ee7f2'); R(-2, -4 + k * 3, 3, 1, '#9fe8ff'); R(1, -3 + k * 3, 3, 1, '#6ee7f2'); } break;
+      case 'tunnels': R(-5, -3, 10, 8, '#8a6a3a'); R(-3, -1, 6, 6, '#14080a'); R(-1, 1, 2, 2, '#ffd34e'); R(-5, -4, 10, 1, '#c8964a'); break;
+      default: R(-1, -6, 2, 3, '#d58bff'); R(-2, -4, 4, 2, '#7a4cff'); R(-3, -2, 6, 7, '#4a2a7a'); R(-1, 0, 2, 3, '#ffd34e'); R(-4, -2, 1, 7, '#3a1a6a'); R(3, -2, 1, 7, '#3a1a6a');
+    }
+  }
+  function drawMap() {
+    const t = sceneT, M = mapArt(), mp = maxPlayable(), nowLi = LORDER[mapSel], B = BIOMES[nowLi], unl = mapSel <= mp;
+    g.drawImage(M.bg, 0, 0);
+    // drifting clouds and a pale moon
+    disc(g, 340, 30, 9, '#e8ecff'); disc(g, 344, 28, 8, '#10184a'); g.globalAlpha = 0.5; disc(g, 340, 30, 12, 'rgba(180,200,255,.25)'); g.globalAlpha = 1;
+    for (const c of M.clouds) { const x = ((c.x + t * c.v) % (VW + 100)) - 50; g.globalAlpha = 0.18; g.fillStyle = '#b8c4ff'; g.fillRect(Math.round(x), Math.round(c.y), Math.round(c.w), 3); g.fillRect(Math.round(x + c.w * 0.2), Math.round(c.y - 2), Math.round(c.w * 0.5), 3); } g.globalAlpha = 1;
+    // coloured glows of every land
+    g.globalCompositeOperation = 'lighter';
+    LORDER.forEach((li, i) => { const [x, y] = NODES[i], un = i <= mp; const cg = g.createRadialGradient(x, y, 0, x, y, 30); cg.addColorStop(0, hexA(BIOMES[li].sky[2], un ? 0.5 : 0.12)); cg.addColorStop(1, hexA(BIOMES[li].sky[2], 0)); g.fillStyle = cg; g.fillRect(x - 30, y - 30, 60, 60); });
+    g.globalCompositeOperation = 'source-over';
+    // the road
+    for (let i = 0; i < NODES.length - 1; i++) {
+      const a = NODES[i], b = NODES[i + 1], open = i < mp, mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2 + (i % 2 ? 9 : -9);
+      for (let j = 0; j <= 36; j++) { const u = j / 36, px = (1 - u) * (1 - u) * a[0] + 2 * (1 - u) * u * mx + u * u * b[0], py = (1 - u) * (1 - u) * a[1] + 2 * (1 - u) * u * my + u * u * b[1];
+        if (open) { const w = (j + Math.floor(t * 14)) % 6 === 0; g.fillStyle = w ? '#fff6c0' : '#ffd34e'; g.globalAlpha = w ? 1 : 0.8; g.fillRect(Math.round(px) - 1, Math.round(py) - 1, 2, 2); g.globalAlpha = 0.2; g.fillRect(Math.round(px) - 2, Math.round(py) - 2, 4, 4); g.globalAlpha = 1; }
+        else if (j % 2 === 0) { g.fillStyle = '#3a4070'; g.fillRect(Math.round(px), Math.round(py), 2, 2); } }
+    }
+    // the lands
+    LORDER.forEach((li, i) => {
+      const Bi = BIOMES[li], [x, y] = NODES[i], un = i <= mp, done = save.cleared.indexOf(li) >= 0, sel = i === mapSel, last = i === NODES.length - 1, r = last ? 13 : 10, pulse = Math.sin(t * 4) * 0.5 + 0.5;
+      disc(g, x, y, r + 2, '#05030f'); disc(g, x, y, r + 1, done ? '#c89a1c' : (un ? '#7a6aa8' : '#2a2e50')); disc(g, x, y, r - 1, '#0a0618');
+      const gr = g.createLinearGradient(0, y - r, 0, y + r); gr.addColorStop(0, un ? Bi.sky[3] : '#3a3f68'); gr.addColorStop(1, un ? Bi.sky[1] : '#1a1e3a'); g.fillStyle = gr; for (let j = -(r - 2); j <= r - 2; j++) { const hw = Math.round(Math.sqrt((r - 2) * (r - 2) - j * j)); g.fillRect(x - hw, y + j, hw * 2 + 1, 1); }
+      nodeIcon(Bi.id, x, y + 1, !un);
+      g.fillStyle = '#05030f'; g.fillRect(x - r - 2, y - r - 4, 8, 8); g.fillStyle = un ? '#ffd34e' : '#4a4f78'; g.fillRect(x - r - 1, y - r - 3, 6, 6); txt(String(i + 1), x - r + 2, y - r, { al: 'center', size: 5.5, bold: true, col: un ? '#2a1408' : '#1a1e3a', sh: false });
+      if (done) { g.fillStyle = '#fff6c0'; g.fillRect(x + r - 3, y - r - 2, 5, 5); g.fillStyle = '#ffd34e'; g.fillRect(x + r - 2, y - r - 1, 3, 3); g.fillStyle = '#fff'; g.fillRect(x + r - 1, y - r, 1, 1); }
+      if (!un) { g.fillStyle = 'rgba(10,12,34,.45)'; g.fillRect(x - 4, y + r - 5, 9, 8); g.fillStyle = '#8a90c0'; g.fillRect(x - 3, y + r - 3, 7, 5); g.fillStyle = '#14162e'; g.fillRect(x, y + r - 2, 1, 2); g.fillStyle = '#8a90c0'; g.fillRect(x - 2, y + r - 6, 1, 3); g.fillRect(x + 2, y + r - 6, 1, 3); g.fillRect(x - 2, y + r - 7, 5, 1); }
+      else { const sh = save.shards[li] || [0, 0, 0]; for (let k = 0; k < 3; k++) { g.fillStyle = sh[k] ? '#ffd34e' : '#2a2f55'; g.fillRect(x - 6 + k * 5, y + r + 3, 4, 4); if (sh[k]) { g.fillStyle = '#fff'; g.fillRect(x - 6 + k * 5, y + r + 3, 1, 1); } } }
+      if (sel) { const R2 = r + 5 + Math.round(pulse * 2); g.strokeStyle = '#ffd34e'; g.lineWidth = 1; g.globalAlpha = 0.5 + pulse * 0.5; g.beginPath(); g.arc(x, y, R2, 0, 6.2832); g.stroke(); g.globalAlpha = 1; g.fillStyle = '#fff6c0'; for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) g.fillRect(x + dx * (R2 + 2) - 1, y + dy * (R2 + 2) - 1, 2, 2); }
+    });
+    // the hero with his lantern walks to the chosen land
+    { const [tx, ty] = NODES[mapSel]; if (MAPHERO.x < 0) { MAPHERO.x = tx; MAPHERO.y = ty; } const hx = Math.round(MAPHERO.x), hy = Math.round(MAPHERO.y) - 22 + Math.round(Math.sin(t * 6) * 1.5), mv = Math.hypot(tx - MAPHERO.x, ty - MAPHERO.y) > 2;
+      g.globalCompositeOperation = 'lighter'; const hg = g.createRadialGradient(hx + 4, hy + 8, 0, hx + 4, hy + 8, 22); hg.addColorStop(0, 'rgba(255,200,100,.45)'); hg.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = hg; g.fillRect(hx - 18, hy - 14, 44, 44); g.globalCompositeOperation = 'source-over';
+      drawSpr(g, mv ? getSprite('hero_run', {}, Math.floor(t * 12) % 4) : getSprite('hero_idle', {}, Math.floor(t * 2.5) % 2), hx, hy + 12, tx < MAPHERO.x - 1); }
+    g.drawImage(M.vig, 0, 0);
+    // ---- top: ribbon, progress, wallet ----
+    g.fillStyle = 'rgba(6,4,20,.8)'; g.fillRect(VW / 2 - 96, 3, 192, 15); g.fillStyle = '#c89a1c'; g.fillRect(VW / 2 - 96, 3, 192, 1); g.fillRect(VW / 2 - 96, 17, 192, 1); g.fillStyle = '#ffd34e'; g.fillRect(VW / 2 - 100, 8, 5, 5); g.fillRect(VW / 2 + 95, 8, 5, 5); g.fillStyle = '#05030f'; g.fillRect(VW / 2 - 99, 9, 3, 3); g.fillRect(VW / 2 + 96, 9, 3, 3);
+    lanternIc(VW / 2 - 84, 11); lanternIc(VW / 2 + 84, 11);
+    txt(T('mapt'), VW / 2, 11, { al: 'center', size: 10, bold: true, col: '#ffd34e', grad: ['#fffbe0', '#ffd34e', '#e08a1a'], ol: '#1a0a08', glow: 'rgba(255,170,60,.7)', ls: 1, sh: false });
+    txt(T('cleared') + ' ' + save.cleared.length + '/' + BIOMES.length + '   ' + T('relics') + ' ' + save.relics.filter(Boolean).length + '/10   ' + T('shards') + ' ' + totalShards() + '/30', VW / 2, 24, { al: 'center', size: 5.5, col: '#b8c4f0' });
+    g.fillStyle = 'rgba(6,4,20,.72)'; g.fillRect(4, 3, 84, 14); g.fillStyle = '#434d8a'; g.fillRect(4, 3, 84, 1); g.fillRect(4, 16, 84, 1);
+    drawCoinIc(11, 10); txt(String(save.coins), 16, 10, { size: 6, col: '#ffd34e' }); drawGemIc(40, 10); txt(String(save.inv.gems), 45, 10, { size: 6, col: '#9ff0ff' }); drawRareIc(64, 10, 0.8); txt(String(save.rare), 70, 10, { size: 6, col: '#d8b8ff' });
+    g.fillStyle = 'rgba(6,4,20,.72)'; g.fillRect(VW - 76, 3, 72, 14); g.fillStyle = '#c89a1c'; g.fillRect(VW - 76, 3, 72, 1); g.fillRect(VW - 76, 16, 72, 1); txt('[B] ' + sv('Shop & Bag', 'Cửa hàng'), VW - 40, 10, { al: 'center', size: 6, bold: true, col: '#ffd34e' });
+    // ---- bottom: info panel for the chosen land ----
+    const PY = 172, PH = 40;
+    g.fillStyle = 'rgba(6,4,20,.9)'; g.fillRect(8, PY, VW - 16, PH); g.fillStyle = unl ? '#c89a1c' : '#434d8a'; g.fillRect(8, PY, VW - 16, 1); g.fillRect(8, PY + PH - 1, VW - 16, 1); g.fillRect(8, PY, 1, PH); g.fillRect(VW - 9, PY, 1, PH);
+    g.fillStyle = unl ? '#ffd34e' : '#5a5f98'; for (const [cx, cy] of [[8, PY], [VW - 12, PY], [8, PY + PH - 3], [VW - 12, PY + PH - 3]]) g.fillRect(cx, cy, 4, 3);
+    { const grd = g.createLinearGradient(8, 0, 120, 0); grd.addColorStop(0, hexA(B.sky[2], unl ? 0.35 : 0.08)); grd.addColorStop(1, hexA(B.sky[2], 0)); g.fillStyle = grd; g.fillRect(9, PY + 1, 120, PH - 2); }
+    g.fillStyle = '#0a0618'; g.fillRect(14, PY + 6, 28, 28); g.fillStyle = unl ? '#7a6aa8' : '#2a2e50'; g.fillRect(14, PY + 6, 28, 1); g.fillRect(14, PY + 33, 28, 1); g.fillRect(14, PY + 6, 1, 28); g.fillRect(41, PY + 6, 1, 28);
+    { const ic = icon('r' + nowLi); g.globalAlpha = save.relics[nowLi] ? 1 : 0.28; g.drawImage(ic.c, 22, PY + 14); g.globalAlpha = 1; if (save.relics[nowLi]) { g.globalCompositeOperation = 'lighter'; g.fillStyle = 'rgba(255,211,78,.18)'; g.fillRect(15, PY + 7, 26, 26); g.globalCompositeOperation = 'source-over'; } }
+    txt((mapSel + 1) + '.', 50, PY + 11, { size: 11, bold: true, col: unl ? '#ffd34e' : '#6a70a8' });
+    txt(unl ? LN(B.name) : '???', 66, PY + 11, { size: 11, bold: true, col: unl ? '#ffffff' : '#7a80b0', ol: '#05030f', sh: false });
+    txt(unl ? LN(B.sub) : T('locked'), 50, PY + 23, { size: 6.5, col: '#b8c4f0' });
+    { const dif = Math.ceil((LDIFF(nowLi) + 1) / 1.4), pz = (PUZZLES[nowLi] || []).length, mins = Math.round((nowLi === 8 ? 600 : B.len) / 70);
+      txt(T('difficulty'), 232, PY + 11, { size: 5.5, col: '#8a90c0' }); for (let k = 0; k < 5; k++) { g.fillStyle = k < dif ? '#ffd34e' : '#2a2f55'; g.fillRect(262 + k * 9, PY + 8, 7, 7); if (k < dif) { g.fillStyle = '#fff6c0'; g.fillRect(263 + k * 9, PY + 9, 2, 2); } }
+      txt(T('puzzles') + ': ' + pz, 232, PY + 23, { size: 5.5, col: '#b8c4f0' }); txt(T('length') + ': ~' + mins + ' ' + T('min'), 292, PY + 23, { size: 5.5, col: '#b8c4f0' });
+      const sh = save.shards[nowLi] || [0, 0, 0]; txt(T('shards'), 232, PY + 33, { size: 5.5, col: '#8a90c0' }); for (let k = 0; k < 3; k++) { g.fillStyle = sh[k] ? '#ffd34e' : '#2a2f55'; g.fillRect(262 + k * 9, PY + 30, 6, 6); } }
+    txt(unl ? sv('ENTER: play', 'ENTER: chơi') : sv('Clear the previous land first', 'Hãy vượt vùng trước đó'), VW - 14, PY + 33, { al: 'right', size: 6, bold: true, col: unl ? '#ffd34e' : '#8a90c0' });
+    txt('← → ' + sv('choose', 'chọn') + '   ESC ' + sv('back', 'quay lại'), 6, 24, { size: 5, col: '#8a90c0' });
   }
   function updateStory(dt) {
     storyT += dt;
@@ -4337,9 +4506,9 @@
     txt(T('press'), VW / 2, VH - 12, { al: 'center', size: 6, col: '#8892aa', alpha: 0.5 + 0.5 * Math.sin(sceneT * 4) });
     if (ending && storyPage >= storyList.length - 1) txt(T('thanks') + '  ' + totalShards() + '/30', VW / 2, 120, { al: 'center', size: 8, col: '#ffd34e' });
   }
-  const NODES = [[24, 152], [58, 112], [92, 150], [128, 108], [162, 148], [198, 104], [232, 146], [268, 102], [304, 144], [350, 56]];
+  const NODES = [[28, 142], [64, 110], [100, 144], [138, 108], [176, 144], [214, 108], [252, 144], [290, 110], [326, 144], [354, 92]];
   function updateMap(dt) {
-    sceneT += dt;
+    sceneT += dt; { const nd = NODES[mapSel]; if (MAPHERO.x < 0) { MAPHERO.x = nd[0]; MAPHERO.y = nd[1]; } MAPHERO.x += (nd[0] - MAPHERO.x) * Math.min(1, dt * 4); MAPHERO.y += (nd[1] - MAPHERO.y) * Math.min(1, dt * 4); }
     if (act.leftP) { mapSel = Math.max(0, mapSel - 1); Snd.play('select'); }
     if (act.rightP) { mapSel = Math.min(maxPlayable(), mapSel + 1); Snd.play('select'); }
     if (act.backP) toScene('title');
@@ -4352,44 +4521,6 @@
       else startLevelFade(li);
     }
   }
-  function drawMap() {
-    // world map backdrop
-    g.fillStyle = '#10142e'; g.fillRect(0, 0, VW, VH);
-    const r = mulberry32(7);
-    for (let i = 0; i < 140; i++) { g.fillStyle = r() < 0.5 ? '#171c3e' : '#0d1128'; g.fillRect((r() * VW) | 0, (r() * VH) | 0, 8 + (r() * 24 | 0), 2 + (r() * 4 | 0)); }
-    // path
-    for (let i = 0; i < NODES.length - 1; i++) {
-      const a = NODES[i], b = NODES[i + 1], steps = 14;
-      for (let k = 0; k < steps; k++) { const t = k / steps; g.fillStyle = i < maxPlayable() ? '#ffd34e' : '#3a3f66'; g.fillRect(Math.round(lerp(a[0], b[0], t)), Math.round(lerp(a[1], b[1], t)), 2, 2); }
-    }
-    LORDER.forEach((li, i) => {
-      const B = BIOMES[li], [x, y] = NODES[i], unlocked = i <= maxPlayable(), done = save.cleared.indexOf(li) >= 0;
-      const col = unlocked ? B.sky[2] : '#2a2e50';
-      disc(g, x, y, 11, '#05030f'); disc(g, x, y, 9, unlocked ? B.sky[1] : '#2a2e50'); disc(g, x, y, 6, col);
-      if (unlocked) { const sh = (save.shards[li] || [0, 0, 0]); for (let k = 0; k < 3; k++) { g.fillStyle = sh[k] ? '#ffd34e' : '#3a3f66'; g.fillRect(x - 7 + k * 6, y + 14, 4, 4); } }
-      if (done) { g.fillStyle = '#fff'; g.fillRect(x - 1, y - 1, 3, 3); }
-      txt(String(i + 1), x, y, { al: 'center', size: 7, col: unlocked ? '#fff' : '#555a80', sh: unlocked });
-    });
-    const [sx, sy] = NODES[mapSel];
-    const hb = Math.round(Math.sin(sceneT * 6) * 2);
-    g.strokeStyle = '#ffd34e'; g.lineWidth = 1; g.strokeRect(sx - 13.5, sy - 13.5, 27, 27);
-    drawSpr(g, getSprite('hero_idle'), sx, sy - 14 + hb, false);
-    const mli = LORDER[mapSel], B = BIOMES[mli], unl = mapSel <= maxPlayable();
-    txt(T('mapt'), VW / 2, 14, { al: 'center', size: 12, bold: true, col: '#ffd34e' });
-    g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(0, 178, VW, 38);
-    txt((mapSel + 1) + '. ' + LN(B.name), VW / 2, 188, { al: 'center', size: 11, bold: true, col: unl ? '#fff' : '#777' });
-    txt(unl ? LN(B.sub) : T('locked'), VW / 2, 202, { al: 'center', size: 7, col: '#cfd6e6' });
-    txt(sv('[B] Shop & Inventory', '[B] Cửa hàng & Kho đồ'), VW - 8, 14, { al: 'right', size: 6, col: '#ffd34e' });
-    txt(T('maphelp'), VW / 2, 30, { al: 'center', size: 6, col: '#8892aa' });
-    txt(T('cleared') + ' ' + save.cleared.length + '/' + BIOMES.length + '    ' + T('relics') + ' ' + save.relics.filter(Boolean).length + '/10    (' + BIOMES.length + ' ' + T('maps') + ')', VW / 2, 42, { al: 'center', size: 6, col: '#cfd6e6' });
-    { const stars = '★'.repeat(Math.ceil((LDIFF(mli) + 1) / 1.4)) + '☆'.repeat(Math.max(0, 5 - Math.ceil((LDIFF(mli) + 1) / 1.4))), pz = (PUZZLES[mli] || []).length, mins = Math.round(B.len / 70);
-      txt(T('difficulty') + ': ' + stars, VW - 8, 188, { al: 'right', size: 6, col: '#ffd34e' });
-      txt(T('puzzles') + ': ' + pz + '   ' + T('length') + ': ~' + mins + ' ' + T('min'), VW - 8, 201, { al: 'right', size: 6, col: '#cfd6e6' });
-      const ic = icon('r' + mli); g.globalAlpha = save.relics[mli] ? 1 : 0.35; g.drawImage(ic.c, 8, 184); g.globalAlpha = 1; }
-    const ts = totalShards();
-    txt(T('shards') + ' ' + ts + '/30   ' + T('hearts') + ' ' + maxHP() + '   ' + T('dmg') + ' ' + swordDmg(), 6, VH - 4, { size: 5, col: '#a4e86b' });
-  }
-
   // ============================== DEVIL CUTSCENE ==============================
   let cutLevel = 0, cut = null;
   let cutSkip = false, cutAlt = false;
