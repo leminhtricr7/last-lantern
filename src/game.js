@@ -1138,6 +1138,15 @@
     initEntities(); snapCam(); Q.state = 'play'; Q.freeze = 0;
     Snd.music('lvl' + Q.li, Q.B.music); Snd.ambVol(0.9);
   }
+  // co-op: the boss fight starts when the whole team has walked into the arena (or after 25s); nobody is dragged along
+  function coopAllIn(x0, x1, key) {
+    if (!coop) return true;
+    const al = (Q.players || []).filter(p => !p.down); if (al.length <= 1) return true;
+    if (!Q.wait || Q.wait.key !== key) Q.wait = { key, t: 0, msgT: 0 };
+    if (al.every(p => p.x > (x0 + 2) * TS && p.x < x1 * TS) || Q.wait.t > 25) { Q.wait = null; return true; }
+    if (Q.wait.msgT <= 0) { Q.wait.msgT = 4; Q.msg = cvs('Boss ahead! Waiting for your teammates to walk in...', 'Phía trước có boss! Đợi đồng đội cùng bước vào...'); Q.msgT = 3.5; }
+    return false;
+  }
   function seal() {
     const L = Q.L, ar = L.arena;
     if (ar.rects) for (const r of ar.rects) for (let y = r[1]; y <= r[3]; y++) for (let x = r[0]; x <= r[2]; x++) L.grid[y][x] = '#'; else for (let y = 0; y < ar.gy; y++) L.grid[y][ar.x0 + 1] = '#';
@@ -1313,7 +1322,7 @@
     // sword
     if (P.atk > 0) swordHit();
     // arena trigger
-    if (!Q.arenaSealed && !Q.bossDead && Q.boss && P.x > (L.arena.x0 + 4) * TS && (L.arena.y0 === undefined || P.y > L.arena.y0 * TS)) seal();
+    if (!Q.arenaSealed && !Q.bossDead && Q.boss && P.x > (L.arena.x0 + 4) * TS && (L.arena.y0 === undefined || P.y > L.arena.y0 * TS) && coopAllIn(L.arena.x0, L.arena.x1, 'boss')) seal();
   }
   function swordRect() {
     const P = Q.P;
@@ -1587,7 +1596,7 @@
     if (!Q.minis) return;
     for (const m of Q.minis) {
       if (m.state !== 'idle') continue;
-      if (P.x > m.trig * TS && P.x < m.rw * TS - 8 && P.onGround && Q.state === 'play' && !Q.arenaSealed) {
+      if (P.x > m.trig * TS && P.x < m.rw * TS - 8 && P.onGround && Q.state === 'play' && !Q.arenaSealed && coopAllIn(m.lw, m.rw, 'mini' + m.id)) {
         m.state = 'active';
         for (let y = 0; y < m.gy; y++) { Q.L.grid[y][m.lw] = 'G'; Q.L.grid[y][m.rw] = 'G'; }
         Snd.play('gate'); Q.shake = 0.8; setEmo('scared', 2);
@@ -2505,6 +2514,7 @@
   // ---- special weapons ----
   function useSlot(s) {
     const P = Q.P, it = eqIt(s); if (!it) return;
+    if (it.type === 'sword') P.hold = null; else if (it.type === 'gun') P.hold = it.id;
     if (it.type === 'sword') { if (P.atkCd <= 0) doSwing(it); }
     else if (it.type === 'wpn' && P.wcd[s] <= 0) fireWeapon(it, s);
     else if (it.type === 'gun' && P.wcd[s] <= 0) fireGun(it, s);
@@ -3568,7 +3578,8 @@
     g.fillStyle = '#1b1626'; g.fillRect(lx - 3, ly - 3, 6, 7); g.fillRect(lx - 1, ly - 5, 2, 2);
     g.fillStyle = '#ffd34e'; g.fillRect(lx - 2, ly - 2, 4, 5); g.fillStyle = '#fff6c0'; g.fillRect(lx - 1, ly - 1, 2, 2);
     const sw = heldSword();
-    if (P.gunT > 0 && P.gunId && GUN_PAINT[P.gunId]) drawHeldGun(P.gunId, x, bot, P.face); else if (sw) drawHeldSword(sw, x, bot);
+    const hg = P.hold && GUN_PAINT[P.hold] && save.inv.w.indexOf(P.hold) >= 0 ? P.hold : ((P.gunT > 0 && P.gunId && GUN_PAINT[P.gunId]) ? P.gunId : null);
+    if (hg) drawHeldGun(hg, x, bot, P.face); else if (sw) drawHeldSword(sw, x, bot);
     if (av) drawArmorFront(av, x, bot);
     if (hh && hh.hat) drawHat(hh, x, bot, P.face);
     if (swim) g.restore();
@@ -4759,7 +4770,7 @@
     if (sc !== 1) g.restore();
   }
   // ---------- host: guests' heroes ----------
-  const EDGE = ['jumpP', 'atkP', 'atk2P', 'dashP', 'throwP', 'swapP', 'skillP', 'talkP'];
+  const EDGE = ['jumpP', 'atkP', 'atk2P', 'dashP', 'throwP', 'swapP', 'skillP', 'talkP', 'sumP'];
   const LVL = ['left', 'right', 'up', 'down', 'jump', 'atkH', 'atk2H'];
   function withAct(p, fn) {
     const keep = {}; for (const k of LVL.concat(EDGE)) { keep[k] = act[k]; act[k] = false; }
@@ -4774,6 +4785,7 @@
   }
   function coopHostPlayers(dt) {
     const me = Q.me, ar = Q.L.arena;
+    if (Q.wait) { Q.wait.t += dt; Q.wait.msgT -= dt; }
     for (const p of Q.players) {
       if (p === me) continue;
       for (let i = 0; i < 2; i++) if (p.wcd && p.wcd[i] > 0) p.wcd[i] -= dt;
@@ -4794,7 +4806,7 @@
     const lead = me.down ? alive[0] : me;
     for (const p of alive) {
       if (p === lead) continue;
-      const far = Math.abs(p.x - lead.x) > 520 || Math.abs(p.y - lead.y) > 300;
+      const far = false; // nobody is dragged along any more: teammates walk to the boss themselves
       const out = Q.arenaSealed && (p.x < (ar.x0 + 2) * TS || p.x > ar.x1 * TS);
       if (far || out) { emit(p.x + 4, p.y + 7, 10, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 60 }); p.x = out ? (ar.x0 + 4) * TS : lead.x - 10; p.y = out ? (ar.gy - 2) * TS : lead.y - 8; p.vx = p.vy = 0; p.safe = { x: p.x, y: p.y }; emit(p.x + 4, p.y + 7, 10, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 60 }); }
     }
@@ -4912,7 +4924,7 @@
     return out;
   }
   function packPlayer(p) {
-    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
+    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
   }
   function coopSnapshot() {
     if (Q.talk && !Q.talk.id) { Q.talk.id = ++coop.tkN; Q.talk.doneList = Q.talk.doneList || []; }
@@ -5713,8 +5725,9 @@
   function summonItems() { return [save.inv.w[0], save.inv.w[1], save.inv.armor].filter(id => id && ITEM[id] && ITEM[id].st.summon); }
   function castSummons() {
     const G = Q.G; G.sumCd = G.sumCd || {}; const ids = summonItems(); let any = false;
-    for (const id of ids) { if ((G.sumCd[id] || 0) > 0) continue; G.sumCd[id] = 60; spawnSummon(ITEM[id].st.summon, 7, Q.P); any = true; }
-    if (!any) { Q.msg = ids.length ? sv('Summon resting: ', 'Triệu hồi đang hồi: ') + Math.ceil(Math.min.apply(null, ids.map(id => G.sumCd[id]))) + 's' : sv('Equip a Divine sword or armor to summon (T).', 'Trang bị kiếm hoặc giáp Thần cấp để triệu hồi (T).'); Q.msgT = 2; Snd.play('select'); }
+    const sl = Q.P.slot || 0, ck = id => id + ':' + sl;
+    for (const id of ids) { if ((G.sumCd[ck(id)] || 0) > 0) continue; G.sumCd[ck(id)] = 60; spawnSummon(ITEM[id].st.summon, 7, Q.P); any = true; }
+    if (!any) { Q.msg = ids.length ? sv('Summon resting: ', 'Triệu hồi đang hồi: ') + Math.ceil(Math.min.apply(null, ids.map(id => G.sumCd[id + ':' + sl] || 0))) + 's' : sv('Equip a Divine sword or armor to summon (T).', 'Trang bị kiếm hoặc giáp Thần cấp để triệu hồi (T).'); Q.msgT = 2; Snd.play('select'); }
   }
   function updateSummons(dt) {
     const G = Q.G, P = Q.P; if (!G.sums) G.sums = []; G.sumCd = G.sumCd || {};
