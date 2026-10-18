@@ -143,6 +143,16 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **7 Wish Orbs** with 1-7 stars hidden in seven lands. Gather all seven and a great green dragon grants a wish.
 - **Saving on this device**: every checkpoint saves your progress in the level (local storage of this browser / this PC's app). "Resume" on the title screen puts you back at your last checkpoint.
 
+## Divine tier, summons and the deep bosses
+- **Divine tier (16-20)**: 10 swords, 5 armors, 5 pets and 5 special weapons above Mythic.
+  - Divine swords and armors: press **T** (gamepad right-stick click) to summon a giant for 7 seconds - Stone Titan, Storm God, Sea Goddess, Phoenix, Moon Goddess, Golden Dragon Emperor, Frost Giant, Sun Emperor, Shadow Shogun, Ancient Treant, Golden Guardian, Valkyrie, Shadow Copies, Archangel, Stone Golems. Each rests 60 s (shown top right).
+  - Divine pets (Little Wyrmling, Baby Kirin, Pebble Golem, Star Whale, Kitsune Kit) fight and gather gold, and every 60 s transform for 7 s (Great Dragon, Thunder Kirin, Stone Titan, Sky Whale, Nine-Tailed Fox).
+  - Divine weapons: Glacier Bow (rain of ice arrows over the screen), Reaper's Scythe (boomerang that stuns and poisons), Meteor Staff (one colossal meteor), Sun Chakram (bounces through 8 enemies), Singularity Cannon (huge black hole then a blast).
+- The Spore Queen, the Kraken and Gravemaw use the artist's designs (`assets/ref/new_bosses.webp`, cut by `tools/cut_bosses.py`), move like living creatures and have their own horror voices.
+- The Kraken waits in a huge sea cave: the camera pulls back so the hero looks tiny next to it. Gravemaw's arena is a cavern at the bottom of a deep pit in the tunnels.
+- Underwater the hero tilts and kicks while swimming and lunges when attacking.
+- Every boss slowly heals if nobody hits it for 30 seconds.
+
 ## Project layout
 
 - `src/art.js` — all pixel art is generated in code (sprites, tilesets, parallax backgrounds)

@@ -507,7 +507,7 @@
     if (gp) {
       ax = gp.axes[0] || 0; ay = gp.axes[1] || 0;
       const b = i => gp.buttons[i] && gp.buttons[i].pressed;
-      gb.a = b(0); gb.b = b(1); gb.x = b(2); gb.y = b(3); gb.start = b(9); gb.back = b(8); gb.lb = b(4); gb.rb = b(5); gb.rt = b(7); gb.lt = b(6);
+      gb.a = b(0); gb.b = b(1); gb.x = b(2); gb.y = b(3); gb.start = b(9); gb.back = b(8); gb.r3 = b(11); gb.lb = b(4); gb.rb = b(5); gb.rt = b(7); gb.lt = b(6);
       gb.l = b(14) || ax < -0.5; gb.r = b(15) || ax > 0.5; gb.u = b(12) || ay < -0.5; gb.d = b(13) || ay > 0.5;
     }
     const gpP = n => gb[n] && !gpPrev[n];
@@ -527,10 +527,11 @@
     act.talkP = pressed.KeyE || pressed.Enter || gpP('rb');
     act.skillP = any(pressed, ['KeyR']) || gpP('rb');
     act.shopP = any(pressed, ['KeyB', 'KeyI']) || gpP('back');
+    act.sumP = any(pressed, ['KeyT']) || gpP('r3');
     act.muteP = pressed.KeyM; act.fullP = pressed.KeyF || pressed.F11;
     gpPrev = gb;
   }
-  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.atk2P = act.throwP = act.swapP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = act.skillP = act.shopP = false; }
+  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.atk2P = act.throwP = act.swapP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = act.skillP = act.shopP = act.sumP = false; }
   function toggleFull() {
     try { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch (e) { }
   }
@@ -1237,6 +1238,7 @@
     if (P.dash <= 0) { if (act.atkP) useSlot(0); if (act.atk2P) useSlot(1); }
     P.throwCd -= dt;
     if (P.hero) { P.skCd = (P.skCd || 0) - dt; if (act.skillP && P.skCd <= 0 && P.dash <= 0) heroSkill(P); }
+    if (act.sumP) castSummons();
     if (act.swapP) cycleWeapon();
     if (act.throwP && P.throwCd <= 0 && P.dash <= 0) throwItem();
     if (P.atk > 0) P.atk -= dt;
@@ -2259,7 +2261,7 @@
       const pc = { x: P.x + P.w / 2, y: P.y + P.h / 2 };
       const d = Math.hypot(it.x - pc.x, it.y - pc.y);
       if (it.kind === 'coin') {
-        if (d < (hasRelic(3) ? 90 : 40) * (petRole() === 'coin' ? 2.2 : (petRole() === 'rainbow' ? 1.8 : 1)) && !it.drop) { it.x += (pc.x - it.x) * 6 * dt; it.y += (pc.y - it.y) * 6 * dt; }
+        if (d < (hasRelic(3) ? 90 : 40) * (petRole() === 'coin' || pSt('coin') ? 2.2 : (petRole() === 'rainbow' ? 1.8 : 1)) && !it.drop) { it.x += (pc.x - it.x) * 6 * dt; it.y += (pc.y - it.y) * 6 * dt; }
         if (d < 10) { it.dead = true; const cv2 = hasRelic(3) ? 2 : 1; Q.coinsRun += cv2; save.coins += cv2; if (coop) coop.gold = (coop.gold || 0) + cv2; Snd.play('coin'); if (it.id >= 0) Q.taken.add(it.id); emit(it.x, it.y, 4, { col: '#ffd34e', sp0: 10, sp1: 40 }); if (Q.coinsRun % 50 === 0 && Q.P.hp < maxHP()) { Q.P.hp++; Snd.play('heart'); } }
       } else if (it.kind === 'heart') {
         if (d < 11 && coop && Q.players) { const need = Q.players.filter(p => !p.down && p.hp < (p.mhp || maxHP())); if (need.length) { for (const p of need) { p.hp++; emit(p.x + 4, p.y + 2, 8, { col: ['#e0453a', '#ff7fb0'], sp0: 10, sp1: 40 }); } it.dead = true; Snd.play('heart'); if (it.id >= 0) Q.taken.add(it.id); pop(it.x, it.y - 10, sv('+1 HP for the team', '+1 máu cả đội'), '#ff7fb0'); } }
@@ -2344,7 +2346,7 @@
   const eqHas = k => save.inv.w.some(id => ITEM[id] && ITEM[id].st[k]);
   const wd = d => d + Math.floor((baseDmg() - 1) / 2);
   const isBig = e => !!(e.isBoss || e.v === 'elite' || (e.sc || 1) > 1.2 || (e.maxhp || 0) >= 6);
-  const FLY_PET = { birdie: 1, fairy: 1, owl: 1, bat: 1, wisp: 1, bdragon: 1, ghostie: 1, pchick: 1 };
+  const FLY_PET = { wyrmling: 1, starwhale: 1, kitsune: 0, birdie: 1, fairy: 1, owl: 1, bat: 1, wisp: 1, bdragon: 1, ghostie: 1, pchick: 1 };
   const hexA = (h, a) => { const n = parseInt(h.substr(1), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; };
   function heldSword() {
     const P = Q && Q.P;
@@ -2404,7 +2406,9 @@
       if (p.burn) e.burnT = Math.max(e.burnT || 0, p.burn);
       if (p.slow) e.slowT = Math.max(e.slowT || 0, p.slow);
       if (p.poison) { e.poisonT = 4; e.poisonN = Math.min(4, (e.poisonN || 0) + 1); }
+      if (p.stun) { e.stunT = Math.max(e.stunT || 0, e.isBoss ? p.stun * 0.35 : p.stun); emit(e.x + e.w / 2, e.y - 2, 6, { col: ['#ffd34e', '#fff'], sp0: 10, sp1: 40 }); }
       if (!p.quiet) Snd.play('hit');
+      if (p.bounces > 0) { p.bounces--; const nx = nearestFoe(p.x, p.y, 220, p.hit); if (nx) { const dx = nx.x + nx.w / 2 - p.x, dy = nx.y + nx.h / 2 - p.y, d = Math.hypot(dx, dy) || 1; p.vx = dx / d * 320; p.vy = dy / d * 320; p.life = Math.max(p.life, 1); p.boom = 0; addRing(p.x, p.y, '#ffd34e', 20, 0.25); continue; } }
       if (p.expl) { explode(p.x, p.y, p.expl, p.dmg); p.dead = true; return; }
       if (p.pierceN !== undefined) { p.pierceN--; if (p.pierceN < 0) { p.dead = true; return; } } else if (!p.thru && !p.boom) { p.dead = true; return; }
     }
@@ -2459,7 +2463,8 @@
     P.wcd[s] = P.wmax[s] = it.st.cd; Snd.hero('attack'); P.atkCd = Math.max(P.atkCd, 0.12);
     emit(x + f * 4, y, 6, { col: ['#fff', '#ffd34e'], sp0: 20, sp1: 60 });
     const mk = (o, k) => shootG(Object.assign({ x, y, f }, o));
-    if (id === 'bow') { Snd.play('throw'); const a = v(300); mk({ vx: a[0], vy: a[1], life: 1.1, dmg: wd(2), shape: 'arrow', col: '#e8dfc0', sz: 2 }); }
+    if (fireDivine(id, f, x, y)) { }
+    else if (id === 'bow') { Snd.play('throw'); const a = v(300); mk({ vx: a[0], vy: a[1], life: 1.1, dmg: wd(2), shape: 'arrow', col: '#e8dfc0', sz: 2 }); }
     else if (id === 'boomerang') { Snd.play('whoosh'); mk({ vx: f * 190, vy: 0, life: 2.2, boom: 1.1, dmg: wd(2), shape: 'boom', spin: 14, sz: 4, thru: true, col: '#c8844a' }); }
     else if (id === 'firewand') { Snd.play('flame'); const a = v(175); mk({ vx: a[0], vy: a[1], life: 1.4, dmg: wd(3), burn: 3, shape: 'fire', trail: '#ffd34e', sz: 3, col: '#ff7a2a' }); }
     else if (id === 'icewand') { Snd.play('zap'); const a = v(190); mk({ vx: a[0], vy: a[1], life: 1.4, dmg: wd(2), slow: 3, shape: 'ice', trail: '#bff3ff', sz: 3, col: '#8fe0f8' }); }
@@ -2572,7 +2577,7 @@
       if (d.life <= 0) G.dr = null;
     }
     if (G.lyra) { const ly = G.lyra, tx = P.x + 4 - P.face * 26, k = 1 - Math.exp(-5 * dt); ly.t += dt; ly.x += (tx - ly.x) * k; ly.y += (P.y + P.h - ly.y) * (1 - Math.exp(-12 * dt)); if (Math.hypot(tx - ly.x, P.y - ly.y) > 190) { ly.x = tx; ly.y = P.y + P.h; } if (Math.random() < 0.03) emit(ly.x + rr(-6, 6), ly.y - 22, 1, { col: ['#a4ffc0', '#6ee7f2', '#fff'], sp0: 3, sp1: 10, grav: -14, l0: 0.5, l1: 0.9 }); }
-    updateAllies(dt); updateBossDrops(dt);
+    updateAllies(dt); updateBossDrops(dt); updateSummons(dt);
     if (G.powerT > 0) G.powerT -= dt;
     for (const p of G.pops) p.t -= dt; G.pops = G.pops.filter(p => p.t > 0);
     updatePet(dt);
@@ -2637,7 +2642,7 @@
     if (G.lyra) { const ly = G.lyra, hop = Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(ly.t * 12)) * 2 : Math.sin(ly.t * 3) * 0.6; drawSpr(g, npcSpr('npc_lyra_leek'), Math.round(ly.x - camX), Math.round(ly.y - camY + hop), ly.x > P.x + 4); }
     drawAllies(camX, camY);
     const pt = G.pet;
-    if (pt) { const sp = petSprite(pt.id), fly = FLY_PET[pt.id], hop = fly ? 0 : (Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(pt.t * 14)) * 2 : 0), off = pt.lunge > 0 ? pt.tdir * 5 : 0; g.globalAlpha = pt.id === 'ghostie' ? 0.75 : 1; drawSpr(g, sp, Math.round(pt.x - camX + off), Math.round(pt.y - camY + hop), pt.f < 0); g.globalAlpha = 1; }
+    if (pt && !(G.petForm > 0)) { const sp = petSprite(pt.id), fly = FLY_PET[pt.id], hop = fly ? 0 : (Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(pt.t * 14)) * 2 : 0), off = pt.lunge > 0 ? pt.tdir * 5 : 0; g.globalAlpha = pt.id === 'ghostie' ? 0.75 : 1; drawSpr(g, sp, Math.round(pt.x - camX + off), Math.round(pt.y - camY + hop), pt.f < 0); g.globalAlpha = 1; }
     if (G.god) {
       const gd = G.god, gs = godSprite(), x = Math.round(gd.x - camX), y = Math.round(gd.y - camY), a = Math.min(1, gd.life / 0.8, gd.t / 0.4);
       g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x, y + 10, 0, x, y + 10, 46); gr.addColorStop(0, 'rgba(255,230,90,' + 0.4 * a + ')'); gr.addColorStop(1, 'rgba(255,230,90,0)'); g.fillStyle = gr; g.fillRect(x - 46, y - 40, 92, 100); g.globalCompositeOperation = 'source-over';
@@ -2693,6 +2698,9 @@
     else if (sh === 'meteor') { disc(g, x, y, 5, '#6a3a2a'); disc(g, x, y, 4, '#ff7a2a'); disc(g, x, y, 2, '#ffd34e'); }
     else if (sh === 'orb') { disc(g, x, y, 4, hexA(p.col, 0.5)); disc(g, x, y, 3, p.col); disc(g, x, y, 1, '#fff'); }
     else if (sh === 'bat') { g.fillStyle = p.col; g.fillRect(x - 1, y - 1, 3, 3); const fl = Math.floor(Q.t * 18) % 2; g.fillRect(x - 4, y - 2 + fl * 2, 3, 1); g.fillRect(x + 2, y - 2 + fl * 2, 3, 1); g.fillStyle = '#e0453a'; g.fillRect(x, y, 1, 1); }
+    else if (sh === 'scythe') { g.save(); g.translate(x, y); g.rotate(p.rot || 0); g.strokeStyle = '#a15be0'; g.lineWidth = 3; g.beginPath(); g.arc(0, 0, 7, 0.2, 2.6); g.stroke(); g.strokeStyle = '#e8d8ff'; g.lineWidth = 1; g.beginPath(); g.arc(0, 0, 8, 0.3, 2.4); g.stroke(); g.fillStyle = '#5a3a5a'; g.fillRect(-1, -6, 2, 12); g.restore(); if (Math.random() < 0.5) emit(p.x, p.y, 1, { col: ['#7ed957', '#a15be0'], sp0: 3, sp1: 12, l0: 0.2, l1: 0.4 }); }
+    else if (sh === 'chakram') { g.save(); g.translate(x, y); g.rotate(p.rot || 0); disc(g, 0, 0, 6, '#ffd34e'); disc(g, 0, 0, 3, '#14121f'); g.fillStyle = '#fff6c0'; for (let i = 0; i < 6; i++) { const a = i / 6 * 6.283; g.fillRect(Math.round(Math.cos(a) * 7) - 1, Math.round(Math.sin(a) * 7) - 1, 2, 2); } g.restore(); }
+    else if (sh === 'bigmeteor') { g.globalCompositeOperation = 'lighter'; disc(g, x, y, 16, 'rgba(255,120,40,.35)'); g.globalCompositeOperation = 'source-over'; disc(g, x, y, 11, '#5a2a1a'); disc(g, x, y, 9, '#ff7a2a'); disc(g, x - 2, y - 2, 5, '#ffd34e'); disc(g, x - 3, y - 3, 2, '#fff6c0'); }
     else if (sh === 'spark') { g.fillStyle = '#ffd34e'; g.fillRect(x - 1, y - 2, 3, 5); g.fillRect(x - 2, y - 1, 5, 3); g.fillStyle = '#fff'; g.fillRect(x, y, 1, 1); }
     else { g.fillStyle = p.col; g.fillRect(x - 2, y - 1, 4, 3); }
   }
@@ -2714,7 +2722,9 @@
       if (G.slowT > 0) chip((save.lang === 'vi' ? 'THỜI GIAN CHẬM ' : 'TIME SLOW ') + G.slowT.toFixed(1), '#ffd34e');
       if (G.god) chip((save.lang === 'vi' ? 'THẦN SẤM ' : 'THUNDER GOD ') + G.god.life.toFixed(1), '#ffe44e');
       if (G.dr) chip((save.lang === 'vi' ? 'RỒNG ' : 'DRAGON ') + G.dr.life.toFixed(1), '#ff9a2a');
-      if (G.powerT > 0) chip((save.lang === 'vi' ? 'SỨC MẠNH ' : 'POWER ') + G.powerT.toFixed(1), '#ff5a3a'); }
+      if (G.powerT > 0) chip((save.lang === 'vi' ? 'SỨC MẠNH ' : 'POWER ') + G.powerT.toFixed(1), '#ff5a3a');
+      for (const id of summonItems()) { const cd = (G.sumCd && G.sumCd[id]) || 0, k = ITEM[id].st.summon; chip('T ' + sumName(k) + (cd > 0 ? ' ' + Math.ceil(cd) + 's' : sv(' READY', ' SẴN SÀNG')), cd > 0 ? '#8892aa' : '#ff4af0'); }
+      { const pe = petIt(); if (pe && pe.st.form) { const k = pe.st.form; chip(sumName(k) + ' ' + (G.petForm > 0 ? G.petForm.toFixed(1) : Math.max(0, Math.ceil(G.formCd === undefined ? 25 : G.formCd)) + 's'), G.petForm > 0 ? '#ff9a2a' : '#8892aa'); } } }
     if (petRole() === 'scout') {
       let best = null, bd = 1e9; for (const it of Q.items) if (it.kind === 'shard' && !it.dead) { const d = Math.hypot(it.x - P.x, it.y - P.y); if (d < bd) { bd = d; best = it; } }
       if (best && bd > 40) { const an = Math.atan2(best.y - P.y, best.x - P.x), cx = P.x + 4 - Q.cam.x + Math.cos(an) * 26, cy = P.y + 4 - Q.cam.y + Math.sin(an) * 26; g.save(); g.translate(Math.round(cx), Math.round(cy)); g.rotate(an); g.fillStyle = '#6ee7f2'; g.beginPath(); g.moveTo(5, 0); g.lineTo(-3, -4); g.lineTo(-3, 4); g.fill(); g.restore(); txt(Math.round(bd / 16) + 'm', cx, cy - 8, { al: 'center', size: 5, col: '#6ee7f2' }); }
@@ -3229,6 +3239,7 @@
     drawDragon(camX, camY);
     drawFx(camX, camY);
     drawGearFx(camX, camY);
+    drawSummons(camX, camY);
     drawPlayer(camX, camY);
     // projectiles
     for (const p of Q.projs) {
@@ -4560,7 +4571,7 @@
     for (const p of Q.players) { p.down = false; p.hp = p.mhp; p.inv = 1.5; p.vx = p.vy = 0; p.x = Q.P.x - p.slot * 6; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; }
   }
   // ---------- serialising the world ----------
-  const SKIP = { atkHit: 1, hit: 1, later: 1, L: 1, inp: 1, edge: 1, safe: 1, fn: 1, bag: 1 };
+  const SKIP = { atkHit: 1, hit: 1, later: 1, L: 1, inp: 1, edge: 1, safe: 1, fn: 1, bag: 1, owner: 1 };
   let REG = null, REV = null, SPRK = new Map();
   function buildReg() {
     REG = new Map(); REV = {};
@@ -4615,7 +4626,7 @@
   // lists of world objects sent with ids; only the fields that changed are sent again
   const QLISTS = ['ents', 'projs', 'fps', 'fires', 'zones', 'rings', 'ghosts', 'corpses', 'items', 'traps', 'pz', 'gates', 'trials', 'minis', 'dragons'];
   const QONE = ['boss', 'dragon', 'syFig', 'mainBoss'];
-  const GLISTS = ['allies', 'pops', 'bolts', 'holes', 'torn'];
+  const GLISTS = ['allies', 'pops', 'bolts', 'holes', 'torn', 'sums', 'slashes'];
   const GONE = ['god', 'dr', 'lyra'];
   const QVALS = ['state', 'stateT', 'time', 'shake', 'arenaSealed', 'bossDead', 'msg', 'msgT', 'banner', 'cp', 'talk', 'darkBoost', 'darkBoostT', 'windT', 'windDir', 'shardFlash', 'coinsRun', 'dj', 'dashAb', 'btSlot'];
   const GVALS = ['slowT', 'powerT', 'flash'];
@@ -5353,6 +5364,150 @@
     for (let i = 40; i >= 0; i--) { const x = hx + i * 9, y = 70 + Math.sin(i * 0.35 + Q.t * 2) * 26, r = i === 0 ? 9 : Math.max(3, 7 - i * 0.1); disc(g, Math.round(x), Math.round(y), Math.round(r), i % 2 ? '#2a8a3a' : '#3ab04a'); if (i % 4 === 0) { g.fillStyle = '#ffd34e'; g.fillRect(Math.round(x) - 1, Math.round(y - r), 2, 2); } }
     g.fillStyle = '#ff3a2a'; g.fillRect(Math.round(hx) - 4, 66 + Math.round(Math.sin(Q.t * 2) * 26), 2, 2); g.fillStyle = '#ffd34e'; g.fillRect(Math.round(hx) - 2, 58 + Math.round(Math.sin(Q.t * 2) * 26), 6, 2);
     g.globalAlpha = 1;
+  }
+  // ===================== DIVINE SUMMONS (swords, armors, pet forms): giants and beasts that fight for 7 seconds =====================
+  const GIANT = {
+    titan: { skin: '#8a7a5a', robe: '#5a4a34', trim: '#7ed957', eye: '#a4ffc0', head: 'crown', weapon: 'hammer', wcol: '#a8a8b8', beard: '#6a5a44', name: { en: 'Stone Titan', vi: 'Titan Đá' }, glow: '#c8a070' },
+    stormgod: { skin: '#cfe8ff', robe: '#3a4a9a', trim: '#ffd34e', eye: '#ffffff', head: 'horns', weapon: 'staff', wcol: '#ffe44e', beard: '#ffffff', name: { en: 'Storm God', vi: 'Thần Bão' }, glow: '#9fe8ff' },
+    seagoddess: { skin: '#a4e8f0', robe: '#1a6a8a', trim: '#ff9fd0', eye: '#ffffff', head: 'crown', weapon: 'trident', wcol: '#ffd34e', name: { en: 'Sea Goddess', vi: 'Nữ Thần Biển' }, glow: '#6ee7f2' },
+    moongoddess: { skin: '#f0e8ff', robe: '#4a3a8a', trim: '#cfc0ff', eye: '#a98bff', head: 'halo', weapon: 'bow', wcol: '#e8e0ff', wings: '#cfc0ff', name: { en: 'Moon Goddess', vi: 'Nữ Thần Mặt Trăng' }, glow: '#cfc0ff' },
+    frostgiant: { skin: '#9fe0f8', robe: '#2a5a9a', trim: '#ffffff', eye: '#ffffff', head: 'horns', weapon: 'hammer', wcol: '#bfefff', beard: '#ffffff', name: { en: 'Frost Giant', vi: 'Người Khổng Lồ Băng' }, glow: '#9fe8ff' },
+    sunemperor: { skin: '#ffd8a0', robe: '#c0302a', trim: '#ffd34e', eye: '#ffffff', head: 'sun', weapon: 'staff', wcol: '#ffe08a', name: { en: 'Sun Emperor', vi: 'Hoàng Đế Mặt Trời' }, glow: '#ffe08a' },
+    shogun: { skin: '#3a3a4a', robe: '#14121f', trim: '#c0302a', eye: '#ff3a5a', head: 'kabuto', weapon: 'katana', wcol: '#e8e8f0', name: { en: 'Shadow Shogun', vi: 'Tướng Quân Bóng Tối' }, glow: '#ff3a5a' },
+    treant: { skin: '#6a4a2a', robe: '#4a3420', trim: '#7ed957', eye: '#d8ff6a', head: 'leaves', weapon: 'none', name: { en: 'Ancient Treant', vi: 'Cây Cổ Thụ' }, glow: '#a4ffc0' },
+    aegis: { skin: '#ffe8b0', robe: '#c89a1c', trim: '#ffffff', eye: '#4a8bf0', head: 'helm', weapon: 'shield', wcol: '#ffd34e', name: { en: 'Golden Guardian', vi: 'Thần Hộ Vệ Vàng' }, glow: '#ffe08a' },
+    valkyrie: { skin: '#ffe0c8', robe: '#a0a8c8', trim: '#ffd34e', eye: '#6ec8ff', head: 'helm', weapon: 'spear', wcol: '#cfe8ff', wings: '#ffffff', name: { en: 'Valkyrie', vi: 'Valkyrie' }, glow: '#cfe8ff' },
+    angel: { skin: '#fff0e0', robe: '#ffffff', trim: '#ffd34e', eye: '#ffd34e', head: 'halo', weapon: 'sword', wcol: '#fff6c0', wings: '#ffffff', name: { en: 'Archangel', vi: 'Tổng Lãnh Thiên Thần' }, glow: '#fff6c0' },
+    golems: { skin: '#8a8a9a', robe: '#5a5a6a', trim: '#7ed957', eye: '#a4ffc0', head: 'none', weapon: 'none', name: { en: 'Stone Golems', vi: 'Người Đá' }, glow: '#a8a8b8', small: true }
+  };
+  const BEAST = {
+    phoenix: { name: { en: 'Great Phoenix', vi: 'Phượng Hoàng' }, glow: '#ff9a2a' }, dragonking: { name: { en: 'Golden Dragon Emperor', vi: 'Hoàng Đế Rồng Vàng' }, glow: '#ffd34e' },
+    dragonform: { name: { en: 'Great Dragon', vi: 'Rồng Lớn' }, glow: '#ff7a2a' }, thunderkirin: { name: { en: 'Thunder Kirin', vi: 'Kỳ Lân Sấm' }, glow: '#9fe8ff' },
+    skywhale: { name: { en: 'Sky Whale', vi: 'Cá Voi Trời' }, glow: '#cfe8ff' }, ninetail: { name: { en: 'Nine-Tailed Fox', vi: 'Cửu Vĩ Hồ' }, glow: '#ff9a4a' },
+    clones: { name: { en: 'Shadow Copies', vi: 'Bản Sao Bóng Tối' }, glow: '#a15be0' }
+  };
+  const sumName = k => LN((GIANT[k] || BEAST[k]).name);
+  function giantPaint(P, o) {
+    if (o.wings) P.both(() => { P.tri(14, 24, 0, 6, 4, 34, o.wings); P.tri(14, 28, 2, 20, 8, 40, o.wings); });
+    P.rect(13, 42, 6, 13, o.robe); P.rect(22, 42, 6, 13, o.robe); P.rect(12, 52, 8, 4, o.trim); P.rect(21, 52, 8, 4, o.trim);
+    P.rect(10, 22, 21, 22, o.robe); P.rect(10, 22, 21, 3, o.trim); P.rect(19, 25, 3, 19, o.trim); P.rect(10, 40, 21, 2, o.trim);
+    P.rect(5, 23, 6, 15, o.skin); P.rect(30, 23, 6, 15, o.skin); P.rect(4, 22, 8, 4, o.trim); P.rect(29, 22, 8, 4, o.trim);
+    P.ell(20, 14, 7, 8, o.skin); P.rect(15, 12, 4, 2, o.eye); P.rect(22, 12, 4, 2, o.eye);
+    if (o.beard) P.tri(13, 17, 27, 17, 20, 29, o.beard); else P.rect(18, 18, 5, 1, '#14121f');
+    switch (o.head) {
+      case 'crown': P.rect(13, 4, 14, 3, '#ffd34e'); P.tri(13, 4, 16, 4, 14, 0, '#ffd34e'); P.tri(18, 4, 22, 4, 20, -1 + 0, '#ffd34e'); P.tri(24, 4, 27, 4, 26, 0, '#ffd34e'); P.px(20, 5, '#e0453a'); break;
+      case 'horns': P.both(() => { P.tri(13, 8, 15, 6, 6, 0, '#e8e0c0'); }); break;
+      case 'halo': P.ell(20, 3, 8, 2, o.trim); P.ell(20, 3, 6, 1, '#00000000'); break;
+      case 'sun': for (let i = 0; i < 9; i++) { const a = Math.PI + i * Math.PI / 8; P.line(20, 12, Math.round(20 + Math.cos(a) * 13), Math.round(12 + Math.sin(a) * 13), '#ffd34e', 1); } P.ell(20, 14, 7, 8, o.skin); P.rect(15, 12, 4, 2, o.eye); P.rect(22, 12, 4, 2, o.eye); P.rect(18, 18, 5, 1, '#14121f'); break;
+      case 'kabuto': P.ell(20, 9, 9, 5, '#14121f'); P.tri(12, 6, 20, 6, 10, 0, '#ffd34e'); P.tri(20, 6, 28, 6, 30, 0, '#ffd34e'); P.rect(12, 16, 16, 4, '#2a2a3a'); break;
+      case 'helm': P.ell(20, 9, 8, 6, o.trim); P.rect(13, 9, 14, 3, o.trim); P.rect(19, 1, 2, 6, '#e0453a'); break;
+      case 'leaves': for (let i = 0; i < 7; i++) P.ell(10 + i * 3.4 | 0, 5 + (i % 2) * 3, 4, 3, i % 2 ? '#5fcf5a' : '#2b8a3e'); break;
+      case 'none': break;
+    }
+    const W = o.wcol;
+    switch (o.weapon) {
+      case 'hammer': P.rect(36, 10, 2, 34, '#5a3a22'); P.rect(31, 4, 12, 9, W); P.rect(31, 4, 12, 2, '#ffffff'); break;
+      case 'staff': P.rect(37, 6, 2, 46, '#5a3a22'); P.ell(38, 5, 4, 4, W); P.px(37, 4, '#fff'); break;
+      case 'trident': P.rect(37, 8, 2, 44, W); P.rect(33, 6, 10, 2, W); P.tri(33, 6, 35, 6, 34, 0, W); P.tri(37, 6, 39, 6, 38, -1 + 0, W); P.tri(41, 6, 43, 6, 42, 0, W); break;
+      case 'bow': P.poly([[37, 6], [40, 16], [40, 32], [37, 42]], W, 2); P.line(37, 6, 37, 42, '#ffffff', 1); break;
+      case 'spear': P.rect(37, 2, 2, 50, '#c8c8d4'); P.tri(35, 4, 41, 4, 38, -1 + 0, W); P.tri(35, 4, 41, 4, 38, 10, W); break;
+      case 'sword': P.rect(37, 4, 3, 30, W); P.rect(34, 33, 9, 2, '#ffd34e'); P.rect(37, 35, 3, 6, '#8a6a44'); break;
+      case 'katana': P.line(36, 40, 43, 2, W, 2); P.rect(33, 38, 6, 2, '#c0302a'); break;
+      case 'shield': P.ell(6, 30, 7, 9, W); P.ell(6, 30, 5, 7, '#ffffff'); P.ell(6, 30, 2, 3, '#4a8bf0'); break;
+    }
+  }
+  const SUM_SPR = {};
+  function summonSprite(k) {
+    if (SUM_SPR[k]) return SUM_SPR[k];
+    const o = GIANT[k];
+    if (o) return (SUM_SPR[k] = paint(44, 58, P => giantPaint(P, o), '#14121f'));
+    const B = {
+      phoenix: [64, 40, P => { P.both(() => { P.tri(30, 18, 0, 4, 14, 26, '#ff4a1a'); P.tri(30, 20, 4, 14, 18, 30, '#ff9a2a'); P.tri(30, 22, 10, 22, 22, 32, '#ffd34e'); }); P.ell(32, 20, 7, 6, '#ff7a2a'); P.ell(40, 14, 4, 4, '#ffb04a'); P.tri(43, 14, 43, 16, 48, 15, '#ffd34e'); P.px(41, 13, '#fff'); P.tri(26, 24, 20, 40, 32, 26, '#ff4a1a'); P.tri(32, 26, 34, 40, 38, 26, '#ffd34e'); P.tri(39, 10, 38, 4, 42, 10, '#ffd34e'); }],
+      thunderkirin: [46, 34, P => { P.ell(22, 18, 13, 7, '#4ac0f0'); P.ell(22, 17, 12, 5, '#9fe8ff'); P.ell(36, 10, 6, 5, '#4ac0f0'); P.tri(37, 5, 39, -1 + 0, 40, 6, '#ffe44e'); P.px(38, 9, '#ffffff'); for (const x of [12, 18, 26, 32]) P.rect(x, 22, 3, 11, '#2a6aa0'); P.poly([[9, 15], [4, 10], [6, 6], [1, 2]], '#ffe44e', 2); P.poly([[22, 11], [20, 6], [24, 4]], '#ffe44e', 1); }],
+      skywhale: [70, 34, P => { P.ell(36, 17, 26, 12, '#2a3a9a'); P.ell(36, 22, 22, 6, '#cfe8ff'); P.tri(8, 16, 0, 4, 12, 14, '#2a3a9a'); P.tri(8, 18, 0, 30, 12, 20, '#2a3a9a'); P.ell(52, 14, 2, 2, '#ffffff'); P.px(53, 14, '#14121f'); for (let i = 0; i < 9; i++) P.px(18 + i * 4, 8 + (i % 3) * 3, '#ffe08a'); P.tri(30, 26, 26, 34, 38, 27, '#2a3a9a'); }],
+      ninetail: [52, 36, P => { for (let i = 0; i < 9; i++) { const a = Math.PI * (0.55 + i * 0.1); P.line(16, 20, Math.round(16 + Math.cos(a) * 16), Math.round(20 - Math.sin(a) * 18), i % 3 === 1 ? '#ffffff' : '#ff9a4a', 3); } P.ell(26, 22, 10, 7, '#ff9a4a'); P.ell(27, 25, 6, 3, '#fff0d0'); P.ell(37, 14, 6, 5, '#ff9a4a'); P.tri(33, 10, 35, 2, 37, 10, '#ff9a4a'); P.tri(38, 10, 40, 2, 42, 10, '#ff9a4a'); P.px(39, 13, '#14121f'); for (const x of [20, 26, 32]) P.rect(x, 28, 3, 7, '#d0703a'); }]
+    }[k];
+    if (B) return (SUM_SPR[k] = paint(B[0], B[1], B[2], '#14121f'));
+    return null;
+  }
+  function spawnSummon(kind, life, owner) {
+    const o = owner || Q.P, G = Q.G; if (!G.sums) G.sums = [];
+    G.sums.push({ kind, life: life || 7, max: life || 7, t: 0, x: o.x + 4 - o.face * 30, y: o.y + o.h, f: o.face, cd: 0.6, n: 0, owner: o });
+    Snd.play('relic'); Snd.play('boom'); Q.shake = Math.max(Q.shake, 0.45); G.flash = Math.max(G.flash || 0, 0.18);
+    addRing(o.x + 4, o.y + 7, (GIANT[kind] || BEAST[kind]).glow, 80, 0.6); emit(o.x + 4, o.y + 4, 40, { col: [(GIANT[kind] || BEAST[kind]).glow, '#fff'], sp0: 30, sp1: 160 });
+    pop(o.x + 4, o.y - 26, sumName(kind) + '!', (GIANT[kind] || BEAST[kind]).glow);
+  }
+  function summonItems() { return [save.inv.w[0], save.inv.w[1], save.inv.armor].filter(id => id && ITEM[id] && ITEM[id].st.summon); }
+  function castSummons() {
+    const G = Q.G; G.sumCd = G.sumCd || {}; const ids = summonItems(); let any = false;
+    for (const id of ids) { if ((G.sumCd[id] || 0) > 0) continue; G.sumCd[id] = 60; spawnSummon(ITEM[id].st.summon, 7, Q.P); any = true; }
+    if (!any) { Q.msg = ids.length ? sv('Summon resting: ', 'Triệu hồi đang hồi: ') + Math.ceil(Math.min.apply(null, ids.map(id => G.sumCd[id]))) + 's' : sv('Equip a Divine sword or armor to summon (T).', 'Trang bị kiếm hoặc giáp Thần cấp để triệu hồi (T).'); Q.msgT = 2; Snd.play('select'); }
+  }
+  function updateSummons(dt) {
+    const G = Q.G, P = Q.P; if (!G.sums) G.sums = []; G.sumCd = G.sumCd || {};
+    for (const k in G.sumCd) if (G.sumCd[k] > 0) G.sumCd[k] -= dt;
+    const pet = petIt();
+    if (pet && pet.st.form) { G.formCd = (G.formCd === undefined ? 25 : G.formCd) - dt; if (G.formCd <= 0 && (nearestFoe(P.x, P.y, 240) || (Q.boss && Q.arenaSealed))) { G.formCd = 60; G.petForm = 7; spawnSummon(pet.st.form, 7, P); } }
+    if (G.petForm > 0) G.petForm -= dt;
+    if (pet && pet.st.heal) { G.petHealT = (G.petHealT === undefined ? pet.st.heal : G.petHealT) - dt; if (G.petHealT <= 0) { G.petHealT = pet.st.heal; if (P.hp < maxHP()) { P.hp++; Snd.play('heart'); emit(P.x + 4, P.y + 4, 8, { col: ['#ff7fb0', '#fff'], sp0: 10, sp1: 40 }); } } }
+    const sd = n => n + baseDmg();
+    for (const s of G.sums) {
+      s.t += dt; s.life -= dt; s.cd -= dt;
+      const o = s.owner || P, fly = !!BEAST[s.kind] && s.kind !== 'thunderkirin' && s.kind !== 'ninetail' && s.kind !== 'clones';
+      if (s.kind === 'phoenix') { s.x = Q.cam.x + VW / 2 + Math.sin(s.t * 0.9) * (VW * 0.42); s.y = Q.cam.y + 46 + Math.sin(s.t * 2) * 6; s.f = Math.cos(s.t * 0.9) > 0 ? 1 : -1; }
+      else if (fly) { const tx = o.x + 4 + o.face * 20, ty = o.y - 46 + Math.sin(s.t * 2) * 4, k = 1 - Math.exp(-3 * dt); s.x += (tx - s.x) * k; s.y += (ty - s.y) * k; s.f = o.face; }
+      else { const tx = o.x + 4 - o.face * (GIANT[s.kind] && GIANT[s.kind].small ? 0 : 30), k = 1 - Math.exp(-4 * dt); s.x += (tx - s.x) * k; s.y = groundYAt(s.x); s.f = o.face; }
+      if (s.cd > 0 || s.t < 0.5 || s.life < 0.3) continue;
+      const near = r => nearestFoe(s.x, s.y - 30, r), all = r => foes().filter(e => Math.abs(e.x + e.w / 2 - s.x) < r);
+      switch (s.kind) {
+        case 'titan': s.cd = 1.3; Q.shake = Math.max(Q.shake, 0.5); Snd.play('boom'); addRing(s.x, s.y, '#c8a070', 120, 0.5); for (let i = -8; i <= 8; i++) emit(s.x + i * 22, groundYAt(s.x + i * 22), 2, { col: ['#8a6a44', '#c8a070'], sp0: 20, sp1: 70, vy: -60 }); for (const e of all(240)) { dmgFoe(e, sd(7), true, true); e.stunT = Math.max(e.stunT || 0, e.isBoss ? 0.3 : 0.9); if (!e.isBoss && !e.fly) e.vy = -170; } break;
+        case 'stormgod': { s.cd = 0.45; const t = near(320); if (t) { const cx = t.x + t.w / 2; Snd.play('thunder'); zap(cx, Q.cam.y - 6, cx, t.y + t.h / 2); dmgFoe(t, sd(5), true, true); chainZap(t, sd(2), 2, 80); G.flash = Math.max(G.flash || 0, 0.06); } break; }
+        case 'seagoddess': s.cd = 1.6; Snd.play('whoosh'); for (const d of [-1, 1]) shootG({ x: s.x, y: s.y - 14, vx: d * 210, vy: 0, life: 1.5, dmg: sd(6), slow: 2, thru: true, pierceN: 99, shape: 'wind', col: '#6ee7f2', sz: 14, f: d }); break;
+        case 'phoenix': s.cd = 0.12; shootG({ x: s.x, y: s.y + 10, vx: s.f * 40 + rr(-20, 20), vy: 120, g: 220, life: 1.8, dmg: sd(2), burn: 3, shape: 'fire', trail: '#ffd34e', sz: 3, col: '#ff7a2a', quiet: true }); if (Math.random() < 0.2) Snd.play('flame'); break;
+        case 'moongoddess': { s.cd = 0.35; const t = near(320); if (t) shootG({ x: t.x + t.w / 2, y: Q.cam.y - 8, vx: 0, vy: 560, life: 1, dmg: sd(4), thru: true, pierceN: 3, shape: 'orb', col: '#e8e0ff', trail: '#cfc0ff', sz: 4, quiet: true }); break; }
+        case 'dragonking': case 'dragonform': { s.cd = 0.08; const t = (Q.boss && bossTargets()[0]) || near(260); if (t) { const dx = t.x + t.w / 2 - s.x, dy = t.y + t.h / 2 - s.y, d = Math.hypot(dx, dy) || 1; shootG({ x: s.x + s.f * 16, y: s.y + 6, vx: dx / d * 230 + rr(-20, 20), vy: dy / d * 230 + rr(-20, 20), life: 0.9, dmg: sd(s.kind === 'dragonking' ? 2 : 1), burn: 3, shape: 'fire', sz: 3, col: s.kind === 'dragonking' ? '#ffd34e' : '#ff7a2a', pierceN: 2, quiet: true }); if (Math.random() < 0.12) Snd.play('breath'); } break; }
+        case 'frostgiant': s.cd = 1; if (!s.n) { for (const e of foes()) { e.slowT = Math.max(e.slowT || 0, 6); if (!e.isBoss) e.stunT = Math.max(e.stunT || 0, 1.5); } G.slowT = Math.max(G.slowT, 3); addRing(s.x, s.y - 20, '#bfefff', 220, 0.8); Snd.play('zap'); } for (const e of all(300).slice(0, 4)) shootG({ x: e.x + e.w / 2, y: Q.cam.y - 6, vx: 0, vy: 420, life: 1.2, dmg: sd(6), slow: 3, shape: 'ice', sz: 4, col: '#bfefff', quiet: true }); s.n++; break;
+        case 'sunemperor': s.cd = 2.2; Snd.play('explode'); G.flash = Math.max(G.flash || 0, 0.2); for (let k = -1; k <= 1; k++) shootG({ x: s.x + s.f * 20, y: s.y - 34 + k * 8, vx: s.f * 600, vy: 0, life: 0.9, dmg: sd(10), burn: 3, thru: true, pierceN: 99, shape: 'beam', col: '#ffe08a', sz: 6, f: s.f }); break;
+        case 'shogun': s.cd = 1; Snd.play('slash'); for (const e of all(320)) { dmgFoe(e, sd(8), true, true); emit(e.x + e.w / 2, e.y + e.h / 2, 10, { col: ['#ff3a5a', '#fff'], sp0: 40, sp1: 150 }); } (G.slashes = G.slashes || []).push({ y: s.y - 30 - rr(0, 30), life: 0.25, x: s.x }); Q.shake = Math.max(Q.shake, 0.3); break;
+        case 'treant': s.cd = 1; for (const e of all(260)) { dmgFoe(e, sd(5), true, true); e.slowT = Math.max(e.slowT || 0, 3); emit(e.x + e.w / 2, e.y + e.h, 8, { col: ['#5fcf5a', '#8a6a44'], sp0: 20, sp1: 70, vy: -70 }); } if ((s.n = (s.n || 0) + 1) % 2 === 0 && o.hp < (o.mhp || maxHP())) { o.hp++; Snd.play('heart'); } break;
+        case 'aegis': s.cd = 0.1; for (const p of Q.projs) if (!p.dead && Math.hypot(p.x - (o.x + 4), p.y - (o.y + 7)) < 140) { p.dead = true; emit(p.x, p.y, 6, { col: ['#ffe08a', '#fff'], sp0: 10, sp1: 50 }); } if ((s.n = (s.n || 0) + 1) % 15 === 0) nova(o.x + 4, o.y + 7, 70, sd(4)); break;
+        case 'valkyrie': { s.cd = 0.55; const t = near(300); if (t) shootG({ x: s.x, y: s.y - 44, vx: (t.x > s.x ? 1 : -1) * 260, vy: -20, home: true, life: 1.6, dmg: sd(5), thru: true, pierceN: 1, shape: 'beam', col: '#cfe8ff', sz: 3, f: t.x > s.x ? 1 : -1, quiet: true }); break; }
+        case 'angel': { s.cd = 1; const t = near(300); if (t) { zap(s.x, s.y - 40, t.x + t.w / 2, t.y + t.h / 2); dmgFoe(t, sd(5), true, true); } if ((s.n = (s.n || 0) + 1) % 2 === 0 && o.hp < (o.mhp || maxHP())) { o.hp++; Snd.play('heart'); emit(o.x + 4, o.y + 4, 10, { col: ['#fff6c0', '#fff'], sp0: 10, sp1: 50 }); } break; }
+        case 'golems': case 'clones': { s.cd = s.kind === 'clones' ? 0.7 : 0.9; const t = near(140); if (t) { dmgFoe(t, sd(s.kind === 'clones' ? 4 : 6), true, true); emit(t.x + t.w / 2, t.y + t.h / 2, 10, { col: s.kind === 'clones' ? ['#a15be0', '#14121f'] : ['#a8a8b8', '#fff'], sp0: 30, sp1: 110 }); Snd.play(s.kind === 'clones' ? 'slash' : 'clang'); s.hitX = t.x + t.w / 2; s.hitT = 0.25; if (!t.isBoss) t.vx = (t.x > s.x ? 1 : -1) * 160; } break; }
+        case 'thunderkirin': { s.cd = 0.8; const t = near(260); if (t) { Snd.play('zap'); zap(s.x, s.y - 14, t.x + t.w / 2, t.y + t.h / 2); dmgFoe(t, sd(4), true, true); chainZap(t, sd(2), 3, 90); s.x += (t.x - s.x) * 0.5; } break; }
+        case 'skywhale': s.cd = 0.3; shootG({ x: s.x + rr(-30, 30), y: s.y + 10, vx: rr(-30, 30), vy: 200, life: 1.6, dmg: sd(4), expl: 26, shape: 'meteor', sz: 4, col: '#cfe8ff', trail: '#ffe08a', quiet: true }); break;
+        case 'ninetail': s.cd = 0.6; for (let i = 0; i < 3; i++) shootG({ x: s.x, y: s.y - 16, vx: rr(-120, 120), vy: -rr(60, 140), home: true, life: 2, dmg: sd(3), burn: 2, shape: 'orb', col: '#6ee7f2', trail: '#ff9a4a', sz: 3, quiet: true }); break;
+      }
+    }
+    G.sums = G.sums.filter(s => s.life > 0);
+    if (G.slashes) { for (const sl of G.slashes) sl.life -= dt; G.slashes = G.slashes.filter(sl => sl.life > 0); }
+  }
+  function drawSummons(camX, camY) {
+    const G = Q.G; if (!G.sums) return;
+    for (const s of G.sums) {
+      const a = Math.min(1, s.t / 0.45, s.life / 0.6), sp = summonSprite(s.kind), x = Math.round(s.x - camX), y = Math.round(s.y - camY), info = GIANT[s.kind] || BEAST[s.kind];
+      g.globalCompositeOperation = 'lighter'; const R = 60, gr = g.createRadialGradient(x, y - 40, 0, x, y - 40, R); gr.addColorStop(0, hexA(info.glow, 0.32 * a)); gr.addColorStop(1, hexA(info.glow, 0)); g.fillStyle = gr; g.fillRect(x - R, y - 40 - R, R * 2, R * 2); g.globalCompositeOperation = 'source-over';
+      if (s.kind === 'clones') { for (let i = 0; i < 3; i++) { const cx = x + (i - 1) * 22 + Math.round(Math.sin(s.t * 6 + i) * 3); g.globalAlpha = 0.6 * a; drawSpr(g, getSprite('hero_run', { a: '#5a5a6a', A: '#2a2a3a', q: '#14121f', b: '#3a2a5a', r: '#a15be0', f: '#a15be0', o: '#14121f' }, Math.floor(s.t * 10 + i) % 4), cx, y, s.f < 0); } g.globalAlpha = 1; continue; }
+      if (s.kind === 'dragonking' || s.kind === 'dragonform') { const ds = dragonSprite(s.kind === 'dragonking' ? 2 : 1, Math.floor(Q.t * 6) % 2); g.globalAlpha = 0.95 * a; g.drawImage(s.f < 0 ? ds.f : ds.c, Math.round(x - ds.w / 2), Math.round(y - ds.h / 2)); if (s.kind === 'dragonking') { g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35 * a; g.drawImage(s.f < 0 ? ds.f : ds.c, Math.round(x - ds.w / 2), Math.round(y - ds.h / 2)); g.globalCompositeOperation = 'source-over'; } g.globalAlpha = 1; continue; }
+      if (!sp) continue;
+      const giant = !!GIANT[s.kind], sc = giant ? (GIANT[s.kind].small ? 1.1 : 2) : 1.5, rise = giant ? Math.round((1 - Math.min(1, s.t / 0.5)) * 30) : 0;
+      g.globalAlpha = 0.8 * a;
+      if (s.kind === 'golems') { for (const dx of [-26, 26]) drawSpr(g, sp, x + dx + (s.hitT > 0 ? 3 : 0), y + rise, dx < 0 ? false : true, false, sc, sc); }
+      else drawSpr(g, sp, x, y + rise + (giant ? 0 : Math.round(sp.h * sc / 2)), s.f < 0, false, sc, sc);
+      g.globalAlpha = 1;
+      if (Math.random() < 0.4) emit(s.x + rr(-20, 20), s.y - rr(0, 80), 1, { col: [info.glow, '#fff'], sp0: 3, sp1: 14, grav: -20, l0: 0.4, l1: 0.9 });
+    }
+    if (G.slashes) for (const sl of G.slashes) { g.globalAlpha = sl.life / 0.25; g.fillStyle = '#ff3a5a'; g.fillRect(0, Math.round(sl.y - camY) - 1, VW, 3); g.fillStyle = '#fff'; g.fillRect(0, Math.round(sl.y - camY), VW, 1); g.globalAlpha = 1; }
+  }
+  // the five Divine special weapons
+  function fireDivine(id, f, x, y) {
+    const P = Q.P, G = Q.G, wdd = n => wd(n);
+    if (id === 'frostbow') { Snd.play('whoosh'); shootG({ x, y, vx: f * 40, vy: -420, life: 0.5, dmg: wdd(3), shape: 'ice', sz: 3, col: '#bfefff', quiet: true }); for (let i = 0; i < 90; i++) later(0.4 + i * 0.026, () => shootG({ x: Q.cam.x + rr(10, VW - 10), y: Q.cam.y - 8, vx: rr(-25, 25), vy: rr(340, 420), life: 1.4, dmg: wdd(3), slow: 3, shape: 'arrow', col: '#bfefff', sz: 2, quiet: true })); Q.msg = save.lang === 'vi' ? 'MƯA TÊN BĂNG!' : 'ICE ARROW STORM!'; Q.msgT = 1.6; return true; }
+    if (id === 'reaperscythe') { Snd.play('whoosh'); shootG({ x, y, f, vx: f * 240, vy: 0, life: 2.2, boom: 1.0, dmg: wdd(6), stun: 2, poison: true, thru: true, shape: 'scythe', spin: 16, sz: 7, col: '#a15be0' }); return true; }
+    if (id === 'meteorstaff') { let t = Q.boss && bossTargets()[0]; if (!t) { let best = null; for (const e of foes()) if (Math.abs(e.x - P.x) < 300 && (!best || e.hp > best.hp)) best = e; t = best; } const tx = t ? t.x + t.w / 2 : P.x + f * 100; Snd.play('boom'); Q.msg = save.lang === 'vi' ? 'THIÊN THẠCH!' : 'METEOR!'; Q.msgT = 1.4; later(0.7, () => shootG({ x: tx - f * 80, y: Q.cam.y - 30, vx: f * 110, vy: 340, life: 2.5, dmg: wdd(20), expl: 80, shape: 'bigmeteor', sz: 9, col: '#ff7a2a', trail: '#ffd34e' })); return true; }
+    if (id === 'chakram') { Snd.play('whoosh'); shootG({ x, y, f, vx: f * 280, vy: 0, life: 2.5, dmg: wdd(6), burn: 3, bounces: 8, thru: true, shape: 'chakram', spin: 20, sz: 5, col: '#ffd34e', trail: '#ff9a2a' }); return true; }
+    if (id === 'singularity') { const hx = P.x + 4 + f * 100, hy = P.y; Snd.play('zap'); G.holes.push({ x: hx, y: hy, life: 5, r: 150, tick: 0.12 }); later(5, () => { explode(hx, hy, 110, wdd(16)); addRing(hx, hy, '#7a4cff', 140, 0.6); }); Q.msg = save.lang === 'vi' ? 'ĐIỂM KỲ DỊ!' : 'SINGULARITY!'; Q.msgT = 1.4; return true; }
+    return false;
   }
   function frame(now) {
     requestAnimationFrame(frame);

@@ -356,3 +356,74 @@ Object.assign(WPN_PAINT, {
   ['solarflare', 13, 'Solar Flare Orb', 'Quả Cầu Mặt Trời', 'A huge solar explosion around you: heavy damage and burning.', 'Một vụ nổ mặt trời khổng lồ quanh bạn: sát thương lớn và thiêu đốt.', { cd: 18 }],
   ['starfall', 15, 'Starfall Wand', 'Đũa Sao Rơi', 'Calls 14 shooting stars down across the whole screen!', 'Gọi 14 ngôi sao băng rơi khắp màn hình!', { cd: 26 }]
 ].forEach(a => addItem({ id: a[0], type: 'wpn', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6] }));
+
+// ================= DIVINE TIER (16-20): summons that fight beside you for 7 seconds, then rest for a minute =================
+RARITY_COL.push('#ff4af0'); RARITY_NAME.push({ en: 'Divine', vi: 'Thần cấp' });
+TIER_GOLD.push(24000, 30000, 38000, 48000, 60000);
+Object.assign(SWORD_LOOK, {
+  gaiablade: { shape: 'wide', len: 34, bl: '#8a7a5a', ed: '#e8d8a0', gd: '#5a8a3a', gr: '#3a2a18', gl: '#c8a070' },
+  skytyrant: { shape: 'zig', len: 32, bl: '#cfe8ff', ed: '#ffffff', gd: '#ffd34e', gr: '#2a2a5a', gl: '#9fe8ff' },
+  tidecaller: { shape: 'curved', len: 32, bl: '#2ab0c8', ed: '#bfffff', gd: '#c86a8a', gr: '#0a3a5a', gl: '#6ee7f2' },
+  phoenixlord: { shape: 'flame', len: 34, bl: '#ff4a1a', ed: '#ffe08a', gd: '#ffb02a', gr: '#7a2a10', gl: '#ff9a2a' },
+  lunarblade: { shape: 'thin', len: 34, bl: '#e8e0ff', ed: '#ffffff', gd: '#a98bff', gr: '#2a2a5a', gl: '#cfc0ff' },
+  dragonemperor: { shape: 'flame', len: 36, bl: '#ffd34e', ed: '#fff6c0', gd: '#c0302a', gr: '#5a1a10', gl: '#ffd34e' },
+  jotunn: { shape: 'wide', len: 36, bl: '#bfefff', ed: '#ffffff', gd: '#4a8bf0', gr: '#1a3a6a', gl: '#9fe8ff' },
+  solaris: { shape: 'sun', len: 36, bl: '#ffe08a', ed: '#ffffff', gd: '#ff7a2a', gr: '#7a2a10', gl: '#ffe08a' },
+  oblivion: { shape: 'curved', len: 36, bl: '#1a1020', ed: '#ff3a5a', gd: '#5a0a1a', gr: '#14121f', gl: '#ff3a5a' },
+  yggdrasil: { shape: 'holy', len: 36, bl: '#7ed957', ed: '#e8ffd0', gd: '#8a6a44', gr: '#3a2a18', gl: '#a4ffc0' }
+});
+[
+  ['gaiablade', 16, "Gaia's Greatsword", 'Đại Kiếm Gaia', '+9 damage. Press T: a Stone Titan rises for 7s and shakes the earth under every enemy. Rests 60s.', '+9 sát thương. Nhấn T: Titan Đá trồi lên 7 giây, dậm rung đất dưới chân mọi kẻ địch. Hồi 60 giây.', { dmg: 9, summon: 'titan', reach: 1.2 }],
+  ['skytyrant', 16, 'Sky Tyrant', 'Bạo Chúa Bầu Trời', '+9 damage. Press T: the Storm God calls lightning down on every enemy for 7s.', '+9 sát thương. Nhấn T: Thần Bão gọi sét đánh xuống mọi kẻ địch trong 7 giây.', { dmg: 9, summon: 'stormgod', chain: 2 }],
+  ['tidecaller', 17, 'Tidecaller', 'Kiếm Gọi Thủy Triều', '+9 damage. Press T: the Sea Goddess sends huge waves across the battlefield.', '+9 sát thương. Nhấn T: Nữ Thần Biển đưa những con sóng khổng lồ quét qua chiến trường.', { dmg: 9, summon: 'seagoddess', slow: 2 }],
+  ['phoenixlord', 17, 'Phoenix Lord', 'Chúa Tể Phượng Hoàng', '+10 damage, burns. Press T: a giant Phoenix sweeps the sky raining fire.', '+10 sát thương, đốt cháy. Nhấn T: Phượng Hoàng khổng lồ lượn trên trời trút mưa lửa.', { dmg: 10, summon: 'phoenix', burn: 4 }],
+  ['lunarblade', 18, 'Lunar Edge', 'Kiếm Nguyệt Thần', '+10 damage. Press T: the Moon Goddess pierces enemies with moonbeams from the sky.', '+10 sát thương. Nhấn T: Nữ Thần Mặt Trăng xuyên thủng kẻ địch bằng tia trăng từ trời cao.', { dmg: 10, summon: 'moongoddess', beam: 1 }],
+  ['dragonemperor', 18, 'Dragon Emperor', 'Hoàng Đế Rồng', '+11 damage, x1.5 vs bosses. Press T: the Golden Dragon Emperor breathes fire on the boss.', '+11 sát thương, x1,5 với boss. Nhấn T: Hoàng Đế Rồng Vàng phun lửa vào boss.', { dmg: 11, summon: 'dragonking', boss: 1.5 }],
+  ['jotunn', 19, "Jotunn's Fang", 'Nanh Người Khổng Lồ Băng', '+11 damage, freezes. Press T: a Frost Giant freezes every enemy and drops ice spikes.', '+11 sát thương, đóng băng. Nhấn T: Người Khổng Lồ Băng đóng băng mọi kẻ địch và thả gai băng.', { dmg: 11, summon: 'frostgiant', slow: 3 }],
+  ['solaris', 19, 'Solaris', 'Kiếm Thái Dương', '+12 damage, beams. Press T: the Sun Emperor fires a colossal solar beam.', '+12 sát thương, bắn tia. Nhấn T: Hoàng Đế Mặt Trời bắn một tia nắng khổng lồ.', { dmg: 12, summon: 'sunemperor', beam: 2, burn: 3 }],
+  ['oblivion', 20, 'Oblivion Katana', 'Katana Hư Vô', '+12 damage, 20% crits. Press T: a giant Shadow Shogun slashes across the whole screen.', '+12 sát thương, 20% chí mạng. Nhấn T: Tướng Quân Bóng Tối khổng lồ chém ngang toàn màn hình.', { dmg: 12, summon: 'shogun', crit: 0.2 }],
+  ['yggdrasil', 20, 'World Tree Blade', 'Kiếm Cây Thế Giới', '+12 damage, heals. Press T: the Ancient Treant traps enemies in roots and heals you.', '+12 sát thương, hồi máu. Nhấn T: Cây Cổ Thụ trói kẻ địch bằng rễ và hồi máu cho bạn.', { dmg: 12, summon: 'treant', ls: 5 }]
+].forEach(a => addItem({ id: a[0], type: 'sword', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6] }));
+Object.assign(ARMOR_LOOK, {
+  aegisarmor: { sw: { b: '#ffd34e', A: '#c89a1c', a: '#fff6c0', r: '#4a8bf0' }, aura: '#ffe08a', halo: '#ffe08a' },
+  valkyrie: { sw: { b: '#e8e8f0', A: '#a0a8c8', a: '#ffffff', r: '#6ec8ff' }, wings: 'angel' },
+  shadowveil: { sw: { b: '#2a2a3a', A: '#14121f', a: '#5a5a6a', r: '#a15be0' }, cape: '#14121f', aura: '#7a4cff' },
+  seraphim: { sw: { b: '#ffffff', A: '#fff6c0', a: '#ffffff', r: '#ffd34e' }, wings: 'angel', halo: '#fff6c0', aura: '#fff6c0' },
+  titanplate: { sw: { b: '#8a7a5a', A: '#5a4a34', q: '#2a2218', a: '#c8b898', r: '#7ed957' }, spikes: '#c8b898' }
+});
+[
+  ['aegisarmor', 16, 'Aegis of Dawn', 'Khiên Giáp Bình Minh', '+5 hearts, -35% damage. Press T: a golden guardian shields you and burns away enemy shots for 7s.', '+5 tim, -35% sát thương. Nhấn T: thần hộ vệ vàng che chắn và đốt sạch đạn của kẻ địch trong 7 giây.', { hp: 5, red: 0.35, summon: 'aegis' }],
+  ['valkyrie', 17, 'Valkyrie Plate', 'Giáp Valkyrie', '+4 hearts, 20% dodge. Press T: a Valkyrie hurls spears of light for 7s.', '+4 tim, né 20%. Nhấn T: Valkyrie ném giáo ánh sáng trong 7 giây.', { hp: 4, dodge: 0.2, summon: 'valkyrie' }],
+  ['shadowveil', 18, 'Shadow Veil', 'Áo Choàng Bóng Đêm', '+4 hearts, 30% dodge, faster. Press T: three shadow copies of you attack for 7s.', '+4 tim, né 30%, nhanh hơn. Nhấn T: ba bản sao bóng tối của bạn tấn công trong 7 giây.', { hp: 4, dodge: 0.3, speed: 0.15, summon: 'clones' }],
+  ['seraphim', 19, 'Seraphim Robe', 'Áo Thiên Thần Tối Cao', '+5 hearts, revive once. Press T: an archangel heals you and smites enemies for 7s.', '+5 tim, hồi sinh 1 lần. Nhấn T: tổng lãnh thiên thần hồi máu và trừng phạt kẻ địch trong 7 giây.', { hp: 5, revive: 1, summon: 'angel' }],
+  ['titanplate', 20, 'Titan Plate', 'Giáp Titan', '+7 hearts, -40% damage, thorns. Press T: two stone golems pound your enemies for 7s.', '+7 tim, -40% sát thương, phản đòn. Nhấn T: hai người đá đấm nát kẻ địch trong 7 giây.', { hp: 7, red: 0.4, thorns: 3, summon: 'golems' }]
+].forEach(a => addItem({ id: a[0], type: 'armor', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6], look: ARMOR_LOOK[a[0]] }));
+Object.assign(PET_PAINT, {
+  wyrmling: P => { P.tri(5, 7, 0, 1, 8, 5, '#c0302a'); P.tri(8, 6, 6, 0, 12, 5, '#e0453a'); P.ell(8, 10, 5, 4, '#e0453a'); P.ell(9, 11, 3, 2, '#ffd34e'); P.ell(13, 6, 3, 3, '#e0453a'); P.tri(15, 6, 15, 8, 18, 7, '#e0453a'); P.px(14, 5, 'w'); P.px(14, 5, 'k'); P.tri(12, 3, 12, 1, 13, 3, '#ffd34e'); P.line(3, 11, 0, 9, '#e0453a', 2); P.px(17, 7, '#ff9a2a'); },
+  kirin: P => { P.ell(8, 9, 6, 4, '#7ee8ff'); P.ell(13, 5, 3, 3, '#7ee8ff'); P.tri(13, 2, 14, 0, 15, 3, '#ffd34e'); P.px(14, 5, 'k'); P.rect(4, 12, 2, 4, '#4a8bf0'); P.rect(10, 12, 2, 4, '#4a8bf0'); P.line(2, 8, 0, 4, '#ffe44e', 2); P.px(7, 8, '#fff'); P.px(10, 7, '#fff'); },
+  pebblegolem: P => { P.ell(9, 10, 6, 5, '#8a8a9a'); P.ell(9, 9, 5, 4, '#a8a8b8'); P.px(7, 8, '#7ed957'); P.px(11, 8, '#7ed957'); P.rect(2, 9, 3, 4, '#8a8a9a'); P.rect(14, 9, 3, 4, '#8a8a9a'); P.rect(6, 14, 2, 3, '#6a6a7a'); P.rect(11, 14, 2, 3, '#6a6a7a'); P.px(9, 5, '#7ed957'); },
+  starwhale: P => { P.ell(9, 9, 7, 4, '#3a4ad0'); P.ell(9, 11, 6, 2, '#cfe8ff'); P.tri(1, 8, 0, 4, 3, 8, '#3a4ad0'); P.tri(1, 9, 0, 13, 3, 9, '#3a4ad0'); P.px(13, 8, 'w'); P.px(14, 8, 'k'); P.px(7, 6, '#ffe08a'); P.px(10, 5, '#ffe08a'); P.px(12, 7, '#ffe08a'); },
+  kitsune: P => { for (let i = 0; i < 3; i++) P.line(4, 10, 0, 3 + i * 3, i === 1 ? '#fff' : '#ff9a4a', 2); P.ell(9, 10, 5, 4, '#ff9a4a'); P.ell(10, 11, 3, 2, '#fff0d0'); P.ell(13, 6, 3, 3, '#ff9a4a'); P.tri(11, 4, 12, 0, 13, 4, '#ff9a4a'); P.tri(14, 4, 15, 0, 16, 4, '#ff9a4a'); P.px(14, 6, 'k'); P.px(2, 2, '#6ee7f2'); }
+});
+[
+  ['wyrmling', 16, 'Little Wyrmling', 'Rồng Con', 'Spits fire and gathers gold. Every 60s it grows into a great dragon for 7s and fights with you!', 'Phun lửa và nhặt vàng. Cứ 60 giây nó hóa thành rồng lớn trong 7 giây và chiến đấu cùng bạn!', { role: 'fire', coin: 1, form: 'dragonform' }],
+  ['kirin', 17, 'Baby Kirin', 'Kỳ Lân Con', 'Zaps enemies and heals 1 heart every 25s. Every 60s it becomes a Thunder Kirin for 7s.', 'Giật sét kẻ địch và hồi 1 tim mỗi 25 giây. Cứ 60 giây hóa thành Kỳ Lân Sấm trong 7 giây.', { role: 'thunder', heal: 25, form: 'thunderkirin' }],
+  ['pebblegolem', 18, 'Pebble Golem', 'Người Đá Tí Hon', 'A sturdy friend: -25% damage taken. Every 60s it grows into a Stone Titan for 7s.', 'Bạn đồng hành vững chãi: giảm 25% sát thương. Cứ 60 giây hóa thành Titan Đá trong 7 giây.', { role: 'tank', red: 0.25, form: 'titan' }],
+  ['starwhale', 19, 'Star Whale', 'Cá Voi Sao', 'Swims through the air shooting stars. Every 60s it becomes a Sky Whale raining comets for 7s.', 'Bơi trên không bắn sao. Cứ 60 giây hóa thành Cá Voi Trời trút mưa sao chổi trong 7 giây.', { role: 'spark', form: 'skywhale' }],
+  ['kitsune', 20, 'Kitsune Kit', 'Hồ Ly Chín Đuôi Con', 'Throws foxfire and gathers gold. Every 60s it becomes the Nine-Tailed Fox for 7s.', 'Ném lửa hồ ly và nhặt vàng. Cứ 60 giây hóa thành Cửu Vĩ Hồ trong 7 giây.', { role: 'fire', coin: 1, form: 'ninetail' }]
+].forEach(a => addItem({ id: a[0], type: 'pet', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6] }));
+Object.assign(WPN_PAINT, {
+  frostbow: P => { P.poly([[5, 1], [3, 6], [3, 12], [5, 17]], '#9fe8ff', 2); P.line(5, 1, 5, 17, '#fff', 1); P.line(5, 9, 17, 9, '#cfe8ff', 1); P.tri(15, 7, 18, 9, 15, 11, '#bfefff'); P.px(9, 4, '#fff'); P.px(9, 14, '#fff'); },
+  reaperscythe: P => { P.line(4, 17, 12, 3, '#5a3a5a', 2); P.poly([[12, 3], [16, 4], [17, 8], [14, 11]], '#a15be0', 2); P.line(13, 4, 16, 8, '#e8d8ff', 1); P.px(5, 15, '#7ed957'); },
+  meteorstaff: P => { P.line(4, 17, 10, 6, '#5a3a22', 2); P.ell(12, 5, 4, 4, '#ff7a2a'); P.ell(12, 5, 2, 2, '#ffe08a'); P.line(15, 2, 18, 0, '#ffd34e', 1); P.px(8, 2, '#ff7a2a'); },
+  chakram: P => { P.ell(9, 9, 7, 7, '#ffd34e'); P.ell(9, 9, 4, 4, '#14121f'); P.ell(9, 9, 3, 3, '#ff9a2a'); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; P.px(Math.round(9 + Math.cos(a) * 8), Math.round(9 + Math.sin(a) * 8), '#fff6c0'); } },
+  singularity: P => { P.rect(2, 7, 12, 6, '#2a2040'); P.rect(2, 7, 12, 1, '#a15be0'); P.ell(15, 10, 3, 3, '#14121f'); P.ell(15, 10, 2, 2, '#7a4cff'); P.rect(4, 13, 3, 4, '#1a1428'); P.px(6, 9, '#d58bff'); P.px(9, 9, '#d58bff'); }
+});
+[
+  ['frostbow', 16, 'Glacier Bow', 'Cung Băng Hà', 'Fire into the sky: a thousand ice arrows rain down over the screen, freezing everything.', 'Bắn lên trời: nghìn mũi tên băng trút xuống khắp màn hình, đóng băng mọi thứ.', { cd: 14 }],
+  ['reaperscythe', 17, "Reaper's Scythe", 'Lưỡi Hái Tử Thần', 'A spinning scythe that comes back: stuns for 2s and poisons everything it cuts.', 'Lưỡi hái xoay rồi bay về: làm choáng 2 giây và gây độc mọi thứ nó chém qua.', { cd: 5 }],
+  ['meteorstaff', 18, 'Meteor Staff', 'Trượng Thiên Thạch', 'Calls one colossal meteor onto the toughest enemy nearby: a gigantic blast.', 'Gọi một thiên thạch khổng lồ rơi vào kẻ địch mạnh nhất gần đó: vụ nổ cực lớn.', { cd: 15 }],
+  ['chakram', 19, 'Sun Chakram', 'Luân Xa Mặt Trời', 'A blazing ring that bounces between up to 8 enemies, burning each one.', 'Vòng lửa nảy qua tối đa 8 kẻ địch, đốt cháy từng tên.', { cd: 4 }],
+  ['singularity', 20, 'Singularity Cannon', 'Pháo Điểm Kỳ Dị', 'Opens a huge black hole for 5s that swallows enemies, then collapses in a blast.', 'Mở một hố đen khổng lồ 5 giây nuốt kẻ địch, rồi sụp đổ thành vụ nổ.', { cd: 20 }]
+].forEach(a => addItem({ id: a[0], type: 'wpn', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6] }));
+ITEMS.forEach(it => { if (it.tier >= 16) it.rar = 6; });
