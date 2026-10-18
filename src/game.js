@@ -5679,6 +5679,8 @@
   requestAnimationFrame(frame);
   if (DEMO) { save.leek = true; save.cleared = [0]; save.inv.own = ['iron', 'leek']; save.inv.w = ['leek', null]; save.inv.armor = null; save.inv.pet = null; save.ammo = { dagger: 9, bomb: 3, flask: 3 }; startLevel(0); Q.state = 'play'; Q.msg = 'LEEK DEMO: J / click = swing (3 light beams). Hit = heal + stun. Under 15% HP = leek tornado.'; Q.msgT = 12; }
   // ?quoc=N jumps straight into the final fight at Quoc's form N (0-7) - handy for checking the boss
+  // ?level=N (0-9) starts that map from its beginning, handy for testing a map without unlocking it
+  { const m = location.search.match(/[?&]level=(\d)/); if (m) setTimeout(() => { startLevel(+m[1]); }, 400); }
   // ?boss=7|8|9 jumps straight into the Spore Queen / Kraken / Gravemaw fight (click or press a key once so the browser allows sound)
   { const m = location.search.match(/[?&]boss=(\d)/);
     if (m && [7, 8, 9].indexOf(+m[1]) >= 0) setTimeout(() => {
