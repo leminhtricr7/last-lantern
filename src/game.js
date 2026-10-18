@@ -56,6 +56,7 @@
   if (!ITEM[save.inv.pet] || save.inv.own.indexOf(save.inv.pet) < 0) save.inv.pet = null;
   save.inv.gems = save.inv.gems | 0;
   if (save.leek && save.inv.own.indexOf('leek') < 0) { save.inv.own.push('leek'); save.inv.w[0] = 'leek'; }
+  if (save.leek) for (const id of ['leekarmor', 'leekpet']) if (save.inv.own.indexOf(id) < 0) save.inv.own.push(id);
   if (!save.inv.w.some(id => id && ITEM[id].type === 'sword')) save.inv.w[0] = 'iron';
   const totalShards = () => Object.keys(save.shards).reduce((a, k) => a + save.shards[k].filter(Boolean).length, 0);
   const hasRelic = i => !!save.relics[i];
@@ -309,10 +310,12 @@
   };
   for (const k in DLG3) DLG[k] = Object.assign(DLG[k] || {}, DLG3[k]);
   const RESCUE = [
+    { en: 'Mr Shorty Phong\'s great beetle is finished, and you climbed all the way up here! You are very brave.', vi: 'Con bọ khổng lồ của Mr Shorty Phong đã gục, và bạn còn leo tận lên đây! Bạn dũng cảm quá.' },
     { en: 'You... you came for me? The cage is open! Oh, thank the light!', vi: 'Bạn... bạn đến cứu mình sao? Lồng mở rồi! Ôi, tạ ơn ánh sáng!' },
     { en: 'I am Lyra, Princess of the Singing Meadow. When the Sun shattered, Quoc\'s minions locked me up to silence my song.', vi: 'Mình là Lyra, công chúa của Đồng Cỏ Hát Ca. Khi Mặt Trời vỡ, thuộc hạ của Quoc nhốt mình lại để dập tắt bài hát.' },
     { en: 'My song is the only thing that makes the leek-blade shine. It is a royal treasure, and it has waited for a Lanternbearer.', vi: 'Bài hát của mình là thứ duy nhất làm cây kiếm hành phát sáng. Nó là bảo vật hoàng gia, và đã chờ một Người Mang Đèn.' },
     { en: 'Please take it! Hold it high and it will sing with your flame. It is stronger than your rusty sword, and it will grow brighter with every fragment you find.', vi: 'Xin hãy nhận lấy! Giơ cao lên và nó sẽ hát cùng ngọn lửa của bạn. Nó mạnh hơn thanh kiếm gỉ, và sẽ sáng hơn sau mỗi mảnh vỡ bạn tìm được.' },
+    { en: 'Take my Leek Armor too, it will stun anyone who dares to hit you. And my Flying Leek will carry you through the sky and heal you a little. Ride it!', vi: 'Nhận luôn Giáp Hành Lá của mình nữa, nó làm choáng kẻ nào dám đánh bạn. Và Cây Hành Bay sẽ chở bạn bay trên trời, còn hồi máu cho bạn chút ít. Cưỡi nó nhé!' },
     { en: 'I will not forget this, Ember. Whenever you are tired, listen... I will sing for you. La la laaa~ ♪', vi: 'Mình sẽ không quên ơn này, Ember. Mỗi khi mệt mỏi, hãy lắng nghe... mình sẽ hát cho bạn. La la laaa~ ♪' }
   ];
   const TRIAL = {
@@ -1013,6 +1016,7 @@
     let sc = 1, hpv = 1, armor = 0, dmg = 1, spv = 1;
     if (v === 'small') { sc = 0.7; hpv = 0.6; spv = 1.25; }
     else if (v === 'big') { sc = 1.6; hpv = 3; spv = 0.8; dmg = li >= 2 ? 2 : 1; }
+    else if (v === 'phong') { sc = 2.4; hpv = 14; spv = 0.7; dmg = 2; }
     else if (v === 'elite') { sc = 1.4; hpv = 4; spv = 0.95; dmg = 2; armor = Math.min(0.35, 0.08 + li * 0.05); }
     if (li >= 5 && v !== 'small') dmg += 1;
     const w = Math.max(5, Math.round(c.w * sc)), h = Math.max(5, Math.round(c.h * sc));
@@ -2386,7 +2390,7 @@
   const eqHas = k => save.inv.w.some(id => ITEM[id] && ITEM[id].st[k]);
   const wd = d => d + Math.floor((baseDmg() - 1) / 2);
   const isBig = e => !!(e.isBoss || e.v === 'elite' || (e.sc || 1) > 1.2 || (e.maxhp || 0) >= 6);
-  const FLY_PET = { wyrmling: 1, starwhale: 1, kitsune: 0, birdie: 1, fairy: 1, owl: 1, bat: 1, wisp: 1, bdragon: 1, ghostie: 1, pchick: 1 };
+  const FLY_PET = { leekpet: 1, wyrmling: 1, starwhale: 1, kitsune: 0, birdie: 1, fairy: 1, owl: 1, bat: 1, wisp: 1, bdragon: 1, ghostie: 1, pchick: 1 };
   const hexA = (h, a) => { const n = parseInt(h.substr(1), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; };
   function heldSword() {
     const P = Q && Q.P;
@@ -2580,6 +2584,7 @@
     // auto shield (armor / slime pet)
     const sT = aSt('shieldT') || (petRole() === 'shield' ? petIt().st.t : 0);
     if (sT && !P.shield) { G.shT += dt; if (G.shT >= sT) { G.shT = 0; P.shield = true; Snd.play('select'); emit(P.x + 4, P.y + 7, 10, { col: ['#6ee7f2', '#fff'], sp0: 20, sp1: 60 }); } } else if (!sT || P.shield) G.shT = 0;
+    if (G.stunArm > 0) G.stunArm -= dt;
     // regeneration (armor / fairy / unicorn)
     const rT = aSt('regen') || (petRole() === 'heal' ? petIt().st.t : 0) || (petRole() === 'rainbow' ? 25 : 0);
     if (rT && P.hp < maxHP() && P.hp > 0) { G.regT += dt; if (G.regT >= rT) { G.regT = 0; P.hp++; Snd.play('heart'); emit(P.x + 4, P.y + 4, 10, { col: ['#a4e86b', '#fff', '#ff7fb0'], sp0: 10, sp1: 50 }); } } else G.regT = 0;
@@ -2630,7 +2635,12 @@
     let pt = G.pet;
     if (!pt || pt.id !== it.id) pt = G.pet = { id: it.id, x: P.x - 10, y: P.y + P.h, f: 1, cd: 1, t: 0, lunge: 0, tdir: 0 };
     pt.t += dt; if (pt.lunge > 0) pt.lunge -= dt;
-    const fly = FLY_PET[it.id], tx = P.x + 4 - P.face * 15, ty = fly ? P.y - 2 + Math.sin(pt.t * 4) * 3 : P.y + P.h, k = 1 - Math.exp(-7 * dt);
+    const rideOn = it.st.role === 'ride' && !P.onGround && !wetP(P) && P.hp > 0, fly = FLY_PET[it.id], tx = rideOn ? P.x + 4 : P.x + 4 - P.face * 15, ty = rideOn ? P.y + P.h + 4 : (fly ? P.y - 2 + Math.sin(pt.t * 4) * 3 : P.y + P.h), k = 1 - Math.exp(-(rideOn ? 24 : 7) * dt);
+    if (rideOn) {
+      if (act.jump && P.vy > 35) P.vy = 35;
+      G.rideT = (G.rideT || 0) + dt; if (G.rideT >= 6 && P.hp < maxHP()) { G.rideT = 0; P.hp++; Snd.play('heart'); emit(P.x + 4, P.y + 4, 10, { col: ['#a4ffc0', '#fff', '#ff7fb0'], sp0: 10, sp1: 50 }); }
+      if (Math.random() < 0.4) emit(pt.x - pt.f * 6, pt.y, 1, { col: ['#a4ffc0', '#fff'], sp0: 4, sp1: 14, grav: 20, l0: 0.3, l1: 0.6 });
+    }
     if (Math.hypot(tx - pt.x, ty - pt.y) > 170) { pt.x = tx; pt.y = ty; }
     pt.x += (tx - pt.x) * k; pt.y += (ty - pt.y) * (fly ? k : 1 - Math.exp(-14 * dt)); pt.f = pt.tdir || P.face;
     pt.tdir = pt.lunge > 0 ? pt.tdir : 0;
@@ -2650,6 +2660,10 @@
   function thornsAndFx() {
     const P = Q.P, th = aSt('thorns'), fx = armorIt() && armorIt().st.thornFx;
     if (th || fx) { const t = nearestFoe(P.x + 4, P.y + 7, 46); if (t) { if (th) dmgFoe(t, th, true, true); if (fx === 'slow') t.slowT = Math.max(t.slowT || 0, 3); if (fx === 'burn') t.burnT = Math.max(t.burnT || 0, 3); emit(t.x + t.w / 2, t.y + t.h / 2, 6, { col: fx === 'burn' ? ['#ff7a2a', '#ffd34e'] : ['#fff', '#cfd6e6'], sp0: 20, sp1: 80 }); } }
+    if (aSt('stunHit') && !(Q.G.stunArm > 0)) {
+      Q.G.stunArm = 6; Snd.play('zap'); addRing(P.x + 4, P.y + 7, '#8af08a', 60, 0.5);
+      for (const e of foes()) if (Math.hypot(e.x + e.w / 2 - (P.x + 4), e.y + e.h / 2 - (P.y + 7)) < 64) { e.stunT = Math.max(e.stunT || 0, e.isBoss ? aSt('stunHit') * 0.4 : aSt('stunHit')); emit(e.x + e.w / 2, e.y, 8, { col: ['#a4ffc0', '#ffd34e', '#fff'], sp0: 20, sp1: 60 }); }
+    }
     if (aSt('nova')) nova(P.x + 4, P.y + 7, 50, 3);
     if (aSt('shadow')) { P.inv = Math.max(P.inv, 1.2 + aSt('shadow')); emit(P.x + 4, P.y + 7, 12, { col: ['#a15be0', '#14121f'], sp0: 20, sp1: 70 }); }
   }
@@ -2994,7 +3008,7 @@
     else if (pz.type === 'tablet') { Q.tablet = gateOf(pz.gate); Q.state = 'tablet'; Snd.play('select'); }
     else if (pz.type === 'cage') {
       if (Q.ents.some(e => !e.dead && e.grp === pz.grp)) { Q.msg = T('guards'); Q.msgT = 3; Snd.play('zap'); return; }
-      startScripted('lyra', RESCUE, () => { pz.open = true; save.leek = true; grantLeek(); writeSave(); Q.items.push({ kind: 'npc', who: 'lyra', x: pz.x, y: pz.y, id: -5, ph: 0 }); Q.state = 'reward'; Q.stateT = 0; Snd.play('relic'); Snd.hero('cheer'); setEmo('happy', 3); emit(pz.x, pz.y - 14, 40, { col: ['#a4ffc0', '#fff', '#6ee7f2'], sp0: 20, sp1: 120 }); });
+      startScripted('lyra', RESCUE, () => { pz.open = true; save.leek = true; grantLeek(); grantLyraGifts(); writeSave(); Q.items.push({ kind: 'npc', who: 'lyra', x: pz.x, y: pz.y, id: -5, ph: 0 }); Q.state = 'reward'; Q.stateT = 0; Snd.play('relic'); Snd.hero('cheer'); setEmo('happy', 3); emit(pz.x, pz.y - 14, 40, { col: ['#a4ffc0', '#fff', '#6ee7f2'], sp0: 20, sp1: 120 }); });
     }
   }
   // ===================== Mr Shorty's trials =====================
@@ -3078,6 +3092,7 @@
       else if (pz.type === 'cage') {
         const sp = npcSpr('npc_lyra_leek'); drawSpr(g, sp, x, y - 1 + Math.round(Math.sin(Q.t * 2) * 0.6), false, false);
         g.globalAlpha = 0.5; drawSpr(g, npcSpr('cage'), x, y + 1, false); g.globalAlpha = 1;
+        g.fillStyle = '#8892aa'; for (let cy = y - 54; cy > y - 130; cy -= 4) g.fillRect(x - 1 + ((cy >> 2) & 1), cy, 2, 3);
         if (Q.ents.some(e => !e.dead && e.grp === pz.grp)) { g.fillStyle = '#e0453a'; g.fillRect(x - 1, y - 48, 3, 7); g.fillRect(x - 1, y - 39, 3, 3); }
       }
       else if (pz.type === 'rune') drawSpr(g, icon('rune', pz.ci, pz.lit ? 1 : 0), x, y + 1, false);
@@ -3282,7 +3297,7 @@
     drawZones(camX, camY);
     drawPuzzles(camX, camY);
     drawFps(camX, camY);
-    for (const e of Q.ents) drawEnemy(e, camX, camY);
+    for (const e of Q.ents) { drawEnemy(e, camX, camY); if (e.v === 'phong' && !e.dead) drawPhongHat(e, camX, camY); }
     if (Q.syFig) { const f = Q.syFig; drawSpr(g, npcSpr('npc_sy'), Math.round(f.x - camX), Math.round(f.y - camY + Math.sin(Q.t * 2) * 1.5), false, false, 1.3, 1.3); }
     if (Q.boss && Q.boss.st !== 'sleep' || (Q.boss && Q.li === 6)) drawBoss(camX, camY);
     drawDragon(camX, camY);
@@ -3362,6 +3377,12 @@
         for (let i = 0; i < 8; i++) { const a = it.ph * 1.5 + i * Math.PI / 4; g.fillStyle = '#ffd34e'; g.fillRect(Math.round(x + Math.cos(a) * (r + 6)), Math.round(y + Math.sin(a) * (r + 6)), 2, 2); }
       }
     }
+  }
+  function drawPhongHat(e, camX, camY) {
+    const x = Math.round(e.x + e.w / 2 - camX), y = Math.round(e.y - camY) + 2;
+    g.fillStyle = '#14121f'; g.fillRect(x - 6, y - 12, 12, 11); g.fillRect(x - 10, y - 2, 20, 3);
+    g.fillStyle = '#e0453a'; g.fillRect(x - 6, y - 5, 12, 2); g.fillStyle = '#4a4a62'; g.fillRect(x - 5, y - 11, 2, 7);
+    txt('Mr Shorty Phong', x, y - 18, { al: 'center', size: 5, col: '#ffd34e', ol: '#14121f' });
   }
   function drawEnemy(e, camX, camY) {
     const c = e.cfg, x = e.x + e.w / 2 - camX, bot = e.y + e.h - camY;
@@ -3733,7 +3754,9 @@
       txt(T('leekT'), VW / 2, 38, { al: 'center', size: 13, bold: true, col: '#a4ffc0', alpha: a });
       txt(LN(LYRA_NAME) + ' - ' + (save.lang === 'vi' ? 'Kiếm Hành Lá' : 'Leek Blade'), VW / 2, 150, { al: 'center', size: 9, bold: true, alpha: a });
       wrapText(T('leekD'), 60).forEach((l, i) => txt(l, VW / 2, 166 + i * 10, { al: 'center', size: 7, col: '#a4e86b', alpha: a }));
-      if (Q.stateT > 0.8) txt(T('cont2'), VW / 2, 200, { al: 'center', size: 7, alpha: 0.6 + 0.4 * Math.sin(Q.stateT * 5) });
+      { const ps = petSprite('leekpet'); drawSpr(g, ps, VW / 2 + 70, 196, false, false, 2, 2, a);
+        txt(sv('+ Leek Armor (stun 3s)  + Flying Leek (ride & heal)', '+ Giáp Hành Lá (choáng 3s)  + Cây Hành Bay (cưỡi, hồi máu)'), VW / 2 - 20, 193, { al: 'center', size: 6, col: '#ffd34e', alpha: a }); }
+      if (Q.stateT > 0.8) txt(T('cont2'), VW / 2, 212, { al: 'center', size: 7, alpha: 0.6 + 0.4 * Math.sin(Q.stateT * 5) });
     } else if (st === 'tablet' && Q.tablet) {
       const gd = Q.tablet, cs = gd.seqColors || [];
       g.fillStyle = 'rgba(8,6,20,.95)'; g.fillRect(70, 56, VW - 140, 100);
@@ -3829,6 +3852,10 @@
   }
   function shopSay(s, bad) { shopMsg = s; shopMsgT = 2.6; shopBad = !!bad; Snd.play(bad ? 'hurt' : 'ok'); }
   function setTab(i) { shopTab = (i + SH_TABS.length) % SH_TABS.length; shopIdx = 0; shopCard = null; Snd.play('select'); }
+  function grantLyraGifts() {
+    const iv = save.inv; for (const id of ['leekarmor', 'leekpet']) if (iv.own.indexOf(id) < 0) iv.own.push(id);
+    if (!iv.armor) iv.armor = 'leekarmor'; if (!iv.pet) iv.pet = 'leekpet';
+  }
   function grantLeek() {
     const iv = save.inv; if (iv.own.indexOf('leek') < 0) iv.own.push('leek');
     if (iv.w.indexOf('leek') < 0) { if (iv.w[0] && ITEM[iv.w[0]].type === 'sword') iv.w[0] = 'leek'; else iv.w[1] = 'leek'; }

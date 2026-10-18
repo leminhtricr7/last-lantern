@@ -483,3 +483,14 @@ function gunSprite(id) { const k = 'gun_' + id; if (!_cache[k]) _cache[k] = pain
   ['celestial', 20, 'Celestial Judgment', 'Thiên Phạt', 'Triple homing holy bullets. SKILLS: every 6th shot summons an Archangel; every 15th the Sun Emperor; every 20th a DIVINE JUDGMENT strikes every enemy on screen and heals you.', 'Ba viên đạn thánh tự dẫn. KỸ NĂNG: cứ 6 phát triệu hồi Tổng Lãnh Thiên Thần; cứ 15 phát triệu hồi Hoàng Đế Mặt Trời; cứ 20 phát là PHÁN XÉT THIÊN THẦN đánh mọi kẻ địch trên màn hình và hồi máu cho bạn.', { cd: 0.26, mag: 24, reload: 1.5, kick: 10 }]
 ].forEach(a => addItem({ id: a[0], type: 'gun', tier: a[1], name: T2(a[2], a[3]), desc: T2(a[4], a[5]), st: a[6] }));
 ITEMS.forEach(it => { if (it.tier >= 16) it.rar = 6; });
+
+// ---- Lyra's rescue gifts (story items, never sold): Leek Armor and the flying Leek mount ----
+ARMOR_LOOK.leekarmor = { sw: { b: '#46b84e', A: '#2f8a3a', a: '#e8f5d0', r: '#ffd34e', q: '#14361c' }, cape: '#8af08a', halo: '#a4ffc0' };
+addItem({ id: 'leekarmor', type: 'armor', tier: 12, gold: 0, gems: 0, story: true, name: T2("Lyra's Leek Armor", 'Áo Giáp Hành Lá của Lyra'), desc: T2('+5 hearts, 22% reduction. When you are hit, a green shockwave STUNS every enemy near you for 3s (bosses 1.2s), once every 6s.', '+5 tim, giảm 22% sát thương. Khi bị đánh, sóng xanh làm CHOÁNG mọi kẻ địch gần bạn 3 giây (boss 1,2 giây), 6 giây một lần.'), st: { hp: 5, red: 0.22, stunHit: 3 }, look: ARMOR_LOOK.leekarmor });
+PET_PAINT.leekpet = P => {
+  P.ell(9, 10, 8, 2, '#2f8a3a'); P.ell(10, 9, 7, 2, '#46b84e'); P.rect(4, 8, 11, 1, '#8af08a');
+  P.ell(3, 9, 3, 3, '#f6f3e9'); P.rect(0, 11, 1, 3, '#d8c8a0'); P.rect(2, 12, 1, 2, '#d8c8a0');
+  P.tri(13, 8, 15, 2, 17, 8, '#46b84e'); P.tri(14, 8, 18, 4, 18, 9, '#8af08a'); P.tri(12, 8, 9, 3, 14, 8, '#2f8a3a');
+  P.px(15, 9, 'k'); P.px(16, 10, '#ff9ab8'); P.px(5, 7, '#ffd34e');
+};
+addItem({ id: 'leekpet', type: 'pet', tier: 12, gold: 0, gems: 0, story: true, name: T2('Flying Leek', 'Cây Hành Bay'), desc: T2('A leek you can RIDE: in the air you stand on it, hold Jump to glide, and riding slowly heals you (1 heart every 6s).', 'Cây hành bạn có thể CƯỠI: khi ở trên không bạn đứng trên nó, giữ Nhảy để lướt, và cưỡi sẽ từ từ hồi máu (1 tim mỗi 6 giây).'), st: { role: 'ride' } });

@@ -211,3 +211,6 @@ What you still need to do before selling (be realistic about these):
 - Title menu has a **Credits** button ("Thực hiện bởi"): scrolling credits for the 2-person team, Lê Minh Trí (Lee San Tree) and Đặng Anh Quân (David Quan), plus important notes.
 - Every map has its own ambient soundscape (birds, owls, drips, wind, lava, bells, frogs, whales...), footsteps that match the ground, and a splash when diving.
 - Bosses have a sound for every skill, stomping footsteps, and the ambience ducks during boss fights.
+
+## Rescuing Princess Lyra
+Lyra's cage hangs high above a staircase of ledges. Mr Shorty Phong's giant beetle (tanky, takes a while) guards it; defeat the guards, climb up and free her. Rewards: Leek Blade (same skills), Leek Armor (+5 hearts, stuns nearby enemies for 3s when you are hit) and the Flying Leek pet (ride it in the air, hold Jump to glide, heals 1 heart every 6s).

@@ -341,16 +341,16 @@ function genLevel(li) {
     spawn('tablet', x0 + 3, gy, { gate: gid });
     pzGuards(x0, n, 3);
   }
-  function pRescue() { // Lyra's cage, guarded
-    const n = 38, x0 = pzFlat(n), grp = L.id++;
-    spawn('cage', x0 + n - 8, gy, { grp });
-    let placed = 0, tries = 0;
-    while (placed < 4 && tries++ < 30) {
-      const t = pick(); if (FLY.has(t)) continue;
-      spawn(t, x0 + n - 20 + placed * 3, gy, { grp }); placed++;
-    }
-    spawn('heart', x0 + 10, gy - 2);
-    coinsLine(x0 + 14, gy - 2, 4);
+  function pRescue() { // Lyra hangs in a cage high above; Mr Shorty Phong's giant beetle guards the way up
+    const n = 40, x0 = pzFlat(n), grp = L.id++, k = Math.max(2, Math.min(4, Math.floor((gy - 2) / 2)));
+    const lx = x0 + n - 28;
+    for (let i = 1; i <= k; i++) { const w = i === k ? 6 : 4; for (let j = 0; j < w; j++) set(lx + (i - 1) * 4 + j, gy - 2 * i, '='); }
+    spawn('cage', lx + (k - 1) * 4 + 3, gy - 2 * k, { grp });
+    spawn('beetle', x0 + n - 12, gy, { grp, v: 'phong' });
+    spawn('slime', x0 + 12, gy, { grp }); spawn('slime', x0 + 17, gy, { grp });
+    spawn('heart', x0 + 6, gy - 2);
+    coinsLine(x0 + 8, gy - 2, 4);
+    for (let i = 0; i < k; i++) spawn('coin', lx + i * 4 + 1, gy - 2 * (i + 1) - 1);
   }
   function pTrial() { // Mr Shorty Phong's trial: sealed arena, waves of monsters AND a torch puzzle to open the exit
     const n = 46, x0 = pzFlat(n), cnt = li >= 5 ? 4 : 3, cs = perm(5).slice(0, cnt), seq = perm(cnt), rw = x0 + n - 5;
