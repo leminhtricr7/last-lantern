@@ -3553,11 +3553,12 @@
     else if (!P.onGround) spr = getSprite(P.vy < 0 ? 'hero_jump' : 'hero_fall', swp, 0);
     else if (Math.abs(P.vx) > 15) spr = getSprite('hero_run', swp, Math.floor(P.anim * 12) % 4);
     else spr = getSprite('hero_idle', swp, Math.floor(P.anim * 3) % 2);
+    if (hh && hh.custom) { const fa = Math.floor(P.anim * 12) % 4; spr = swim || (Math.abs(P.vx) > 15 && P.onGround) ? mikuSprite('run', fa) : (!P.onGround ? mikuSprite('air', 0) : mikuSprite('idle', Math.floor(P.anim * 3) % 2)); }
     const bob = 0;
     if (P.dash > 0) g.globalAlpha = 0.75;
     drawSpr(g, spr, x, bot + bob, P.face < 0);
     g.globalAlpha = 1;
-    drawEmoteFace(x, bot + bob, P.face < 0, 1, P.emo, P.anim); drawEmoBubble(x - 8, bot - 24, P.emo);
+    if (!(hh && hh.custom)) drawEmoteFace(x, bot + bob, P.face < 0, 1, P.emo, P.anim); drawEmoBubble(x - 8, bot - 24, P.emo);
     // lantern
     const lx = x + P.face * 8, ly = bot - 9 + Math.round(Math.sin(P.anim * 7) * (Math.abs(P.vx) > 15 ? 1.5 : 0.6));
     g.fillStyle = '#1b1626'; g.fillRect(lx - 3, ly - 3, 6, 7); g.fillRect(lx - 1, ly - 5, 2, 2);
@@ -4749,7 +4750,7 @@
   function drawHeroAt(id, x, bot, f, fr, sc) {
     const h = HERO[id] || HERO.ember; sc = sc || 1;
     if (sc !== 1) { g.save(); g.translate(x, bot); g.scale(sc, sc); x = 0; bot = 0; }
-    drawSpr(g, getSprite('hero_idle', h.sw, fr || 0), x, bot, f < 0);
+    drawSpr(g, h.custom ? mikuSprite('idle', (fr || 0) & 1) : getSprite('hero_idle', h.sw, fr || 0), x, bot, f < 0);
     if (h.hat) drawHat(h, x, bot, f);
     if (sc !== 1) g.restore();
   }

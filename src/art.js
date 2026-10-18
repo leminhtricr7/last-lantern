@@ -1283,3 +1283,32 @@ function buildBackground(B) {
   }
   return bg;
 }
+
+// ---- Singer hero (TEST BUILD, fan tribute): a small chibi twin-tail girl that replaces Ember's body ----
+function mikuSprite(kind, f) {
+  const k = 'miku_' + kind + '_' + f; if (_cache[k]) return _cache[k];
+  const T = '#39c5bb', TD = '#1f8f93', TL = '#8ff5ea', SK = '#ffe6d8', DK = '#2a2e40', BL = '#14202a', PK = '#ff8fbf';
+  const sway = (f & 1), lift = kind === 'air' ? 1 : 0;
+  _cache[k] = paint(20, 22, P => {
+    // long twin tails (behind everything), swaying a little
+    P.both(() => { P.rect(0, 5 + sway, 4, 11, T); P.rect(0 + sway, 15, 4, 4, T); P.rect(1 + sway, 19 - lift, 3, 3, TL); P.rect(0, 7, 1, 8, TD); P.rect(3, 6, 1, 6, TL); P.rect(1, 3, 3, 3, T); });
+    // body: grey top, teal tie, black sleeves and pleated skirt
+    P.rect(6, 14, 8, 3, '#a8aebc'); P.rect(10, 14, 1, 4, T); P.rect(5, 14, 1, 3, DK); P.rect(14, 14, 1, 3, DK); P.rect(6, 14, 8, 1, '#fff');
+    P.rect(5, 17, 10, 2, DK); P.px(7, 18, '#4a4e66'); P.px(10, 18, '#4a4e66'); P.px(13, 18, '#4a4e66');
+    // legs and boots (alternate when running)
+    if (kind === 'run') { const a = f % 2 ? 1 : 0; P.rect(6 + a, 19, 3, 3, DK); P.rect(11 - a, 19, 3, 3, DK); P.rect(6 + a, 19, 3, 1, SK); P.rect(11 - a, 19, 3, 1, SK); }
+    else { P.rect(6, 19, 3, 3 - lift, DK); P.rect(11, 19, 3, 3 - lift, DK); P.rect(6, 19, 3, 1, SK); P.rect(11, 19, 3, 1, SK); }
+    // head
+    P.ell(10, 8, 7, 6, SK); P.rect(5, 12, 10, 1, '#f0c9b4');
+    // hair: cap, fringe, side locks
+    P.ell(10, 4, 8, 4, T); P.rect(3, 4, 14, 3, T); P.rect(3, 4, 2, 9, T); P.rect(15, 4, 2, 9, T);
+    P.px(6, 7, T); P.px(8, 7, T); P.px(9, 7, TD); P.px(11, 7, T); P.px(13, 7, T); P.rect(4, 2, 12, 1, TD); P.rect(6, 1, 1, 1, TL); P.rect(9, 1, 1, 1, TL); P.rect(12, 1, 1, 1, TL);
+    // headset earpieces
+    P.rect(2, 7, 2, 5, DK); P.rect(16, 7, 2, 5, DK); P.px(3, 8, '#7ef0e6'); P.px(3, 9, '#7ef0e6'); P.px(16, 8, '#7ef0e6'); P.px(16, 9, '#7ef0e6');
+    // big eyes with highlights
+    P.rect(6, 8, 3, 1, BL); P.rect(11, 8, 3, 1, BL); P.rect(6, 9, 3, 3, '#1d8ea0'); P.rect(11, 9, 3, 3, '#1d8ea0'); P.px(6, 9, '#fff'); P.px(11, 9, '#fff'); P.rect(6, 11, 3, 1, '#7ef0e6'); P.rect(11, 11, 3, 1, '#7ef0e6');
+    // blush + mouth + hair clip
+    P.px(5, 11, '#ffa0b4'); P.px(14, 11, '#ffa0b4'); P.px(9, 12, '#d0405a'); P.px(10, 12, '#ff8fa8'); P.px(15, 2, PK); P.px(16, 2, PK); P.px(15, 3, '#fff');
+  }, BL);
+  return _cache[k];
+}
