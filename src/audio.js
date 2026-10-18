@@ -85,6 +85,13 @@ const Snd = (() => {
     whoosh() { noise(0.3, 0.16, 600); tone(200, 0.3, 'triangle', 0.08, 300); },
     flap() { noise(0.22, 0.14, 180); tone(70, 0.22, 'sine', 0.12, -30); },
     breath() { noise(1.5, 0.3, 250); tone(110, 1.4, 'sawtooth', 0.12, -40); noise(0.6, 0.2, 2500); },
+    gun() { noise(0.06, 0.28, 1800); tone(240, 0.07, 'square', 0.16, -170); },
+    gunheavy() { noise(0.18, 0.4, 500); tone(120, 0.2, 'sawtooth', 0.28, -80); tone(60, 0.25, 'sine', 0.3, -30); },
+    shotgun() { noise(0.3, 0.5, 350); tone(90, 0.24, 'sawtooth', 0.3, -60); tone(160, 0.1, 'square', 0.12, -90); },
+    rail() { tone(1500, 0.35, 'sawtooth', 0.14, -1300); noise(0.22, 0.2, 2500); tone(90, 0.3, 'sine', 0.26, -40); },
+    laser() { tone(1900, 0.13, 'square', 0.09, -1400); tone(950, 0.11, 'sine', 0.07, -600); },
+    reload() { tone(600, 0.04, 'square', 0.1); tone(420, 0.05, 'square', 0.1, 0, ac.currentTime + 0.1); },
+    click() { tone(1300, 0.03, 'square', 0.08); tone(800, 0.04, 'square', 0.07, 0, ac.currentTime + 0.05); },
     flame() { noise(0.4, 0.2, 700); tone(220, 0.4, 'sawtooth', 0.08, 120); }
   });
   function play(n) { if (ac && sfx[n]) sfx[n](); }

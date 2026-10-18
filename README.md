@@ -161,6 +161,11 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **Giant Forest** (map 7, Glowcap Swamp): the last part of the level is a long, dark forest of huge glowing mushrooms and trees, full of monsters on the ground and in the canopy. At the end the **Spore Queen** does not walk in: a shadow shows up on the ground, locks on you and she crashes down from the sky - run out of the shadow in time!
 - **The Lake** (map 9, Deepdig Tunnels): the pit at the end of the tunnels drops you into a huge flooded cavern. You swim and fight Gravemaw in the water; it digs through the lake bed and bursts out under you. A few islands at the surface give you dry ground.
 
+## Guns (20)
+- A new weapon type with its own shop tab: **20 guns**, from the E-rank Flintlock up to the SSS Omega and Celestial Judgment. Put one in Slot 1 or Slot 2 and **hold** the attack key (J / H / mouse) to keep firing; Up / Down aim. Every gun has a magazine (shown on the slot) and reloads when empty, with recoil, muzzle flash, shell casings and its own sounds.
+- C-B guns have special ammo (fire, ice that freezes every 5th shot, plasma bursts, tesla lightning, grenades), A guns are heavy (railgun that pierces everything, Gatling that spins up to 14 shots/s, void pistol that leaves black holes).
+- **S**: Solar Cannon (sun bolts every 5th shot), The Judge (lightning from the sky + thunder nova). **SS**: Supernova Rifle (homing stars, star ring, supernova blast), Dragon Breath (cone of dragon fire, summons a dragon). **SSS**: OMEGA (reality-tearing beams, void lightning, orbital barrage of 14 sky beams, black hole) and Celestial Judgment (3 homing holy bullets, summons an Archangel and the Sun Emperor, and a Divine Judgment that strikes every enemy on screen and heals you).
+
 ## Project layout
 
 - `src/art.js` — all pixel art is generated in code (sprites, tilesets, parallax backgrounds)
