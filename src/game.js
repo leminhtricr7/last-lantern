@@ -3009,7 +3009,7 @@
     else if (pz.type === 'tablet') { Q.tablet = gateOf(pz.gate); Q.state = 'tablet'; Snd.play('select'); }
     else if (pz.type === 'cage') {
       if (Q.ents.some(e => !e.dead && e.grp === pz.grp)) { Q.msg = T('guards'); Q.msgT = 3; Snd.play('zap'); return; }
-      startScripted('lyra', RESCUE, () => { pz.open = true; save.leek = true; grantLeek(); grantLyraGifts(); writeSave(); Q.items.push({ kind: 'npc', who: 'lyra', x: pz.x, y: pz.y, id: -5, ph: 0 }); Q.state = 'reward'; Q.stateT = 0; Snd.play('relic'); Snd.hero('cheer'); setEmo('happy', 3); emit(pz.x, pz.y - 14, 40, { col: ['#a4ffc0', '#fff', '#6ee7f2'], sp0: 20, sp1: 120 }); });
+      startScripted('lyra', RESCUE, () => { pz.open = true; save.leek = true; grantLeek(); grantLyraGifts(); writeSave(); if (coop && coop.role === 'host') NET.send({ t: 'gift' }); Q.items.push({ kind: 'npc', who: 'lyra', x: pz.x, y: pz.y, id: -5, ph: 0 }); Q.state = 'reward'; Q.stateT = 0; Snd.play('relic'); Snd.hero('cheer'); setEmo('happy', 3); emit(pz.x, pz.y - 14, 40, { col: ['#a4ffc0', '#fff', '#6ee7f2'], sp0: 20, sp1: 120 }); });
     }
   }
   // ===================== Mr Shorty's trials =====================
@@ -4999,6 +4999,7 @@
     if (Q.msgT > 0) Q.msgT -= dt;
     if (Q.shake > 0) Q.shake -= dt;
     if (Q.P && Q.P.emoT > 0) Q.P.emoT -= dt;
+    if (act.shopP && Q.state === 'play' && Q.P && !Q.P.down) { openShopInGame(); return; }
     if (Q.state === 'talk' && Q.talk && Q.talk.lines && coop.tkId === Q.talk.id && Q.talk.id) {
       const tk = Q.talk; coop.tkT += dt;
       if ((act.okP || act.talkP || act.atkP) && !coop.tkDone) {
@@ -5070,7 +5071,8 @@
         for (const k of EDGE) if (d[k]) pl.edge[k] = true;
       }
     } else {
-      if (d.t === 'welcome') { coop.me = d.slot; coopUI.ph = 'lobby'; coopUI.msg = ''; }
+      if (d.t === 'gift') { save.leek = true; grantLeek(); grantLyraGifts(); writeSave(); NET.send({ t: 'inv', inv: { w: save.inv.w.slice(), armor: save.inv.armor } }); if (Q) { Q.msg = save.lang === 'vi' ? 'Lyra tặng bạn Kiếm Hành, Giáp Hành và Cây Hành Bay! Mở túi (B) để trang bị.' : 'Lyra gave you the Leek Blade, Leek Armor and Flying Leek! Open your bag (B) to equip.'; Q.msgT = 6; } Snd.play('relic'); }
+      else if (d.t === 'welcome') { coop.me = d.slot; coopUI.ph = 'lobby'; coopUI.msg = ''; }
       else if (d.t === 'lobby') { coopUI.slots = d.slots; coopUI.li = d.li; coopUI.code = d.code; if (scene === 'play') { coopUI.ph = 'lobby'; toScene('coop'); } }
       else if (d.t === 'start') { coopUI.li = LPOS(d.li); coop.objs.clear(); startLevel(d.li); Q.client = true; Q.players = []; Q.state = 'intro'; scene = 'play'; }
       else if (d.t === 's') { if ((scene === 'play' || scene === 'shop') && Q) coopApply(d); }
