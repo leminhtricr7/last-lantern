@@ -6,6 +6,8 @@ const NET = (() => {
   // STUN finds each player's public address; TURN relays the data when a router or browser blocks direct connections
   const ICE = { iceServers: [
     { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] },
+    { urls: 'stun:stun.relay.metered.ca:80' },
+    { urls: ['turn:global.relay.metered.ca:80', 'turn:global.relay.metered.ca:80?transport=tcp', 'turn:global.relay.metered.ca:443', 'turns:global.relay.metered.ca:443?transport=tcp'], username: '73c4ec1fe21924e878499df6', credential: 'j70bXxPYgxJme+j+' },
     { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443', 'turn:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' }
   ] };
   const OPTS = { debug: 0, config: ICE };
