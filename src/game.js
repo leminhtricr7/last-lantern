@@ -603,7 +603,7 @@
     const xy = gameXY(e), gx = xy[0], gy = xy[1]; mouse.gx = gx; mouse.gy = gy;
     const inPlay = scene === 'play' && Q;
     if (e.type === 'pointermove') {
-      if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, 293, 90, 11, 79); if (i >= 0 && i !== titleSel) { titleSel = i; Snd.play('select'); } }
+      if (scene === 'title') { const L = titleLayout(titleItems()), i = L.findIndex(r => gx >= r.x && gx < r.x + r.w && gy >= r.y && gy < r.y + r.h); if (i >= 0 && i !== titleSel) { titleSel = i; Snd.play('select'); } }
       else if (inPlay && Q.state === 'pause') { const i = menuHit(gx, gy, 4, VW / 2, 88, 18, 80); if (i >= 0 && i !== Q.menu) { Q.menu = i; Snd.play('select'); } }
       else if (inPlay && Q.state === 'shop') { const n = (SHOPS[Q.shopWho] || []).length + 1, i = menuHit(gx, gy, n, VW / 2, 96, 14, 110); if (i >= 0 && i !== Q.menu) { Q.menu = i; Snd.play('select'); } }
       else if (scene === 'shop') shopMouse(gx, gy, false);
@@ -617,7 +617,7 @@
     if (e.button === 1) { if (inPlay && Q.state === 'play') { faceMouse(gx); pressed.KeyH = true; } return; }
     if (e.button !== 0) return;
     if (skipShown() && near(gx, gy, VW - 33, 9, 29, 6)) { pressed.Escape = true; Snd.play('select'); return; }
-    if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, 293, 90, 11, 79); if (i >= 0) { titleSel = i; pressed.Enter = true; } }
+    if (scene === 'title') { const L = titleLayout(titleItems()), i = L.findIndex(r => gx >= r.x && gx < r.x + r.w && gy >= r.y && gy < r.y + r.h); if (i >= 0) { titleSel = i; pressed.Enter = true; } }
     else if (scene === 'story' || scene === 'ending' || scene === 'opening' || scene === 'credits') pressed.Enter = true;
     else if (scene === 'shop') shopMouse(gx, gy, true);
     else if (scene === 'map') {
@@ -4315,7 +4315,7 @@
   function toScene(s) { fadeTo = s; fade = 0; }
   function enterScene(s) {
     scene = s; sceneT = 0;
-    if (s === 'title') { Snd.music('title', TITLE_MUSIC); Q = null; }
+    if (s === 'title') { Snd.music('title', TITLE_MUSIC); Q = null; titleSel = 0; title.confirmT = 0; }
     if (s === 'mstory') { scene = 'story'; storyPage = 0; storyT = 0; storyList = MAP_STORY[storyLevel]; Snd.music('title', TITLE_MUSIC); }
     if (s === 'story') { storyPage = 0; storyT = 0; storyList = STORY; Snd.music('title', TITLE_MUSIC); }
     if (s === 'ending') { storyPage = 0; storyT = 0; storyList = ENDING; Snd.music('title', TITLE_MUSIC); }
@@ -4343,16 +4343,46 @@
   }
   function updateTitle(dt) {
     sceneT += dt; title.cam += dt * 70;
-    const items = titleItems();
-    if (act.upP) { titleSel = (titleSel + items.length - 1) % items.length; Snd.play('select'); }
-    if (act.downP) { titleSel = (titleSel + 1) % items.length; Snd.play('select'); }
+    const items = titleItems(), L = titleLayout(items); titleSel = clamp(titleSel, 0, items.length - 1);
+    if (title.confirmT > 0) title.confirmT -= dt;
+    const go = (dx, dy) => {   // nearest button in that direction
+      const c = L[titleSel]; let best = -1, bd = 1e9;
+      L.forEach((r, i) => { if (i === titleSel) return; const ex = (r.x + r.w / 2) - (c.x + c.w / 2), ey = (r.y + r.h / 2) - (c.y + c.h / 2);
+        if (dx && Math.sign(ex) !== dx || dy && Math.sign(ey) !== dy || (dx && Math.abs(ex) < 4) || (dy && Math.abs(ey) < 4)) return;
+        const d = dx ? Math.abs(ex) + Math.abs(ey) * 3 : Math.abs(ey) + Math.abs(ex) * 0.6; if (d < bd) { bd = d; best = i; } });
+      if (best < 0 && dy) best = dy > 0 ? 0 : L.length - 1;   // wrap top/bottom
+      if (best >= 0 && best !== titleSel) { titleSel = best; Snd.play('select'); }
+    };
+    if (act.upP) go(0, -1); if (act.downP) go(0, 1); if (act.leftP) go(-1, 0); if (act.rightP) go(1, 0);
     if (act.okP) {
-      Snd.play('ok'); items[titleSel].fn();
+      const it = items[titleSel];
+      if (it.k === 'newgame' && (save.cleared.length || save.resume) && !(title.confirmT > 0)) { title.confirmT = 3; Snd.play('zap'); return; }
+      title.confirmT = 0; Snd.play('ok'); it.fn();
     }
+  }
+  // title menu layout: the main action as a big card, the rest as a tidy 2-column grid
+  const TM = { x: 214, y: 80, w: 164 };
+  function titleLayout(items) {
+    const L = [], x0 = TM.x + 6, cw = (TM.w - 12 - 4) / 2; let y = TM.y + 6;
+    items.forEach((it, i) => {
+      if (i === 0) { L.push({ x: x0, y, w: TM.w - 12, h: 24, primary: true }); y += 29; return; }
+      const k = i - 1, rest = items.length - 1, col = k % 2, row = Math.floor(k / 2), lastOdd = rest % 2 === 1 && k === rest - 1;
+      L.push({ x: lastOdd ? x0 : x0 + col * (cw + 4), y: y + row * 15, w: lastOdd ? TM.w - 12 : cw, h: 12 });
+    });
+    return L;
+  }
+  const TITLE_LBL = { cont: ['World map', 'Bản đồ thế giới'], shopT: ['Shop & bag', 'Cửa hàng'], coopT: ['Online co-op', 'Co-op online'], newgame: ['New game', 'Chơi mới'], full: ['Fullscreen', 'Toàn màn hình'], credits: ['Credits', 'Thực hiện bởi'], quit: ['Quit', 'Thoát'] };
+  function titleLabel(it) {
+    if (it.k === 'lang') return save.lang === 'vi' ? 'Tiếng Việt' : 'English';
+    if (it.k === 'sound') return sv('Sound: ', 'Âm thanh: ') + (Snd.muted ? sv('Off', 'Tắt') : sv('On', 'Bật'));
+    if (it.k === 'newgame' && title.confirmT > 0) return sv('Press again: erase!', 'Nhấn lần nữa: xóa!');
+    const l = TITLE_LBL[it.k]; return l ? sv(l[0], l[1]) : T(it.k);
   }
   function titleItems() {
     const it = [];
     if (save.resume && BIOMES[save.resume.li]) it.push({ k: 'resume', fn: resumeLevel });
+    else if (!save.cleared.length && !UNLOCK_ALL) it.push({ k: 'start', fn: () => it2.find(o => o.k === 'newgame').fn() });
+    const it2 = it;
     if (save.cleared.length || UNLOCK_ALL) it.push({ k: 'cont', fn: () => { mapSel = UNLOCK_ALL ? 0 : maxPlayable(); toScene('map'); } });
     it.push({ k: 'shopT', fn: () => { shopFrom = 'title'; toScene('shop'); } });
     it.push({ k: 'coopT', fn: () => { coopUI.ph = 'menu'; coopUI.sel = 0; coopUI.msg = ''; toScene('coop'); } });
@@ -4444,18 +4474,36 @@
       txt('LAST LANTERN', VW / 2, 36, { al: 'center', size: 30, bold: true, col: '#ffd34e', grad: ['#fffbe0', '#ffd34e', '#e08a1a'], ol: '#2a0a10', glow: 'rgba(255,160,50,.85)', ls: 2, sh: false });
       g.fillStyle = 'rgba(255,211,78,.7)'; g.fillRect(VW / 2 - 110, 56, 70, 1); g.fillRect(VW / 2 + 40, 56, 70, 1); g.fillRect(VW / 2 - 3, 54, 7, 5); g.fillStyle = '#ffffff'; g.fillRect(VW / 2 - 1, 55, 3, 3); g.fillStyle = '#ffd34e'; g.fillRect(VW / 2 - 130, 56, 18, 1); g.fillRect(VW / 2 + 112, 56, 18, 1);
       txt(save.lang === 'vi' ? 'NGỌN ĐÈN CUỐI CÙNG' : 'THE SHATTERED SUN', VW / 2, 67, { al: 'center', size: 8.5, bold: true, col: '#ffe9b8', ls: 3, ol: '#1a0814', glow: 'rgba(255,120,60,.6)', sh: false }); }
-    // ---- menu ----
-    const items = titleItems(), n = items.length, MX0 = 214, MW = 158, MY = 90, DY = 11;
-    g.fillStyle = 'rgba(8,3,18,.55)'; g.fillRect(MX0, MY - 8, MW, n * DY + 8); g.fillStyle = 'rgba(255,200,100,.35)'; g.fillRect(MX0, MY - 8, MW, 1); g.fillRect(MX0, MY + n * DY - 1, MW, 1);
-    g.fillStyle = '#ffd34e'; for (const [cx, cy] of [[MX0, MY - 8], [MX0 + MW - 3, MY - 8], [MX0, MY + n * DY - 1], [MX0 + MW - 3, MY + n * DY - 1]]) g.fillRect(cx, cy, 3, 1);
-    items.forEach((it, i) => {
-      const y = MY + i * DY, sel = titleSel === i;
-      let s = it.k === 'resume' ? sv('Resume: ', 'Chơi tiếp: ') + (LPOS(save.resume.li) + 1) + '. ' + LN(BIOMES[save.resume.li].name) : T(it.k); if (it.k === 'sound') s += ': ' + (Snd.muted ? 'OFF' : 'ON');
-      if (sel) { const bg = g.createLinearGradient(MX0, 0, MX0 + MW, 0); bg.addColorStop(0, 'rgba(255,170,60,0)'); bg.addColorStop(0.2, 'rgba(255,170,60,.45)'); bg.addColorStop(0.8, 'rgba(255,170,60,.45)'); bg.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = bg; g.fillRect(MX0, y - 5, MW, 11); g.fillStyle = '#ffe9b8'; g.fillRect(MX0 + 10, y - 5, MW - 20, 1); g.fillRect(MX0 + 10, y + 5, MW - 20, 1);
-        lanternIc(MX0 + 11 + Math.round(Math.sin(t * 6) * 1), y, 1); g.fillStyle = '#ffd34e'; g.fillRect(MX0 + MW - 12, y - 1, 3, 3); g.fillRect(MX0 + MW - 10 + Math.round(Math.sin(t * 6)), y, 2, 1); }
-      txt(fitTxt(s, 28), MX0 + MW / 2 + (sel ? 4 : 0), y, { al: 'center', size: sel ? 8 : 7.5, bold: sel, col: sel ? '#ffffff' : '#c8c4dc', ol: sel ? '#3a1408' : null, glow: sel ? 'rgba(255,170,70,.8)' : null, sh: !sel });
-    });
-    txt(sv('Up/Down: choose    Enter: confirm', 'Lên/Xuống: chọn    Enter: xác nhận'), 8, VH - 8, { size: 5.5, col: '#8a7fa8' });
+    // ---- menu: a glass panel, the main action on a big card, everything else in a neat grid ----
+    { const items = titleItems(), L = titleLayout(items), last = L[L.length - 1], ph = last.y + last.h + 6 - TM.y;
+      g.fillStyle = 'rgba(10,5,22,.72)'; g.fillRect(TM.x, TM.y, TM.w, ph);
+      g.fillStyle = 'rgba(255,200,110,.5)'; g.fillRect(TM.x, TM.y, TM.w, 1); g.fillRect(TM.x, TM.y + ph - 1, TM.w, 1);
+      g.fillStyle = 'rgba(255,200,110,.18)'; g.fillRect(TM.x, TM.y, 1, ph); g.fillRect(TM.x + TM.w - 1, TM.y, 1, ph);
+      g.fillStyle = '#ffd34e'; for (const [cx, cy] of [[TM.x, TM.y], [TM.x + TM.w - 4, TM.y], [TM.x, TM.y + ph - 1], [TM.x + TM.w - 4, TM.y + ph - 1]]) g.fillRect(cx, cy, 4, 1);
+      items.forEach((it, i) => {
+        const r = L[i], sel = titleSel === i, cx = r.x + r.w / 2;
+        if (r.primary) {
+          const gr = g.createLinearGradient(r.x, r.y, r.x, r.y + r.h);
+          gr.addColorStop(0, sel ? 'rgba(255,190,90,.95)' : 'rgba(120,60,40,.75)'); gr.addColorStop(1, sel ? 'rgba(210,100,40,.95)' : 'rgba(60,24,30,.8)');
+          g.fillStyle = gr; g.fillRect(r.x, r.y, r.w, r.h);
+          g.fillStyle = sel ? '#fff4d0' : '#c89a5a'; g.fillRect(r.x, r.y, r.w, 1); g.fillStyle = sel ? '#7a2a10' : '#3a1418'; g.fillRect(r.x, r.y + r.h - 1, r.w, 1);
+          if (sel) { g.globalCompositeOperation = 'lighter'; g.fillStyle = 'rgba(255,220,150,' + (0.12 + Math.sin(t * 4) * 0.06) + ')'; g.fillRect(r.x, r.y, r.w, r.h); g.globalCompositeOperation = 'source-over'; }
+          lanternIc(r.x + 12, r.y + r.h / 2 + Math.round(Math.sin(t * 3) * 1), 1);
+          const head = it.k === 'resume' ? sv('CONTINUE', 'CHƠI TIẾP') : sv('START ADVENTURE', 'BẮT ĐẦU PHIÊU LƯU');
+          const sub = it.k === 'resume' ? sv('Map ', 'Map ') + (LPOS(save.resume.li) + 1) + ' · ' + LN(BIOMES[save.resume.li].name) : sv('A new journey begins', 'Hành trình mới bắt đầu');
+          txt(head, cx + 6, r.y + 8, { al: 'center', size: 8.5, bold: true, col: '#ffffff', ol: sel ? '#5a1a08' : '#1a0814', glow: sel ? 'rgba(255,200,120,.8)' : null, ls: 1, sh: false });
+          txt(fitTxt(sub, 30), cx + 6, r.y + 17, { al: 'center', size: 6, col: sel ? '#3a1408' : '#ffd890', bold: sel });
+          if (sel) { g.fillStyle = '#fff4d0'; g.fillRect(r.x + r.w - 10 + Math.round(Math.sin(t * 6)), r.y + r.h / 2 - 2, 2, 5); g.fillRect(r.x + r.w - 8 + Math.round(Math.sin(t * 6)), r.y + r.h / 2 - 1, 2, 3); }
+          return;
+        }
+        const warn = it.k === 'newgame' && title.confirmT > 0;
+        g.fillStyle = sel ? (warn ? 'rgba(200,50,50,.9)' : 'rgba(255,170,70,.88)') : 'rgba(34,22,58,.85)'; g.fillRect(r.x, r.y, r.w, r.h);
+        g.fillStyle = sel ? '#fff0c8' : 'rgba(150,120,200,.45)'; g.fillRect(r.x, r.y, r.w, 1); g.fillStyle = sel ? '#8a3a10' : 'rgba(0,0,0,.4)'; g.fillRect(r.x, r.y + r.h - 1, r.w, 1);
+        g.fillStyle = sel ? '#fff0c8' : 'rgba(150,120,200,.3)'; g.fillRect(r.x, r.y, 1, r.h); g.fillRect(r.x + r.w - 1, r.y, 1, r.h);
+        txt(fitTxt(titleLabel(it), Math.floor(r.w / 4.2)), cx, r.y + r.h / 2 + 0.5, { al: 'center', size: 6.5, bold: sel, col: sel ? '#ffffff' : '#d8d2ec', ol: sel ? '#4a1808' : null, sh: !sel });
+      });
+    }
+    txt(sv('Arrows: choose    Enter: confirm', 'Phím mũi tên: chọn    Enter: xác nhận'), 8, VH - 8, { size: 5.5, col: '#8a7fa8' });
     txt('© 2026  Lee Santree and David Quan', VW - 6, VH - 8, { al: 'right', size: 5.5, col: '#b8a8d8' });
   }
 
@@ -6478,5 +6526,5 @@
       seal(); if (n > 0) { applyForm(Q.boss, n); Q.boss.st = 'intro'; Q.boss.timer = 0; Q.boss.invul = 0; } if (n >= 3) spawnAllies();
     }, 400); }
   { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
-  if (location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, sumArt, drawSumArt, SUM_H, summonItems, castSummons, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();
