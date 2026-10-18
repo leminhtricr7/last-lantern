@@ -3558,7 +3558,7 @@
     const x = Math.round(P.x + P.w / 2 - camX), bot = Math.round(P.y + P.h - camY);
     const swim = wetP(P) && !P.onGround;
     if (swim) { const rot = clamp(-P.vy / 320, -0.45, 0.45) * P.face + (P.atk > 0 ? P.face * 0.15 : 0); g.save(); g.translate(x, bot - 10); g.rotate(rot); g.translate(-x, -(bot - 10)); }
-    const hh = P.hero && HERO[P.hero]; let av = hh || armorVis(save.inv.armor);
+    const hh = P.hero && HERO[P.hero], arV = armorVis(save.inv.armor); let av = hh ? (arV ? Object.assign({}, hh, arV, { sw: Object.assign({}, hh.sw, arV.sw) }) : hh) : arV; // a hero wears the armor he has equipped
     if (!hh && !coop && (save.cos.aura || save.cos.wings)) av = Object.assign({ sw: {} }, av || {}, save.cos.aura ? { aura: '#ffd34e' } : {}, save.cos.wings && !(av && av.wings) ? { wings: 'dragon' } : {});
     const swp = av ? av.sw : {};
     if (av) drawArmorBack(av, x, bot);
@@ -5672,9 +5672,13 @@
     clones: { name: { en: 'Shadow Copies', vi: 'Bản Sao Bóng Tối' }, glow: '#a15be0' }
   };
   const sumName = k => LN((GIANT[k] || BEAST[k]).name);
-  function giantPaint(P, o) {
-    if (o.wings) P.both(() => { P.tri(14, 24, 0, 6, 4, 34, o.wings); P.tri(14, 28, 2, 20, 8, 40, o.wings); });
-    P.rect(13, 42, 6, 13, o.robe); P.rect(22, 42, 6, 13, o.robe); P.rect(12, 52, 8, 4, o.trim); P.rect(21, 52, 8, 4, o.trim);
+  function giantPaint(P, o, part) {
+    const all = !part, body = all || part === 'body';
+    if (part === 'legL') { P.rect(13, 42, 6, 13, o.robe); P.rect(12, 52, 8, 4, o.trim); return; }
+    if (part === 'legR') { P.rect(22, 42, 6, 13, o.robe); P.rect(21, 52, 8, 4, o.trim); return; }
+    if (body && o.wings) P.both(() => { P.tri(14, 24, 0, 6, 4, 34, o.wings); P.tri(14, 28, 2, 20, 8, 40, o.wings); });
+    if (all) { P.rect(13, 42, 6, 13, o.robe); P.rect(22, 42, 6, 13, o.robe); P.rect(12, 52, 8, 4, o.trim); P.rect(21, 52, 8, 4, o.trim); }
+    if (body) {
     P.rect(10, 22, 21, 22, o.robe); P.rect(10, 22, 21, 3, o.trim); P.rect(19, 25, 3, 19, o.trim); P.rect(10, 40, 21, 2, o.trim);
     P.rect(5, 23, 6, 15, o.skin); P.rect(30, 23, 6, 15, o.skin); P.rect(4, 22, 8, 4, o.trim); P.rect(29, 22, 8, 4, o.trim);
     P.ell(20, 14, 7, 8, o.skin); P.rect(15, 12, 4, 2, o.eye); P.rect(22, 12, 4, 2, o.eye);
@@ -5689,6 +5693,8 @@
       case 'leaves': for (let i = 0; i < 7; i++) P.ell(10 + i * 3.4 | 0, 5 + (i % 2) * 3, 4, 3, i % 2 ? '#5fcf5a' : '#2b8a3e'); break;
       case 'none': break;
     }
+    }
+    if (!all && part !== 'weapon') return;
     const W = o.wcol;
     switch (o.weapon) {
       case 'hammer': P.rect(36, 10, 2, 34, '#5a3a22'); P.rect(31, 4, 12, 9, W); P.rect(31, 4, 12, 2, '#ffffff'); break;
@@ -5701,7 +5707,27 @@
       case 'shield': P.ell(6, 30, 7, 9, W); P.ell(6, 30, 5, 7, '#ffffff'); P.ell(6, 30, 2, 3, '#4a8bf0'); break;
     }
   }
-  const SUM_SPR = {};
+  const SUM_SPR = {}, SUM_PARTS = {};
+  function summonParts(k) {
+    if (SUM_PARTS[k]) return SUM_PARTS[k]; const o = GIANT[k]; if (!o) return null;
+    const mk = part => paint(44, 58, P => giantPaint(P, o, part), '#14121f');
+    return (SUM_PARTS[k] = { legL: mk('legL'), legR: mk('legR'), body: mk('body'), weapon: mk('weapon'), w: 44, h: 58 });
+  }
+  // animated giant: legs stride, body bobs and leans, the weapon swings when it attacks
+  function drawGiantAnim(s, x, y, sc, a, dx) {
+    const pt = summonParts(s.kind); if (!pt) return false;
+    const f = s.f < 0 ? -1 : 1, mv = s.mv ? 1 : 0, ph = s.t * (mv ? 10 : 2.2), atk = s.atkT > 0 ? s.atkT / 0.35 : 0;
+    const ox = -pt.w * sc / 2, oy = -pt.h * sc + sc, bob = mv ? -Math.abs(Math.sin(ph)) * 2.2 : Math.sin(ph) * -0.9, lean = (mv ? Math.sin(ph) * 0.03 : 0) + atk * 0.16;
+    const lift = (side) => mv ? -Math.max(0, Math.sin(ph + side * Math.PI)) * 3.5 : 0;
+    g.save(); g.globalAlpha = a; g.translate(x + (dx || 0), y); g.scale(f, 1);
+    g.drawImage(pt.legL.c, ox, oy + lift(0)); g.drawImage(pt.legR.c, ox, oy + lift(1));
+    g.save(); g.translate(0, bob); g.rotate(lean);
+    g.drawImage(pt.body.c, ox, oy);
+    const px = ox + 36 * sc, py = oy + 28 * sc, ang = Math.sin(ph * 0.7) * 0.06 + (atk > 0 ? -1.15 + (1 - atk) * 2.5 : (mv ? Math.sin(ph) * 0.12 : 0));
+    g.translate(px, py); g.rotate(ang); g.drawImage(pt.weapon.c, ox - px, oy - py); g.restore();
+    g.restore();
+    return true;
+  }
   function summonSprite(k) {
     if (SUM_SPR[k]) return SUM_SPR[k];
     const o = GIANT[k];
@@ -5722,6 +5748,17 @@
     addRing(o.x + 4, o.y + 7, (GIANT[kind] || BEAST[kind]).glow, 80, 0.6); emit(o.x + 4, o.y + 4, 40, { col: [(GIANT[kind] || BEAST[kind]).glow, '#fff'], sp0: 30, sp1: 160 });
     pop(o.x + 4, o.y - 26, sumName(kind) + '!', (GIANT[kind] || BEAST[kind]).glow);
   }
+  // summons fight on their own: they walk (or fly) to the nearest enemy and attack it; with no enemy they idle near their owner
+  const SUM_WALK = { titan: [55, 70], frostgiant: [60, 90], shogun: [110, 60], treant: [45, 70], golems: [75, 30], thunderkirin: [130, 80], clones: [140, 40], stormgod: [60, 200], seagoddess: [70, 170], moongoddess: [60, 220], valkyrie: [100, 180], sunemperor: [50, 200], angel: [70, 180], ninetail: [80, 200] };
+  function sumWalk(s, o, dt) {
+    const w = SUM_WALK[s.kind]; s.mv = 0;
+    if (!w) { const tx = o.x + 4 - o.face * 30, k = 1 - Math.exp(-4 * dt); s.x += (tx - s.x) * k; s.y = groundYAt(s.x); s.f = o.face; return; }
+    const t = nearestFoe(s.x, s.y - 30, 640);
+    if (t) { const d = t.x + t.w / 2 - s.x, ad = Math.abs(d); s.f = d < 0 ? -1 : 1; if (ad > w[1]) { s.x += s.f * Math.min(w[0] * dt, ad - w[1]); s.mv = 1; } }
+    else { const d = o.x + 4 - s.x, ad = Math.abs(d); if (ad > 70) { s.f = d < 0 ? -1 : 1; s.x += s.f * Math.min(w[0] * 0.9 * dt, ad - 60); s.mv = 1; } else s.f = o.face; }
+    if (Q.arenaSealed) s.x = arenaClamp(s.x);
+    s.y = groundYAt(s.x);
+  }
   function summonItems() { return [save.inv.w[0], save.inv.w[1], save.inv.armor].filter(id => id && ITEM[id] && ITEM[id].st.summon); }
   function castSummons() {
     const G = Q.G; G.sumCd = G.sumCd || {}; const ids = summonItems(); let any = false;
@@ -5738,13 +5775,14 @@
     if (pet && pet.st.heal) { G.petHealT = (G.petHealT === undefined ? pet.st.heal : G.petHealT) - dt; if (G.petHealT <= 0) { G.petHealT = pet.st.heal; if (P.hp < maxHP()) { P.hp++; Snd.play('heart'); emit(P.x + 4, P.y + 4, 8, { col: ['#ff7fb0', '#fff'], sp0: 10, sp1: 40 }); } } }
     const sd = n => n + baseDmg();
     for (const s of G.sums) {
-      s.t += dt; s.life -= dt; s.cd -= dt;
+      s.t += dt; s.life -= dt; s.cd -= dt; if (s.atkT > 0) s.atkT -= dt;
       const o = s.owner || P, fly = !!BEAST[s.kind] && s.kind !== 'thunderkirin' && s.kind !== 'ninetail' && s.kind !== 'clones';
       if (s.kind === 'phoenix') { s.x = Q.cam.x + VW / 2 + Math.sin(s.t * 0.9) * (VW * 0.42); s.y = Q.cam.y + 46 + Math.sin(s.t * 2) * 6; s.f = Math.cos(s.t * 0.9) > 0 ? 1 : -1; }
-      else if (fly) { const tx = o.x + 4 + o.face * 20, ty = o.y - 46 + Math.sin(s.t * 2) * 4, k = 1 - Math.exp(-3 * dt); s.x += (tx - s.x) * k; s.y += (ty - s.y) * k; s.f = o.face; }
-      else { const tx = o.x + 4 - o.face * (GIANT[s.kind] && GIANT[s.kind].small ? 0 : 30), k = 1 - Math.exp(-4 * dt); s.x += (tx - s.x) * k; s.y = groundYAt(s.x); s.f = o.face; }
+      else if (fly) { const dr = (s.kind === 'dragonking' || s.kind === 'dragonform') ? nearestFoe(s.x, s.y, 700) : null, sd0 = dr ? (dr.x + dr.w / 2 < s.x ? -1 : 1) : o.face, tx = dr ? dr.x + dr.w / 2 - sd0 * 150 : o.x + 4 + o.face * 20, ty = dr ? dr.y - 50 + Math.sin(s.t * 2) * 6 : o.y - 46 + Math.sin(s.t * 2) * 4, k = 1 - Math.exp(-3 * dt); s.mv = Math.abs(tx - s.x) > 6 ? 1 : 0; s.x += (tx - s.x) * k; s.y += (ty - s.y) * k; s.f = sd0; }
+      else sumWalk(s, o, dt);
       if (s.cd > 0 || s.t < 0.5 || s.life < 0.3) continue;
       const near = r => nearestFoe(s.x, s.y - 30, r), all = r => foes().filter(e => Math.abs(e.x + e.w / 2 - s.x) < r);
+      const cd0 = s.cd;
       switch (s.kind) {
         case 'titan': s.cd = 1.3; Q.shake = Math.max(Q.shake, 0.5); Snd.play('boom'); addRing(s.x, s.y, '#c8a070', 120, 0.5); for (let i = -8; i <= 8; i++) emit(s.x + i * 22, groundYAt(s.x + i * 22), 2, { col: ['#8a6a44', '#c8a070'], sp0: 20, sp1: 70, vy: -60 }); for (const e of all(240)) { dmgFoe(e, sd(7), true, true); e.stunT = Math.max(e.stunT || 0, e.isBoss ? 0.3 : 0.9); if (!e.isBoss && !e.fly) e.vy = -170; } break;
         case 'stormgod': { s.cd = 0.45; const t = near(320); if (t) { const cx = t.x + t.w / 2; Snd.play('thunder'); zap(cx, Q.cam.y - 6, cx, t.y + t.h / 2); dmgFoe(t, sd(5), true, true); chainZap(t, sd(2), 2, 80); G.flash = Math.max(G.flash || 0, 0.06); } break; }
@@ -5764,6 +5802,7 @@
         case 'skywhale': s.cd = 0.3; shootG({ x: s.x + rr(-30, 30), y: s.y + 10, vx: rr(-30, 30), vy: 200, life: 1.6, dmg: sd(4), expl: 26, shape: 'meteor', sz: 4, col: '#cfe8ff', trail: '#ffe08a', quiet: true }); break;
         case 'ninetail': s.cd = 0.6; for (let i = 0; i < 3; i++) shootG({ x: s.x, y: s.y - 16, vx: rr(-120, 120), vy: -rr(60, 140), home: true, life: 2, dmg: sd(3), burn: 2, shape: 'orb', col: '#6ee7f2', trail: '#ff9a4a', sz: 3, quiet: true }); break;
       }
+      if (s.cd > cd0 + 0.001) s.atkT = 0.35;
     }
     G.sums = G.sums.filter(s => s.life > 0);
     if (G.slashes) { for (const sl of G.slashes) sl.life -= dt; G.slashes = G.slashes.filter(sl => sl.life > 0); }
@@ -5778,7 +5817,8 @@
       if (!sp) continue;
       const giant = !!GIANT[s.kind], sc = giant ? (GIANT[s.kind].small ? 1.1 : 2) : 1.5, rise = giant ? Math.round((1 - Math.min(1, s.t / 0.5)) * 30) : 0;
       g.globalAlpha = 0.8 * a;
-      if (s.kind === 'golems') { for (const dx of [-26, 26]) drawSpr(g, sp, x + dx + (s.hitT > 0 ? 3 : 0), y + rise, dx < 0 ? false : true, false, sc, sc); }
+      if (s.kind === 'golems') { for (const dx of [-26, 26]) { if (!drawGiantAnim(s, x, y + rise, sc, 0.8 * a, dx + (s.hitT > 0 ? 3 : 0))) drawSpr(g, sp, x + dx, y + rise, dx > 0, false, sc, sc); } }
+      else if (giant && drawGiantAnim(s, x, y + rise, sc, 0.8 * a)) { }
       else drawSpr(g, sp, x, y + rise + (giant ? 0 : Math.round(sp.h * sc / 2)), s.f < 0, false, sc, sc);
       g.globalAlpha = 1;
       if (Math.random() < 0.4) emit(s.x + rr(-20, 20), s.y - rr(0, 80), 1, { col: [info.glow, '#fff'], sp0: 3, sp1: 14, grav: -20, l0: 0.4, l1: 0.9 });
