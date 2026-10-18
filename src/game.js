@@ -49,6 +49,7 @@
   save.leek = !!save.leek;
   if (!save.inv || typeof save.inv !== 'object') save.inv = {};
   save.inv.own = Array.isArray(save.inv.own) ? save.inv.own.filter(id => ITEM[id]) : [];
+  save.inv.own = save.inv.own.filter((id, i, arr) => arr.indexOf(id) === i);
   if (save.inv.own.indexOf('iron') < 0) save.inv.own.unshift('iron');
   if (!Array.isArray(save.inv.w) || save.inv.w.length < 2) save.inv.w = ['iron', null];
   save.inv.w = save.inv.w.slice(0, 2).map(id => (ITEM[id] && save.inv.own.indexOf(id) >= 0) ? id : null);
