@@ -15,6 +15,7 @@ const Snd = (() => {
     master.connect(comp); comp.connect(ac.destination);
     musicG = ac.createGain(); musicG.gain.value = 0.32; musicG.connect(master);
     sfxG = ac.createGain(); sfxG.gain.value = 0.55; sfxG.connect(master);
+    ambG = ac.createGain(); ambG.gain.value = 0.9; ambG.connect(master);
     // sidechain-ducked buses (kick pumps the bass, chords and arps)
     duck = ac.createGain(); duck.connect(musicG);
     const lp = (f, q) => { const n = ac.createBiquadFilter(); n.type = 'lowpass'; n.frequency.value = f; n.Q.value = q || 0.7; n.connect(duck); return n; };
@@ -23,6 +24,7 @@ const Snd = (() => {
     noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
     const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     if (cur) { const c = cur; cur = null; curKey = ''; music(c.key, c.def); }
+    if (ambKind) ambience(ambKind);
   }
   function applyVol() { if (master) master.gain.value = muted ? 0 : vol; }
   function setVol(v) { vol = Math.max(0, Math.min(1, v)); applyVol(); }
@@ -92,6 +94,12 @@ const Snd = (() => {
     laser() { tone(1900, 0.13, 'square', 0.09, -1400); tone(950, 0.11, 'sine', 0.07, -600); },
     reload() { tone(600, 0.04, 'square', 0.1); tone(420, 0.05, 'square', 0.1, 0, ac.currentTime + 0.1); },
     click() { tone(1300, 0.03, 'square', 0.08); tone(800, 0.04, 'square', 0.07, 0, ac.currentTime + 0.05); },
+    bstep() { noise(0.13, 0.32, 70); tone(68, 0.16, 'sine', 0.28, -34); },
+    rumble() { noise(0.8, 0.26, 55); tone(48, 0.8, 'sawtooth', 0.16, -14); },
+    windy() { noise(0.9, 0.2, 450); tone(260, 0.9, 'triangle', 0.04, 220); },
+    chime() { tone(880, 0.5, 'sine', 0.1); tone(1320, 0.5, 'sine', 0.06); },
+    splash() { noise(0.4, 0.26, 700); tone(320, 0.22, 'sine', 0.1, -220); },
+    bubbles() { for (let i = 0; i < 4; i++) tone(300 + Math.random() * 300, 0.07, 'sine', 0.05, 400, ac.currentTime + i * 0.05); },
     flame() { noise(0.4, 0.2, 700); tone(220, 0.4, 'sawtooth', 0.08, 120); }
   });
   function play(n) { if (ac && sfx[n]) sfx[n](); }
@@ -266,6 +274,70 @@ const Snd = (() => {
     step = 0; nextT = ac.currentTime + 0.1;
     timer = setInterval(sched, 50);
   }
+  // ---------- ambience: a living soundscape for every land ----------
+  let ambG = null, amb = null, ambKind = null;
+  const AMB = {
+    meadow: { bed: ['bandpass', 520, 0.5, 0.03, 0.12, 180], ev: [['bird', 0.35], ['cricket', 0.25], ['breeze', 0.06]] },
+    forest: { bed: ['lowpass', 700, 0.7, 0.032, 0.08, 200], ev: [['owl', 0.07], ['cricket', 0.3], ['twig', 0.12], ['rustle', 0.2]] },
+    caves: { bed: ['lowpass', 220, 1, 0.03, 0.05, 60], ev: [['drip', 0.55], ['rumble', 0.04], ['crystal', 0.1]] },
+    desert: { bed: ['bandpass', 1400, 0.35, 0.055, 0.18, 500], ev: [['hawk', 0.05], ['sandhiss', 0.12], ['bone', 0.04]] },
+    frost: { bed: ['bandpass', 800, 1.2, 0.06, 0.2, 400], ev: [['icecrack', 0.1], ['wolf', 0.03], ['crystal', 0.07]] },
+    volcano: { bed: ['lowpass', 130, 1, 0.09, 0.07, 40], ev: [['lava', 0.6], ['rumble', 0.1], ['rockfall', 0.06]] },
+    citadel: { bed: ['lowpass', 90, 2, 0.06, 0.04, 30], ev: [['bell', 0.07], ['ghost', 0.07], ['caw', 0.04], ['rumble', 0.04]], drone: true },
+    swamp: { bed: ['lowpass', 420, 0.8, 0.032, 0.1, 140], ev: [['frog', 0.55], ['bubble', 0.3], ['cricket', 0.3], ['owl', 0.04]] },
+    ocean: { bed: ['lowpass', 260, 0.8, 0.055, 0.06, 90], ev: [['bubble', 0.8], ['whale', 0.05], ['sonar', 0.04]] },
+    tunnels: { bed: ['lowpass', 160, 1, 0.04, 0.05, 50], ev: [['drip', 0.35], ['creak', 0.09], ['rumble', 0.07], ['rockfall', 0.05]] }
+  };
+  const AV = {
+    bird() { const f = 1700 + Math.random() * 900; tone(f, 0.09, 'sine', 0.035, -500, 0, ambG); tone(f * 0.85, 0.12, 'sine', 0.03, -300, ac.currentTime + 0.1, ambG); if (Math.random() < 0.5) tone(f * 1.1, 0.08, 'sine', 0.03, -200, ac.currentTime + 0.24, ambG); },
+    cricket() { for (let i = 0; i < 4; i++) tone(4300 + Math.random() * 300, 0.03, 'square', 0.012, 0, ac.currentTime + i * 0.05, ambG); },
+    breeze() { noise(1.4, 0.05, 900, 0, ambG); },
+    owl() { tone(390, 0.35, 'sine', 0.06, -50, 0, ambG); tone(350, 0.5, 'sine', 0.05, -60, ac.currentTime + 0.5, ambG); },
+    twig() { noise(0.05, 0.08, 2500, 0, ambG); tone(1200, 0.03, 'square', 0.02, -600, 0, ambG); },
+    rustle() { noise(0.35, 0.04, 2000, 0, ambG); },
+    drip() { const f = 800 + Math.random() * 500; for (let i = 0; i < 3; i++) tone(f, 0.09, 'sine', 0.07 / (i + 1), -450, ac.currentTime + i * 0.17, ambG); },
+    rumble() { noise(1.6, 0.09, 45, 0, ambG); tone(42, 1.4, 'sawtooth', 0.05, -8, 0, ambG); },
+    crystal() { const f = 1600 + Math.random() * 1400; tone(f, 0.6, 'sine', 0.035, 0, 0, ambG); tone(f * 1.5, 0.5, 'sine', 0.02, 0, ac.currentTime + 0.05, ambG); },
+    hawk() { tone(1500, 0.5, 'sawtooth', 0.025, -900, 0, ambG); noise(0.3, 0.02, 2500, 0, ambG); },
+    sandhiss() { noise(0.9, 0.05, 3000, 0, ambG); },
+    bone() { tone(260, 0.05, 'square', 0.04, -80, 0, ambG); tone(210, 0.05, 'square', 0.04, -60, ac.currentTime + 0.07, ambG); },
+    icecrack() { noise(0.15, 0.09, 3500, 0, ambG); tone(2400, 0.18, 'sine', 0.04, -1800, 0, ambG); },
+    wolf() { tone(330, 1.4, 'sine', 0.045, 160, 0, ambG); tone(500, 1.2, 'sine', 0.02, -60, ac.currentTime + 0.3, ambG); },
+    lava() { noise(0.25, 0.1, 150, 0, ambG); tone(210, 0.12, 'sine', 0.08, -140, 0, ambG); },
+    rockfall() { for (let i = 0; i < 5; i++) { noise(0.06, 0.07, 500 + Math.random() * 800, ac.currentTime + i * 0.07, ambG); } },
+    bell() { tone(392, 2.2, 'sine', 0.05, 0, 0, ambG); tone(784, 1.6, 'sine', 0.02, 0, 0, ambG); },
+    ghost() { whisper(); },
+    caw() { noise(0.18, 0.06, 1500, 0, ambG); tone(520, 0.22, 'sawtooth', 0.04, -260, 0, ambG); },
+    frog() { for (let i = 0; i < 3; i++) tone(130 + Math.random() * 30, 0.09, 'square', 0.035, -40, ac.currentTime + i * 0.12, ambG); },
+    bubble() { tone(250 + Math.random() * 200, 0.12, 'sine', 0.05, 500, 0, ambG); },
+    whale() { tone(160, 2.6, 'sine', 0.06, -60, 0, ambG); tone(210, 2.2, 'sine', 0.035, -90, ac.currentTime + 0.4, ambG); },
+    sonar() { tone(1100, 0.5, 'sine', 0.035, 0, 0, ambG); tone(1100, 0.5, 'sine', 0.012, 0, ac.currentTime + 0.35, ambG); },
+    creak() { tone(95, 0.7, 'sawtooth', 0.04, -22, 0, ambG); noise(0.5, 0.025, 300, 0, ambG); }
+  };
+  function stopAmb() { if (!amb) return; clearInterval(amb.timer); for (const n of amb.nodes) try { n.stop(); } catch (e) { } try { amb.g.disconnect(); } catch (e) { } amb = null; }
+  function ambience(kind) {
+    ambKind = kind || null; if (!ac || !ambG) return; stopAmb(); const A = kind && AMB[kind]; if (!A) return;
+    const t = ac.currentTime, src = ac.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+    const f = ac.createBiquadFilter(); f.type = A.bed[0]; f.frequency.value = A.bed[1]; f.Q.value = A.bed[2];
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(A.bed[3], t + 2.5);
+    const lfo = ac.createOscillator(), lg = ac.createGain(); lfo.frequency.value = A.bed[4]; lg.gain.value = A.bed[5]; lfo.connect(lg); lg.connect(f.frequency);
+    src.connect(f); f.connect(g); g.connect(ambG); src.start(); lfo.start(); const nodes = [src, lfo];
+    if (A.drone) for (const fr of [55, 55.7, 82.4]) { const o = ac.createOscillator(), og = ac.createGain(); o.type = 'sine'; o.frequency.value = fr; og.gain.value = 0.02; o.connect(og); og.connect(ambG); o.start(); nodes.push(o); }
+    amb = { nodes, g, timer: setInterval(() => { for (const e of A.ev) if (Math.random() < e[1] * 0.4) AV[e[0]](); }, 400) };
+  }
+  function ambVol(v) { if (ambG && ac) ambG.gain.setTargetAtTime(v, ac.currentTime, 0.5); }
+  // footsteps that sound like the ground you run on
+  function foot(kind) {
+    if (!ac) return; const r = Math.random();
+    switch (kind) {
+      case 'meadow': case 'forest': case 'swamp': noise(0.06, 0.07 + r * 0.03, 1100, 0, sfxG); tone(110 + r * 30, 0.05, 'sine', 0.05, -30); break;
+      case 'caves': case 'citadel': case 'tunnels': tone(280 + r * 90, 0.035, 'square', 0.04, -80); noise(0.05, 0.06, 2400, 0, sfxG); break;
+      case 'desert': noise(0.1, 0.055, 650, 0, sfxG); break;
+      case 'frost': noise(0.08, 0.1, 1800, 0, sfxG); noise(0.05, 0.06, 3600, ac.currentTime + 0.03, sfxG); break;
+      case 'volcano': tone(170 + r * 40, 0.045, 'square', 0.04, -60); noise(0.06, 0.07, 800, 0, sfxG); break;
+      case 'ocean': tone(380 + r * 200, 0.07, 'sine', 0.03, 300); break;
+    }
+  }
   function stop() { if (timer) clearInterval(timer); timer = null; curKey = ''; cur = null; }
   function sched() {
     if (!ac || !cur) return;
@@ -320,5 +392,5 @@ const Snd = (() => {
     // ---- riser in the last two bars of the build ----
     if (sec === 7 && s === 0) { const o = ac.createOscillator(), gn = ac.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(2400, t + spb * 16); gn.gain.setValueAtTime(0.02, t); gn.gain.linearRampToValueAtTime(0.12, t + spb * 16); o.connect(gn); gn.connect(leadBus); o.start(t); o.stop(t + spb * 16 + 0.05); }
   }
-  return { init, play, creature, monster, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, setVol, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
+  return { init, play, creature, monster, ambience, ambVol, step: foot, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, setVol, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
 })();

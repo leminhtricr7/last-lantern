@@ -70,7 +70,7 @@
   Snd.setVol(save.vol);
 
   const STR = {
-    newgame: { en: 'New Game', vi: 'Chơi mới' }, shopT: { en: 'Shop & Inventory', vi: 'Cửa hàng & Kho đồ' }, cont: { en: 'Continue', vi: 'Tiếp tục' }, resume: { en: 'Resume', vi: 'Chơi tiếp' }, coopT: { en: 'Online Co-op (5 players)', vi: 'Co-op online (5 người)' },
+    newgame: { en: 'New Game', vi: 'Chơi mới' }, shopT: { en: 'Shop & Inventory', vi: 'Cửa hàng & Kho đồ' }, cont: { en: 'Continue', vi: 'Tiếp tục' }, resume: { en: 'Resume', vi: 'Chơi tiếp' }, coopT: { en: 'Online Co-op (5 players)', vi: 'Co-op online (5 người)' }, credits: { en: 'Credits', vi: 'Thực hiện bởi' },
     lang: { en: 'Language: English', vi: 'Ngôn ngữ: Tiếng Việt' },
     sound: { en: 'Sound', vi: 'Âm thanh' }, full: { en: 'Fullscreen', vi: 'Toàn màn hình' }, quit: { en: 'Quit', vi: 'Thoát' },
     press: { en: 'Press ENTER', vi: 'Nhấn ENTER' },
@@ -596,7 +596,7 @@
     const xy = gameXY(e), gx = xy[0], gy = xy[1]; mouse.gx = gx; mouse.gy = gy;
     const inPlay = scene === 'play' && Q;
     if (e.type === 'pointermove') {
-      if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, 293, 92, 12, 79); if (i >= 0 && i !== titleSel) { titleSel = i; Snd.play('select'); } }
+      if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, 293, 90, 11, 79); if (i >= 0 && i !== titleSel) { titleSel = i; Snd.play('select'); } }
       else if (inPlay && Q.state === 'pause') { const i = menuHit(gx, gy, 4, VW / 2, 88, 18, 80); if (i >= 0 && i !== Q.menu) { Q.menu = i; Snd.play('select'); } }
       else if (inPlay && Q.state === 'shop') { const n = (SHOPS[Q.shopWho] || []).length + 1, i = menuHit(gx, gy, n, VW / 2, 96, 14, 110); if (i >= 0 && i !== Q.menu) { Q.menu = i; Snd.play('select'); } }
       else if (scene === 'shop') shopMouse(gx, gy, false);
@@ -609,8 +609,8 @@
     }
     if (e.button === 1) { if (inPlay && Q.state === 'play') { faceMouse(gx); pressed.KeyH = true; } return; }
     if (e.button !== 0) return;
-    if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, 293, 92, 12, 79); if (i >= 0) { titleSel = i; pressed.Enter = true; } }
-    else if (scene === 'story' || scene === 'ending' || scene === 'opening') pressed.Enter = true;
+    if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, 293, 90, 11, 79); if (i >= 0) { titleSel = i; pressed.Enter = true; } }
+    else if (scene === 'story' || scene === 'ending' || scene === 'opening' || scene === 'credits') pressed.Enter = true;
     else if (scene === 'shop') shopMouse(gx, gy, true);
     else if (scene === 'map') {
       if (near(gx, gy, VW - 36, 14, 34, 8)) { pressed.KeyB = true; return; }
@@ -967,7 +967,7 @@
     Q.scn = buildScene();
     snapCam();
     scene = 'play';
-    Snd.music('lvl' + li, L.B.music);
+    Snd.music('lvl' + li, L.B.music); Snd.ambience(L.B.id); Snd.ambVol(0.9);
     if (li === 1) Q.msg = T('ab1'); else if (li === 3) Q.msg = T('ab3'); else if (li === 0) Q.msg = T('ctl');
     Q.msgT = Q.msg ? 6 : 0;
   }
@@ -1127,12 +1127,12 @@
     Q.arenaSealed = false; Q.bossDead = false; Q.bossDeadDone = false;
     resetGearFx();
     initEntities(); snapCam(); Q.state = 'play'; Q.freeze = 0;
-    Snd.music('lvl' + Q.li, Q.B.music);
+    Snd.music('lvl' + Q.li, Q.B.music); Snd.ambVol(0.9);
   }
   function seal() {
     const L = Q.L, ar = L.arena;
     if (ar.rects) for (const r of ar.rects) for (let y = r[1]; y <= r[3]; y++) for (let x = r[0]; x <= r[2]; x++) L.grid[y][x] = '#'; else for (let y = 0; y < ar.gy; y++) L.grid[y][ar.x0 + 1] = '#';
-    Q.arenaSealed = true;
+    Q.arenaSealed = true; Snd.ambVol(0.35);
     if (coop) coopGather();
     Q.state = 'bossintro'; Q.stateT = 0;
     Q.boss.st = 'intro'; Q.boss.max = Q.boss.hp;
@@ -1278,6 +1278,10 @@
         if (solid(lx, by) && solid(rx, by) && ch(Math.floor(P.x / TS), by - 1) !== '^') Q.safe = { x: P.x, y: P.y };
       }
     } else P.safeT = 0;
+    // footsteps that sound like the ground, and a splash when you dive in
+    P.stepT = (P.stepT || 0) - dt;
+    if (P.onGround && Math.abs(P.vx) > 45 && P.stepT <= 0 && !P.isGhostP) { P.stepT = 0.27; if (!wetP(P)) Snd.step(Q.B.id); }
+    { const w = wetP(P); if (P.wasWet === false && w) { Snd.play('splash'); emit(P.x + 4, P.y + 6, 14, { col: ['#bfeaff', '#fff'], sp0: 30, sp1: 110, vy: -60 }); } P.wasWet = w; }
     // run dust
     if (P.onGround && Math.abs(P.vx) > 60 && Math.random() < 0.15) emit(P.x + 4, P.y + P.h, 1, { col: '#cfd6e6', sp0: 3, sp1: 10, vy: -8, grav: 20, l0: 0.2, l1: 0.35 });
     // lantern sparks
@@ -1388,7 +1392,7 @@
     if (!Q.bossDead || Q.bossDeadDone) return;
     const b = Q.boss; Q.bossDeadT += dt;
     if (Q.bossBooms < 5 && Q.bossDeadT > Q.bossBooms * 0.15) { Q.bossBooms++; Snd.play('boom'); emit(b.x + rr(0, b.w), b.y + rr(0, b.h), 30, { col: ['#fff', '#ffd34e', '#f08a2b', '#e0453a'], sp0: 30, sp1: 160 }); }
-    if (Q.bossDeadT > 1.4) { Q.bossDeadDone = true; unseal(); Q.arenaSealed = false; Snd.play('win'); Snd.music('lvl' + Q.li, Q.B.music); }
+    if (Q.bossDeadT > 1.4) { Q.bossDeadDone = true; unseal(); Q.arenaSealed = false; Snd.play('win'); Snd.music('lvl' + Q.li, Q.B.music); Snd.ambVol(0.9); }
   }
   function firePr(x, y, vx, vy, o) { Q.projs.push(Object.assign({ x, y, vx, vy, life: 4, grav: 0, col: bpc(), type: 'ball', boss: false }, o || {})); if (!(o && o.silent)) Snd.play('shoot'); if (o && o.boss && Q.boss && !Q.boss.dead) Q.boss.kick = 0.16; }
 
@@ -1762,6 +1766,11 @@
     let r = Math.random() * tot; for (let i = 0; i < list.length; i++) { r -= ws[i]; if (r <= 0) return list[i]; }
     return list[0];
   }
+  // every boss skill has a sound of its own (on top of the creature's voice)
+  function bossSkillSnd(sk) {
+    const G = { jump: 'whoosh', stomp: 'bstep', slam: 'boom', bounce3: 'whoosh', charge: 'rumble', rush: 'rumble', shoot: 'shoot', fan: 'shoot', spit: 'shoot', lobs: 'throw', rain: 'rumble', erupt: 'crumble', meteor: 'explode', lavaCols: 'flame', sweep: 'flame', beam: 'flame', crossBeam: 'flame', breath: 'flame', summon: 'poof', clone: 'poof', dark: 'poof', cloak: 'poof', teleport: 'poof', ambush: 'poof', shield: 'chime', guard: 'chime', tornado: 'windy', blizzard: 'windy', wall: 'crumble', curse: 'zap', web: 'throw', goo: 'splash', splitslime: 'splash', spin: 'whoosh', tentacles: 'rumble', burrow: 'crumble' };
+    const n = G[sk]; if (n) Snd.play(n); if (sk === 'spin' || sk === 'bounce3') setTimeout(() => Snd.play('whoosh'), 250);
+  }
   function endSkill(b) { b.st = 'rec'; b.timer = (b.recAfter || 0.8) / b.fury; b.recAfter = 0; b.lastSk = b.sk; b.sk = null; }
   function updateBoss(dt) {
     const b = Q.boss; if (!b || b.dead) return;
@@ -1812,6 +1821,7 @@
         // chase: when the hero is far away the boss runs after them first and attacks once it is close (or after ~3s)
         const far = Math.abs(dxp) > b.w / 2 + 110;
         b.chaseT = far ? (b.chaseT || 0) + dt : 0;
+        if (b.onGround && b.moveT > 0) { b.stepT = (b.stepT || 0) - dt; if (b.stepT <= 0) { b.stepT = clamp(0.62 - b.w / 400, 0.3, 0.6); if (b.w >= 30) { Snd.play('bstep'); Q.shake = Math.max(Q.shake, b.w >= 60 ? 0.12 : 0.05); } } }
         if (Math.abs(dxp) > b.w / 2 + 36) { moveX(b, b.dir * Math.max(c.sp, 45) * (far ? 1.7 : 1.15) * b.fury * dt); b.moveT = 0.12; }
         if (far && b.chaseT < 3 && b.timer < 0.1) b.timer = 0.1;
         if (b.onGround && P.y + P.h < b.y + b.h - 30 && Math.abs(dxp) < b.w / 2 + 70 && Math.random() < dt * 1.2) { b.vy = -380; b.onGround = false; Snd.play('whoosh'); emit(cxm, b.y + b.h, 8, { col: '#cfd6e6', sp0: 20, sp1: 60 }); }
@@ -1830,7 +1840,7 @@
         }
         break;
       }
-      case 'tele': b.timer -= dt; b.dir = dxp < 0 ? -1 : 1; if (b.timer <= 0) { b.sk = b.atkSk; BS[b.sk].start(b); b.st = 'act'; } break;
+      case 'tele': b.timer -= dt; b.dir = dxp < 0 ? -1 : 1; if (b.timer <= 0) { b.sk = b.atkSk; BS[b.sk].start(b); b.st = 'act'; bossSkillSnd(b.sk); } break;
       case 'act': { const sk = BS[b.sk]; if (sk.upd(b, dt)) endSkill(b); break; }
       case 'evade': {
         b.skT -= dt; moveX(b, b.ed * 215 * dt);
@@ -4258,6 +4268,8 @@
     if (s === 'map') { MAPHERO.x = -1; Snd.music('title', TITLE_MUSIC); Q = null; mapSel = Math.min(mapSel, maxPlayable()); }
     if (s === 'cutscene') startCut();
     if (s === 'opening') startOpening();
+    if (s === 'credits') { cred = { t: 0 }; Snd.music('title', TITLE_MUSIC); }
+    if (s !== 'play') Snd.ambience(null);
     if (s === 'coop') { Q = null; Snd.music('title', TITLE_MUSIC); }
     if (s === 'castle') startCastle();
     if (s === 'ride') startRide();
@@ -4294,6 +4306,7 @@
     it.push({ k: 'lang', fn: () => { save.lang = save.lang === 'vi' ? 'en' : 'vi'; writeSave(); } });
     it.push({ k: 'sound', fn: () => { Snd.toggleMute(); } });
     it.push({ k: 'full', fn: toggleFull });
+    it.push({ k: 'credits', fn: () => toScene('credits') });
     it.push({ k: 'quit', fn: () => { try { window.close(); } catch (e) { } } });
     return it;
   }
@@ -4378,7 +4391,7 @@
       g.fillStyle = 'rgba(255,211,78,.7)'; g.fillRect(VW / 2 - 110, 56, 70, 1); g.fillRect(VW / 2 + 40, 56, 70, 1); g.fillRect(VW / 2 - 3, 54, 7, 5); g.fillStyle = '#ffffff'; g.fillRect(VW / 2 - 1, 55, 3, 3); g.fillStyle = '#ffd34e'; g.fillRect(VW / 2 - 130, 56, 18, 1); g.fillRect(VW / 2 + 112, 56, 18, 1);
       txt(save.lang === 'vi' ? 'NGỌN ĐÈN CUỐI CÙNG' : 'THE SHATTERED SUN', VW / 2, 67, { al: 'center', size: 8.5, bold: true, col: '#ffe9b8', ls: 3, ol: '#1a0814', glow: 'rgba(255,120,60,.6)', sh: false }); }
     // ---- menu ----
-    const items = titleItems(), n = items.length, MX0 = 214, MW = 158, MY = 92, DY = 12;
+    const items = titleItems(), n = items.length, MX0 = 214, MW = 158, MY = 90, DY = 11;
     g.fillStyle = 'rgba(8,3,18,.55)'; g.fillRect(MX0, MY - 8, MW, n * DY + 8); g.fillStyle = 'rgba(255,200,100,.35)'; g.fillRect(MX0, MY - 8, MW, 1); g.fillRect(MX0, MY + n * DY - 1, MW, 1);
     g.fillStyle = '#ffd34e'; for (const [cx, cy] of [[MX0, MY - 8], [MX0 + MW - 3, MY - 8], [MX0, MY + n * DY - 1], [MX0 + MW - 3, MY + n * DY - 1]]) g.fillRect(cx, cy, 3, 1);
     items.forEach((it, i) => {
@@ -6124,6 +6137,47 @@
     }
     if (t < OP_END - 1) txt(sv('ENTER: skip', 'ENTER: bỏ qua'), VW - 6, VH - 6, { al: 'right', size: 5, col: '#6a6a8a' });
   }
+  // ===================== CREDITS =====================
+  let cred = null;
+  const CREDITS_LINES = () => [
+    ['logo', 'LAST LANTERN'], ['sub', sv('THE SHATTERED SUN', 'NGỌN ĐÈN CUỐI CÙNG')], ['gap'],
+    ['h', sv('MADE BY', 'ĐƯỢC THỰC HIỆN BỞI')], ['p', sv('A team of 2', 'Đội ngũ gồm 2 thành viên')], ['gap'],
+    ['name', 'Lê Minh Trí', '(Lee San Tree)'], ['name', 'Đặng Anh Quân', '(David Quan)'], ['gap'],
+    ['h', sv('IMPORTANT', 'ĐIỀU QUAN TRỌNG')],
+    ['p', sv('Your progress is saved automatically at every checkpoint, on this device only.', 'Tiến trình được tự động lưu ở mỗi checkpoint, chỉ trên thiết bị này.')],
+    ['p', sv('Co-op supports up to 5 players: share the room code with your friends.', 'Chơi co-op tối đa 5 người: hãy gửi mã phòng cho bạn bè.')],
+    ['p', sv('The secret references hidden in the game are tributes only: no original names, logos or pictures are used.', 'Các chi tiết bí mật ẩn trong game chỉ là lời tri ân, không dùng tên, logo hay hình ảnh gốc của bất kỳ tác phẩm nào.')], ['gap'],
+    ['h', sv('THANK YOU', 'CẢM ƠN')], ['p', sv('To everyone who tested, shared and played the game.', 'Gửi tới tất cả những ai đã chơi thử, chia sẻ và ủng hộ game.')],
+    ['p', sv('Keep your lantern burning.', 'Hãy giữ ngọn đèn của bạn luôn cháy sáng.')], ['gap'],
+    ['p', '© 2026 Lê Minh Trí & Đặng Anh Quân'], ['p', sv('All rights reserved.  Version 1.0', 'Bảo lưu mọi quyền.  Phiên bản 1.0')], ['gap'], ['gap'], ['end', sv('Press ENTER or click to go back', 'Nhấn ENTER hoặc bấm chuột để quay lại')]
+  ];
+  function updateCredits(dt) { if (!cred) cred = { t: 0 }; cred.t += dt; sceneT += dt; if ((act.okP || act.backP || act.atkP) && cred.t > 0.3) { Snd.play('select'); toScene('title'); } }
+  function drawCredits() {
+    if (!cred) cred = { t: 0 }; const t = cred.t, A = titleArt();
+    g.drawImage(A.sky, 0, 0);
+    for (const s of A.stars) { g.globalAlpha = 0.3 + 0.7 * Math.abs(Math.sin(sceneT * s.v + s.p)); g.fillStyle = s.c; g.fillRect(s.x, s.y, s.s, s.s); } g.globalAlpha = 1;
+    for (const [im, f, y] of [[A.m1, 0.02, 84], [A.m2, 0.05, 106], [A.m3, 0.1, 128]]) { const ox = -((sceneT * 6 * f * 10) % 768); g.drawImage(im, Math.round(ox), y); g.drawImage(im, Math.round(ox) + 768, y); }
+    g.fillStyle = 'rgba(4,2,12,.72)'; g.fillRect(0, 0, VW, VH);
+    for (const f of A.flies) { const x = f.x + Math.sin(sceneT * f.sp + f.ph) * f.r, y = f.y - 60 + Math.cos(sceneT * f.sp * 1.3 + f.ph) * 6; g.globalAlpha = 0.3 + 0.5 * Math.max(0, Math.sin(sceneT * 2 + f.ph)); g.fillStyle = '#ffe066'; g.fillRect(Math.round(x), Math.round(y), 2, 2); } g.globalAlpha = 1;
+    const L = CREDITS_LINES(), LH = { logo: 40, sub: 16, gap: 14, h: 18, p: 12, name: 30, end: 20 };
+    let total = 0; for (const l of L) total += l[0] === 'p' ? wrapText(l[1], 62).length * 9 + 4 : LH[l[0]]; const scroll = Math.min(t * 15, total - 160);
+    let y = VH - 10 - scroll;
+    for (const l of L) {
+      const type = l[0], h = type === 'p' ? wrapText(l[1], 62).length * 9 + 4 : LH[type], cy = y + h / 2;
+      if (cy > -10 && cy < VH + 10) {
+        const fade = clamp(Math.min(cy / 28, (VH - cy) / 28), 0, 1);
+        if (type === 'logo') txt(l[1], VW / 2, cy, { al: 'center', size: 22, bold: true, col: '#ffd34e', grad: ['#fffbe0', '#ffd34e', '#e08a1a'], ol: '#2a0a10', glow: 'rgba(255,160,50,.8)', ls: 2, sh: false, alpha: fade });
+        else if (type === 'sub') txt(l[1], VW / 2, cy, { al: 'center', size: 8, bold: true, col: '#ffe9b8', ls: 3, ol: '#1a0814', sh: false, alpha: fade });
+        else if (type === 'h') { txt(l[1], VW / 2, cy, { al: 'center', size: 9, bold: true, col: '#ffd34e', ls: 3, ol: '#1a0814', glow: 'rgba(255,170,60,.6)', sh: false, alpha: fade }); g.globalAlpha = fade * 0.6; g.fillStyle = '#ffd34e'; g.fillRect(VW / 2 - 60, Math.round(cy + 8), 120, 1); g.globalAlpha = 1; }
+        else if (type === 'p') wrapText(l[1], 62).forEach((ln, j) => txt(ln, VW / 2, cy + j * 9, { al: 'center', size: 7, col: '#e8eaf5', alpha: fade }));
+        else if (type === 'name') { lanternIc(VW / 2 - 98, Math.round(cy), fade); lanternIc(VW / 2 + 98, Math.round(cy), fade); txt(l[1], VW / 2, cy - 4, { al: 'center', size: 12, bold: true, col: '#ffffff', ol: '#2a0a10', glow: 'rgba(255,200,100,.8)', sh: false, alpha: fade }); txt(l[2], VW / 2, cy + 8, { al: 'center', size: 7, col: '#ffd34e', alpha: fade }); }
+        else if (type === 'end') txt(l[1], VW / 2, cy, { al: 'center', size: 6.5, col: '#b8a8d8', alpha: fade * (0.5 + 0.5 * Math.abs(Math.sin(sceneT * 3))) });
+      }
+      y += h;
+    }
+    g.drawImage(A.vig, 0, 0);
+    txt(sv('ENTER / click: back', 'ENTER / bấm chuột: quay lại'), VW - 6, VH - 6, { al: 'right', size: 5, col: '#6a6a8a' });
+  }
   function frame(now) {
     requestAnimationFrame(frame);
     step(now);
@@ -6157,6 +6211,7 @@
         else if (scene === 'title') updateTitle(sub);
         else if (scene === 'story' || scene === 'ending') updateStory(sub);
         else if (scene === 'opening') updateOpening(sub);
+        else if (scene === 'credits') updateCredits(sub);
         else if (scene === 'map') updateMap(sub);
         else if (scene === 'shop') updateShopScene(sub);
         else if (scene === 'castle') updateCastle(sub);
@@ -6174,6 +6229,7 @@
     else if (scene === 'title') drawTitle();
     else if (scene === 'story' || scene === 'ending') drawStory();
     else if (scene === 'opening') drawOpening();
+    else if (scene === 'credits') drawCredits();
     else if (scene === 'map') drawMap();
     else if (scene === 'shop') drawShop();
     else if (scene === 'castle' && castle) drawCastle();
