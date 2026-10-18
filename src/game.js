@@ -5775,13 +5775,17 @@
     pop(o.x + 4, o.y - 26, sumName(kind) + '!', (GIANT[kind] || BEAST[kind]).glow);
   }
   // summons fight on their own: they walk (or fly) to the nearest enemy and attack it; with no enemy they idle near their owner
-  const SUM_WALK = { titan: [55, 70], frostgiant: [60, 90], shogun: [110, 60], treant: [45, 70], golems: [75, 30], thunderkirin: [130, 80], clones: [140, 40], stormgod: [60, 200], seagoddess: [70, 170], moongoddess: [60, 220], valkyrie: [100, 180], sunemperor: [50, 200], angel: [70, 180], ninetail: [80, 200] };
+  const SUM_WALK = { aegis: [95, 45], titan: [55, 70], frostgiant: [60, 90], shogun: [110, 60], treant: [45, 70], golems: [75, 30], thunderkirin: [130, 80], clones: [140, 40], stormgod: [60, 200], seagoddess: [70, 170], moongoddess: [60, 220], valkyrie: [100, 180], sunemperor: [50, 200], angel: [70, 180], ninetail: [95, 110] };
+  // what a summon fights: the boss while its fight is on, otherwise the nearest monster in this part of the map
+  function sumTarget(s, r) {
+    const b = Q.boss; if (b && !b.dead && Q.arenaSealed && b.st !== 'intro' && b.st !== 'sleep' && !b.hide) return b;
+    return nearestFoe(s.x, s.y - 30, r || 1100);
+  }
+  // summons never trail behind the hero: they march on the target, or scout ahead of the hero when no monster is around
   function sumWalk(s, o, dt) {
-    const w = SUM_WALK[s.kind]; s.mv = 0;
-    if (!w) { const tx = o.x + 4 - o.face * 30, k = 1 - Math.exp(-4 * dt); s.mv = Math.abs(tx - s.x) > 4 ? 1 : 0; s.x += (tx - s.x) * k; s.y = groundYAt(s.x); s.f = o.face; return; }
-    const bt = s.stage === 2 && Q.boss && !Q.boss.dead && Q.arenaSealed && Q.boss.st !== 'intro' && !Q.boss.hide ? Q.boss : null, t = bt || nearestFoe(s.x, s.y - 30, 640), sp = w[0] * (s.stage === 2 ? 1.3 : 1);
-    if (t) { const d = t.x + t.w / 2 - s.x, ad = Math.abs(d); s.f = d < 0 ? -1 : 1; if (ad > w[1]) { s.x += s.f * Math.min(sp * dt, ad - w[1]); s.mv = 1; } }
-    else { const d = o.x + 4 - s.x, ad = Math.abs(d); if (ad > 70) { s.f = d < 0 ? -1 : 1; s.x += s.f * Math.min(w[0] * 0.9 * dt, ad - 60); s.mv = 1; } else s.f = o.face; }
+    const w = SUM_WALK[s.kind] || [90, 50], t = sumTarget(s), sp = w[0] * (s.stage === 2 ? 1.3 : 1); s.mv = 0;
+    if (t) { const d = t.x + t.w / 2 - s.x, ad = Math.abs(d); s.f = d < 0 ? -1 : 1; if (ad > w[1]) { s.x += s.f * Math.min(sp * (ad > 240 ? 1.6 : 1) * dt, ad - w[1]); s.mv = 1; } }
+    else { const d = o.x + 4 + o.face * 70 - s.x, ad = Math.abs(d); if (ad > 12) { s.f = d < 0 ? -1 : 1; s.x += s.f * Math.min(sp * dt, ad - 10); s.mv = 1; } else s.f = o.face; }
     if (Q.arenaSealed) s.x = arenaClamp(s.x);
     s.y = groundYAt(s.x);
   }
@@ -5815,8 +5819,8 @@
       if (s.life <= 0 && s.evo && s.stage === 1) evolveSummon(s);
       sdm = s.stage === 2 ? 1.8 : 1;
       const o = s.owner || P, fly = !!BEAST[s.kind] && s.kind !== 'thunderkirin' && s.kind !== 'ninetail' && s.kind !== 'clones';
-      if (s.kind === 'phoenix') { s.mv = 1; s.x = Q.cam.x + VW / 2 + Math.sin(s.t * 0.9) * (VW * 0.42); s.y = Q.cam.y + 46 + Math.sin(s.t * 2) * 6; s.f = Math.cos(s.t * 0.9) > 0 ? 1 : -1; }
-      else if (fly) { const dr = (s.kind === 'dragonking' || s.kind === 'dragonform') ? nearestFoe(s.x, s.y, 700) : null, sd0 = dr ? (dr.x + dr.w / 2 < s.x ? -1 : 1) : o.face, tx = dr ? dr.x + dr.w / 2 - sd0 * 150 : o.x + 4 + o.face * 20, ty = dr ? dr.y - 50 + Math.sin(s.t * 2) * 6 : o.y - 46 + Math.sin(s.t * 2) * 4, k = 1 - Math.exp(-3 * dt); s.mv = Math.abs(tx - s.x) > 6 ? 1 : 0; s.x += (tx - s.x) * k; s.y += (ty - s.y) * k; s.f = sd0; }
+      if (s.kind === 'phoenix') { s.mv = 1; const pt = sumTarget(s); if (pt) { const tx = pt.x + pt.w / 2 + Math.sin(s.t * 1.6) * 70, ty = pt.y - 70 + Math.sin(s.t * 3) * 6, k = 1 - Math.exp(-2.5 * dt); s.f = tx > s.x ? 1 : -1; s.x += (tx - s.x) * k; s.y += (ty - s.y) * k; } else { s.x = Q.cam.x + VW / 2 + Math.sin(s.t * 0.9) * (VW * 0.42); s.y = Q.cam.y + 46 + Math.sin(s.t * 2) * 6; s.f = Math.cos(s.t * 0.9) > 0 ? 1 : -1; } }
+      else if (fly) { const dr = sumTarget(s), sd0 = dr ? (dr.x + dr.w / 2 < s.x ? -1 : 1) : o.face, tx = dr ? dr.x + dr.w / 2 - sd0 * (s.kind === 'skywhale' ? 0 : 130) : o.x + 4 + o.face * 80, ty = dr ? dr.y - (s.kind === 'skywhale' ? 90 : 50) + Math.sin(s.t * 2) * 6 : o.y - 46 + Math.sin(s.t * 2) * 4, k = 1 - Math.exp(-3 * dt); s.mv = Math.abs(tx - s.x) > 6 ? 1 : 0; s.x += (tx - s.x) * k; s.y += (ty - s.y) * k; s.f = sd0; }
       else sumWalk(s, o, dt);
       if (s.cd > 0 || s.t < 0.5 || s.life < 0.3) continue;
       const near = r => nearestFoe(s.x, s.y - 30, r), all = r => foes().filter(e => Math.abs(e.x + e.w / 2 - s.x) < r);
@@ -5829,10 +5833,10 @@
         case 'moongoddess': { s.cd = 0.35; const t = near(320); if (t) shootG({ x: t.x + t.w / 2, y: Q.cam.y - 8, vx: 0, vy: 560, life: 1, dmg: sd(4), thru: true, pierceN: 3, shape: 'orb', col: '#e8e0ff', trail: '#cfc0ff', sz: 4, quiet: true }); break; }
         case 'dragonking': case 'dragonform': { s.cd = 0.08; const t = (Q.boss && bossTargets()[0]) || near(260); if (t) { const dx = t.x + t.w / 2 - s.x, dy = t.y + t.h / 2 - s.y, d = Math.hypot(dx, dy) || 1; shootG({ x: s.x + s.f * 16, y: s.y + 6, vx: dx / d * 230 + rr(-20, 20), vy: dy / d * 230 + rr(-20, 20), life: 0.9, dmg: sd(s.kind === 'dragonking' ? 2 : 1), burn: 3, shape: 'fire', sz: 3, col: s.kind === 'dragonking' ? '#ffd34e' : '#ff7a2a', pierceN: 2, quiet: true }); if (Math.random() < 0.12) Snd.play('breath'); } break; }
         case 'frostgiant': s.cd = 1; if (!s.n) { for (const e of foes()) { e.slowT = Math.max(e.slowT || 0, 6); if (!e.isBoss) e.stunT = Math.max(e.stunT || 0, 1.5); } G.slowT = Math.max(G.slowT, 3); addRing(s.x, s.y - 20, '#bfefff', 220, 0.8); Snd.play('zap'); } for (const e of all(300).slice(0, 4)) shootG({ x: e.x + e.w / 2, y: Q.cam.y - 6, vx: 0, vy: 420, life: 1.2, dmg: sd(6), slow: 3, shape: 'ice', sz: 4, col: '#bfefff', quiet: true }); s.n++; break;
-        case 'sunemperor': s.cd = 2.2; Snd.play('explode'); G.flash = Math.max(G.flash || 0, 0.2); for (let k = -1; k <= 1; k++) shootG({ x: s.x + s.f * 20, y: s.y - 34 + k * 8, vx: s.f * 600, vy: 0, life: 0.9, dmg: sd(10), burn: 3, thru: true, pierceN: 99, shape: 'beam', col: '#ffe08a', sz: 6, f: s.f }); break;
+        case 'sunemperor': { const t = near(420); if (t) s.f = t.x + t.w / 2 < s.x ? -1 : 1; const by = t ? t.y + t.h / 2 : s.y - 34; s.cd = 2.2; Snd.play('explode'); G.flash = Math.max(G.flash || 0, 0.2); for (let k = -1; k <= 1; k++) shootG({ x: s.x + s.f * 20, y: by + k * 6, vx: s.f * 600, vy: 0, life: 0.9, dmg: sd(10), burn: 3, thru: true, pierceN: 99, shape: 'beam', col: '#ffe08a', sz: 6, f: s.f }); break; }
         case 'shogun': s.cd = 1; Snd.play('slash'); for (const e of all(320)) { dmgFoe(e, sd(8), true, true); emit(e.x + e.w / 2, e.y + e.h / 2, 10, { col: ['#ff3a5a', '#fff'], sp0: 40, sp1: 150 }); } (G.slashes = G.slashes || []).push({ y: s.y - 30 - rr(0, 30), life: 0.25, x: s.x }); Q.shake = Math.max(Q.shake, 0.3); break;
         case 'treant': s.cd = 1; for (const e of all(260)) { dmgFoe(e, sd(5), true, true); e.slowT = Math.max(e.slowT || 0, 3); emit(e.x + e.w / 2, e.y + e.h, 8, { col: ['#5fcf5a', '#8a6a44'], sp0: 20, sp1: 70, vy: -70 }); } if ((s.n = (s.n || 0) + 1) % 2 === 0 && o.hp < (o.mhp || maxHP())) { o.hp++; Snd.play('heart'); } break;
-        case 'aegis': s.cd = 0.1; for (const p of Q.projs) if (!p.dead && Math.hypot(p.x - (o.x + 4), p.y - (o.y + 7)) < 140) { p.dead = true; emit(p.x, p.y, 6, { col: ['#ffe08a', '#fff'], sp0: 10, sp1: 50 }); } if ((s.n = (s.n || 0) + 1) % 15 === 0) nova(o.x + 4, o.y + 7, 70, sd(4)); break;
+        case 'aegis': s.cd = 0.1; for (const p of Q.projs) if (!p.dead && (Math.hypot(p.x - (o.x + 4), p.y - (o.y + 7)) < 140 || Math.hypot(p.x - s.x, p.y - (s.y - 30)) < 140)) { p.dead = true; emit(p.x, p.y, 6, { col: ['#ffe08a', '#fff'], sp0: 10, sp1: 50 }); } if ((s.n = (s.n || 0) + 1) % 15 === 0) nova(s.x, s.y - 20, 70, sd(4)); if (s.n % 8 === 0) { const t = near(80); if (t) { dmgFoe(t, sd(4), true, true); s.atkT = 0.35; Snd.play('clang'); } } break;
         case 'valkyrie': { s.cd = 0.55; const t = near(300); if (t) shootG({ x: s.x, y: s.y - 44, vx: (t.x > s.x ? 1 : -1) * 260, vy: -20, home: true, life: 1.6, dmg: sd(5), thru: true, pierceN: 1, shape: 'beam', col: '#cfe8ff', sz: 3, f: t.x > s.x ? 1 : -1, quiet: true }); break; }
         case 'angel': { s.cd = 1; const t = near(300); if (t) { zap(s.x, s.y - 40, t.x + t.w / 2, t.y + t.h / 2); dmgFoe(t, sd(5), true, true); } if ((s.n = (s.n || 0) + 1) % 2 === 0 && o.hp < (o.mhp || maxHP())) { o.hp++; Snd.play('heart'); emit(o.x + 4, o.y + 4, 10, { col: ['#fff6c0', '#fff'], sp0: 10, sp1: 50 }); } break; }
         case 'golems': case 'clones': { s.cd = s.kind === 'clones' ? 0.7 : 0.9; const t = near(140); if (t) { dmgFoe(t, sd(s.kind === 'clones' ? 4 : 6), true, true); emit(t.x + t.w / 2, t.y + t.h / 2, 10, { col: s.kind === 'clones' ? ['#a15be0', '#14121f'] : ['#a8a8b8', '#fff'], sp0: 30, sp1: 110 }); Snd.play(s.kind === 'clones' ? 'slash' : 'clang'); s.hitX = t.x + t.w / 2; s.hitT = 0.25; if (!t.isBoss) t.vx = (t.x > s.x ? 1 : -1) * 160; } break; }
@@ -5840,7 +5844,7 @@
         case 'skywhale': s.cd = 0.3; shootG({ x: s.x + rr(-30, 30), y: s.y + 10, vx: rr(-30, 30), vy: 200, life: 1.6, dmg: sd(4), expl: 26, shape: 'meteor', sz: 4, col: '#cfe8ff', trail: '#ffe08a', quiet: true }); break;
         case 'ninetail': s.cd = 0.6; for (let i = 0; i < 3; i++) shootG({ x: s.x, y: s.y - 16, vx: rr(-120, 120), vy: -rr(60, 140), home: true, life: 2, dmg: sd(3), burn: 2, shape: 'orb', col: '#6ee7f2', trail: '#ff9a4a', sz: 3, quiet: true }); break;
       }
-      if (s.cd > cd0 + 0.001) { s.atkT = 0.35; if (s.stage === 2) s.cd = cd0 + (s.cd - cd0) * 0.72; }
+      if (s.cd > cd0 + 0.001 && s.kind !== 'aegis') { s.atkT = 0.35; if (s.stage === 2) s.cd = cd0 + (s.cd - cd0) * 0.72; }
     }
     G.sums = G.sums.filter(s => s.life > 0 && (s.hp > 0 || s.dying > 0));
     if (G.slashes) { for (const sl of G.slashes) sl.life -= dt; G.slashes = G.slashes.filter(sl => sl.life > 0); }
@@ -5892,7 +5896,7 @@
     return H;
   }
   function sumHud(s, x, top, a) {
-    if (s.hpMax && !s.dying && (s.stage === 2 || s.hp < s.hpMax)) { const bw = s.stage === 2 ? 44 : 32, by = Math.round(top) - 8; g.fillStyle = '#14121f'; g.fillRect(x - bw / 2 - 1, by - 1, bw + 2, 5); g.fillStyle = '#6a1a1a'; g.fillRect(x - bw / 2, by, bw, 3); g.fillStyle = s.stage === 2 ? '#ffd34e' : '#7ed957'; g.fillRect(x - bw / 2, by, Math.round(bw * clamp(s.hp / s.hpMax, 0, 1)), 3); }
+    if (s.hpMax && !s.dying) { const bw = s.stage === 2 ? 44 : 32, by = Math.round(top) - 8; g.fillStyle = '#14121f'; g.fillRect(x - bw / 2 - 1, by - 1, bw + 2, 5); g.fillStyle = '#6a1a1a'; g.fillRect(x - bw / 2, by, bw, 3); g.fillStyle = s.stage === 2 ? '#ffd34e' : '#7ed957'; g.fillRect(x - bw / 2, by, Math.round(bw * clamp(s.hp / s.hpMax, 0, 1)), 3); }
     if (s.stage === 2 && !s.dying) { const R2 = 90 + Math.sin(s.t * 6) * 6, cy = (top + 50 + (top + 50)) / 2; g.globalCompositeOperation = 'lighter'; const g2 = g.createRadialGradient(x, cy + 30, 0, x, cy + 30, R2); g2.addColorStop(0, 'rgba(255,211,78,.2)'); g2.addColorStop(1, 'rgba(255,211,78,0)'); g.fillStyle = g2; g.fillRect(x - R2, cy + 30 - R2, R2 * 2, R2 * 2); g.globalCompositeOperation = 'source-over'; }
   }
   function drawSummons(camX, camY) {
