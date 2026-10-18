@@ -150,6 +150,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
   - Divine weapons: Glacier Bow (rain of ice arrows over the screen), Reaper's Scythe (boomerang that stuns and poisons), Meteor Staff (one colossal meteor), Sun Chakram (bounces through 8 enemies), Singularity Cannon (huge black hole then a blast).
 - The Spore Queen, the Kraken and Gravemaw use the artist's designs (`assets/ref/new_bosses.webp`, cut by `tools/cut_bosses.py`), move like living creatures and have their own horror voices.
 - The Kraken waits in a huge sea cave: the camera pulls back so the hero looks tiny next to it. Gravemaw's arena is a cavern at the bottom of a deep pit in the tunnels.
+- Shortcuts to hear and see each deep boss right away: `?boss=7` (Spore Queen), `?boss=8` (Kraken), `?boss=9` (Gravemaw). Click the game once so the browser allows sound.
 - Underwater the hero tilts and kicks while swimming and lunges when attacking.
 - Every boss slowly heals if nobody hits it for 30 seconds.
 

@@ -1052,6 +1052,7 @@ function dragonSprite(form, wing) {
 
 const BOSS_SIZES = [[46, 36], [50, 38], [48, 52], [44, 54], [48, 54], [56, 56], [60, 66], [48, 50], [60, 50], [50, 50]];
 function bossSprite(i) {
+  if (typeof BOSS_IMG !== 'undefined' && BOSS_IMG[i]) return BOSS_IMG[i];   // the artist's pictures of the Spore Queen, Kraken and Gravemaw
   const key = 'boss' + i;
   if (!_cache[key]) _cache[key] = paint(BOSS_SIZES[i][0], BOSS_SIZES[i][1], BOSS_PAINT[i], i === 6 ? '#d58bff' : (i === 5 ? '#ff9a2a' : null));
   return _cache[key];

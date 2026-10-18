@@ -5098,6 +5098,7 @@
     { name: { en: 'Abyssal Kraken', vi: 'Thủy Quái Kraken' }, art: 'kraken', artScale: 1.35, w: 170, h: 150, hp: 660, armor: 0.3, smart: 0.6, sp: 22, minion: 'piranha', proj: '#6ee7f2', skills: ['erupt', 'shoot', 'rain', 'charge', 'summon', 'fan'], skills2: ['spin', 'roar', 'slam'] },
     { name: { en: 'Gravemaw the Great Worm', vi: 'Sâu Khổng Lồ Gravemaw' }, art: 'worm', artScale: 1.15, w: 84, h: 108, hp: 720, armor: 0.35, smart: 0.6, sp: 28, minion: 'mole', proj: '#c8a070', skills: ['burrow', 'burrow', 'charge', 'rain', 'summon'], skills2: ['burrow', 'slam', 'roar'] }
   );
+  [7, 8, 9].forEach(i => { NPCS['boss' + i] = { spr: 'boss:' + i, name: BOSS[i].name }; });   // so their pre/post-fight dialogue has a speaker
   // the worm hides under the ground, rumbles under a hero for a moment, then bursts out - move away in time!
   BS.burrow = {
     tele: 0.4,
@@ -5577,6 +5578,11 @@
   requestAnimationFrame(frame);
   if (DEMO) { save.leek = true; save.cleared = [0]; save.inv.own = ['iron', 'leek']; save.inv.w = ['leek', null]; save.inv.armor = null; save.inv.pet = null; save.ammo = { dagger: 9, bomb: 3, flask: 3 }; startLevel(0); Q.state = 'play'; Q.msg = 'LEEK DEMO: J / click = swing (3 light beams). Hit = heal + stun. Under 15% HP = leek tornado.'; Q.msgT = 12; }
   // ?quoc=N jumps straight into the final fight at Quoc's form N (0-7) - handy for checking the boss
+  // ?boss=7|8|9 jumps straight into the Spore Queen / Kraken / Gravemaw fight (click or press a key once so the browser allows sound)
+  { const m = location.search.match(/[?&]boss=(\d)/);
+    if (m && [7, 8, 9].indexOf(+m[1]) >= 0) setTimeout(() => {
+      startLevel(+m[1]); Q.state = 'play'; const ar = Q.L.arena; Q.P.x = (ar.x0 + 8) * TS; Q.P.y = (ar.gy - 2) * TS; Q.P.inv = 3; Q.zoom = Q.B.zoom || 1; snapCam(); Q.msg = 'Click once to turn the sound on'; Q.msgT = 5;
+    }, 400); }
   { const m = location.search.match(/quoc=(\d)/);
     if (m) setTimeout(() => {
       const n = Math.min(7, +m[1]); startLevel(6); Q.state = 'play';
