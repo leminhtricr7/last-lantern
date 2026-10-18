@@ -4275,7 +4275,7 @@
     return gy;
   }
   function updateTitle(dt) {
-    sceneT += dt; title.cam += dt * 22;
+    sceneT += dt; title.cam += dt * 70;
     const items = titleItems();
     if (act.upP) { titleSel = (titleSel + items.length - 1) % items.length; Snd.play('select'); }
     if (act.downP) { titleSel = (titleSel + 1) % items.length; Snd.play('select'); }
@@ -4327,6 +4327,9 @@
       x.fillStyle = '#ffb04a'; for (const [dx, y] of [[6, 18], [7, 28], [-14, 24], [23, 30], [36, 34]]) x.fillRect(540 + dx, y, 1, 2);
     });
     T.m3 = ridge(46, 10, '#150a24', '#3a1a48', 33);
+    { const [c, x] = mkCanvas(W, 70), q2 = mulberry32(61); x.fillStyle = '#07030d';
+      for (let i = 0; i < 26; i++) { const px = i * 30 + ((q2() * 14) | 0), h = 22 + ((q2() * 34) | 0), w = 10 + ((q2() * 8) | 0); x.fillRect(px - 1, 70 - 6, 3, 6); for (let k = 0; k < h; k++) { const hw = Math.round(k / h * w / 2); x.fillRect(px - hw, 70 - 6 - h + k, hw * 2 + 1, 1); } }
+      T.trees = c; }
     // foreground pines on both sides
     { const [c, x] = mkCanvas(130, 120); const q = mulberry32(99); x.fillStyle = '#05020a';
       for (let i = 0; i < 9; i++) { const px = 6 + i * 13 + ((q() * 6) | 0), h = 40 + ((q() * 60) | 0), w = 12 + ((q() * 10) | 0); x.fillRect(px - 1, 120 - 14, 3, 14); for (let k = 0; k < h; k++) { const hw = Math.round(k / h * w / 2); x.fillRect(px - hw, 120 - 14 - h + k, hw * 2 + 1, 1); } }
@@ -4348,8 +4351,9 @@
       for (let i = 0; i < 28; i++) { const a = i / 28 * 6.2832 + t * 0.05, l = 30 + (i % 3) * 12 + Math.sin(t * 2 + i) * 4; g.strokeStyle = 'rgba(255,190,90,' + (0.1 + (i % 2) * 0.08) + ')'; g.lineWidth = 1; g.beginPath(); g.moveTo(ex + Math.cos(a) * 24, ey + Math.sin(a) * 24); g.lineTo(ex + Math.cos(a) * (24 + l), ey + Math.sin(a) * (24 + l)); g.stroke(); }
       g.globalCompositeOperation = 'source-over'; disc(g, ex, ey, 26, '#ffd890'); disc(g, ex, ey, 25, '#ff9a4a'); disc(g, ex + 3, ey + 2, 25, '#05020c'); }
     for (const [im, f, y] of [[A.m1, 0.02, 84], [A.m2, 0.05, 106], [A.m3, 0.1, 128]]) { const ox = -((cam * f) % 768); g.drawImage(im, Math.round(ox), y); g.drawImage(im, Math.round(ox) + 768, y); }
+    { const ox = -((cam * 0.55) % 768); g.drawImage(A.trees, Math.round(ox), GY - 64); g.drawImage(A.trees, Math.round(ox) + 768, GY - 64); }
     // ground, lit from the horizon, with swaying grass
-    { const gg = g.createLinearGradient(0, GY, 0, VH); gg.addColorStop(0, '#2a1426'); gg.addColorStop(0.15, '#120816'); gg.addColorStop(1, '#05020a'); g.fillStyle = gg; g.fillRect(0, GY, VW, VH - GY); g.fillStyle = 'rgba(255,150,70,.6)'; g.fillRect(0, GY, VW, 1); g.fillStyle = '#0a0412'; for (const f of A.tufts) g.fillRect(f.x, GY - f.h + Math.round(Math.sin(t * 2 + f.p) * 0.6), 1, f.h); }
+    { const gg = g.createLinearGradient(0, GY, 0, VH); gg.addColorStop(0, '#2a1426'); gg.addColorStop(0.15, '#120816'); gg.addColorStop(1, '#05020a'); g.fillStyle = gg; g.fillRect(0, GY, VW, VH - GY); g.fillStyle = 'rgba(255,150,70,.6)'; g.fillRect(0, GY, VW, 1); g.fillStyle = '#0a0412'; for (const f of A.tufts) { const fx = (((f.x - cam) % VW) + VW) % VW; g.fillRect(Math.round(fx), GY - f.h + Math.round(Math.sin(t * 2 + f.p) * 0.6), 1, f.h); } g.fillStyle = 'rgba(255,170,90,.25)'; for (let i = 0; i < 14; i++) { const fx = (((i * 61 - cam * 1.4) % VW) + VW) % VW; g.fillRect(Math.round(fx), GY + 4 + (i % 4) * 5, 6 + (i % 3) * 4, 1); } }
     g.drawImage(A.pines, -22, VH - 120); g.save(); g.translate(VW + 22, 0); g.scale(-1, 1); g.drawImage(A.pines, 0, VH - 120); g.restore();
     // mist
     for (let i = 0; i < 3; i++) for (let k = 0; k < 6; k++) { g.globalAlpha = 0.05; g.fillStyle = '#ffb4a0'; g.fillRect(((k * 90 + t * (6 + i * 4) + i * 40) % (VW + 120)) - 60, GY - 16 + i * 6, 100, 6); } g.globalAlpha = 1;
@@ -4360,7 +4364,10 @@
     { const hx = 150, fl = 1 + Math.sin(t * 9) * 0.04 + Math.sin(t * 5.3) * 0.03;
       g.globalCompositeOperation = 'lighter'; const lg2 = g.createRadialGradient(hx + 12, GY - 20, 0, hx + 12, GY - 20, 78 * fl); lg2.addColorStop(0, 'rgba(255,190,90,.5)'); lg2.addColorStop(0.5, 'rgba(255,140,60,.18)'); lg2.addColorStop(1, 'rgba(255,120,40,0)'); g.fillStyle = lg2; g.fillRect(hx - 70, GY - 100, 160, 130);
       g.fillStyle = 'rgba(255,170,70,.18)'; for (let i = 0; i < 28; i++) g.fillRect(hx - 40 + i * 3 + Math.round(Math.sin(i + t) * 1), GY, 3, 1);
-      g.globalCompositeOperation = 'source-over'; drawSpr(g, getSprite('hero_idle', {}, Math.floor(t * 2.5) % 2), hx, GY + 3, false, false, 2, 2); }
+      g.globalCompositeOperation = 'source-over';
+      for (let i = 0; i < 7; i++) { const u = ((t * 5 + i / 7) % 1), dx = hx - 12 - u * 34, dy = GY - 1 - u * 6 - (i % 2) * 2; g.globalAlpha = (1 - u) * 0.6; g.fillStyle = i % 2 ? '#9a7a8a' : '#6a4a5a'; g.fillRect(Math.round(dx), Math.round(dy), 2 + (i % 2), 2); } g.globalAlpha = 1;
+      g.fillStyle = 'rgba(255,230,190,.35)'; for (let i = 0; i < 4; i++) g.fillRect(hx - 40 - i * 14 - Math.round((t * 90) % 14), GY - 18 - i * 6, 14 + i * 3, 1);
+      drawSpr(g, getSprite('hero_run', {}, Math.floor(t * 11) % 4), hx, GY + 3, false, false, 2, 2); }
     g.drawImage(A.vig, 0, 0);
     // ---- logo ----
     { const pulse = 0.6 + Math.sin(t * 1.6) * 0.4;
@@ -4381,7 +4388,7 @@
       txt(fitTxt(s, 28), MX0 + MW / 2 + (sel ? 4 : 0), y, { al: 'center', size: sel ? 8 : 7.5, bold: sel, col: sel ? '#ffffff' : '#c8c4dc', ol: sel ? '#3a1408' : null, glow: sel ? 'rgba(255,170,70,.8)' : null, sh: !sel });
     });
     txt(sv('Up/Down: choose    Enter: confirm', 'Lên/Xuống: chọn    Enter: xác nhận'), 8, VH - 8, { size: 5.5, col: '#8a7fa8' });
-    txt('© Your Studio  •  v1.0', VW - 6, VH - 8, { al: 'right', size: 5, col: '#8a7fa8' });
+    txt('© 2026  Lee Santree and David Quan', VW - 6, VH - 8, { al: 'right', size: 5.5, col: '#b8a8d8' });
   }
 
   const MAPHERO = { x: -1, y: -1 };
