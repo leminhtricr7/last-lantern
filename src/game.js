@@ -4973,7 +4973,8 @@
     coop.sendT -= dt;
     if (coop.sendT > 0 || !Q || !Q.players) return;
     coop.sendT = 1 / 20;
-    NET.send(coopSnapshot());
+    const snap = coopSnapshot(); NET.send(snap);
+    if (location.search.indexOf('netstat') >= 0) { coop.nsN = (coop.nsN || 0) + 1; coop.nsB = (coop.nsB || 0) + JSON.stringify(snap).length; coop.nsT = (coop.nsT || 0) + 1 / 20; if (coop.nsT >= 2) { coop.kbps = Math.round(coop.nsB / coop.nsT / 1024 * 10) / 10; coop.mbh = Math.round(coop.kbps * 3.6 / 1.024) / 1; coop.nsB = coop.nsT = 0; } }
   }
   function coopClientInput() {
     if (!coop || coop.role !== 'client' || scene !== 'play') return;
@@ -6273,6 +6274,7 @@
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(buf, offX, offY, VW * scale, VH * scale);
+    if (coop && coop.kbps && location.search.indexOf('netstat') >= 0) txt('NET: ' + coop.kbps + ' KB/s per guest  (~' + Math.round(coop.kbps * 3.6) + ' MB per hour)', 4, VH - 6, { size: 5, col: '#9fe8ff' });
     flushTexts();
     drawTouch();
   }
