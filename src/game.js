@@ -63,7 +63,7 @@
   const hasRelic = i => !!save.relics[i];
   const armHP = () => { const a = ITEM[save.inv.armor]; return a ? (a.st.hp || 0) : 0; };
   const baseHP = () => 3 + Math.floor(totalShards() / 3) + (hasRelic(0) ? 2 : 0) + (hasRelic(8) ? 1 : 0) + armHP() + (save.bonusHP | 0);
-  const maxHP = () => (coop && Q && Q.P && Q.P.mhp) || baseHP();
+  const maxHP = () => (Q && Q.P && Q.P.hero && Q.P.mhp) || baseHP();
   const baseDmg = () => Math.max(1, (Q && Q.P && Q.P.hdmg || 0) + (Q && Q.G && Q.G.powerT > 0 ? 2 : 0) + 1 + (save.bonusDmg | 0) + Math.floor(totalShards() / 7) + (hasRelic(1) ? 1 : 0) + ((ITEM[save.inv.pet] || { st: {} }).st.role === 'rainbow' ? 1 : 0));
   const swordDmg = () => baseDmg() + save.inv.w.reduce((m, id) => (ITEM[id] && ITEM[id].type === 'sword' ? Math.max(m, ITEM[id].st.dmg || 0) : m), 0);
   const UNLOCK_ALL = false; // set to false for release: then each win unlocks the next map
@@ -969,6 +969,7 @@
     if (!save.shards[li]) save.shards[li] = [0, 0, 0];
     Q.pearls = 0; Q.questShown = false; Q.qT = 0;
     initGear();
+    if (!coop && myHero() !== 'ember') setHero(P, myHero());
     initEntities();
     initWeather();
     initCreeps();
@@ -3857,20 +3858,21 @@
   const SHOP_FREE = true; // the weapon shop is FREE for everyone (set false to charge gold/gems)
   const TOPUP_PACKS = [{ gems: 60, vnd: '20.000đ', usd: '$0.99' }, { gems: 330, vnd: '99.000đ', usd: '$4.99' }, { gems: 700, vnd: '199.000đ', usd: '$9.99' }, { gems: 1500, vnd: '399.000đ', usd: '$19.99' }, { gems: 4000, vnd: '999.000đ', usd: '$49.99' }];
   const TOPUP_ENABLED = false; // no real-money payments are connected, so the Top-up tab is hidden
-  const SH_TABS = [['sword', { en: 'Swords', vi: 'Kiếm' }], ['armor', { en: 'Armor', vi: 'Giáp' }], ['pet', { en: 'Pets', vi: 'Thú cưng' }], ['wpn', { en: 'Weapons', vi: 'Vũ khí' }], ['gun', { en: 'Guns', vi: 'Súng' }], ['trade', { en: 'Star Gems', vi: 'Đổi Ngọc' }], ['bag', { en: 'Inventory', vi: 'Kho đồ' }], ['topup', { en: 'Top-up', vi: 'Nạp' }]].filter(t => t[0] !== 'topup' || TOPUP_ENABLED);
+  const SH_TABS = [['hero', { en: 'Heroes', vi: 'Nhân vật' }], ['sword', { en: 'Swords', vi: 'Kiếm' }], ['armor', { en: 'Armor', vi: 'Giáp' }], ['pet', { en: 'Pets', vi: 'Thú cưng' }], ['wpn', { en: 'Weapons', vi: 'Vũ khí' }], ['gun', { en: 'Guns', vi: 'Súng' }], ['trade', { en: 'Star Gems', vi: 'Đổi Ngọc' }], ['bag', { en: 'Inventory', vi: 'Kho đồ' }], ['topup', { en: 'Top-up', vi: 'Nạp' }]].filter(t => t[0] !== 'topup' || TOPUP_ENABLED);
   const TYPE_NAME = { sword: { en: 'Sword', vi: 'Kiếm' }, armor: { en: 'Armor', vi: 'Giáp' }, pet: { en: 'Pet', vi: 'Thú cưng' }, wpn: { en: 'Special weapon', vi: 'Vũ khí đặc biệt' }, gun: { en: 'Gun', vi: 'Súng' } };
   const sv = (en, vi) => save.lang === 'vi' ? vi : en;
   let shopRank = 0;   // 0 = every rank, 1..9 = SSS..F
   let shopTab = 0, shopIdx = 0, shopFrom = 'title', shopCard = null, shopMsg = '', shopMsgT = 0, shopBad = false;
   const owned = id => save.inv.own.indexOf(id) >= 0;
   const isEq = it => it.type === 'armor' ? save.inv.armor === it.id : (it.type === 'pet' ? save.inv.pet === it.id : save.inv.w.indexOf(it.id) >= 0);
-  function shopItems() { const l0 = shopItems0(), t0 = SH_TABS[shopTab][0]; return shopRank > 0 && t0 !== 'topup' && t0 !== 'trade' ? l0.filter(it => rankOf(it) === RANKS[shopRank - 1]) : l0; }
+  function shopItems() { const l0 = shopItems0(), t0 = SH_TABS[shopTab][0]; return shopRank > 0 && t0 !== 'topup' && t0 !== 'trade' && t0 !== 'hero' ? l0.filter(it => rankOf(it) === RANKS[shopRank - 1]) : l0; }
   function setRank(r) { shopRank = (r + RANKS.length + 1) % (RANKS.length + 1); shopIdx = 0; Snd.play('select'); }
   function shopItems0() {
     const t = SH_TABS[shopTab][0];
     if (t === 'bag') { const ord = { sword: 0, wpn: 1, armor: 2, pet: 3 }; return save.inv.own.map(id => ITEM[id]).filter(Boolean).sort((a, b) => ord[a.type] - ord[b.type] || a.tier - b.tier); }
     if (t === 'topup') return TOPUP_PACKS;
     if (t === 'trade') return TRADES;
+    if (t === 'hero') return HEROES;
     return shopList(t);
   }
   // the bag and shop can be opened in the middle of a level (B / I); the level waits (in co-op the world keeps going)
@@ -3882,7 +3884,7 @@
   }
   function shopBack() {
     Q = shopHeldQ || Q; shopHeldQ = null; scene = 'play'; clearPressed();
-    if (Q && Q.P) { Q.P.sw = null; if (coop && Q.P.hero) { Q.P.mhp = Math.max(2, baseHP() + HERO[Q.P.hero].hp); Q.P.hp = Math.min(Q.P.hp, Q.P.mhp); } }
+    if (Q && Q.P) { Q.P.sw = null; if (Q.P.hero) { Q.P.mhp = Math.max(2, baseHP() + HERO[Q.P.hero].hp); Q.P.hp = Math.min(Q.P.hp, Q.P.mhp); } }
     if (coop && coop.role === 'client') NET.send({ t: 'inv', inv: { w: save.inv.w.slice(), armor: save.inv.armor } });
   }
   // ---- Star Gem trades ----
@@ -3999,6 +4001,7 @@
     if (act.okP) {
       if (t === 'topup') topUp(list[shopIdx]);
       else if (t === 'trade') { if (list[shopIdx]) doTrade(list[shopIdx]); }
+      else if (t === 'hero') { if (list[shopIdx]) pickHero(list[shopIdx]); }
       else if (list[shopIdx]) { shopCard = { it: list[shopIdx], opt: 0 }; Snd.play('ok'); }
     }
     if (act.backP || act.pauseP) { Snd.play('select'); if (shopFrom === 'play') shopBack(); else toScene(shopFrom); }
@@ -4021,7 +4024,7 @@
       for (let i = 0; i < list.length; i++) if (near(gx, gy, VW / 2, 42 + i * 24, 170, 11)) { if (shopIdx !== i) { shopIdx = i; Snd.play('select'); } if (click) pressed.Enter = true; return; }
       return;
     }
-    for (let i = 0; i <= RANKS.length; i++) if (near(gx, gy, 12 + i * 31 + 14, 25, 15, 4)) { if (click && i !== shopRank) setRank(i); return; }
+    if (t !== 'hero') for (let i = 0; i <= RANKS.length; i++) if (near(gx, gy, 12 + i * 31 + 14, 25, 15, 4)) { if (click && i !== shopRank) setRank(i); return; }
     const page = Math.floor(shopIdx / 15);
     for (let k = 0; k < 15; k++) {
       const idx = page * 15 + k; if (idx >= list.length) break;
@@ -4034,6 +4037,42 @@
     g.fillStyle = 'rgba(255,255,255,.07)'; g.fillRect(x, y, 26, 26);
     if (it) { g.drawImage(itemIcon(it.id).c, x, y); } else { g.fillStyle = '#434d6e'; g.fillRect(x, y, 26, 1); g.fillRect(x, y + 25, 26, 1); g.fillRect(x, y, 1, 26); g.fillRect(x + 25, y, 1, 26); }
     txt(label, x + 13, y - 5, { al: 'center', size: 5, col: '#8892aa' });
+  }
+  // pick the hero you play as (single player and co-op); secret heroes are unlocked with Star Gems
+  function pickHero(h) {
+    if (heroLocked(h)) { shopSay(sv('Locked: trade 10 Star Gems in the Star Gems tab.', 'Đang khóa: đổi 10 Ngọc Sao ở mục Đổi Ngọc.'), true); return; }
+    save.hero = h.id; writeSave(); Snd.play('relic');
+    const P = (shopHeldQ || Q) && (shopHeldQ || Q).P; if (P && !coop) { const keepQ = Q; Q = shopHeldQ || Q; setHero(P, h.id); P.hp = Math.min(P.hp, maxHP()); Q = keepQ; }
+    if (coop && coop.role === 'client') NET.send({ t: 'hero', id: h.id });
+    shopSay(sv('You now play as ', 'Bạn đang chơi bằng ') + LN(h.name) + '!');
+  }
+  function drawHeroTab(list) {
+    const page = Math.floor(shopIdx / 15), pages = Math.max(1, Math.ceil(list.length / 15)), cur = myHero();
+    txt(sv('Choose your hero', 'Chọn nhân vật'), 12, 27, { size: 6.5, bold: true, col: '#ffd34e' });
+    for (let k = 0; k < 15; k++) {
+      const idx = page * 15 + k; if (idx >= list.length) break;
+      const h = list[idx], x = SH_GX + (k % 5) * SH_STEP, y = SH_GY + Math.floor(k / 5) * SH_STEP, on = idx === shopIdx, lock = heroLocked(h), cls = HERO_CLS[h.cls];
+      g.fillStyle = on ? 'rgba(255,211,78,.16)' : 'rgba(255,255,255,.05)'; g.fillRect(x + 1, y + 1, 28, 28);
+      g.fillStyle = cls.col; g.fillRect(x + 1, y + 28, 28, 1);
+      g.globalAlpha = lock ? 0.35 : 1; drawHeroAt(h.id, x + 15, y + 27, 1, on ? Math.floor(sceneT * 3) % 2 : 0, 1); g.globalAlpha = 1;
+      if (lock) { g.fillStyle = '#14121f'; g.fillRect(x + 11, y + 12, 9, 7); g.fillStyle = '#c07bff'; g.fillRect(x + 12, y + 13, 7, 5); g.fillRect(x + 13, y + 9, 1, 4); g.fillRect(x + 17, y + 9, 1, 4); g.fillRect(x + 13, y + 9, 5, 1); }
+      if (h.id === cur) { g.fillStyle = '#5fcf5a'; g.fillRect(x + 21, y + 3, 6, 6); g.fillStyle = '#14121f'; g.fillRect(x + 22, y + 6, 1, 1); g.fillRect(x + 23, y + 7, 1, 1); g.fillRect(x + 24, y + 4, 1, 3); }
+      if (on) { g.fillStyle = '#ffd34e'; g.fillRect(x, y, 30, 1); g.fillRect(x, y + 29, 30, 1); g.fillRect(x, y, 1, 30); g.fillRect(x + 29, y, 1, 30); }
+    }
+    if (pages > 1) txt(sv('Page ', 'Trang ') + (page + 1) + '/' + pages, SH_GX + 80, SH_GY + 3 * SH_STEP + 4, { al: 'center', size: 5.5, col: '#8892aa' });
+    const h = list[shopIdx]; if (!h) return;
+    const cls = HERO_CLS[h.cls], lock = heroLocked(h);
+    g.fillStyle = 'rgba(255,255,255,.05)'; g.fillRect(186, 31, 188, 150); g.fillStyle = cls.col; g.fillRect(186, 28, 188, 1);
+    g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(192, 36, 56, 64);
+    g.globalAlpha = lock ? 0.4 : 1; drawHeroAt(h.id, 220, 96, 1, Math.floor(sceneT * 3) % 2, 2.6); g.globalAlpha = 1;
+    txt(LN(h.name), 254, 42, { size: 9, bold: true, col: '#ffffff' });
+    txt(LN(cls), 254, 54, { size: 6.5, bold: true, col: cls.col });
+    const st = (v, pct) => (v > 0 ? '+' : '') + (pct ? Math.round(v * 100) + '%' : v);
+    txt(sv('Hearts ', 'Máu ') + st(h.hp || 0) + '   ' + sv('Speed ', 'Tốc độ ') + st(h.spd || 0, 1) + '   ' + sv('Damage ', 'Sát thương ') + st(h.dmg || 0), 254, 66, { size: 5.8, col: '#a4e86b' });
+    txt(lock ? sv('Locked - 10 Star Gems', 'Đang khóa - 10 Ngọc Sao') : (h.id === cur ? sv('Playing now', 'Đang dùng') : sv('Enter: play as this hero', 'Enter: chọn nhân vật này')), 254, 80, { size: 6.5, bold: true, col: lock ? '#c07bff' : (h.id === cur ? '#5fcf5a' : '#ffd34e') });
+    txt(sv('Skill (R): ', 'Kỹ năng (R): ') + LN(h.sk.n), 192, 112, { size: 6.5, bold: true, col: h.sk.col || '#ffd34e' });
+    wrapText(LN(SKILL_DESC[h.sk.k] || { en: '', vi: '' }) + sv('  Cooldown ', '  Hồi chiêu ') + h.sk.cd + 's.', 46).slice(0, 4).forEach((l, i) => txt(l, 192, 124 + i * 8, { size: 5.8, col: '#e8eaf5' }));
+    txt(sv('Your hero is used in every map and in online co-op.', 'Nhân vật được dùng ở mọi map và cả co-op online.'), 192, 170, { size: 5.5, col: '#8892aa' });
   }
   function drawShop() {
     const nTx = texts.length;
@@ -4059,6 +4098,8 @@
         drawRareIc(VW - 40, y, 0.8); txt(String(o.cost), VW - 34, y + 2, { size: 6.5, col: save.rare >= o.cost ? '#d8b8ff' : '#ff7a7a' });
       });
       const o = list[shopIdx]; if (o) { g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(0, 186, VW, 12); txt(LN(o.desc) + sv('   Enter: trade', '   Enter: đổi'), VW / 2, 193, { al: 'center', size: 6, col: '#e8eaf5' }); }
+    } else if (t === 'hero') {
+      drawHeroTab(list);
     } else if (t === 'topup') {
       txt(sv('Top-up gems', 'Nạp gem'), VW / 2, 31, { al: 'center', size: 7, col: '#cfd6e6' });
       list.forEach((p, i) => {
