@@ -596,6 +596,9 @@
   }
   const near = (gx, gy, cx, cy, hw, hh) => Math.abs(gx - cx) <= hw && Math.abs(gy - cy) <= hh;
   function menuHit(gx, gy, n, cx, y0, dy, hw) { for (let i = 0; i < n; i++) if (near(gx, gy, cx, y0 + i * dy, hw, dy / 2)) return i; return -1; }
+  // a visible SKIP button (top-right) for every dialogue and cinematic; the same as pressing Esc
+  const skipShown = () => (scene === 'play' && Q && Q.state === 'talk' && Q.talk) || (scene === 'story' && storyList !== ENDING) || scene === 'cutscene' || scene === 'castle' || scene === 'ride' || scene === 'opening';
+  const SKIP_BOX = [VW - 62, 3, 58, 12];
   function mouseEvt(e) {
     const xy = gameXY(e), gx = xy[0], gy = xy[1]; mouse.gx = gx; mouse.gy = gy;
     const inPlay = scene === 'play' && Q;
@@ -613,6 +616,7 @@
     }
     if (e.button === 1) { if (inPlay && Q.state === 'play') { faceMouse(gx); pressed.KeyH = true; } return; }
     if (e.button !== 0) return;
+    if (skipShown() && near(gx, gy, VW - 33, 9, 29, 6)) { pressed.Escape = true; Snd.play('select'); return; }
     if (scene === 'title') { const i = menuHit(gx, gy, titleItems().length, 293, 90, 11, 79); if (i >= 0) { titleSel = i; pressed.Enter = true; } }
     else if (scene === 'story' || scene === 'ending' || scene === 'opening' || scene === 'credits') pressed.Enter = true;
     else if (scene === 'shop') shopMouse(gx, gy, true);
@@ -5962,8 +5966,8 @@
     fire('m5', 62.0, () => Snd.music('title', TITLE_MUSIC));
     // typewriter voice for Quoc / Ember lines
     for (let i = 0; i < OPC.length && !op.skipped; i++) { const c = OPC[i]; if (t >= c[0] && t < c[1] && (c[2] === 'q' || c[2] === 'e')) { const n = Math.floor((t - c[0]) * 32), last = op.typed[i] || 0; if (n > last && n % 2 === 0) Snd.blip(c[2] === 'q' ? 'quoc' : 'ember'); op.typed[i] = n; } }
-    if (act.okP || act.atkP) {
-      if (t < 1.2) return;
+    if (act.okP || act.atkP || act.backP) {
+      if (t < 1.2 && !act.backP) return;
       if (t < OP_END) { op.t = OP_END; op.skipped = true; Snd.play('select'); }
       else if (t > OP_END + 0.6) { Snd.play('ok'); save.seen = { 0: 1 }; writeSave(); startLevelFade(0); }
     }
@@ -6277,6 +6281,12 @@
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(buf, offX, offY, VW * scale, VH * scale);
     if (coop && coop.kbps && location.search.indexOf('netstat') >= 0) txt('NET: ' + coop.kbps + ' KB/s per guest  (~' + Math.round(coop.kbps * 3.6) + ' MB per hour)', 4, VH - 6, { size: 5, col: '#9fe8ff' });
+    if (skipShown()) {
+      const [bx, by, bw, bh] = [VW - 62, 3, 58, 12], hot = mouse.gx >= bx && mouse.gx <= bx + bw && mouse.gy >= by && mouse.gy <= by + bh;
+      g.fillStyle = hot ? '#5a4210' : '#1b1430'; g.fillRect(bx, by, bw, bh);
+      g.fillStyle = hot ? '#ffd34e' : '#c89a1c'; g.fillRect(bx, by, bw, 1); g.fillRect(bx, by + bh - 1, bw, 1); g.fillRect(bx, by, 1, bh); g.fillRect(bx + bw - 1, by, 1, bh);
+      txt(sv('SKIP  (Esc)', 'BỎ QUA  (Esc)'), bx + bw / 2, by + 6, { al: 'center', size: 6.5, col: hot ? '#fff' : '#ffe9b8', bold: true });
+    }
     flushTexts();
     drawTouch();
   }
