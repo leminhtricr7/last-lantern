@@ -4716,6 +4716,7 @@
   function drawHat(h, x, bot, f) {
     const c = h.hatCol || '#fff', t = Q ? Q.t : sceneT, top = bot - 21, R = (a, b, w, hh, col) => { g.fillStyle = col || c; g.fillRect(Math.round(x + (f > 0 ? a : -a - w)), Math.round(top + b), w, hh); }, K = '#1b1626';
     switch (h.hat) {
+      case 'longtwin': { const sw = Math.round(Math.sin(t * 5) * 1.5); R(-6, 0, 12, 4); R(-5, 3, 10, 2); R(-9, 3, 3, 14); R(6, 3, 3, 14); R(-9 + sw, 16, 3, 6); R(6 - sw, 16, 3, 6); R(-9 + sw, 21, 3, 2, '#7ef0e6'); R(6 - sw, 21, 3, 2, '#7ef0e6'); R(-9, 2, 3, 2, '#2a2e40'); R(6, 2, 3, 2, '#2a2e40'); R(-7, 1, 2, 2, '#7ef0e6'); break; }
       case 'twin': R(-8, 3, 3, 9); R(5, 3, 3, 9); R(-9, 10, 3, 4); R(6, 10, 3, 4); R(-7, 2, 2, 2, '#ff7fb0'); R(5, 2, 2, 2, '#ff7fb0'); break;
       case 'hood': case 'hoodg': R(-6, 0, 12, 4, K); R(-5, 1, 10, 3); R(-7, 3, 2, 8); R(5, 3, 2, 8); R(-6, 0, 3, 2); break;
       case 'mask': R(-5, 7, 10, 2); R(-7, 7, 2, 1); R(-10, 8, 4, 1); R(-12, 9, 3, 1); break;
@@ -6177,6 +6178,7 @@
     ['p', sv('The secret references hidden in the game are tributes only: no original names, logos or pictures are used.', 'Các chi tiết bí mật ẩn trong game chỉ là lời tri ân, không dùng tên, logo hay hình ảnh gốc của bất kỳ tác phẩm nào.')], ['gap'],
     ['h', sv('THANK YOU', 'CẢM ƠN')], ['p', sv('To everyone who tested, shared and played the game.', 'Gửi tới tất cả những ai đã chơi thử, chia sẻ và ủng hộ game.')],
     ['p', sv('Keep your lantern burning.', 'Hãy giữ ngọn đèn của bạn luôn cháy sáng.')], ['gap'],
+    ['p', sv('Test build: the singer hero is a fan tribute to Hatsune Miku (c) Crypton Future Media, used under the Piapro license for non-commercial use.', 'Bản thử nghiệm: hero ca sĩ là fan tribute Hatsune Miku (c) Crypton Future Media, dùng theo giấy phép Piapro, chỉ phi thương mại.')],
     ['p', '© 2026 Lê Minh Trí & Đặng Anh Quân'], ['p', sv('All rights reserved.  Version 1.0', 'Bảo lưu mọi quyền.  Phiên bản 1.0')], ['gap'], ['gap'], ['end', sv('Press ENTER or click to go back', 'Nhấn ENTER hoặc bấm chuột để quay lại')]
   ];
   function updateCredits(dt) { if (!cred) cred = { t: 0 }; cred.t += dt; sceneT += dt; if ((act.okP || act.backP || act.atkP) && cred.t > 0.3) { Snd.play('select'); toScene('title'); } }

@@ -214,3 +214,6 @@ What you still need to do before selling (be realistic about these):
 
 ## Rescuing Princess Lyra
 Lyra's cage hangs high above a staircase of ledges. Mr Shorty Phong's giant beetle (tanky, takes a while) guards it; defeat the guards, climb up and free her. Rewards: Leek Blade (same skills), Leek Armor (+5 hearts, stuns nearby enemies for 3s when you are hit) and the Flying Leek pet (ride it in the air, hold Jump to glide, heals 1 heart every 6s).
+
+## Singer hero (TEST BUILD ONLY)
+Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future Media, allowed only for non-commercial use under the Piapro license. BEFORE SELLING on Steam: rename it to the original "Mira Song" (deep green hair: change hatCol/sw colours and the `longtwin` hat colours in src/game.js), and delete the Miku credit line in the credits screen.
