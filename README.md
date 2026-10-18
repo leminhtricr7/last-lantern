@@ -171,6 +171,9 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **World map**: each of the 10 lands has its own emblem (hills, pine, crystal, pyramid, snowflake, volcano, mushroom, waves, mine, tower) inside a ringed medallion with a colour glow; the road is a glowing golden path with moving sparks (dark and dotted where locked); cleared lands carry a gold star badge, locked lands are fogged with a padlock; the hero walks to the chosen land; a bottom info panel shows the land, difficulty, puzzles, length, Sun Shards and its relic; the top bar shows the title ribbon, progress, gold, gems and Star Gems.
 - Text can now have gradients, outlines, glow and letter spacing (`txt(..., { grad, ol, glow, ls })`).
 
+## Opening cinematic
+- "New game" now plays a ~1 minute animated opening instead of text pages: a peaceful moonlit night, the camera tilting down to Aurelia's lantern-lit streets where children play and neighbours chat, then thunder and lightning, Quoc's face filling the storm and crushing the Sun into seven shards, the last lantern choosing Ember, a fast run-and-dodge montage across the lands, the Magma Titan boss fight with a final slow-motion strike, and the title card. Subtitles (Vietnamese/English) are typed in with Quoc's voice. Press Enter / click to jump to the end card; tap / click / Enter on the end card starts map 1.
+
 ## Project layout
 
 - `src/art.js` — all pixel art is generated in code (sprites, tilesets, parallax backgrounds)
