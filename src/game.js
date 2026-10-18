@@ -2514,7 +2514,7 @@
   // ---- special weapons ----
   function useSlot(s) {
     const P = Q.P, it = eqIt(s); if (!it) return;
-    if (it.type === 'sword') P.hold = null; else if (it.type === 'gun') P.hold = it.id;
+    if (it.type === 'sword') P.hold = null; else if (it.type === 'gun' || it.type === 'wpn') P.hold = it.id;
     if (it.type === 'sword') { if (P.atkCd <= 0) doSwing(it); }
     else if (it.type === 'wpn' && P.wcd[s] <= 0) fireWeapon(it, s);
     else if (it.type === 'gun' && P.wcd[s] <= 0) fireGun(it, s);
@@ -3578,8 +3578,8 @@
     g.fillStyle = '#1b1626'; g.fillRect(lx - 3, ly - 3, 6, 7); g.fillRect(lx - 1, ly - 5, 2, 2);
     g.fillStyle = '#ffd34e'; g.fillRect(lx - 2, ly - 2, 4, 5); g.fillStyle = '#fff6c0'; g.fillRect(lx - 1, ly - 1, 2, 2);
     const sw = heldSword();
-    const hg = P.hold && GUN_PAINT[P.hold] && save.inv.w.indexOf(P.hold) >= 0 ? P.hold : ((P.gunT > 0 && P.gunId && GUN_PAINT[P.gunId]) ? P.gunId : null);
-    if (hg) drawHeldGun(hg, x, bot, P.face); else if (sw) drawHeldSword(sw, x, bot);
+    const hk = P.hold && save.inv.w.indexOf(P.hold) >= 0 ? P.hold : null, hg = hk && GUN_PAINT[hk] ? hk : ((P.gunT > 0 && P.gunId && GUN_PAINT[P.gunId]) ? P.gunId : null);
+    if (hg) drawHeldGun(hg, x, bot, P.face); else if (hk && WPN_PAINT[hk]) drawHeldWpn(hk, x, bot, P.face); else if (sw) drawHeldSword(sw, x, bot);
     if (av) drawArmorFront(av, x, bot);
     if (hh && hh.hat) drawHat(hh, x, bot, P.face);
     if (swim) g.restore();
@@ -5942,6 +5942,11 @@
   }
   const healAll = n => { for (const p of allPl()) { const m = p.mhp || maxHP(); if (p.hp < m) p.hp = Math.min(m, p.hp + n); emit(p.x + 4, p.y + 4, 10, { col: ['#fff6c0', '#fff'], sp0: 10, sp1: 50, grav: -30 }); } Snd.play('heart'); };
   // the gun in the hero's hands (shown for a moment after every shot), aimed up or down with the arrow keys
+  // a special weapon (bow, staff, ...) the player switched to is shown in the hand like the sword is
+  function drawHeldWpn(id, x, bot, f) {
+    const k = 'hw_' + id; const sp = _cache[k] || (_cache[k] = paint(20, 20, WPN_PAINT[id], '#14121f'));
+    g.save(); g.translate(x + f * 5, bot - 10 + Math.round(Math.sin(Q.t * 5) * 0.6)); g.scale(f, 1); g.drawImage(sp.c, -sp.w / 2, -sp.h / 2); g.restore();
+  }
   function drawHeldGun(id, x, bot, f) {
     const P = Q.P, sp = gunSprite(id), dy = act.up ? -0.55 : (act.down ? 0.4 : 0), ang = Math.atan2(dy, 1), rec = Math.max(0, P.recoil || 0) * 36, gl = GUN_GLOW[id];
     if (gl) { g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x + f * 14, bot - 9, 0, x + f * 14, bot - 9, 22); gr.addColorStop(0, hexA(gl, 0.28)); gr.addColorStop(1, hexA(gl, 0)); g.fillStyle = gr; g.fillRect(x + f * 14 - 22, bot - 31, 44, 44); g.globalCompositeOperation = 'source-over'; }
@@ -6322,5 +6327,5 @@
       seal(); if (n > 0) { applyForm(Q.boss, n); Q.boss.st = 'intro'; Q.boss.timer = 0; Q.boss.invul = 0; } if (n >= 3) spawnAllies();
     }, 400); }
   { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
-  if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (location.search.indexOf('debug') >= 0) window.LL = { startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, save, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();
