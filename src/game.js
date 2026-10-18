@@ -5779,15 +5779,31 @@
   // what a summon fights: the boss while its fight is on, otherwise the nearest monster in this part of the map
   function sumTarget(s, r) {
     const b = Q.boss; if (b && !b.dead && Q.arenaSealed && b.st !== 'intro' && b.st !== 'sleep' && !b.hide) return b;
-    return nearestFoe(s.x, s.y - 30, r || 1100);
+    const o = s.owner || Q.P; return nearestFoe(o.x + 4, o.y, r || 560);   // monsters around the hero, so summons stay in the fight with you
   }
+  // the floor under a walking summon (searches from its feet, so it never walks on a cave ceiling or a hill far above)
+  function sumGround(x, yRef) {
+    const tx = Math.floor(x / TS), H = Q.L.H, st = clamp(Math.floor((yRef - 24) / TS), 1, H - 1);
+    for (let ty = st; ty < H; ty++) if (solid(tx, ty) && !solid(tx, ty - 1)) return ty * TS;
+    for (let ty = st - 1; ty > 0; ty--) if (solid(tx, ty) && !solid(tx, ty - 1)) return ty * TS;
+    return yRef;
+  }
+  // a summon left far behind (the hero was pulled into a boss arena, took a portal, respawned...) appears next to the hero again
+  function sumRejoin(s, o) {
+    const ar = Q.L.arena, out = Q.arenaSealed && ar && (s.x < (ar.x0 + 2) * TS || s.x > ar.x1 * TS);
+    if (!out && Math.abs(s.x - o.x) < 760 && Math.abs(s.y - o.y) < 420) return;
+    emit(s.x, s.y - 20, 18, { col: [(GIANT[s.kind] || BEAST[s.kind]).glow, '#fff'], sp0: 20, sp1: 90 });
+    s.x = o.x + 4 - o.face * 26; s.y = SUM_FLY[s.kind] ? o.y - 46 : sumGround(s.x, o.y + o.h);
+    emit(s.x, s.y - 20, 24, { col: [(GIANT[s.kind] || BEAST[s.kind]).glow, '#fff'], sp0: 20, sp1: 110 }); Snd.play('poof');
+  }
+  const SUM_FLY = { phoenix: 1, dragonking: 1, dragonform: 1, skywhale: 1 };   // these fly, every other summon walks on the ground
   // summons never trail behind the hero: they march on the target, or scout ahead of the hero when no monster is around
   function sumWalk(s, o, dt) {
     const w = SUM_WALK[s.kind] || [90, 50], t = sumTarget(s), sp = w[0] * (s.stage === 2 ? 1.3 : 1); s.mv = 0;
     if (t) { const d = t.x + t.w / 2 - s.x, ad = Math.abs(d); s.f = d < 0 ? -1 : 1; if (ad > w[1]) { s.x += s.f * Math.min(sp * (ad > 240 ? 1.6 : 1) * dt, ad - w[1]); s.mv = 1; } }
     else { const d = o.x + 4 + o.face * 70 - s.x, ad = Math.abs(d); if (ad > 12) { s.f = d < 0 ? -1 : 1; s.x += s.f * Math.min(sp * dt, ad - 10); s.mv = 1; } else s.f = o.face; }
     if (Q.arenaSealed) s.x = arenaClamp(s.x);
-    s.y = groundYAt(s.x);
+    const gy = sumGround(s.x, s.y); s.y = gy < s.y ? gy : Math.min(gy, s.y + 420 * dt);   // steps up at once, falls down smoothly
   }
   function evolveSummon(s) {
     s.stage = 2; s.life = 24; s.max = 24; s.hpMax = s.hp = sumHp(2); s.inv = 1; s.atkT = 0.5; s.cd = 0.3;
@@ -5818,7 +5834,8 @@
       if (s.hp <= 0 && s.life > 0) { s.dying = 0.8; s.life = Math.max(s.life, 0.9); emit(s.x, s.y - 30, 24, { col: [(GIANT[s.kind] || BEAST[s.kind]).glow, '#fff'], sp0: 30, sp1: 140 }); Snd.play('poof'); pop(s.x, s.y - 60, sv('Defeated', 'Bị hạ gục'), '#ff7a7a'); continue; }
       if (s.life <= 0 && s.evo && s.stage === 1) evolveSummon(s);
       sdm = s.stage === 2 ? 1.8 : 1;
-      const o = s.owner || P, fly = !!BEAST[s.kind] && s.kind !== 'thunderkirin' && s.kind !== 'ninetail' && s.kind !== 'clones';
+      const o = s.owner || P, fly = !!SUM_FLY[s.kind];
+      if (s.kind !== 'phoenix') sumRejoin(s, o);
       if (s.kind === 'phoenix') { s.mv = 1; const pt = sumTarget(s); if (pt) { const tx = pt.x + pt.w / 2 + Math.sin(s.t * 1.6) * 70, ty = pt.y - 70 + Math.sin(s.t * 3) * 6, k = 1 - Math.exp(-2.5 * dt); s.f = tx > s.x ? 1 : -1; s.x += (tx - s.x) * k; s.y += (ty - s.y) * k; } else { s.x = Q.cam.x + VW / 2 + Math.sin(s.t * 0.9) * (VW * 0.42); s.y = Q.cam.y + 46 + Math.sin(s.t * 2) * 6; s.f = Math.cos(s.t * 0.9) > 0 ? 1 : -1; } }
       else if (fly) { const dr = sumTarget(s), sd0 = dr ? (dr.x + dr.w / 2 < s.x ? -1 : 1) : o.face, tx = dr ? dr.x + dr.w / 2 - sd0 * (s.kind === 'skywhale' ? 0 : 130) : o.x + 4 + o.face * 80, ty = dr ? dr.y - (s.kind === 'skywhale' ? 90 : 50) + Math.sin(s.t * 2) * 6 : o.y - 46 + Math.sin(s.t * 2) * 4, k = 1 - Math.exp(-3 * dt); s.mv = Math.abs(tx - s.x) > 6 ? 1 : 0; s.x += (tx - s.x) * k; s.y += (ty - s.y) * k; s.f = sd0; }
       else sumWalk(s, o, dt);
