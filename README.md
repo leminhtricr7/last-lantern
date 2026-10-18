@@ -222,3 +222,4 @@ Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future 
 - Pressing T summons for 30 s, then the summon evolves into its stronger final form (x1.3 size, x1.8 damage, 240 HP, rushes the boss) for 24 s. Bosses and enemies can hit summons.
 - Bosses have 70% more health (50% for multi-form bosses) and 4 blood phases (75/50/25%): each phase roars, calls minions, raises fury and, from phase 2, adds a short shield.
 - Artist sprites for summons: see assets/summons/README.md.
+- Summon art: the artist's design sheets live in art/summon_sheets; `tools/extract_summons.py` (rembg, birefnet-general-lite) cuts them into idle/walk/attack/hurt/death strips plus the Ancient final form, and `tools/clean_summons.py` removes captions/labels. The game reads assets/summons/manifest.json; kinds without art keep the built-in pixel giants.

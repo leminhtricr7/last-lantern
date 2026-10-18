@@ -4680,7 +4680,7 @@
   function hitSums(box, boss) {
     const G = Q.G; if (!G || !G.sums) return false; let any = false;
     for (const sm of G.sums) {
-      if (sm.life <= 0 || sm.hp <= 0 || sm.inv > 0 || sm.t < 0.6 || sm.kind === 'clones') continue;
+      if (sm.life <= 0 || sm.hp <= 0 || sm.dying > 0 || sm.inv > 0 || sm.t < 0.6 || sm.kind === 'clones') continue;
       const k = sm.stage === 2 ? 1.3 : 1, gi = GIANT[sm.kind], w = (gi ? (gi.small ? 20 : 34) : 44) * k, h = (gi ? (gi.small ? 52 : 96) : 26) * k;
       const sb = { x: sm.x - w / 2, y: gi ? sm.y - h : sm.y - h / 2, w, h };
       if (!ov(box, sb)) continue;
@@ -5810,7 +5810,8 @@
     let sdm = 1; const sd = n => Math.round((n + baseDmg()) * sdm);
     for (const s of G.sums) {
       s.t += dt; s.life -= dt; s.cd -= dt; if (s.atkT > 0) s.atkT -= dt; if (s.inv > 0) s.inv -= dt; if (s.hurtT > 0) s.hurtT -= dt;
-      if (s.hp <= 0 && s.life > 0) { s.life = 0; emit(s.x, s.y - 30, 24, { col: [(GIANT[s.kind] || BEAST[s.kind]).glow, '#fff'], sp0: 30, sp1: 140 }); Snd.play('poof'); pop(s.x, s.y - 60, sv('Defeated', 'Bị hạ gục'), '#ff7a7a'); continue; }
+      if (s.dying > 0) { s.dying -= dt; if (s.dying <= 0) s.life = 0; else s.life = Math.max(s.life, 0.5); continue; }
+      if (s.hp <= 0 && s.life > 0) { s.dying = 0.8; s.life = Math.max(s.life, 0.9); emit(s.x, s.y - 30, 24, { col: [(GIANT[s.kind] || BEAST[s.kind]).glow, '#fff'], sp0: 30, sp1: 140 }); Snd.play('poof'); pop(s.x, s.y - 60, sv('Defeated', 'Bị hạ gục'), '#ff7a7a'); continue; }
       if (s.life <= 0 && s.evo && s.stage === 1) evolveSummon(s);
       sdm = s.stage === 2 ? 1.8 : 1;
       const o = s.owner || P, fly = !!BEAST[s.kind] && s.kind !== 'thunderkirin' && s.kind !== 'ninetail' && s.kind !== 'clones';
@@ -5841,35 +5842,65 @@
       }
       if (s.cd > cd0 + 0.001) { s.atkT = 0.35; if (s.stage === 2) s.cd = cd0 + (s.cd - cd0) * 0.72; }
     }
-    G.sums = G.sums.filter(s => s.life > 0 && s.hp > 0);
+    G.sums = G.sums.filter(s => s.life > 0 && (s.hp > 0 || s.dying > 0));
     if (G.slashes) { for (const sl of G.slashes) sl.life -= dt; G.slashes = G.slashes.filter(sl => sl.life > 0); }
   }
-  // optional artist sprites: assets/summons/<kind>_idle|walk|attack.png (horizontal strips of square frames)
-  const SUM_IMG = {};
-  function sumSheet(k) {
-    let o = SUM_IMG[k]; if (o) return o;
-    o = SUM_IMG[k] = { idle: null, walk: null, attack: null };
-    for (const n of ['idle', 'walk', 'attack']) { const im = new Image(); im.onload = () => { o[n] = im; }; im.onerror = () => {}; im.src = 'assets/summons/' + k + '_' + n + '.png'; }
+  // ===== the artist's summon sprites (assets/summons, cut from art/summon_sheets by tools/extract_summons.py) =====
+  let SUM_MAN = null; const SUM_IMG = {};
+  fetch('assets/summons/manifest.json').then(r => r.ok ? r.json() : null).then(m => { SUM_MAN = m || {}; }).catch(() => { SUM_MAN = {}; });
+  const SUM_ALIAS = { dragonform: ['dragonking', 'hue-rotate(-38deg) saturate(1.35) brightness(0.92)'] };
+  const SUM_H = { titan: 74, stormgod: 74, seagoddess: 68, moongoddess: 68, frostgiant: 80, shogun: 58, treant: 80, aegis: 56, valkyrie: 56, angel: 60, golems: 46, phoenix: 50, dragonking: 66, dragonform: 66, ninetail: 42, clones: 28 };   // body height in world pixels (the hero is ~20)
+  function sumArt(k) {
+    if (SUM_IMG[k]) return SUM_IMG[k]; if (!SUM_MAN) return null;
+    const al = SUM_ALIAS[k], src = al ? al[0] : k, m = SUM_MAN[src]; if (!m) return (SUM_IMG[k] = { none: true });
+    const o = SUM_IMG[k] = { m };
+    for (const n in m) {
+      const im = new Image();
+      im.onload = () => { let c = im; if (al) { const cv = document.createElement('canvas'); cv.width = im.width; cv.height = im.height; const cx = cv.getContext('2d'); cx.filter = al[1]; cx.drawImage(im, 0, 0); c = cv; } o[n] = c; };
+      im.src = 'assets/summons/' + src + '_' + n + '.png';
+    }
     return o;
   }
-  function drawSumSheet(s, x, y, a) {
-    const o = sumSheet(s.kind); if (!o.idle && !o.walk && !o.attack) return false;
-    const atk = s.atkT > 0, im = (atk && o.attack) || (s.mv && o.walk) || o.idle || o.walk || o.attack;
-    const n = Math.max(1, Math.round(im.width / im.height)), fh = im.height, fw = im.width / n;
-    const fi = atk && im === o.attack ? Math.min(n - 1, Math.floor((1 - s.atkT / 0.35) * n)) : Math.floor(s.t * 8) % n;
-    const H = GIANT[s.kind] ? (GIANT[s.kind].small ? 70 : 118) : 64, sc = H / fh, flip = s.f < 0;
-    const fly = !!BEAST[s.kind] && s.kind !== 'thunderkirin' && s.kind !== 'ninetail' && s.kind !== 'clones';
-    g.save(); g.globalAlpha = a; g.imageSmoothingEnabled = true; g.translate(x, y + (fly ? H / 2 : 0)); g.scale(flip ? -1 : 1, 1);
-    const dx = s.kind === 'golems' ? [-26, 26] : [0];
-    for (const d of dx) g.drawImage(im, fi * fw, 0, fw, fh, -fw * sc / 2 + d, -fh * sc, fw * sc, fh * sc);
-    g.restore(); return true;
+  // animator: idle (breathing), walk cycle, attack, hurt and death strips; the final form is one big pose animated by code
+  function drawSumArt(s, x, y, a) {
+    const o = sumArt(s.kind); if (!o || o.none || !(o.idle || o.walk)) return 0;
+    const H = (SUM_H[s.kind] || 100) * (s.stage === 2 ? 1.35 : 1), f = s.f < 0 ? -1 : 1;
+    const fly = s.kind === 'phoenix' || s.kind === 'dragonking' || s.kind === 'dragonform';
+    const by = y + (fly ? H / 2 : 0) + (fly ? Math.sin(s.t * 3) * 3 : 0);
+    let im, meta, fi = 0, ox = 0, oy = 0, sx = 1, sy = 1, rot = 0;
+    const atk = s.atkT > 0 ? clamp(s.atkT / 0.35, 0, 1) : 0, sw = Math.sin((1 - atk) * Math.PI);
+    if (s.dying > 0 && o.death) { im = o.death; meta = o.m.death; fi = Math.min(meta.n - 1, Math.floor((1 - s.dying / 0.8) * meta.n)); }
+    else if (s.stage === 2 && o.evo) {
+      im = o.evo; meta = o.m.evo; const ph = s.t * (s.mv ? 9 : 2.4);
+      oy = s.mv ? -Math.abs(Math.sin(ph)) * 3 : Math.sin(ph) * 1.2; rot = (s.mv ? Math.sin(ph) * 0.045 : 0) + (atk > 0 ? sw * 0.16 : 0);
+      ox = atk > 0 ? sw * 12 : 0; sx = sy = 1 + (atk > 0 ? sw * 0.07 : 0); sy *= 1 + Math.sin(s.t * 2.4) * 0.014;
+      if (s.hurtT > 0) ox -= 4;
+    }
+    else if (s.hurtT > 0 && o.hurt) { im = o.hurt; meta = o.m.hurt; fi = Math.min(meta.n - 1, Math.floor((1 - s.hurtT / 0.2) * (meta.n - 1))); }
+    else if (atk > 0 && o.attack) { im = o.attack; meta = o.m.attack; fi = Math.min(meta.n - 1, Math.floor((1 - atk) * meta.n)); }
+    else if (s.mv && o.walk) { im = o.walk; meta = o.m.walk; fi = Math.floor(s.t * 11) % meta.n; }
+    else { im = o.idle || o.walk; meta = o.idle ? o.m.idle : o.m.walk; sy = 1 + Math.sin(s.t * 2.6) * 0.016; }
+    const n = meta.n, fw = im.width / n, fh = im.height, sc = H / (meta.ch || fh);
+    const copies = s.kind === 'golems' ? [-24, 24] : s.kind === 'clones' ? [-22, 0, 22] : [0];
+    copies.forEach((d, i) => {
+      g.save(); g.imageSmoothingEnabled = true; g.globalAlpha = a * (s.kind === 'clones' ? 0.82 : 1);
+      g.translate(x + d + f * ox, by + oy); g.rotate(rot * f); g.scale(f * sx, sy);
+      const fj = n > 1 && copies.length > 1 && fi === Math.floor(s.t * 11) % n ? (fi + i * 3) % n : fi;
+      g.drawImage(im, fj * fw, 0, fw, fh, -fw * sc / 2, -fh * sc, fw * sc, fh * sc);
+      g.restore();
+    });
+    return H;
+  }
+  function sumHud(s, x, top, a) {
+    if (s.hpMax && !s.dying && (s.stage === 2 || s.hp < s.hpMax)) { const bw = s.stage === 2 ? 44 : 32, by = Math.round(top) - 8; g.fillStyle = '#14121f'; g.fillRect(x - bw / 2 - 1, by - 1, bw + 2, 5); g.fillStyle = '#6a1a1a'; g.fillRect(x - bw / 2, by, bw, 3); g.fillStyle = s.stage === 2 ? '#ffd34e' : '#7ed957'; g.fillRect(x - bw / 2, by, Math.round(bw * clamp(s.hp / s.hpMax, 0, 1)), 3); }
+    if (s.stage === 2 && !s.dying) { const R2 = 90 + Math.sin(s.t * 6) * 6, cy = (top + 50 + (top + 50)) / 2; g.globalCompositeOperation = 'lighter'; const g2 = g.createRadialGradient(x, cy + 30, 0, x, cy + 30, R2); g2.addColorStop(0, 'rgba(255,211,78,.2)'); g2.addColorStop(1, 'rgba(255,211,78,0)'); g.fillStyle = g2; g.fillRect(x - R2, cy + 30 - R2, R2 * 2, R2 * 2); g.globalCompositeOperation = 'source-over'; }
   }
   function drawSummons(camX, camY) {
     const G = Q.G; if (!G.sums) return;
     for (const s of G.sums) {
       const a = Math.min(1, s.t / 0.45, s.life / 0.6), sp = summonSprite(s.kind), x = Math.round(s.x - camX), y = Math.round(s.y - camY), info = GIANT[s.kind] || BEAST[s.kind];
       g.globalCompositeOperation = 'lighter'; const R = 60, gr = g.createRadialGradient(x, y - 40, 0, x, y - 40, R); gr.addColorStop(0, hexA(info.glow, 0.32 * a)); gr.addColorStop(1, hexA(info.glow, 0)); g.fillStyle = gr; g.fillRect(x - R, y - 40 - R, R * 2, R * 2); g.globalCompositeOperation = 'source-over';
-      if (drawSumSheet(s, x, y, 0.95 * a)) continue;
+      { const fly = s.kind === 'phoenix' || s.kind === 'dragonking' || s.kind === 'dragonform', hh = drawSumArt(s, x, y, a); if (hh) { if (Math.random() < (s.stage === 2 ? 0.7 : 0.3)) emit(s.x + rr(-20, 20), s.y - rr(0, hh * 0.8) + (fly ? hh / 2 : 0), 1, { col: [s.stage === 2 ? '#ffd34e' : info.glow, '#fff'], sp0: 3, sp1: 14, grav: -20, l0: 0.4, l1: 0.9 }); sumHud(s, x, y - hh + (fly ? hh / 2 : 0), a); continue; } }
       if (s.kind === 'clones') { for (let i = 0; i < 3; i++) { const cx = x + (i - 1) * 22 + Math.round(Math.sin(s.t * 6 + i) * 3); g.globalAlpha = 0.6 * a; drawSpr(g, getSprite('hero_run', { a: '#5a5a6a', A: '#2a2a3a', q: '#14121f', b: '#3a2a5a', r: '#a15be0', f: '#a15be0', o: '#14121f' }, Math.floor(s.t * 10 + i) % 4), cx, y, s.f < 0); } g.globalAlpha = 1; continue; }
       if (s.kind === 'dragonking' || s.kind === 'dragonform') { const ds = dragonSprite(s.kind === 'dragonking' ? 2 : 1, Math.floor(Q.t * 6) % 2); g.globalAlpha = 0.95 * a; g.drawImage(s.f < 0 ? ds.f : ds.c, Math.round(x - ds.w / 2), Math.round(y - ds.h / 2)); if (s.kind === 'dragonking') { g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35 * a; g.drawImage(s.f < 0 ? ds.f : ds.c, Math.round(x - ds.w / 2), Math.round(y - ds.h / 2)); g.globalCompositeOperation = 'source-over'; } g.globalAlpha = 1; continue; }
       if (!sp) continue;
@@ -5881,8 +5912,7 @@
       g.globalAlpha = 1;
       if (Math.random() < (s.stage === 2 ? 0.8 : 0.4)) emit(s.x + rr(-20, 20), s.y - rr(0, 80), 1, { col: [s.stage === 2 ? '#ffd34e' : info.glow, '#fff'], sp0: 3, sp1: 14, grav: -20, l0: 0.4, l1: 0.9 });
       if (s.hurtT > 0) { g.globalAlpha = 0.4; g.fillStyle = '#ff3a3a'; g.fillRect(x - 14, y - 70, 28, 70); g.globalAlpha = 1; }
-      if (s.hpMax && (s.stage === 2 || s.hp < s.hpMax)) { const bw = s.stage === 2 ? 44 : 32, by = y - Math.round((giant ? 58 : 36) * sc) - 8; g.fillStyle = '#14121f'; g.fillRect(x - bw / 2 - 1, by - 1, bw + 2, 5); g.fillStyle = '#6a1a1a'; g.fillRect(x - bw / 2, by, bw, 3); g.fillStyle = s.stage === 2 ? '#ffd34e' : '#7ed957'; g.fillRect(x - bw / 2, by, Math.round(bw * clamp(s.hp / s.hpMax, 0, 1)), 3); }
-      if (s.stage === 2) { const R2 = 90 + Math.sin(s.t * 6) * 6; g.globalCompositeOperation = 'lighter'; const g2 = g.createRadialGradient(x, y - 50, 0, x, y - 50, R2); g2.addColorStop(0, 'rgba(255,211,78,.22)'); g2.addColorStop(1, 'rgba(255,211,78,0)'); g.fillStyle = g2; g.fillRect(x - R2, y - 50 - R2, R2 * 2, R2 * 2); g.globalCompositeOperation = 'source-over'; }
+      sumHud(s, x, y - Math.round((giant ? 58 : 36) * sc), a);
     }
     if (G.slashes) for (const sl of G.slashes) { g.globalAlpha = sl.life / 0.25; g.fillStyle = '#ff3a5a'; g.fillRect(0, Math.round(sl.y - camY) - 1, VW, 3); g.fillStyle = '#fff'; g.fillRect(0, Math.round(sl.y - camY), VW, 1); g.globalAlpha = 1; }
   }
