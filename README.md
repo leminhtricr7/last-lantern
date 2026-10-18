@@ -223,3 +223,7 @@ Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future 
 - Bosses have 70% more health (50% for multi-form bosses) and 4 blood phases (75/50/25%): each phase roars, calls minions, raises fury and, from phase 2, adds a short shield.
 - Artist sprites for summons: see assets/summons/README.md.
 - Summon art: the artist's design sheets live in art/summon_sheets; `tools/extract_summons.py` (rembg, birefnet-general-lite) cuts them into idle/walk/attack/hurt/death strips plus the Ancient final form, and `tools/clean_summons.py` removes captions/labels. The game reads assets/summons/manifest.json; kinds without art keep the built-in pixel giants.
+
+## Dash and parry
+- Dash (K / C / Shift, gamepad B or RT, touch »): available from the first map, one air dash per jump, brief invulnerability and afterimages.
+- Parry (F, gamepad L3, touch ◆): a 0.24 s guard. A hit inside it does no damage, stuns the attacker (bosses 0.8 s), reflects projectiles as homing light shots, and makes the next sword hit a double-damage counter.
