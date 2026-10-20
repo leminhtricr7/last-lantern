@@ -1322,6 +1322,34 @@ function buildBackground(B) {
 }
 
 // ---- Singer hero (TEST BUILD, fan tribute): a small chibi twin-tail girl that replaces Ember's body ----
+// Puff (Bông Gòn): a round mint cloud spirit with a leaf sprout. kind: idle | run | air | big (puffed up) | inhale (mouth wide open)
+function puffSprite(kind, f, sw) {
+  sw = sw || {}; const A = sw.A || '#7ee8c0', L = sw.a || '#e4fff4', D = sw.q || '#2a8a6a', K = sw.b || '#ff9fd0', F = sw.r || '#ff7fb0';
+  const key = 'puff_' + kind + '_' + f + '_' + A; if (_cache[key]) return _cache[key];
+  const big = kind === 'big', W = big ? 26 : 20, H = big ? 24 : 18;
+  return (_cache[key] = paint(W, H, P => {
+    const cx = W / 2 | 0, bob = kind === 'idle' && f ? 1 : 0, cy = (big ? 11 : 9) + bob, rx = big ? 11 : 8, ry = (big ? 10 : 7) - bob;
+    // feet
+    const st = kind === 'run' ? [[-4, 0], [3, -1], [4, 0], [-3, -1]][f % 4] : [0, 0];
+    if (kind === 'run') { P.ell(cx - 4 + st[0] / 2, H - 2 + st[1], 3, 1, F); P.ell(cx + 4 - st[0] / 2, H - 2 - st[1] - 1, 3, 1, F); }
+    else if (kind === 'air' || big) { P.ell(cx - 4, H - 3, 2, 1, F); P.ell(cx + 4, H - 3, 2, 1, F); }
+    else { P.ell(cx - 4, H - 2, 3, 1, F); P.ell(cx + 4, H - 2, 3, 1, F); }
+    // body, shading, highlight
+    P.ell(cx, cy, rx, ry, A); P.ell(cx - 1, cy - 1, rx - 2, ry - 2, L); P.ell(cx - 3, cy - 3, 2, 1, '#ffffff');
+    P.rect(cx - rx + 2, cy + ry - 2, rx * 2 - 4, 1, D);
+    // arms
+    const ay = kind === 'air' || big ? cy - 3 : cy + 1; P.ell(cx - rx, ay, 2, 2, A); P.ell(cx + rx, ay, 2, 2, A);
+    // face (looks right; the sprite flips)
+    if (kind === 'inhale') { P.ell(cx + 3, cy, 3, 4, '#3a1020'); P.ell(cx + 3, cy + 2, 2, 1, '#ff7f9a'); P.rect(cx - 3, cy - 3, 1, 2, '#14121f'); P.rect(cx, cy - 3, 1, 2, '#14121f'); }
+    else {
+      const ey = cy - (big ? 3 : 2); P.rect(cx - 2, ey, 1, 3, '#14121f'); P.rect(cx + 2, ey, 1, 3, '#14121f'); P.px(cx - 2, ey, '#ffffff'); P.px(cx + 2, ey, '#ffffff');
+      P.px(cx - 5, cy + 1, K); P.px(cx - 4, cy + 1, K); P.px(cx + 5, cy + 1, K); P.px(cx + 4, cy + 1, K);
+      if (big) { P.ell(cx + 1, cy + 3, 2, 2, '#3a1020'); } else P.px(cx, cy + 2, '#3a1020');
+    }
+    // the leaf sprout on top
+    P.px(cx, cy - ry - 1, '#2b8a3e'); P.px(cx, cy - ry - 2, '#2b8a3e'); P.ell(cx + 2, cy - ry - 3, 2, 1, '#5fcf5a'); P.px(cx - 1, cy - ry - 3, '#5fcf5a');
+  }, '#14121f'));
+}
 function mikuSprite(kind, f) {
   const k = 'miku_' + kind + '_' + f; if (_cache[k]) return _cache[k];
   const T = '#39c5bb', TD = '#1f8f93', TL = '#8ff5ea', SK = '#ffe6d8', DK = '#2a2e40', BL = '#14202a', PK = '#ff8fbf';

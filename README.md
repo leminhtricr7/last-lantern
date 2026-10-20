@@ -311,3 +311,15 @@ Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future 
   - Divine shifts through every colour
   - A shimmer sweep across item icons in the bag and shop
 
+## Six heroes with their own mechanics (original characters)
+These are inspired by classic play styles but use original names and designs, so they are safe to sell.
+
+| Hero | Mechanic | Skill (R) |
+|---|---|---|
+| **Liêm Ảnh / Shade Reaper** | Hooded scythe wielder. Each dash hit fills one of 6 soul pips; when full you switch form. **Assassin** (blue): faster, dash does x2 damage. **Brawler** (red): dash hits heal, +1 damage. | Dash straight through enemies |
+| **Mướp & Tí / Tabby & Squeak** | A cartoon cat that stretches and squashes all the time (eyes pop when hit). Squeak the mouse runs along and sets snap traps. | A random gag: lit bomb, stunning frying pan, or an anvil that flattens |
+| **Cao Su / Rubber Rin** | The attack is a stretching punch that reaches about 90 px (hold Up / Down to aim). | A storm of rubber punches |
+| **Tê Tê Lốc / Roll** | Speed builds while you keep running, to more than twice the start. Jumping or holding Down at speed curls you into a ball with a smaller hitbox that hurts anything you roll into and bounces off. | Launch at full speed |
+| **Bông Gòn / Puff** | Up to 6 flutter jumps in the air with very low gravity. | Inhale: sucks small enemies in and copies their power with a hat: Fire, Spark, Web, Wing, Stone or Star (J uses it, R spits it out). Inhaling only air puffs you up to float. |
+| **Thời Vương / Chrono** | Time stop greys out the world and freezes enemies, bosses and their shots for 4 s; only the heroes move. The Guardian spirit punches nearby enemies, and all that damage lands when time flows again. | Time Stop |
+
