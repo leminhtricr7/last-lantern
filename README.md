@@ -224,6 +224,7 @@ Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future 
 - Summon sprite strips play at a fixed 10 fps, packed on a bottom-centre pivot; the death strip plays once.
 - Bosses have 70% more health (50% for multi-form bosses) and 4 blood phases (75/50/25%): each phase roars, calls minions, raises fury and, from phase 2, adds a short shield.
 - Artist sprites for summons: see assets/summons/README.md.
+- The Sun Emperor now has the artist's sprites too (walk, idle, attack, hurt and the Ancient form; its death sheet was too dark to cut, so it uses the dissolve).
 - Summon art: the artist's design sheets live in art/summon_sheets; `tools/extract_summons.py` (rembg, birefnet-general-lite) cuts them into idle/walk/attack/hurt/death strips plus the Ancient final form, and `tools/clean_summons.py` removes captions/labels. The game reads assets/summons/manifest.json; kinds without art keep the built-in pixel giants.
 
 ## Dash and parry
