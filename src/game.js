@@ -123,6 +123,8 @@
   };
   const T = k => (STR[k] && STR[k][save.lang]) || k;
   const LN = o => o[save.lang];
+  const HN = () => LN((HERO[myHero()] || HERO.ember).name);   // the name of the hero the player picked
+  const TX = ln => ((ln && ln[save.lang]) || '').replace(/\{hero\}/g, HN());   // a story line in the current language, {hero} filled in
 
   const STORY = [
     { en: 'Long ago, the world had no Sun. The light of Aurelia came from ten Lantern Towers, joined across the sky by a river of light.', vi: 'Ngày xưa, thế giới không có Mặt Trời. Ánh sáng của Aurelia đến từ mười Tháp Đèn, nối với nhau trên trời bằng một dòng sông ánh sáng.' },
@@ -229,7 +231,7 @@
       { en: 'I could not stay home. I followed your light the whole way. I brought bread!', vi: 'Em không thể ở nhà. Em đi theo ánh sáng của bạn suốt chặng đường. Em mang bánh mì nè!' },
       { en: 'Whatever happens up there... the village believes in you.', vi: 'Dù chuyện gì xảy ra trên đó... cả làng tin ở bạn.' }
     ], angel: [
-      { en: 'Light does not need to be large to matter, Ember. Only unbroken.', vi: 'Ánh sáng không cần lớn mới có ý nghĩa, Ember. Chỉ cần không tắt.' }
+      { en: 'Light does not need to be large to matter, {hero}. Only unbroken.', vi: 'Ánh sáng không cần lớn mới có ý nghĩa, {hero}. Chỉ cần không tắt.' }
     ], bram: [
       { en: 'Go. My Guard will hold the door behind you. For Aurelia!', vi: 'Đi đi. Vệ Binh của tôi sẽ giữ cửa sau lưng bạn. Vì Aurelia!' }
     ] }
@@ -306,13 +308,13 @@
     ] },
     3: { lyra: [
       { en: 'Your leek is shining so beautifully out here! La la laaa~ ♪', vi: 'Cây hành của bạn sáng đẹp quá ở ngoài này! La la laaa~ ♪' },
-      { en: 'Sing along with the light, Ember! I will keep you warm with my song.', vi: 'Hát cùng ánh sáng nhé, Ember! Tiếng hát của mình sẽ sưởi ấm bạn.' }
+      { en: 'Sing along with the light, {hero}! I will keep you warm with my song.', vi: 'Hát cùng ánh sáng nhé, {hero}! Tiếng hát của mình sẽ sưởi ấm bạn.' }
     ] },
     5: { lyra: [
-      { en: 'Even the volcano cannot drown out a good melody! Keep shining, Ember! ♪', vi: 'Ngay cả núi lửa cũng không át được một giai điệu hay! Cứ tỏa sáng nhé, Ember! ♪' }
+      { en: 'Even the volcano cannot drown out a good melody! Keep shining, {hero}! ♪', vi: 'Ngay cả núi lửa cũng không át được một giai điệu hay! Cứ tỏa sáng nhé, {hero}! ♪' }
     ] },
     6: { quan: [
-      { en: 'I read the last chapter early. I will not spoil it. But... bring snacks. Good luck, Ember.', vi: 'Mình đọc trước chương cuối rồi. Mình sẽ không tiết lộ. Nhưng... nhớ mang đồ ăn vặt. Chúc may mắn, Ember.' }
+      { en: 'I read the last chapter early. I will not spoil it. But... bring snacks. Good luck, {hero}.', vi: 'Mình đọc trước chương cuối rồi. Mình sẽ không tiết lộ. Nhưng... nhớ mang đồ ăn vặt. Chúc may mắn, {hero}.' }
     ], lyra: [
       { en: 'I will sing for you the whole way! La la laaa~ Let us light the last tower! ♪', vi: 'Mình sẽ hát cho bạn suốt chặng đường! La la laaa~ Đi thắp ngọn tháp cuối cùng nào! ♪' }
     ] }
@@ -335,7 +337,7 @@
       { en: 'No exit until every monster is dead AND the torches burn in the right order. Tee-hee!', vi: 'Không có lối ra cho tới khi quái chết hết VÀ đuốc cháy đúng thứ tự. Hí hí!' }
     ], outro: [
       { en: 'WHAT?! You beat my pets?! Impossible!', vi: 'CÁI GÌ?! Cậu đánh bại thú cưng của ta sao?! Không thể nào!' },
-      { en: 'Hmph. Short men make LONG grudges, lantern-boy!', vi: 'Hừm. Người thấp thì thù DAI, cậu bé cầm đèn!' }
+      { en: 'Hmph. Short men make LONG grudges, little lantern!', vi: 'Hừm. Người thấp thì thù DAI, đèn nhỏ ạ!' }
     ] },
     2: { intro: [
       { en: 'Back for more? Down here in the dark... I do love the caves, little lantern!', vi: 'Quay lại chịu đòn à? Dưới bóng tối này... ta rất thích hang động, đèn con!' },
@@ -416,7 +418,7 @@
   DLG[2] = Object.assign(DLG[2] || {}, { hoang: [
     { en: 'Psst. Do not scream. I am HoangKiller. Yes, killer. Of boredom, mostly.', vi: 'Suỵt. Đừng la. Tôi là HoangKiller. Ừ, sát thủ. Chủ yếu là giết thời gian chán.' },
     { en: 'I came into these caves for a rare crystal, and a very rude Golem chased me back out. We have history.', vi: 'Tôi vào hang này tìm một viên pha lê hiếm, và một Người Khổng Lồ rất thô lỗ đuổi tôi chạy ra. Tụi tôi có thù cũ.' },
-    { en: 'Wait... you are the lantern kid? The one who beat the Spider Queen with a LEEK? QuanSadBoy wrote me about you!', vi: 'Khoan... cậu là cậu bé cầm đèn? Người đã hạ Nữ Hoàng Nhện bằng một CÂY HÀNH? QuanSadBoy đã viết thư kể về cậu!' },
+    { en: 'Wait... you are the lantern kid? The one who beat the Spider Queen with a LEEK? QuanSadBoy wrote me about you!', vi: 'Khoan... bạn là đứa nhóc cầm đèn? Người đã hạ Nữ Hoàng Nhện bằng một CÂY HÀNH? QuanSadBoy đã viết thư kể về bạn!' },
     { en: 'Listen. When you face Quoc himself, I will find you. HoangKiller never misses a fight that matters.', vi: 'Nghe này. Khi cậu đối đầu với chính Quốc, tôi sẽ tìm cậu. HoangKiller không bao giờ bỏ lỡ một trận chiến quan trọng.' }
   ] });
   DLG[3] = Object.assign(DLG[3] || {}, { duong: [
@@ -434,7 +436,7 @@
 
   const DRG_DLG = {
     young_intro: [
-      { en: 'So... the little lantern-bearer crawls through my meadow. I can smell the last flame of Aurelia on you!', vi: 'Thì ra... cậu bé cầm đèn bé nhỏ đang bò qua đồng cỏ của ta. Ta ngửi thấy ngọn lửa cuối cùng của Aurelia trên người ngươi!' },
+      { en: 'So... the little lantern-bearer crawls through my meadow. I can smell the last flame of Aurelia on you!', vi: 'Thì ra... kẻ cầm đèn bé nhỏ đang bò qua đồng cỏ của ta. Ta ngửi thấy ngọn lửa cuối cùng của Aurelia trên người ngươi!' },
       { en: 'I am Ignarok the Ashwing. Quoc promised me a throne of ash if I snuff you out, little spark.', vi: 'Ta là Ignarok Cánh Tro. Quốc hứa ban cho ta ngai vàng bằng tro tàn nếu ta dập tắt ngươi, tia lửa nhỏ.' },
       { en: 'Come, then! Burn bright... for as long as you can!', vi: 'Lại đây nào! Hãy cháy thật sáng... chừng nào ngươi còn cháy được!' }
     ],
@@ -741,7 +743,7 @@
       intro: [
         { en: 'Shorty fell? A pity. He was loud, but cheap. I am Sy. Quoc\'s second hand, and the quieter one.', vi: 'Shorty gục rồi à? Tiếc thật. Hắn ồn ào nhưng rẻ tiền. Ta là Sy. Cánh tay thứ hai của Quốc, và là người kín tiếng hơn.' },
         { w: 'ember', en: 'You were in the caves, and in the snow. You woke the Golem and the Frost King for me.', vi: 'Ông đã ở trong hang động, và cả trên tuyết. Ông đã đánh thức Người Khổng Lồ và Vua Băng cho tôi.' },
-        { en: 'Test subjects, boy. I wanted to see how bright your lantern really burns. Now I want to see how long it lasts against my venom.', vi: 'Vật thí nghiệm thôi, nhóc. Ta muốn xem đèn của nhóc thực sự cháy sáng đến đâu. Giờ ta muốn xem nó chịu nổi bao lâu trước nọc độc của ta.' }
+        { en: 'Test subjects, little lantern. I wanted to see how bright your lantern really burns. Now I want to see how long it lasts against my venom.', vi: 'Vật thí nghiệm thôi, nhóc. Ta muốn xem đèn của nhóc thực sự cháy sáng đến đâu. Giờ ta muốn xem nó chịu nổi bao lâu trước nọc độc của ta.' }
       ],
       outro: [
         { en: 'Ha... ha... even my venom... could not put you out.', vi: 'Ha... ha... ngay cả nọc độc của ta... cũng không dập được ngươi.' },
@@ -754,7 +756,7 @@
       { en: 'IMPOSSIBLE?! Then... Quoc\'s gift... AWAKEN! I WILL BE TALL!! GRAAAH!!', vi: 'KHÔNG THỂ NÀO?! Vậy thì... món quà của Quốc... THỨC TỈNH! TA SẼ CAO LỚN!! GRAAAH!!' }
     ] },
     sy: { 1: [
-      { en: 'Your leek is amusing, boy. But venom spoils every blade. Behold, the true Sy!', vi: 'Cây hành của nhóc thật thú vị. Nhưng nọc độc làm hỏng mọi lưỡi kiếm. Chiêm ngưỡng Sy thực sự đi!' }
+      { en: 'Your leek is amusing, little lantern. But venom spoils every blade. Behold, the true Sy!', vi: 'Cây hành của nhóc thật thú vị. Nhưng nọc độc làm hỏng mọi lưỡi kiếm. Chiêm ngưỡng Sy thực sự đi!' }
     ] },
     quoc: {
       1: [{ en: 'YOU CUT MY HUMAN FACE?! THEN MEET WHAT THE TENTH TOWER MADE OF ME... THE DARK IMP!', vi: 'NGƯƠI CHÉM ĐƯỢC GƯƠNG MẶT NGƯỜI CỦA TA?! VẬY HÃY GẶP THỨ MÀ THÁP THỨ MƯỜI ĐÃ BIẾN TA THÀNH... TIỂU QUỶ BÓNG TỐI!' }],
@@ -792,7 +794,7 @@
         { en: 'I am Sy, one of Quoc\'s two hands. Do not worry, boy. I will not fight you today. Today... I only watch.', vi: 'Ta là Sy, một trong hai cánh tay của Quốc. Đừng lo, nhóc. Hôm nay ta sẽ không đánh nhau với nhóc. Hôm nay... ta chỉ xem.' }
       ],
       post: [
-        { en: 'Impressive. The Golem lasted longer than I bet. Keep the shiny dust, boy.', vi: 'Ấn tượng. Người Khổng Lồ trụ lâu hơn ta cược. Cứ giữ lấy bụi lấp lánh đi, nhóc.' },
+        { en: 'Impressive. The Golem lasted longer than I bet. Keep the shiny dust, little lantern.', vi: 'Ấn tượng. Người Khổng Lồ trụ lâu hơn ta cược. Cứ giữ lấy bụi lấp lánh đi, nhóc.' },
         { en: 'We will meet again at the Citadel. Bring your little leek.', vi: 'Chúng ta sẽ gặp lại ở Thành Trì. Nhớ mang theo cây hành bé nhỏ của nhóc.' }
       ] },
     4: {
@@ -2434,8 +2436,8 @@
     const tk = Q.talk;
     if (coop && tk.hostDone) { if (coopTalkDone()) endTalk(); return; }
     tk.t += dt;
-    const full = tk.lines[tk.i][save.lang].length;
-    { const ln = tk.lines[tk.i][save.lang], n0 = Math.floor((tk.t - dt) * 45), n1 = Math.min(ln.length, Math.floor(tk.t * 45));
+    const full = TX(tk.lines[tk.i]).length;
+    { const ln = TX(tk.lines[tk.i]), n0 = Math.floor((tk.t - dt) * 45), n1 = Math.min(ln.length, Math.floor(tk.t * 45));
       for (let k = n0 + 1; k <= n1; k++) if (k % 2 === 0 && /\S/.test(ln[k - 1] || ' ')) { const sw = tk.lines[tk.i].w || tk.it.who; if (sw.indexOf('boss') === 0) Snd.creature(Q.li, 'idle', true, 0.7); else if (sw !== 'narr') Snd.blip(sw); } }
     if (act.okP || act.talkP || act.atkP) {
       if (tk.t * 45 < full) tk.t = 999;
@@ -4034,6 +4036,9 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       try { drawWorld(); drawFog(); drawLighting(); drawCreepEyes(Math.round(Q.cam.x), Math.round(Q.cam.y)); drawWeather(); drawGrade(); drawGearTop(Math.round(Q.cam.x), Math.round(Q.cam.y)); if (Q.G.tsT > 0) drawTimeStop(); }
       finally { if (z !== 1) { g.restore(); VW = BVW; VH = BVH; } } }
     g.restore();
+    if (!hiOn) drawPlayOver();   // with hi-res sprites on screen the HUD comes later, in its own pass above them
+  }
+  function drawPlayOver() {
     if (Q.state !== 'talk') drawHUD();
     if (coop && Q.state !== 'talk') drawCoopHUD();
     const st = Q.state;
@@ -4080,7 +4085,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         tx = PX + PW + 10;
       }
       { const name = LN(cur.name), nw = Math.round(name.length * 4.4) + 14; g.fillStyle = '#120e22'; g.fillRect(tx - 6, Y - 7, nw, 12); box(tx - 6, Y - 7, nw, 12, col); txt(name, tx, Y - 1, { size: 7, col, bold: true }); }
-      const line = ln0[save.lang] || '', n = Math.floor(tk.t * 45);
+      const line = TX(ln0), n = Math.floor(tk.t * 45);
       wrapText(line.substr(0, n), sp ? 56 : 70).forEach((l, i) => txt(l, tx, Y + 15 + i * 11, { size: 7, col: who === 'narr' ? '#d8dcf0' : '#fff' }));
       if (n >= line.length) { const bob = Math.round(Math.sin(Q.stateT * 8 + Q.t * 8) * 1.5); g.fillStyle = col; g.beginPath(); g.moveTo(X + W - 16, Y + H - 12 + bob); g.lineTo(X + W - 8, Y + H - 12 + bob); g.lineTo(X + W - 12, Y + H - 7 + bob); g.fill(); }
       if (tk.lines.length > 1) txt((tk.i + 1) + '/' + tk.lines.length, X + W - 22, Y + 6, { size: 5, col: '#8892aa', al: 'right' });
@@ -4187,8 +4192,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     { id: 'gold', cost: 2, name: { en: 'Pouch of gold', vi: 'Túi vàng' }, desc: { en: '+500 gold.', vi: '+500 vàng.' }, give() { save.coins += 500; } },
     { id: 'heart', cost: 5, max: 5, have: () => save.bonusHP, name: { en: 'Heart crystal', vi: 'Pha lê trái tim' }, desc: { en: '+1 max heart forever (up to 5).', vi: '+1 tim tối đa vĩnh viễn (tối đa 5).' }, give() { save.bonusHP++; if (Q && Q.P) Q.P.hp++; } },
     { id: 'dmg', cost: 8, max: 3, have: () => save.bonusDmg, name: { en: 'Whetstone of dawn', vi: 'Đá mài bình minh' }, desc: { en: '+1 damage on every attack forever (up to 3).', vi: '+1 sát thương mọi đòn đánh vĩnh viễn (tối đa 3).' }, give() { save.bonusDmg++; } },
-    { id: 'aura', cost: 6, max: 1, have: () => save.cos.aura ? 1 : 0, name: { en: 'Golden glow', vi: 'Hào quang vàng' }, desc: { en: 'Ember shines with a golden aura (looks only).', vi: 'Ember tỏa hào quang vàng (trang trí).' }, give() { save.cos.aura = 1; } },
-    { id: 'wings', cost: 9, max: 1, have: () => save.cos.wings ? 1 : 0, name: { en: 'Dragon wings', vi: 'Cánh rồng' }, desc: { en: 'Ember grows a pair of dragon wings (looks only).', vi: 'Ember mọc đôi cánh rồng (trang trí).' }, give() { save.cos.wings = 1; } }
+    { id: 'aura', cost: 6, max: 1, have: () => save.cos.aura ? 1 : 0, name: { en: 'Golden glow', vi: 'Hào quang vàng' }, desc: { en: 'Your hero shines with a golden aura (looks only).', vi: 'Hero của bạn tỏa hào quang vàng (trang trí).' }, give() { save.cos.aura = 1; } },
+    { id: 'wings', cost: 9, max: 1, have: () => save.cos.wings ? 1 : 0, name: { en: 'Dragon wings', vi: 'Cánh rồng' }, desc: { en: 'Your hero grows a pair of dragon wings (looks only).', vi: 'Hero của bạn mọc đôi cánh rồng (trang trí).' }, give() { save.cos.wings = 1; } }
   ];
   HEROES.filter(h => h.secret).forEach(h => TRADES.push({ id: 'hero_' + h.id, cost: 10, max: 1, hero: h.id, have: () => save.heroUnlock.indexOf(h.id) >= 0 ? 1 : 0, name: { en: 'Secret hero: ' + h.name.en, vi: 'Hero bí mật: ' + h.name.vi }, desc: { en: 'Unlock ' + h.name.en + ' for online co-op.', vi: 'Mở khóa ' + h.name.vi + ' để chơi co-op online.' }, give() { save.heroUnlock.push(h.id); } }));
   function doTrade(o) {
@@ -4485,15 +4490,15 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   // ============================== RIDE HOME (after map 1): Ember carries Lyra on a horse ==============================
   const RIDE = [
     { w: 'narr', en: 'King Slime melts into the grass. The cage is empty at last, and the meadow is silent in a way that is almost peaceful.', vi: 'Vua Slime tan chảy vào bãi cỏ. Chiếc lồng cuối cùng cũng trống, và đồng cỏ yên lặng đến mức gần như bình yên.' },
-    { w: 'narr', en: 'Ember whistles. A brown mare trots out of the hills, one of the few animals that never ran from the dark. He lifts Lyra onto the saddle and climbs up in front of her.', vi: 'Ember huýt sáo. Một con ngựa nâu chạy ra từ đồi, một trong số ít con vật không bỏ chạy trước bóng tối. Cậu đỡ Lyra lên yên rồi leo lên phía trước.' },
-    { w: 'lyra', heart: 1, en: 'You... you do not have to take me all the way, Ember. I can walk. (She holds on to his cloak anyway.)', vi: 'Bạn... bạn không cần đưa mình đi tận nơi đâu, Ember. Mình tự đi được mà. (Nói vậy nhưng cô vẫn nắm chặt áo choàng của cậu.)' },
+    { w: 'narr', en: 'The Lanternbearer whistles. A brown mare trots out of the hills, one of the few animals that never ran from the dark. Lyra is lifted onto the saddle, and the Lanternbearer climbs up in front of her.', vi: 'Người Giữ Đèn huýt sáo. Một con ngựa nâu chạy ra từ đồi, một trong số ít con vật không bỏ chạy trước bóng tối. Lyra được đỡ lên yên, rồi Người Giữ Đèn leo lên phía trước.' },
+    { w: 'lyra', heart: 1, en: 'You... you do not have to take me all the way, {hero}. I can walk. (She holds on to the cloak in front of her anyway.)', vi: 'Bạn... bạn không cần đưa mình đi tận nơi đâu, {hero}. Mình tự đi được mà. (Nói vậy nhưng cô vẫn nắm chặt vạt áo choàng phía trước.)' },
     { w: 'ember', en: 'You are shaking, Princess. The road is full of shadows. Hold on tight.', vi: 'Công chúa đang run kìa. Đường này đầy bóng tối. Cứ nắm chặt vào nhé.' },
-    { w: 'narr', en: 'Lyra rests her cheek against his back. She has sung for kings and crowds, but she has never felt this: a heartbeat so loud it drowns out every song.', vi: 'Lyra áp má vào lưng cậu. Cô từng hát trước vua chúa và đám đông, nhưng chưa bao giờ cảm thấy điều này: một nhịp tim lớn đến mức át cả mọi bài ca.' },
-    { w: 'lyra', heart: 1, en: '(whispering to herself) Please... do not let him hear mine...', vi: '(thì thầm với chính mình) Xin đừng... để cậu ấy nghe thấy tim mình...' },
-    { w: 'lyra', en: 'Ember, why did you walk all the way into that meadow for a stranger?', vi: 'Ember, tại sao bạn lại đi tận vào đồng cỏ đó vì một người xa lạ?' },
+    { w: 'narr', en: 'Lyra rests her cheek against the Lanternbearer\'s back. She has sung for kings and crowds, but she has never felt this: a heartbeat so loud it drowns out every song.', vi: 'Lyra áp má vào lưng Người Giữ Đèn. Cô từng hát trước vua chúa và đám đông, nhưng chưa bao giờ cảm thấy điều này: một nhịp tim lớn đến mức át cả mọi bài ca.' },
+    { w: 'lyra', heart: 1, en: '(whispering to herself) Please... do not let my heartbeat be heard...', vi: '(thì thầm với chính mình) Xin đừng... đừng để ai nghe thấy tim mình...' },
+    { w: 'lyra', en: '{hero}, why did you walk all the way into that meadow for a stranger?', vi: '{hero}, tại sao bạn lại đi tận vào đồng cỏ đó vì một người xa lạ?' },
     { w: 'ember', en: 'Because someone was singing in the dark. Somebody had to answer.', vi: 'Vì có người đang hát trong bóng tối. Phải có ai đó đáp lại chứ.' },
     { w: 'lyra', heart: 1, en: 'That is... the kindest thing anyone has ever said to me. I... I think I... (She stops.) ...I think the stars are lovely tonight.', vi: 'Đó là... lời tử tế nhất mà ai đó từng nói với mình. Mình... mình nghĩ là mình... (Cô khựng lại.) ...Mình nghĩ đêm nay sao đẹp quá.' },
-    { w: 'ember', en: '(half smiling, not sure) The stars? ...Right. Yeah. Lovely. (He knows she was about to say something else. He is not sure he is allowed to hope.)', vi: '(nửa cười, nửa ngờ) Sao á? ...Ừ. Ừ, đẹp thật. (Cậu biết cô định nói điều khác. Cậu không chắc mình có được phép hy vọng hay không.)' },
+    { w: 'ember', en: '(half smiling, not sure) The stars? ...Right. Yeah. Lovely. (She was about to say something else. Is it allowed to hope?)', vi: '(nửa cười, nửa ngờ) Sao á? ...Ừ. Ừ, đẹp thật. (Cô ấy định nói điều khác. Liệu có được phép hy vọng không?)' },
     { w: 'lyra', heart: 1, en: 'If I told you something silly, would you believe me?', vi: 'Nếu mình nói một điều ngốc nghếch, bạn có tin không?' },
     { w: 'ember', en: 'Depends. Silly like "slimes can learn to dance"? Or silly like "something I should be careful with"?', vi: 'Còn tùy. Ngốc kiểu "slime biết nhảy múa"? Hay ngốc kiểu "thứ mà mình nên cẩn thận"?' },
     { w: 'lyra', heart: 1, en: 'Silly like a song. I will sing it for you when all ten towers are burning. Then you can decide whether to believe it.', vi: 'Ngốc như một bài hát. Mình sẽ hát cho bạn nghe khi cả mười tháp cùng cháy sáng. Lúc đó bạn tự quyết có tin hay không.' },
@@ -4513,11 +4518,11 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       P.rect(16, 9, 12, 4, 'r'); P.rect(16, 13, 12, 2, 'y'); P.rect(17, 15, 2, 5, D);
     }));
   }
-  function startRide() { ride = { i: 0, lt: 0, t: 0 }; Q = null; Snd.music('title', TITLE_MUSIC); }
+  function startRide() { CS.ember.n = (HERO[myHero()] || HERO.ember).name; ride = { i: 0, lt: 0, t: 0 }; Q = null; Snd.music('title', TITLE_MUSIC); }
   function endRide() { save.ride = 1; writeSave(); cutLevel = 0; mapSel = 1; cutSkip = true; toScene('cutscene'); }
   function updateRide(dt) {
     const c = ride; c.t += dt; c.lt += dt;
-    const ln = RIDE[c.i], tx = ln[save.lang], n0 = Math.floor((c.lt - dt) * 40), n1 = Math.min(tx.length, Math.floor(c.lt * 40)), v = ln.w === 'lyra' ? 'lyra' : null;
+    const ln = RIDE[c.i], tx = TX(ln), n0 = Math.floor((c.lt - dt) * 40), n1 = Math.min(tx.length, Math.floor(c.lt * 40)), v = ln.w === 'lyra' ? 'lyra' : null;
     if (v) for (let k = n0 + 1; k <= n1; k++) if (k % 3 === 0 && /\S/.test(tx[k - 1] || ' ')) Snd.blip(v);
     if (act.okP) { if (c.lt * 40 < tx.length) c.lt = 999; else { c.i++; c.lt = 0; if (c.i >= RIDE.length) { endRide(); c.i = RIDE.length - 1; c.lt = 999; } } }
     if (act.backP) endRide();
@@ -4535,7 +4540,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     drawSpr(g, getSprite('hero_idle', {}, 0), hx + 2, gy - 15 - bob, false);
     // dust
     for (let i = 0; i < 6; i++) { const u = (t * 2 + i / 6) % 1; g.globalAlpha = (1 - u) * 0.5; g.fillStyle = '#d9c9a0'; g.fillRect(Math.round(hx - 24 - u * 34), Math.round(gy - 2 - u * 6), 3 - Math.round(u * 2), 3 - Math.round(u * 2)); } g.globalAlpha = 1;
-    const ln = RIDE[c.i], sp = CS[ln.w], tx = ln[save.lang], n = Math.floor(c.lt * 40);
+    const ln = RIDE[c.i], sp = CS[ln.w], tx = TX(ln), n = Math.floor(c.lt * 40);
     if (ln.heart) for (let i = 0; i < 4; i++) { const u = (c.lt * 0.6 + i / 4) % 1, hxp = hx - 8 + Math.sin(u * 6 + i) * 10, hyp = gy - 44 - u * 34; g.globalAlpha = 1 - u; g.fillStyle = '#ff5a8a'; g.fillRect(Math.round(hxp), Math.round(hyp), 2, 2); g.fillRect(Math.round(hxp) + 3, Math.round(hyp), 2, 2); g.fillRect(Math.round(hxp) - 1, Math.round(hyp) + 1, 7, 2); g.fillRect(Math.round(hxp), Math.round(hyp) + 3, 5, 1); g.fillRect(Math.round(hxp) + 1, Math.round(hyp) + 4, 3, 1); } g.globalAlpha = 1;
     g.fillStyle = 'rgba(0,0,0,.84)'; g.fillRect(8, 156, VW - 16, 54); g.fillStyle = sp.col; g.fillRect(8, 156, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1);
     txt(LN(sp.n), 18, 165, { size: 8, col: sp.col, bold: true });
@@ -4587,12 +4592,12 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   function updateCastle(dt) {
     const c = castle; c.t += dt;
     if (c.phase === 'talk') {
-      c.lt += dt; const ln = CASTLE[c.i], tx = ln[save.lang], n0 = Math.floor((c.lt - dt) * 40), n1 = Math.min(tx.length, Math.floor(c.lt * 40)), v = CS[ln.w].v;
+      c.lt += dt; const ln = CASTLE[c.i], tx = TX(ln), n0 = Math.floor((c.lt - dt) * 40), n1 = Math.min(tx.length, Math.floor(c.lt * 40)), v = CS[ln.w].v;
       if (v) for (let k = n0 + 1; k <= n1; k++) if (k % 3 === 0 && /\S/.test(tx[k - 1] || ' ')) Snd.blip(v);
       if (act.okP) { if (c.lt * 40 < tx.length) c.lt = 999; else { c.i++; c.lt = 0; if (c.i >= CASTLE.length) { c.phase = 'gift'; c.gt = 0; Snd.play('gate'); } } }
       if (act.backP) { c.phase = 'gift'; c.gt = 0; }
     } else if (c.phase === 'kiss') {
-      c.lt += dt; const ln = KISS[c.i], tx = ln[save.lang], v = CS[ln.w] ? CS[ln.w].v : null, n0 = Math.floor((c.lt - dt) * 40), n1 = Math.min(tx.length, Math.floor(c.lt * 40));
+      c.lt += dt; const ln = KISS[c.i], tx = TX(ln), v = CS[ln.w] ? CS[ln.w].v : null, n0 = Math.floor((c.lt - dt) * 40), n1 = Math.min(tx.length, Math.floor(c.lt * 40));
       if (v) for (let k = n0 + 1; k <= n1; k++) if (k % 3 === 0 && /\S/.test(tx[k - 1] || ' ')) Snd.blip(v);
       if (c.i === 2 && c.lt > 0.7 && !c.kissed) { c.kissed = true; Snd.play('heart'); Snd.hero('cheer'); }
       if (act.okP) { if (c.lt * 40 < tx.length) c.lt = 999; else { c.i++; c.lt = 0; if (c.i >= KISS.length) { c.phase = 'leave'; c.gt = 0; } } }
@@ -4634,7 +4639,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       if (c.phase === 'kiss' && (c.i === 5 || c.i === 6)) txt('?!', hx + 6, 118 + Math.round(Math.sin(t * 8)), { size: 9, bold: true, col: '#ffd34e' });
     }
     if (c.phase === 'talk') {
-      const ln = CASTLE[c.i], sp = CS[ln.w], tx = ln[save.lang], n = Math.floor(c.lt * 40);
+      const ln = CASTLE[c.i], sp = CS[ln.w], tx = TX(ln), n = Math.floor(c.lt * 40);
       g.fillStyle = 'rgba(0,0,0,.84)'; g.fillRect(8, 152, VW - 16, 58); g.fillStyle = sp.col; g.fillRect(8, 152, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1);
       txt(LN(sp.n), 18, 162, { size: 8, col: sp.col, bold: true });
       wrapText(tx.substr(0, n), 66).forEach((l, i) => txt(l, 18, 175 + i * 10, { size: 7, col: ln.cheer ? '#ffe9a0' : '#fff' }));
@@ -4642,7 +4647,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       return;
     }
     if (c.phase === 'kiss') {
-      const ln = KISS[c.i], sp = CS[ln.w], tx = ln[save.lang], n = Math.floor(c.lt * 40);
+      const ln = KISS[c.i], sp = CS[ln.w], tx = TX(ln), n = Math.floor(c.lt * 40);
       g.fillStyle = 'rgba(0,0,0,.84)'; g.fillRect(8, 152, VW - 16, 58); g.fillStyle = sp.col; g.fillRect(8, 152, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1);
       txt(LN(sp.n), 18, 162, { size: 8, col: sp.col, bold: true });
       wrapText(tx.substr(0, n), 66).forEach((l, i) => txt(l, 18, 175 + i * 10, { size: 7 }));
@@ -4979,7 +4984,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   function updateStory(dt) {
     storyT += dt;
     if (storyPage >= storyList.length) return;
-    const full = storyList[storyPage][save.lang].length;
+    const full = TX(storyList[storyPage]).length;
     if (act.okP) { if (storyT * 40 < full) storyT = 999; else { storyPage++; storyT = 0; if (storyPage >= storyList.length) { if (storyList === STORY) { mapSel = 0; save.seen = { 0: 1 }; writeSave(); storyLevel = 0; storyList = MAP_STORY[0]; storyPage = 0; storyT = 0; } else if (storyList === ENDING) { toScene('outro'); } else startLevelFade(storyLevel); } } }
     if (act.backP && storyList === STORY) { startLevelFade(0); } else if (act.backP && storyList !== ENDING) startLevelFade(storyLevel);
   }
@@ -4999,7 +5004,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       g.globalAlpha = 0.3 * glow; disc(g, cx, cy, 44, '#ffd34e'); g.globalAlpha = 1;
       disc(g, cx, cy, 22, lerpColor('#2a2240', '#ffe08a', glow)); if (storyPage >= 1) disc(g, cx, cy, 14, '#fff');
     }
-    const s = storyList[Math.min(storyPage, storyList.length - 1)][save.lang], n = Math.min(s.length, Math.floor(storyT * 40));
+    const s = TX(storyList[Math.min(storyPage, storyList.length - 1)]), n = Math.min(s.length, Math.floor(storyT * 40));
     const lines = wrapText(s.substr(0, n), 46);
     lines.forEach((l, i) => txt(l, VW / 2, 138 + i * 12, { al: 'center', size: 8 }));
     txt(T('press'), VW / 2, VH - 12, { al: 'center', size: 6, col: '#8892aa', alpha: 0.5 + 0.5 * Math.sin(sceneT * 4) });
@@ -5040,7 +5045,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       return;
     }
     c.pt += dt; c.lt += dt; if (c.fl > 0) c.fl -= dt; if (c.shake > 0) c.shake -= dt;
-    const lines = CUT[cutLevel], ln = lines[c.i], txtL = ln[save.lang], n0 = Math.floor((c.lt - dt) * 38), n1 = Math.min(txtL.length, Math.floor(c.lt * 38));
+    const lines = CUT[cutLevel], ln = lines[c.i], txtL = TX(ln), n0 = Math.floor((c.lt - dt) * 38), n1 = Math.min(txtL.length, Math.floor(c.lt * 38));
     for (let k = n0 + 1; k <= n1; k++) if (k % (ln.w === 'quoc' ? 3 : 2) === 0 && /\S/.test(txtL[k - 1] || ' ')) Snd.blip(ln.w === 'imp' ? 'fairy' : (ln.w === 'quoc' ? 'quoc' : (ln.w === 'sy' ? 'sy' : 'shorty')));
     if (act.okP) {
       if (c.lt * 38 < txtL.length) c.lt = 999;
@@ -5081,7 +5086,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (c.fl > 0) { g.fillStyle = 'rgba(255,255,255,' + Math.min(0.8, c.fl * 2) + ')'; g.fillRect(0, 0, VW, VH); }
     g.fillStyle = 'rgba(0,0,0,.82)'; g.fillRect(8, 152, VW - 16, 58); g.fillStyle = sp.col; g.fillRect(8, 152, VW - 16, 1); g.fillRect(8, 209, VW - 16, 1);
     txt(LN(sp.name), 18, 162, { size: 8, col: sp.col, bold: true });
-    const textL = ln[save.lang], n = Math.floor(c.lt * 38);
+    const textL = TX(ln), n = Math.floor(c.lt * 38);
     wrapText(textL.substr(0, n), 64).forEach((l, i) => txt(l, 18 + (ln.shout && Math.random() < 0.4 ? rr(-0.5, 0.5) : 0), 177 + i * 11, { size: ln.shout ? 8 : 7, bold: !!ln.shout, col: ln.shout ? '#ffb0a0' : '#fff' }));
     if (n >= textL.length) txt('>', VW - 20, 200, { size: 8, col: sp.col, alpha: 0.5 + 0.5 * Math.sin(c.pt * 8) });
   }
@@ -5950,7 +5955,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (Q.state === 'talk' && Q.talk && Q.talk.lines && coop.tkId === Q.talk.id && Q.talk.id) {
       const tk = Q.talk; coop.tkT += dt;
       if ((act.okP || act.talkP || act.atkP) && !coop.tkDone) {
-        const full = (tk.lines[coop.tkI][save.lang] || '').length;
+        const full = (TX(tk.lines[coop.tkI]) || '').length;
         if (coop.tkT * 45 < full) coop.tkT = 999;
         else if (coop.tkI < tk.lines.length - 1) { coop.tkI++; coop.tkT = 0; coop.play0 && coop.play0('select'); }
         else { coop.tkDone = true; coop.tkT = 999; NET.send({ t: 'tkdone', id: tk.id }); coop.play0 && coop.play0('ok'); }
@@ -6336,7 +6341,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     7: [{ en: 'GLOWCAP SWAMP. After the volcano, the road sinks into a swamp where the mushrooms are taller than houses and glow like lanterns.', vi: 'ĐẦM LẦY NẤM PHÁT QUANG. Sau núi lửa, con đường chìm vào một đầm lầy nơi nấm cao hơn nhà và phát sáng như đèn lồng.' },
         { en: 'Their light is not warm. It is the cold glow of the Spore Queen, who promised Quoc to smother the Seventh Tower in her roots.', vi: 'Thứ ánh sáng ấy không ấm. Đó là ánh lạnh của Nữ Hoàng Bào Tử, kẻ đã hứa với Quốc sẽ bóp nghẹt Tháp Đèn Thứ Bảy trong rễ của mình.' },
         { en: 'Watch your step. Breathe through your scarf. And never trust a mushroom that smiles.', vi: 'Nhìn kỹ đường đi. Thở qua khăn quàng. Và đừng bao giờ tin một cây nấm biết cười.' }],
-    8: [{ en: 'SUNKEN DEEP. The swamp drains into the sea, and the sea swallows the road. Ember takes a deep breath... and dives.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Đầm lầy đổ ra biển, và biển nuốt mất con đường. Ember hít một hơi thật sâu... rồi lặn xuống.' },
+    8: [{ en: 'SUNKEN DEEP. The swamp drains into the sea, and the sea swallows the road. The Lanternbearer takes a deep breath... and dives.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Đầm lầy đổ ra biển, và biển nuốt mất con đường. Người Giữ Đèn hít một hơi thật sâu... rồi lặn xuống.' },
         { en: 'Down here you swim: press jump again and again to rise, and let the water carry you down gently.', vi: 'Dưới này bạn phải bơi: nhấn nhảy liên tục để ngoi lên, và để nước nhẹ nhàng đưa bạn xuống.' },
         { en: 'Somewhere in the dark below, something with eight arms is hugging the drowned Eighth Tower like a toy.', vi: 'Đâu đó trong bóng tối bên dưới, một thứ có tám cánh tay đang ôm Tháp Đèn Thứ Tám bị nhấn chìm như ôm một món đồ chơi.' }],
     9: [{ en: 'DEEPDIG TUNNELS. The last road to the Citadel goes under the earth, through tunnels the old miners dug and then ran away from.', vi: 'ĐƯỜNG HẦM SÂU. Con đường cuối cùng tới Thành Trì đi xuyên lòng đất, qua những đường hầm thợ mỏ xưa đã đào rồi bỏ chạy.' },
@@ -6404,7 +6409,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       { en: 'The Kraken is not evil, just lonely and greedy. Hit it when it opens its arms wide!', vi: 'Thủy Quái không ác đâu, chỉ cô đơn và tham lam thôi. Đánh nó khi nó dang rộng tay nhé!' }] },
     pirate: { spr: 'npc_pirate', name: { en: 'Captain Redbeard', vi: 'Thuyền Trưởng Râu Đỏ' }, gift: { dagger: 6, bomb: 1, flask: 1 }, generic: [
       { en: 'Arr! My ship sank chasing that Kraken. Now I live here. The rent is cheap.', vi: 'Arr! Tàu ta chìm vì đuổi theo con Thủy Quái. Giờ ta sống ở đây. Tiền thuê rẻ lắm.' },
-      { en: 'Take my daggers, lad. They fly straight even underwater. Mostly.', vi: 'Cầm dao của ta đi nhóc. Chúng bay thẳng kể cả dưới nước. Phần lớn là vậy.' }] },
+      { en: 'Take my daggers, matey. They fly straight even underwater. Mostly.', vi: 'Cầm dao của ta đi nhóc. Chúng bay thẳng kể cả dưới nước. Phần lớn là vậy.' }] },
     fisher: { spr: 'npc_fisher', name: { en: 'Old Tu the Fisherman', vi: 'Ông Tư Đánh Cá' }, generic: [
       { en: 'Forty years I fished these waters and never caught anything like you.', vi: 'Bốn mươi năm ông câu ở vùng nước này, chưa bao giờ câu được thứ gì như cháu.' },
       { en: 'Star Gems glitter on the coral, high up. Swim up and look around, child.', vi: 'Ngọc Sao lấp lánh trên rạn san hô, ở chỗ cao. Bơi lên mà nhìn quanh nhé cháu.' }] },
@@ -7169,10 +7174,10 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     { w: 'mermaid', en: 'The Kraken guards the drowned tower in the deepest cavern and locks it with the Tide Door. The door opens only for three Sea Pearls.', vi: 'Kraken canh giữ ngọn tháp chìm trong hang sâu nhất và khóa nó bằng Cửa Thủy Triều. Cửa chỉ mở khi có đủ ba Ngọc Trai Biển.' },
     { w: 'ember', en: 'And where are the pearls?', vi: 'Vậy ngọc trai ở đâu?' },
     { w: 'mermaid', en: 'Its fish hid them in three rock pockets carved into the walls, on the way down. Swim into the side caves and search!', vi: 'Lũ cá của nó giấu chúng trong ba hốc đá khoét vào vách, trên đường đi xuống. Hãy bơi vào các hang bên và tìm!' },
-    { w: 'pirate', en: 'Arr, listen, lad. Hammer the Jump button again and again to swim up, let yourself sink to go down. The deeper you go, the darker and the stronger the currents.', vi: 'Arr, nghe này nhóc. Nhấn Nhảy liên tục để bơi lên, buông ra để chìm xuống. Càng sâu càng tối và dòng nước càng mạnh.' },
+    { w: 'pirate', en: 'Arr, listen, matey. Hammer the Jump button again and again to swim up, let yourself sink to go down. The deeper you go, the darker and the stronger the currents.', vi: 'Arr, nghe này nhóc. Nhấn Nhảy liên tục để bơi lên, thả người ra để chìm xuống. Càng xuống sâu càng tối và dòng nước càng mạnh.' },
     { w: 'pirate', en: 'Every stone shelf has a lamp post: that is a safe spot to rest. And swing your sword while you swim, the fish will not wait for you!', vi: 'Mỗi bệ đá đều có cột đèn: đó là chỗ nghỉ an toàn. Và cứ vung kiếm khi đang bơi, bọn cá không chờ bạn đâu!' },
     { w: 'ember', en: 'Three pearls, one door and one giant octopus. A normal day, then.', vi: 'Ba viên ngọc, một cánh cửa và một con bạch tuộc khổng lồ. Một ngày bình thường thôi mà.' },
-    { w: 'mermaid', en: 'Swim fast, Ember. The sea is very deep... and the fish are hungry.', vi: 'Bơi nhanh nhé, Ember. Biển rất sâu... và lũ cá đang đói.' },
+    { w: 'mermaid', en: 'Swim fast, {hero}. The sea is very deep... and the fish are hungry.', vi: 'Bơi nhanh nhé, {hero}. Biển rất sâu... và lũ cá đang đói.' },
     { w: 'narr', en: 'QUEST: find the 3 Sea Pearls in the side caves, open the Tide Door at the bottom, and face the Kraken.', vi: 'NHIỆM VỤ: tìm 3 Ngọc Trai Biển trong các hang bên, mở Cánh Cửa Thủy Triều ở đáy và đối đầu Thủy Quái.' }
   ];
   DLG[8] = {
@@ -8314,11 +8319,17 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     else if (scene === 'coop') drawCoop();
     cv.style.cursor = (scene === 'play' && Q && Q.state === 'play') ? 'crosshair' : (scene === 'play' || scene === 'title' || scene === 'map' ? 'pointer' : 'default');
     const f = fadeTo ? fade : fadeIn;
-    if (f > 0) { g.globalAlpha = Math.min(1, f); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+    // (with hi-res sprites on, the fade is drawn in the HUD pass instead)
+    if (f > 0 && !(hiOn && scene === 'play' && Q)) { g.globalAlpha = Math.min(1, f); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(buf, offX, offY, VW * scale, VH * scale);
     if (HIQ.length) drawHiQ();
+    if (hiOn && scene === 'play' && Q) {   // second pass: HUD and overlays above the hi-res sprites
+      hiOn = false; g.clearRect(0, 0, VW, VH); drawPlayOver(); hiOn = true;   // (pictures in the HUD draw straight into the buffer)
+      if (fadeIn > 0) { g.globalAlpha = Math.min(1, fadeIn); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+      ctx.imageSmoothingEnabled = false; ctx.drawImage(buf, offX, offY, VW * scale, VH * scale);
+    }
     if (coop && coop.kbps && location.search.indexOf('netstat') >= 0) txt('NET: ' + coop.kbps + ' KB/s per guest  (~' + Math.round(coop.kbps * 3.6) + ' MB per hour)', 4, VH - 6, { size: 5, col: '#9fe8ff' });
     if (skipShown()) {
       const [bx, by, bw, bh] = [VW - 62, 3, 58, 12], hot = mouse.gx >= bx && mouse.gx <= bx + bw && mouse.gy >= by && mouse.gy <= by + bh;
