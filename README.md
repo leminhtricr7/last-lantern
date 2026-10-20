@@ -412,3 +412,21 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - The old J / H boxes in the corner are gone. Skill badges 1 and 2 show both weapons: the one in hand has a gold frame and a little arrow, and the badges also show gun ammo or reload and weapon cooldowns.
 - H no longer attacks. Q / the mouse wheel still switches the throwing item.
 
+## Map backdrops (src/backdrops.js)
+- All 10 maps were repainted from the team's art direction. Each has a painted sky and its own parallax layers in a 16-bit style, with atmospheric haze on the far layers, and every layer loops seamlessly over 512 px:
+
+  | Map | Sky | Distant | Mid | Near |
+  |---|---|---|---|---|
+  | Verdant Meadow | Clear blue with clouds | Hazy hills | Rolling fields with trees and a fence | Round trees and flowers |
+  | Whispering Forest | Misty | Giant pale trunks | Trunks with branches and hanging vines | Canopy with light shafts, dense foliage |
+  | Crystal Caverns | Dark | Glowing stalagmites | Neon blue/purple crystal clusters | Rocky ledges, a stalactite roof |
+  | Sunscorch Desert | Bright, with heat rays | Dunes | Banded mesas | A pyramid, ruined columns, palms |
+  | Frostbite Peaks | Starry, with an aurora | Towering snowy mountains | Nearer peaks | Frozen waterfalls, snowy pines |
+  | Ember Volcano | Smoky | An erupting volcano with lava bombs | Lava falls | Obsidian spires with glowing cracks |
+  | Glowcap Swamp | Foggy, with fireflies | Giant glowing mushrooms | Twisted mossy trees | Swamp water, neon mushrooms |
+  | Sunken Deep | Deep blue water with light rays | Whales | A sunken temple | A kelp forest, coral reef |
+  | Deepdig Tunnels | | Mining equipment (gears, crane, drill) | Scaffolding with a minecart track | Crates; a rocky ceiling with lanterns |
+  | Shadow Citadel | Blood red, with an eclipse and bats | Castle towers | Gothic arches with a rose window | Gargoyle pillars and braziers |
+
+- The story's sun is still drawn by the game (it brightens as you collect its shards).
+

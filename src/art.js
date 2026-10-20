@@ -1225,6 +1225,7 @@ function buildTileset(B) {
 
 // ---------------- parallax backgrounds ----------------
 function buildBackground(B) {
+  if (typeof BACKDROP !== 'undefined' && BACKDROP[B.id]) return BACKDROP[B.id](B);   // the painted 4-layer backdrops (src/backdrops.js)
   const r = mulberry32((B.seed || 5) * 31);
   const bg = { layers: [] };
   // sky
