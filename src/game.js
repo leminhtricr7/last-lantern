@@ -6153,7 +6153,8 @@
     const B = Q.boss, tg = B && Q.arenaSealed && !B.dead && !B.hide ? B : nearestFoe(o.x + 4, o.y, 600), dir = tg ? (tg.x + tg.w / 2 < o.x + 4 ? -1 : 1) : o.face;
     const ent = SUM_ENT[kind] || 'beam', fly = !!SUM_FLY[kind], glow = (GIANT[kind] || BEAST[kind]).glow;
     let x = from ? from.x : (ent === 'shadow' ? o.x + 4 : o.x + 4 + dir * (ent === 'meteor' ? 74 : 56)); if (Q.arenaSealed) x = arenaClamp(x);
-    const gy = sumGround(x, from ? from.y : o.y + o.h), y = fly ? gy - 60 : gy, L = (life || 7) + (ENT_T[ent] || 1) + 1.6;
+    const sp0 = from ? { x, y: sumProbe(x, from.y - 18, 8) ?? sumSpawnPoint(o, x).y } : sumSpawnPoint(o, x); x = sp0.x;
+    const gy = sp0.y, y = fly ? gy - 60 : gy, L = (life || 7) + (ENT_T[ent] || 1) + 1.6;
     const sm = { evo: !!evo, stage: 1, hp: sumHp(1), hpMax: sumHp(1), inv: 9, kind, life: L, max: L, t: 0, x, y, f: dir, cd: 0.6, n: 0, owner: o, ph: 'enter', pt: 0, ent, ex: x, ey: y, fromPet: !!from };
     if (ent === 'swoop') { sm.x = sm.sx0 = x - dir * 220; sm.y = sm.sy0 = y - 120; }
     G.sums.push(sm);
@@ -6215,14 +6216,16 @@
       let sp = GAIT_SP[gait]; const dx = tg ? tg.x + tg.w / 2 - s.x : 0, ad = Math.abs(dx); if (tg) s.f = dx < 0 ? -1 : 1;
       if (gait === 'heavy') { const n = Math.floor(k * 2.2); if (n !== s.stepN) { s.stepN = n; Q.shake = Math.max(Q.shake, 0.22); Snd.play('bstep'); emit(s.x, s.y, 6, { col: ['#8a7a6a', '#cfd6e6'], sp0: 10, sp1: 40, vy: -20, l0: 0.2, l1: 0.4 }); } const ph = Math.abs(Math.sin(k * 2.2 * Math.PI)); sp *= 0.5 + 0.5 * ph; s.ay = -ph * 1.5; s.asy = 1 - 0.03 * ph; }
       else if (gait === 'stalk') { s.arot = s.f * 0.16; sp *= 0.3 + 0.7 * Math.abs(Math.sin(k * 2.4)); s.ax = Math.sin(k * 1.7) * 6; s.ay = -Math.abs(Math.sin(k * 4.8)) * 1.2; if (Math.random() < 0.5) emit(s.x - s.f * 12, s.y - 1, 1, { col: ['#a15be0', '#ffd34e', '#5a2a8a'], sp0: 5, sp1: 30, vy: -10, grav: 60, l0: 0.2, l1: 0.5 }); }
-      else if (gait === 'glide') { s.ay = -8 + Math.sin(k * 2.5) * 3; s.arot = s.f * 0.06; }
+      else if (gait === 'glide') { s.arot = s.f * 0.06; }   // smooth, but the feet stay on the ground
       else if (gait === 'swagger') { s.arot = Math.sin(k * 4) * 0.09; s.ay = -Math.abs(Math.sin(k * 4)) * 1.5; }
       else if (gait === 'soar') { s.ay = Math.sin(k * 2) * 4; }
-      if (!tg) { if (k < 5) { s.x += s.f * sp * 0.5 * dt; s.mv = 1; } }
-      else if (ad > ENR) { s.x += s.f * Math.min(sp * dt, ad - ENR); s.mv = 1; if (fly) s.y += clamp(tg.y - 60 - s.y, -40 * dt, 40 * dt); }
+      const onG = fly || sumPhys(s, dt);   // a walker in the air does nothing until it lands
+      const go = d2 => { if (fly) { s.x += d2; return true; } return sumStepX(s, d2); };
+      if (!onG) { s.ax = s.ay = 0; }
+      else if (!tg) { if (k < 5 && go(s.f * sp * 0.5 * dt)) s.mv = 1; }
+      else if (ad > ENR) { if (go(s.f * Math.min(sp * dt, ad - ENR))) s.mv = 1; else if (!fly && ad < ENR * 2.2) { s.ph = 'engage'; s.pt = 0; s.eg = eg; s.tg = tg; s.ex0 = s.x; s.ey0 = s.y; } if (fly) s.y += clamp(tg.y - 60 - s.y, -40 * dt, 40 * dt); }
       else { s.ph = 'engage'; s.pt = 0; s.eg = eg; s.tg = tg; s.ex0 = s.x; s.ey0 = s.y; }
       if (Q.arenaSealed) s.x = arenaClamp(s.x);
-      if (!fly) { const gy = sumGround(s.x, s.y); s.y = gy < s.y ? gy : Math.min(gy, s.y + 420 * dt); }
       return;
     }
     if (s.ph === 'engage') {   // the opening strike
@@ -6231,18 +6234,18 @@
       if (s.eg === 'leap') {   // jumps high and slams down
         const u = clamp(k / 0.9, 0, 1); s.x = s.ex0 + (tx - s.f * 18 - s.ex0) * ez(u); s.ay = -Math.sin(u * Math.PI) * 110; s.asy = u < 0.15 ? 0.85 : 1.08; s.asx = 2 - s.asy; s.arot = s.f * (u - 0.5) * 0.5;
         once('j', () => Snd.play('jump'));
-        if (u >= 1) { once('slam', () => { Q.shake = Math.max(Q.shake, 0.8); Snd.play('boom'); addRing(s.x, s.y, glow, 120, 0.5); for (let i = -5; i <= 5; i++) emit(s.x + i * 12, s.y, 3, { col: ['#8a6a44', '#c8a070', '#fff'], sp0: 20, sp1: 80, vy: -80 }); for (const e of foes()) if (Math.abs(e.x + e.w / 2 - s.x) < 80 && Math.abs(e.y + e.h - s.y) < 70) { dmgFoe(e, dmg(8), true, true); if (!e.isBoss) e.stunT = Math.max(e.stunT || 0, 1); } }); s.ph = 'fight'; }
+        if (u >= 1) { once('land', () => { const gy = sumProbe(s.x, Math.min(s.y, t2.y + t2.h) - 30); if (gy !== null) s.y = gy; s.vy = 0; }); once('slam', () => { Q.shake = Math.max(Q.shake, 0.8); Snd.play('boom'); addRing(s.x, s.y, glow, 120, 0.5); for (let i = -5; i <= 5; i++) emit(s.x + i * 12, s.y, 3, { col: ['#8a6a44', '#c8a070', '#fff'], sp0: 20, sp1: 80, vy: -80 }); for (const e of foes()) if (Math.abs(e.x + e.w / 2 - s.x) < 80 && Math.abs(e.y + e.h - s.y) < 70) { dmgFoe(e, dmg(8), true, true); if (!e.isBoss) e.stunT = Math.max(e.stunT || 0, 1); } }); s.ph = 'fight'; }
       } else if (s.eg === 'tele') {   // vanishes, reappears in the sky above the target and casts from there
         if (k < 0.3) { s.aal = 1 - k / 0.3; once('v', () => { Snd.play('zap'); emit(s.x, s.y - H / 2, 20, { col: [glow, '#fff'], sp0: 20, sp1: 90 }); }); }
-        else { once('p', () => { s.x = tx - s.f * 40; s.air = true; s.y = t2.y - 50; emit(s.x, s.y - H / 2, 26, { col: [glow, '#fff'], sp0: 20, sp1: 120 }); addRing(s.x, s.y - H / 2, glow, 90, 0.4); Snd.play('chime'); }); s.aal = ez(seg(k, 0.3, 0.6)); }
+        else { once('p', () => { const sp = sumSpawnPoint({ x: tx - 4, y: t2.y + t2.h - 14, h: 14, face: s.f }, tx - s.f * 40); s.x = sp.x; s.y = sp.y; s.vy = 0; emit(s.x, s.y - H / 2, 26, { col: [glow, '#fff'], sp0: 20, sp1: 120 }); addRing(s.x, s.y - H / 2, glow, 90, 0.4); Snd.play('chime'); }); s.aal = ez(seg(k, 0.3, 0.6)); }
         if (k >= 0.8) { s.ph = 'fight'; s.cd = 0; }
       } else if (s.eg === 'shadow') {   // sinks into its shadow, slides under the target and bursts out behind it
         if (k < 0.3) s.sink = ez(k / 0.3) * H;
-        else if (k < 0.6) { s.sink = H; s.x = s.ex0 + (tx + s.f * 26 - s.ex0) * ez((k - 0.3) / 0.3); s.y = sumGround(s.x, t2.y + t2.h); if (Math.random() < 0.7) emit(s.x + rr(-10, 10), s.y, 1, { col: ['#5a2a8a', '#14121f'], sp0: 4, sp1: 16, grav: -30, l0: 0.3, l1: 0.6 }); }
+        else if (k < 0.6) { s.sink = H; const nx = s.ex0 + (tx + s.f * 26 - s.ex0) * ez((k - 0.3) / 0.3), gy = sumProbe(nx, t2.y + t2.h - 18, 4); if (gy !== null) { s.x = nx; s.y = gy; } if (Math.random() < 0.7) emit(s.x + rr(-10, 10), s.y, 1, { col: ['#5a2a8a', '#14121f'], sp0: 4, sp1: 16, grav: -30, l0: 0.3, l1: 0.6 }); }
         else { once('b', () => { s.f = tx < s.x ? -1 : 1; Snd.play('slash'); dmgFoe(t2, dmg(12), true, true); emit(tx, t2.y + t2.h / 2, 18, { col: ['#a15be0', '#fff', '#14121f'], sp0: 30, sp1: 140 }); Q.shake = Math.max(Q.shake, 0.4); }); s.sink = (1 - ez(seg(k, 0.6, 0.8))) * H; s.atkT = 0.35; }
         if (k >= 1) s.ph = 'fight';
       } else if (s.eg === 'dash') {   // a sudden, very fast dash
-        const u = clamp(k / 0.35, 0, 1); s.x = s.ex0 + (tx - s.f * 22 - s.ex0) * ez(u); s.mv = 1; s.arot = s.f * 0.15;
+        const u = clamp(k / 0.35, 0, 1), nx = s.ex0 + (tx - s.f * 22 - s.ex0) * ez(u); sumStepX(s, nx - s.x); s.mv = 1; s.arot = s.f * 0.15;
         emit(s.x - s.f * 10, s.y - H / 2, 2, { col: [glow, '#fff'], sp0: 5, sp1: 20, l0: 0.15, l1: 0.3 });
         if (u >= 1) { once('h', () => { dmgFoe(t2, dmg(8), true, true); Snd.play('slash'); Q.shake = Math.max(Q.shake, 0.3); }); s.ph = 'fight'; }
       } else {   // flyers: climb, then dive
@@ -6250,7 +6253,7 @@
         if (u < 0.4) s.y = s.ey0 - ez(u / 0.4) * 50; else { const v = (u - 0.4) / 0.6; s.x = s.ex0 + (tx - s.ex0) * ez(v); s.y = (s.ey0 - 50) + (t2.y - (s.ey0 - 50)) * v * v; s.arot = s.f * 0.5; }
         if (u >= 1) { once('h', () => { dmgFoe(t2, dmg(8), true, true); Snd.play('explode'); addRing(tx, t2.y, glow, 90, 0.4); }); s.ph = 'fight'; s.y = t2.y - 60; }
       }
-      if (Q.arenaSealed && !s.air) s.x = arenaClamp(s.x);
+      if (Q.arenaSealed && !SUM_FLY[s.kind]) s.x = arenaClamp(s.x);
     }
   }
   // summons fight on their own: they walk (or fly) to the nearest enemy and attack it; with no enemy they idle near their owner
@@ -6264,6 +6267,34 @@
     for (const e of fs) { const d = Math.hypot(e.x + e.w / 2 - s.x, e.y + e.h / 2 - (s.y - 20)) * (isBig(e) ? 0.5 : 1); if (d < bd) { bd = d; best = e; } }
     return (s.tg = best);
   }
+  // ---- ground physics for walking summons ----
+  // groundBelow: a downward probe ("raycast") from just above the feet; returns the y of the first floor top, or null over a pit
+  function sumProbe(x, yRef, maxTiles) {
+    const tx = Math.floor(x / TS), H = Q.L.H, st = clamp(Math.floor((yRef - 6) / TS), 0, H - 1), end = Math.min(H, st + (maxTiles || 40));
+    if (solid(tx, st) && solid(tx, st - 1)) return null;   // the probe starts inside a wall
+    for (let ty = Math.max(1, st); ty < end; ty++) if (solid(tx, ty) && !solid(tx, ty - 1)) return ty * TS;
+    return null;
+  }
+  // one step on X: allowed onto flat ground, a 1-tile step up or a drop of up to 3 tiles; a wall or a pit stops the summon
+  function sumStepX(s, dx) {
+    if (!dx) return true; const nx = s.x + dx, probe = sumProbe(nx + Math.sign(dx) * 6, s.y - 18, 5);
+    if (probe === null || probe < s.y - 18 || probe > s.y + 3 * TS) return false;
+    s.x = nx; return true;
+  }
+  // gravity: Y only ever changes by falling (with acceleration) or by climbing a small step; returns true when standing on the ground
+  function sumPhys(s, dt) {
+    const gy = sumProbe(s.x, s.y - 18);
+    if (gy === null) { s.vy = Math.min(600, (s.vy || 0) + 1100 * dt); s.y += s.vy * dt; s.grounded = false; if (s.y > (Q.L.H + 2) * TS) sumRejoin(s, s.owner || Q.P, true); return false; }
+    if (s.y < gy - 0.5) { s.vy = Math.min(600, (s.vy || 0) + 1100 * dt); s.y = Math.min(gy, s.y + s.vy * dt); }
+    if (s.y >= gy - 0.5) { s.y = gy; s.vy = 0; s.grounded = true; } else s.grounded = false;
+    return s.grounded;
+  }
+  // a safe ground point next to the hero: try the spot in front, else the hero's own spot
+  function sumSpawnPoint(o, wantX) {
+    const feet = o.y + o.h, own = sumProbe(o.x + 4, feet - 2) ?? feet;
+    for (const x of [wantX, (wantX + o.x + 4) / 2, o.x + 4]) { const gy = sumProbe(x, own - 18, 6); if (gy !== null && Math.abs(gy - own) <= 18) return { x, y: gy }; }
+    return { x: o.x + 4, y: own };
+  }
   // the floor under a walking summon (searches from its feet, so it never walks on a cave ceiling or a hill far above)
   function sumGround(x, yRef) {
     const tx = Math.floor(x / TS), H = Q.L.H, st = clamp(Math.floor((yRef - 24) / TS), 1, H - 1);
@@ -6272,11 +6303,11 @@
     return yRef;
   }
   // a summon left far behind (the hero was pulled into a boss arena, took a portal, respawned...) appears next to the hero again
-  function sumRejoin(s, o) {
-    const ar = Q.L.arena, out = Q.arenaSealed && ar && (s.x < (ar.x0 + 2) * TS || s.x > ar.x1 * TS);
+  function sumRejoin(s, o, force) {
+    const ar = Q.L.arena, out = force || (Q.arenaSealed && ar && (s.x < (ar.x0 + 2) * TS || s.x > ar.x1 * TS));
     if (!out) return;
     emit(s.x, s.y - 20, 18, { col: [(GIANT[s.kind] || BEAST[s.kind]).glow, '#fff'], sp0: 20, sp1: 90 });
-    s.x = o.x + 4 - o.face * 26; s.y = SUM_FLY[s.kind] ? o.y - 46 : sumGround(s.x, o.y + o.h);
+    if (SUM_FLY[s.kind]) { s.x = o.x + 4 - o.face * 26; s.y = o.y - 46; } else { const sp = sumSpawnPoint(o, o.x + 4 - o.face * 26); s.x = sp.x; s.y = sp.y; s.vy = 0; }
     emit(s.x, s.y - 20, 24, { col: [(GIANT[s.kind] || BEAST[s.kind]).glow, '#fff'], sp0: 20, sp1: 110 }); Snd.play('poof');
   }
   const SUM_SPD = v => clamp(v * 0.6, 38, 70);   // slow and heavy on purpose
@@ -6286,9 +6317,8 @@
   // summons never trail behind the hero: they march on the target, or scout ahead of the hero when no monster is around
   function sumWalk(s, o, dt) {
     const w = SUM_WALK[s.kind] || [90, 50], t = sumTarget(s), sp = SUM_SPD(w[0]); s.mv = 0;
-    if (t) { const d = t.x + t.w / 2 - s.x, ad = Math.abs(d); s.f = d < 0 ? -1 : 1; if (ad > w[1]) { s.x += s.f * Math.min(sp * dt, ad - w[1]); s.mv = 1; } }
+    if (sumPhys(s, dt) && t) { const d = t.x + t.w / 2 - s.x, ad = Math.abs(d); s.f = d < 0 ? -1 : 1; if (ad > w[1] && sumStepX(s, s.f * Math.min(sp * dt, ad - w[1]))) s.mv = 1; }
     if (Q.arenaSealed) s.x = arenaClamp(s.x);
-    const gy = sumGround(s.x, s.y); s.y = gy < s.y ? gy : Math.min(gy, s.y + 420 * dt);   // steps up at once, falls down smoothly
   }
   function evolveSummon(s) {
     s.stage = 2; s.life = 30; s.max = 30; s.hpMax = s.hp = sumHp(2); s.inv = 99; s.atkT = 0.5; s.cd = 0.3; s.mv = 0; s.ultT = 1.1; s.ultN = 3;
@@ -6412,12 +6442,12 @@
       if (s.stage === 1 && !s.evo && s.life <= 0.9) { sumDissolve(s, 0.8); continue; }   // short summons (pet forms) also fade out with their death animation
       if (s.stage === 2) { sumUltTick(s, s.owner || P, dt); continue; }
       sdm = s.stage === 2 ? 1.8 : 1;
-      const o = s.owner || P, fly = !!SUM_FLY[s.kind] || !!s.air;
+      const o = s.owner || P, fly = !!SUM_FLY[s.kind];
       if (s.kind !== 'phoenix') sumRejoin(s, o);
       if (s.kind === 'phoenix') { const pt = sumTarget(s); if (pt) { s.f = pt.x + pt.w / 2 > s.x ? 1 : -1; sumGlide(s, pt.x + pt.w / 2 + Math.sin(s.t * 1.6) * 70, pt.y - 70 + Math.sin(s.t * 3) * 6, dt); s.mv = 1; } else { s.mv = 0; s.y += Math.sin(s.t * 2) * 6 * dt; } }
       else if (fly) { const dr = sumTarget(s); if (dr) { const sd0 = dr.x + dr.w / 2 < s.x ? -1 : 1; s.f = sd0; sumGlide(s, dr.x + dr.w / 2 - sd0 * (s.kind === 'skywhale' ? 0 : 130), dr.y - (s.kind === 'skywhale' ? 90 : 50) + Math.sin(s.t * 2) * 6, dt); } else { s.mv = 0; s.y += Math.sin(s.t * 2) * 5 * dt; } }
       else sumWalk(s, o, dt);
-      if (s.cd > 0 || s.t < 0.5 || s.life < 0.3) continue;
+      if (s.cd > 0 || s.t < 0.5 || s.life < 0.3 || (!fly && s.grounded === false)) continue;
       const near = r => nearestFoe(s.x, s.y - 30, r), all = r => foes().filter(e => Math.abs(e.x + e.w / 2 - s.x) < r);
       const cd0 = s.cd, tg0 = sumTarget(s);
       switch (s.kind) {

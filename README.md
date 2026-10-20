@@ -323,3 +323,11 @@ These are inspired by classic play styles but use original names and designs, so
 | **Bông Gòn / Puff** | Up to 6 flutter jumps in the air with very low gravity. | Inhale: sucks small enemies in and copies their power with a hat: Fire, Spark, Web, Wing, Stone or Star (J uses it, R spits it out). Inhaling only air puffs you up to float. |
 | **Thời Vương / Chrono** | Time stop greys out the world and freezes enemies, bosses and their shots for 4 s; only the heroes move. The Guardian spirit punches nearby enemies, and all that damage lands when time flows again. | Time Stop |
 
+## Summons stay on the ground
+The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven only by gravity, X-only walking, a grounded check), implemented in this engine:
+- **Spawn:** a downward probe (`sumProbe`) from the hero finds the floor. The summon appears on that point (in front of the hero if that spot is at the same height, otherwise at the hero's own spot), never in the air, over a pit or inside a wall.
+- **Gravity only:** walkers change Y only by falling, accelerating at 1100 px/s² up to 600 px/s, or by climbing a step of at most one tile. Nothing lifts them up.
+- **X only:** a wall stops them instead of teleporting them on top of it, and a pit or a drop deeper than 3 tiles stops them at the edge (`sumStepX`). The teleport casters (Storm God, Moon Goddess, Angel, Sun Emperor, Sea Goddess) reappear on the ground beside the target instead of hanging in the sky. A leap lands on the real floor of the landing spot.
+- **Grounded check:** while a walker is falling it neither walks forward nor attacks. If it ever falls out of the level it reappears next to its owner.
+- The real flyers (Phoenix, Dragons, Sky Whale) still fly.
+
