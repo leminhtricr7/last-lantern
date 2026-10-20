@@ -380,3 +380,13 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 | Jotaro | Star Platinum punches with every attack | Ora Ora barrage |
 | Dio | A knife with every attack | The World: 3.5 s time stop; knives fill the screen around enemies and fly when time flows |
 
+## Art clean-up (summons and fan heroes)
+- `tools/declutter_summons.py` is a third pass over every summon strip:
+  - It removes pieces of the neighbouring figure that the first cut kept (27 stray wings, tails and half-dragons).
+  - It drops frames where two figures were fused into one or the figure lost half of itself.
+  - It drops frames that the sheet's grid had sliced with a straight edge.
+  - It then re-packs each strip on the figure's feet and updates the manifest.
+- Each fan hero's legs are measured on its own picture (`FAN_RIG`: hip row and leg columns). Only the real legs swing; Kayn's scythe, Rhaast's pole, Miku's twin tails and Jerry's tail stay on the body.
+- The pet's red dragon form is now a vivid red instead of a muddy brown.
+- Summons called at the same time appear side by side instead of on top of each other.
+

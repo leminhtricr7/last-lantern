@@ -5010,7 +5010,7 @@
   ['kayn', 'rhaast', 'tom', 'jerry', 'luffy', 'sonic', 'kirby', 'jotaro', 'dio', 'miku'].forEach(k => {
     const im = new Image(); im.onload = () => {
       const w = Math.round(im.width * FAN_SC), h = Math.round(im.height * FAN_SC), mk = flip => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; if (flip) { x.translate(w, 0); x.scale(-1, 1); } x.drawImage(im, 0, 0, w, h); return c; };
-      const c = mk(false), f = mk(true); FAN_IMG[k] = { im, spr: { c, f, cw: c, fw: f, w, h } };
+      const c = mk(false), f = mk(true); FAN_IMG[k] = { im, spr: { c, f, cw: c, fw: f, w, h }, parts: fanParts(k, im) };
     }; im.src = 'assets/fanheroes/' + k + '.png';
   });
   const fanKey = (h, P) => (P && P.form === 'rhaast' && h.fan === 'kayn') ? 'rhaast' : h.fan;
@@ -5020,10 +5020,18 @@
   }
   // the hero in play: the drawing at full screen resolution, moved by the shared animator (idle breath, walk, run, jump, hurt red)
   // where the legs start in each picture (fraction of the height): the part below swings as two legs
-  const FAN_RIG = { kayn: 0.74, rhaast: 0.76, tom: 0.84, jerry: 0.86, luffy: 0.8, sonic: 0.84, kirby: 0.8, jotaro: 0.8, dio: 0.8, miku: 0.8 };
+  // legs of each picture in native pixels: hip row, the leg columns x0..x1 and where the left leg ends (sp); everything else
+  // (Kayn's scythe, Rhaast's pole, Miku's twin tails, Jerry's tail...) stays fixed to the body
+  const FAN_RIG = { kayn: [36, 0, 31, 15], rhaast: [37, 4, 32, 18], tom: [39, 7, 29, 18], jerry: [38, 12, 37, 24], luffy: [37, 7, 25, 16], sonic: [40, 11, 36, 23], kirby: [33, 3, 41, 22], jotaro: [38, 0, 31, 15], dio: [38, 6, 26, 16], miku: [38, 10, 25, 17] };
+  function fanParts(key, im) {
+    const r = FAN_RIG[key] || [Math.round(im.height * 0.8), 0, im.width - 1, Math.round(im.width / 2)], [hy, x0, x1, sp] = r, H = im.height, top = hy - 2;
+    const cut = (sx, sy, w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(im, sx, sy, w, h, 0, 0, w, h); return c; };
+    const body = document.createElement('canvas'); body.width = im.width; body.height = H; const bx = body.getContext('2d'); bx.drawImage(im, 0, 0); bx.clearRect(x0, hy, x1 - x0 + 1, H - hy);
+    return { body, L: cut(x0, top, sp - x0 + 1, H - top), R: cut(sp + 1, top, x1 - sp, H - top), lx: x0, rx: sp + 1, top };
+  }
   // the hero in play: the drawing at full screen resolution, animated like a puppet (body + left leg + right leg)
   function drawFanHero(P, h, x, bot) {
-    const key = fanKey(h, P), o = FAN_IMG[key]; if (!o) return false; const im = o.im, W = im.width, H = im.height, hy = Math.round(H * (FAN_RIG[key] || 0.8)), half = Math.round(W / 2);
+    const key = fanKey(h, P), o = FAN_IMG[key]; if (!o) return false; const im = o.im, W = im.width, H = im.height, pp = o.parts;
     const sp = Math.abs(P.vx), onG = P.onGround, moving = onG && sp > 15, run = sp > RUN * 0.72, f = P.face < 0 ? -1 : 1;
     let bodyY = 0, bodyX = 0, lean = 0, sx = 1, sy = 1; const L = { x: 0, y: 0 }, R = { x: 0, y: 0 };
     if (P.hurtA > 0) { const k = 1 - P.hurtA / 0.36; lean = -0.18 * Math.sin(k * Math.PI); bodyX = -2 * Math.sin(k * Math.PI); }
@@ -5042,8 +5050,8 @@
     if (h.mech === 'toon') { if (P.landA > 0) { sx *= 1.2; sy *= 0.8; } else if (!onG) { sy *= P.vy < 0 ? 1.15 : 1.05; sx *= 2 - sy; } }
     const parts = () => {
       const back = moving && Math.sin(P.anim * (run ? 14 : 9)) > 0 ? 'R' : 'L';   // the leg in front is drawn last
-      const leg = side => { const A = side === 'L' ? L : R, x0 = side === 'L' ? 0 : half, w = side === 'L' ? half : W - half; hiImg(im, x0, hy, w, H - hy, -W / 2 + x0 + A.x, -H + hy + A.y, w, H - hy); };
-      leg(back); hiImg(im, 0, 0, W, hy + 2, -W / 2 + bodyX, -H + bodyY, W, hy + 2); leg(back === 'L' ? 'R' : 'L');
+      const leg = side => { const A = side === 'L' ? L : R, c = side === 'L' ? pp.L : pp.R, lx = side === 'L' ? pp.lx : pp.rx; hiImg(c, 0, 0, c.width, c.height, -W / 2 + lx + A.x, -H + pp.top + A.y, c.width, c.height); };
+      leg(back); hiImg(pp.body, 0, 0, W, H, -W / 2 + bodyX, -H + bodyY, W, H); leg(back === 'L' ? 'R' : 'L');
     };
     g.save(); g.translate(x, bot); g.rotate(lean * f); g.scale(f * FAN_SC * sx, FAN_SC * sy); g.imageSmoothingEnabled = true;
     if (P.dash > 0) g.globalAlpha = 0.75;
@@ -6345,7 +6353,9 @@
     const o = owner || Q.P, G = Q.G; if (!G.sums) G.sums = [];
     const B = Q.boss, tg = B && Q.arenaSealed && !B.dead && !B.hide ? B : nearestFoe(o.x + 4, o.y, 600), dir = tg ? (tg.x + tg.w / 2 < o.x + 4 ? -1 : 1) : o.face;
     const ent = SUM_ENT[kind] || 'beam', fly = !!SUM_FLY[kind], glow = (GIANT[kind] || BEAST[kind]).glow;
-    let x = from ? from.x : (ent === 'shadow' ? o.x + 4 : o.x + 4 + dir * (ent === 'meteor' ? 74 : 56)); if (Q.arenaSealed) x = arenaClamp(x);
+    let x = from ? from.x : (ent === 'shadow' ? o.x + 4 : o.x + 4 + dir * (ent === 'meteor' ? 74 : 56));
+    { const n = G.sums.filter(q => q.life > 0 && !q.dying).length; if (n && !from) x += (n % 2 ? -1 : 1) * 40 * Math.ceil(n / 2); }   // several summons do not stand on top of each other
+    if (Q.arenaSealed) x = arenaClamp(x);
     const sp0 = from ? { x, y: sumProbe(x, from.y - 18, 8) ?? sumSpawnPoint(o, x).y } : sumSpawnPoint(o, x); x = sp0.x;
     const gy = sp0.y, y = fly ? gy - 60 : gy, L = (life || 7) + (ENT_T[ent] || 1) + 1.6;
     const sm = { evo: !!evo, stage: 1, hp: sumHp(1), hpMax: sumHp(1), inv: 9, kind, life: L, max: L, t: 0, x, y, f: dir, cd: 0.6, n: 0, owner: o, ph: 'enter', pt: 0, ent, ex: x, ey: y, fromPet: !!from };
@@ -6696,7 +6706,7 @@
   // ===== the artist's summon sprites (assets/summons, cut from art/summon_sheets by tools/extract_summons.py) =====
   let SUM_MAN = null; const SUM_IMG = {};
   fetch('assets/summons/manifest.json').then(r => r.ok ? r.json() : null).then(m => { SUM_MAN = m || {}; }).catch(() => { SUM_MAN = {}; });
-  const SUM_ALIAS = { dragonform: ['dragonking', 'hue-rotate(-38deg) saturate(1.35) brightness(0.92)'] };
+  const SUM_ALIAS = { dragonform: ['dragonking', 'hue-rotate(-42deg) saturate(1.7) brightness(1.08) contrast(1.05)'] };
   const SUM_H = { titan: 74, stormgod: 74, seagoddess: 68, moongoddess: 68, frostgiant: 80, shogun: 58, treant: 80, aegis: 56, valkyrie: 56, angel: 60, golems: 46, phoenix: 50, dragonking: 66, dragonform: 66, ninetail: 42, clones: 28 };   // body height in world pixels (the hero is ~20)
   function sumArt(k) {
     if (SUM_IMG[k]) return SUM_IMG[k]; if (!SUM_MAN) return null;
@@ -7718,5 +7728,5 @@
       seal(); if (n > 0) { applyForm(Q.boss, n); Q.boss.st = 'intro'; Q.boss.timer = 0; Q.boss.invul = 0; } if (n >= 3) spawnAllies();
     }, 400); }
   { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
-  if (location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();
