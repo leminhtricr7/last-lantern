@@ -1178,7 +1178,7 @@
     if (coop) coopGather();
     Q.state = 'bossintro'; Q.stateT = 0;
     Q.boss.st = 'intro'; Q.boss.max = Q.boss.hp;
-    Snd.creature(Q.li, 'alert', true); Snd.music('boss', BOSS_MUSIC); setEmo('angry', 2.6);
+    Snd.creature(Q.li, 'alert', true); Snd.music('boss' + Q.li, BOSS_TRACK(Q.li)); setEmo('angry', 2.6);
     Q.shake = 0.6;
     if (Q.li === 6) startScripted('quoc', QUOC_PRE, () => { Q.state = 'bossintro'; Q.stateT = 0; });
     else bossPre();
@@ -1312,6 +1312,8 @@
       for (const e of foes()) if (Math.abs(e.x + e.w / 2 - cx) < 44 + e.w / 2 && Math.abs(e.y + e.h - gy) < 40) { dmgFoe(e, 2 + Math.floor(baseDmg() / 2), true, true); if (!e.isBoss) e.stunT = Math.max(e.stunT || 0, 0.9); }
     }
   }
+  const R_SFX = { pillar: 'relic', notes: 'chime', runes: 'rune', xslash: 'slash', bats: 'flap', leaves: 'windy', frost: 'zap', flames: 'flame', bolts: 'thunder', spiral: 'windy', spikes: 'crumble', quakering: 'boom',
+    stars: 'chime', petals: 'whoosh', hearts: 'heart', beamh: 'laser', souls: 'poof', sunburst: 'explode', sparks: 'clang', bubbles: 'splash', waves: 'splash', cross: 'relic', burst: 'boom', clock: 'click' };
   // the R skill: every hero has a look of their own (style + two colours), plus a tinted screen flash and a glow round the caster
   function rFx(P, h) {
     const fx = HERO_FX[h.id]; if (!fx) return; const [st, c1, c2] = fx.r, big = h.sk.cd >= 4, G = Q.G;
@@ -1823,7 +1825,7 @@
     Q.mainBoss = Q.boss; Q.mainArena = L.arena; L.arena = { x0: m.lw, x1: m.rw, gy: m.gy };
     const b = makeFormBoss(def.forms, (m.lw + m.rw) / 2 * TS + 48, m.gy * TS, { id: m.who, who: m.who, mini: m });
     b.st = 'intro'; b.timer = 0; Q.boss = b; Q.arenaSealed = true; Q.bossDead = false; if (coop) coopGather(false, m.lead);
-    Q.state = 'bossintro'; Q.stateT = 0; Snd.music('boss', BOSS_MUSIC); setEmo('angry', 2.6); Snd.creature(Q.li, 'alert', true); Q.shake = 0.6;
+    Q.state = 'bossintro'; Q.stateT = 0; Snd.music('mini' + m.who, BOSS_TRACK(Q.li, m.who)); setEmo('angry', 2.6); Snd.creature(Q.li, 'alert', true); Q.shake = 0.6;
   }
   function updateMiniEnc() {
     if (!Q.minis) return;
@@ -5147,7 +5149,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   function healP(p, n) { const m = p.mhp || maxHP(); if (p.hp < m) { p.hp = Math.min(m, p.hp + n); Snd.play('heart'); } emit(p.x + 4, p.y + 4, 10, { col: ['#ff7fb0', '#fff', '#a4ffc0'], sp0: 10, sp1: 50, grav: -30 }); }
   function heroSkill(P) {
     const h = HERO[P.hero]; if (!h) return; const s = h.sk, f = P.face, cx = P.x + 4, cy = P.y + 6, d = s.d + Math.floor(baseDmg() / 2);
-    P.skCd = s.cd; Snd.play('relic'); pop(cx, cy - 18, LN(s.n), s.col); addRing(cx, cy, s.col, 34, 0.35); emit(cx, cy, 14, { col: [s.col, '#fff'], sp0: 20, sp1: 80 }); rFx(P, h);
+    P.skCd = s.cd; Snd.play(R_SFX[(HERO_FX[h.id] || { r: [] }).r[0]] || 'relic'); pop(cx, cy - 18, LN(s.n), s.col); addRing(cx, cy, s.col, 34, 0.35); emit(cx, cy, 14, { col: [s.col, '#fff'], sp0: 20, sp1: 80 }); rFx(P, h);
     switch (s.k) {
       case 'nova': case 'reap': {
         addRing(cx, cy, s.col, s.r, 0.45); Q.shake = Math.max(Q.shake, 0.25);

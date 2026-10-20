@@ -122,6 +122,13 @@ const HARD = li => li >= 2;   // maps 3-10 are the long, hard ones (maps 1 and 2
 const HARDK = li => (li >= 2 ? Math.min(1, Math.max(0, (LPOS(li) - 1) / 8)) : 0);   // how far into the hard part: map 3 = 0.125 ... map 10 = 1
 
 const BOSS_MUSIC = { root: 48, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 150, wave: 'square', prog: [0, 1, 3, 1], seed: 77, density: 0.7 };
+// a fight track for each boss, built from its map's music: same key, a minor scale, its own melody, faster later on
+const BOSS_TRACK = (li, tag) => {
+  const m = BIOMES[li].music, p = LPOS(li), minor = m.scale.indexOf(3) >= 0 || m.scale.indexOf(1) >= 0, k = tag === 'shorty' ? 1 : (tag === 'sy' ? 2 : 0);
+  return { root: (m.root % 12) + 48 - (li === 6 && !k ? 2 : 0) + (k ? 3 * k : 0), scale: minor ? m.scale : [0, 2, 3, 5, 7, 8, 10], bpm: 100 + p * 2.4 + k * 3,
+    wave: (li === 6 && !k) || m.wave === 'triangle' ? 'sawtooth' : 'square', prog: [[0, 1, 3, 1], [0, -2, -4, -5], [0, 3, 5, 3], [0, 1, 0, -2], [0, -4, -2, -5]][(p + k) % 5],
+    seed: 700 + li * 13 + k * 101, density: 0.62 + p * 0.03 };
+};
 const DEVIL_MUSIC = { root: 38, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 68, wave: 'sawtooth', prog: [0, 1, 0, -2], seed: 66, density: 0.3 };
 const TITLE_MUSIC = { root: 60, scale: [0, 2, 4, 7, 9], bpm: 78, wave: 'triangle', prog: [0, 5, 3, 7], seed: 2, density: 0.4, drums: true };
 
