@@ -935,17 +935,24 @@ const NPC_PAINT = {
   }],
   // Cage that holds the singer
   dragon_head: [34, 34, P => { const C = { body: '#d03a30', dark: '#8e2335', eye: '#ffe033', horn: '#e8dfc0' }; dragonHead(P, 12, 18, C, true); }],
-  cage: [24, 34, P => {
-    P.rect(1, 0, 22, 3, 'q'); P.rect(1, 31, 22, 3, 'q'); P.rect(1, 0, 22, 1, 'A');
-    for (let i = 0; i < 6; i++) { P.rect(2 + i * 4, 3, 2, 28, 'A'); P.rect(2 + i * 4, 3, 1, 28, 'a'); }
-    P.rect(1, 14, 22, 2, 'q'); P.rect(10, 12, 4, 6, 'Y'); P.px(11, 14, 'k'); P.px(11, 15, 'k');
+  // the iron cage that holds Princess Lyra: a domed top with a hanging ring, thick riveted bars, two bands, a padlock and a plate base
+  cage: [28, 38, P => {
+    const D = '#2c2c38', M = '#555568', L = '#8c8ca0', H = '#c4c4d6', R = '#6a4a38';
+    P.rect(11, 0, 6, 2, D); P.rect(12, 0, 4, 1, L); P.rect(12, 2, 4, 1, D);                                   // the ring the chain hangs from
+    P.tri(14, 3, 1, 9, 27, 9, D); P.tri(14, 4, 4, 9, 24, 9, M); P.tri(14, 4, 9, 7, 17, 7, L);                  // the dome
+    P.rect(1, 9, 26, 3, D); P.rect(1, 9, 26, 1, L); P.rect(1, 11, 26, 1, M);                                   // top band
+    for (let i = 0; i < 7; i++) { const x = 1 + i * 4; P.rect(x, 12, 2, 22, M); P.rect(x, 12, 1, 22, L); P.rect(x + 1, 12, 1, 22, D); P.px(x, 13, H); }   // the bars: 2 px of iron, 2 px of see-through
+    P.rect(1, 21, 26, 1, D); P.rect(1, 22, 26, 1, M); for (let i = 0; i < 7; i++) P.px(1 + i * 4, 21, H);          // a middle band with rivets
+    P.rect(0, 34, 28, 4, D); P.rect(0, 34, 28, 1, M); P.rect(1, 35, 26, 1, L); for (let i = 0; i < 6; i++) P.px(3 + i * 4, 36, M);   // base plate
+    P.rect(21, 26, 6, 6, '#c89a1c'); P.rect(21, 26, 6, 1, '#ffe08a'); P.rect(22, 23, 1, 3, L); P.rect(25, 23, 1, 3, L); P.rect(22, 23, 4, 1, L); P.px(23, 28, D); P.rect(23, 29, 1, 2, D);   // the padlock at the side of the door
+    P.px(5, 28, R); P.px(6, 28, R); P.px(20, 17, R); P.px(21, 18, R); P.px(9, 31, R);                          // rust
   }]
 };
 function npcSpr(name) {
   if (name && name.indexOf('boss:') === 0) return bossSprite(+name.slice(5));
   if (!NPC_PAINT[name]) return getSprite(name);
   const key = 'np_' + name;
-  if (!_cache[key]) { const d = NPC_PAINT[name]; _cache[key] = paint(d[0], d[1], d[2]); }
+  if (!_cache[key]) { const d = NPC_PAINT[name]; _cache[key] = paint(d[0], d[1], d[2], name === 'cage' ? 'rgba(0,0,0,0)' : undefined); }
   return _cache[key];
 }
 

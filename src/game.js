@@ -2236,8 +2236,9 @@
     if (coop && coop.role === 'host') { lines = teamLines(lines, who); if (who === 'ember' && lines[0]) who = lines[0].w; }
     Q.talk = { it: { who }, npc: NPCS[who], lines, i: 0, t: 0, after, cine: true }; Q.state = 'talk'; Snd.blip(who); Q.P.vx = 0;
   }
-  function giveGift(gf) {
+  function giveGift(gf, show) {
     for (const k in gf) Q.P.ammo[k] += gf[k];
+    if (show === false) return;
     Snd.play('pickup'); Q.msg = T('gift') + '  (+' + gf.dagger + ' ' + T('dagger') + ', +' + gf.bomb + ' ' + T('bomb') + ', +' + gf.flask + ' ' + T('flask') + ')'; Q.msgT = 5;
   }
   function endTalk() {
@@ -2248,8 +2249,10 @@
     Q.state = 'play';
     if (!it.blessed) {
       it.blessed = true;
-      if (Q.P.hp < maxHP()) { Q.P.hp = maxHP(); Snd.play('heart'); Q.msg = T('healed'); Q.msgT = 3; emit(Q.P.x + 4, Q.P.y + 7, 14, { col: ['#e0453a', '#ff7fb0', '#fff'], sp0: 10, sp1: 60 }); }
-      if (n.gift) giveGift(n.gift);
+      for (const pl of (coop && Q.players && Q.players.length ? Q.players : [Q.P])) asP(pl, () => {   // everybody gets the heal and the supplies, not only the host
+        const P = Q.P; if (P.hp < maxHP()) { P.hp = maxHP(); if (isMe(P)) { Snd.play('heart'); Q.msg = T('healed'); Q.msgT = 3; } emit(P.x + 4, P.y + 7, 14, { col: ['#e0453a', '#ff7fb0', '#fff'], sp0: 10, sp1: 60 }); }
+        if (n.gift) giveGift(n.gift, isMe(P));
+      });
     }
   }
   function updateTalk(dt) {
@@ -3109,7 +3112,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     else if (pz.type === 'tablet') { Q.tablet = gateOf(pz.gate); Q.state = 'tablet'; Snd.play('select'); }
     else if (pz.type === 'cage') {
       if (Q.ents.some(e => !e.dead && e.grp === pz.grp)) { Q.msg = T('guards'); Q.msgT = 3; Snd.play('zap'); return; }
-      startScripted('lyra', RESCUE, () => { pz.open = true; save.leek = true; grantLeek(); grantLyraGifts(); writeSave(); if (coop && coop.role === 'host') NET.send({ t: 'gift' }); Q.items.push({ kind: 'npc', who: 'lyra', x: pz.x, y: pz.y, id: -5, ph: 0 }); Q.state = 'reward'; Q.stateT = 0; Snd.play('relic'); Snd.hero('cheer'); setEmo('happy', 3); emit(pz.x, pz.y - 14, 40, { col: ['#a4ffc0', '#fff', '#6ee7f2'], sp0: 20, sp1: 120 }); });
+      startScripted('lyra', RESCUE, () => { pz.open = true; save.leek = true; grantLeek(); grantLyraGifts(); writeSave(); if (coop && coop.role === 'host') { for (const pl of Q.players || []) if (pl !== Q.me && pl.bag) grantToBag(pl.bag); NET.send({ t: 'gift' }); } Q.items.push({ kind: 'npc', who: 'lyra', x: pz.x, y: pz.y, id: -5, ph: 0 }); Q.state = 'reward'; Q.stateT = 0; Snd.play('relic'); Snd.hero('cheer'); setEmo('happy', 3); emit(pz.x, pz.y - 14, 40, { col: ['#a4ffc0', '#fff', '#6ee7f2'], sp0: 20, sp1: 120 }); });
     }
   }
   // ===================== Mr Shorty's trials =====================
@@ -3191,13 +3194,14 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       else if (pz.type === 'torch') drawSpr(g, icon('torch', pz.ci, pz.lit ? 1 : 0), x, y, false);
       else if (pz.type === 'tablet') drawSpr(g, icon('tablet'), x, y, false);
       else if (pz.type === 'cage') {
-        const sp = npcSpr('npc_lyra_leek'); drawSpr(g, sp, x, y - 1 + Math.round(Math.sin(Q.t * 2) * 0.6), false, false);
-        g.globalAlpha = 0.5; drawSpr(g, npcSpr('cage'), x, y + 1, false); g.globalAlpha = 1;
-        g.fillStyle = '#8892aa'; for (let cy = y - 54; cy > y - 130; cy -= 4) g.fillRect(x - 1 + ((cy >> 2) & 1), cy, 2, 3);
-        if (Q.ents.some(e => !e.dead && e.grp === pz.grp)) { g.fillStyle = '#e0453a'; g.fillRect(x - 1, y - 48, 3, 7); g.fillRect(x - 1, y - 39, 3, 3); }
+        const sp = npcSpr('npc_lyra_leek'), sway = Math.round(Math.sin(Q.t * 1.3) * 0.8), cg = npcSpr('cage');
+        drawSpr(g, sp, x + sway, y - 4 + Math.round(Math.sin(Q.t * 2) * 0.6), false, false);          // Lyra sits inside, between the bars
+        drawSpr(g, cg, x + sway, y + 1, false);                                                           // the iron cage in front of her
+        for (let cy = y - 36; cy > y - 130; cy -= 5) { const k = ((cy / 5) | 0) & 1; g.fillStyle = '#2c2c38'; g.fillRect(x - 2 + sway * (1 - (y - cy) / 100), cy, k ? 4 : 2, k ? 2 : 4); g.fillStyle = '#8c8ca0'; g.fillRect(x - 1 + sway * (1 - (y - cy) / 100), cy, 1, k ? 2 : 4); }   // iron chain links
+        if (Q.ents.some(e => !e.dead && e.grp === pz.grp)) { g.fillStyle = '#e0453a'; g.fillRect(x - 1, y - 60, 3, 7); g.fillRect(x - 1, y - 51, 3, 3); }
       }
       else if (pz.type === 'rune') drawSpr(g, icon('rune', pz.ci, pz.lit ? 1 : 0), x, y + 1, false);
-      if ((Q.nearPz === pz || (coop && Q.me && Q.me.nz >= 0 && Q.pz[Q.me.nz] === pz && !(pz.on || pz.lit || pz.open))) && Q.state === 'play') txt(pz.type === 'torch' ? T('light') : (pz.type === 'tablet' ? T('read') : (pz.type === 'cage' ? T('free') : T('use'))), x, y - (pz.type === 'cage' ? 52 : 26), { al: 'center', size: 6, col: '#ffd34e' });
+      if ((Q.nearPz === pz || (coop && Q.me && Q.me !== Q.P && nearPzFor(Q.me) === pz)) && Q.state === 'play') txt(pz.type === 'torch' ? T('light') : (pz.type === 'tablet' ? T('read') : (pz.type === 'cage' ? T('free') : T('use'))), x, y - (pz.type === 'cage' ? 52 : 26), { al: 'center', size: 6, col: '#ffd34e' });
     }
     for (const gd of Q.gates) {
       if (gd.open && gd.need !== 'timed') continue;
@@ -3465,8 +3469,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         const n = NPCS[it.who], sp = npcSpr(n.spr), bob = 0, NA = animPose('idle', it.ph, 1, 0);
         drawSprT(g, sp, x, y, Q.P.x + 4 < it.x, false, NA.sx, NA.sy, 0);
         const by = y - sp.h - 4 - bob;
-        if (Q.nearNpc === it && Q.state === 'play') { txt(T('talk'), x, by - 4, { al: 'center', size: 6, col: '#ffd34e', world: true }); }
-        else if (Q.nearNpc !== it) { g.fillStyle = '#1b1626'; g.fillRect(x - 4, by - 5, 9, 7); g.fillStyle = '#fff'; g.fillRect(x - 3, by - 4, 7, 5); g.fillStyle = '#1b1626'; g.fillRect(x - 2, by - 2, 1, 1); g.fillRect(x, by - 2, 1, 1); g.fillRect(x + 2, by - 2, 1, 1); }
+        if ((Q.nearNpc === it || (coop && Q.me && Q.me !== Q.P && nearNpcFor(Q.me) === it)) && Q.state === 'play') { txt(T('talk'), x, by - 4, { al: 'center', size: 6, col: '#ffd34e', world: true }); }
+        else if (Q.nearNpc !== it && !(coop && Q.me && Q.me !== Q.P && nearNpcFor(Q.me) === it)) { g.fillStyle = '#1b1626'; g.fillRect(x - 4, by - 5, 9, 7); g.fillStyle = '#fff'; g.fillRect(x - 3, by - 4, 7, 5); g.fillStyle = '#1b1626'; g.fillRect(x - 2, by - 2, 1, 1); g.fillRect(x, by - 2, 1, 1); g.fillRect(x + 2, by - 2, 1, 1); }
       } else if (it.kind === 'cp') {
         g.fillStyle = '#1b1626'; g.fillRect(x - 2, y - 22, 4, 22); g.fillStyle = '#5a3a22'; g.fillRect(x - 1, y - 21, 2, 21);
         g.fillStyle = '#1b1626'; g.fillRect(x - 5, y - 30, 10, 10);
@@ -3973,7 +3977,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   function shopBack() {
     Q = shopHeldQ || Q; shopHeldQ = null; scene = 'play'; clearPressed();
     if (Q && Q.P) { Q.P.sw = null; if (Q.P.hero) { Q.P.mhp = Math.max(2, baseHP() + HERO[Q.P.hero].hp); Q.P.hp = Math.min(Q.P.hp, Q.P.mhp); } }
-    if (coop && coop.role === 'client') NET.send({ t: 'inv', inv: { w: save.inv.w.slice(), armor: save.inv.armor } });
+    if (coop && coop.role === 'client') NET.send({ t: 'inv', inv: { w: save.inv.w.slice(), armor: save.inv.armor, pet: save.inv.pet, own: save.inv.own.slice() } });
   }
   // ---- Star Gem trades ----
   const TRADES = [
@@ -3999,6 +4003,13 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   }
   function shopSay(s, bad) { shopMsg = s; shopMsgT = 2.6; shopBad = !!bad; Snd.play(bad ? 'hurt' : 'ok'); }
   function setTab(i) { shopTab = (i + SH_TABS.length) % SH_TABS.length; shopIdx = 0; shopCard = null; Snd.play('select'); }
+  // the same gifts for a teammate's bag as seen by the host
+  function grantToBag(b) {
+    for (const id of ['leek', 'leekarmor', 'leekpet']) if ((b.own = b.own || []).indexOf(id) < 0) b.own.push(id);
+    b.w = b.w || ['iron', null];
+    if (b.w.indexOf('leek') < 0) { if (b.w[0] && ITEM[b.w[0]] && ITEM[b.w[0]].type === 'sword') b.w[0] = 'leek'; else b.w[1] = 'leek'; }
+    if (!b.armor) b.armor = 'leekarmor'; if (!b.pet) b.pet = 'leekpet';
+  }
   function grantLyraGifts() {
     const iv = save.inv; for (const id of ['leekarmor', 'leekpet']) if (iv.own.indexOf(id) < 0) iv.own.push(id);
     if (!iv.armor) iv.armor = 'leekarmor'; if (!iv.pet) iv.pet = 'leekpet';
@@ -5455,16 +5466,22 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     Snd.play('die'); emit(P.x + 4, P.y + 7, 30, { col: ['#ffd34e', '#e0453a', '#f6f3e9'], sp0: 20, sp1: 120 });
     Q.msg = cvs('P' + (P.slot + 1) + ' is down! Stand next to them to revive faster.', 'P' + (P.slot + 1) + ' đã gục! Đứng cạnh để hồi sinh nhanh hơn.'); Q.msgT = 3;
   }
-  // a teammate near a lever, torch or cage sees "E: Use" and can use it too (not only the room's host)
-  function guestInteract(P) {
+  // what stands next to a player: a puzzle piece (lever, torch, cage) or a person to talk to
+  function nearPzFor(P) {
     let near = null; const pc = { x: P.x + 4, y: P.y + 7 };
     for (const pz of Q.pz) {
       if (pz.type !== 'lever' && pz.type !== 'torch' && pz.type !== 'cage') continue;
       if ((pz.type === 'lever' && pz.on) || (pz.type === 'torch' && pz.lit) || (pz.type === 'cage' && pz.open)) continue;
       if (Math.abs(pz.x - pc.x) < (pz.type === 'cage' ? 22 : 16) && Math.abs(pz.y - pc.y) < 26) near = pz;
     }
-    P.nz = near ? Q.pz.indexOf(near) : -1;
-    if (near && act.talkP && Q.state === 'play') usePz(near);
+    return near;
+  }
+  function nearNpcFor(P) { const pc = { x: P.x + 4, y: P.y + 7 }; let n = null; for (const it of Q.items) if (it.kind === 'npc' && Math.abs(it.x - pc.x) < 26 && Math.abs(it.y - pc.y) < 30) n = it; return n; }
+  // teammates use levers, torches, the cage and can talk to people too (not only the room's host)
+  function guestInteract(P) {
+    if (!(act.talkP && Q.state === 'play')) return;
+    const npc = nearNpcFor(P); if (npc) { startTalk(npc); return; }
+    const pz = nearPzFor(P); if (pz) usePz(pz);
   }
   function coopHostPlayers(dt) {
     const me = Q.me, ar = Q.L.arena;
@@ -5607,7 +5624,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     return out;
   }
   function packPlayer(p) {
-    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, ws: p.ws, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, nz: p.nz, form: p.form, ess: p.ess, dk: p.dk, armT: p.armT, armDur: p.armDur, armDir: p.armDir, armSpin: p.armSpin, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
+    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, ws: p.ws, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, armT: p.armT, armDur: p.armDur, armDir: p.armDir, armSpin: p.armSpin, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
   }
   function coopSnapshot() {
     if (Q.talk && !Q.talk.id) { Q.talk.id = ++coop.tkN; Q.talk.doneList = Q.talk.doneList || []; }
@@ -5763,7 +5780,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       } else if (d.t === 'tkdone' && p && Q && Q.talk && Q.talk.id === d.id) { const dl = Q.talk.doneList || (Q.talk.doneList = []); if (dl.indexOf(p.slot) < 0) dl.push(p.slot); }
       else if (d.t === 'inv' && p && p.pl && d.inv) {
         const w = (Array.isArray(d.inv.w) ? d.inv.w : []).slice(0, 2).map(i => (i && ITEM[i]) ? i : null); if (!w.some(Boolean)) w[0] = 'iron';
-        p.pl.bag = { w, armor: ITEM[d.inv.armor] ? d.inv.armor : null, pet: null, own: w.filter(Boolean) }; p.pl.sw = null;
+        p.pl.bag = { w, armor: ITEM[d.inv.armor] ? d.inv.armor : null, pet: ITEM[d.inv.pet] ? d.inv.pet : null, own: (Array.isArray(d.inv.own) ? d.inv.own.filter(i => ITEM[i]) : w.filter(Boolean)) }; p.pl.sw = null;
       }
       else if (d.t === 'hero' && p) { p.hero = HERO[d.id] ? d.id : p.hero; sendLobby(); }
       else if (d.t === 'i' && p && p.pl) {
@@ -5771,7 +5788,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         for (const k of EDGE) if (d[k]) pl.edge[k] = true;
       }
     } else {
-      if (d.t === 'gift') { save.leek = true; grantLeek(); grantLyraGifts(); writeSave(); NET.send({ t: 'inv', inv: { w: save.inv.w.slice(), armor: save.inv.armor } }); if (Q) { Q.msg = save.lang === 'vi' ? 'Lyra tặng bạn Kiếm Hành, Giáp Hành và Cây Hành Bay! Mở túi (B) để trang bị.' : 'Lyra gave you the Leek Blade, Leek Armor and Flying Leek! Open your bag (B) to equip.'; Q.msgT = 6; } Snd.play('relic'); }
+      if (d.t === 'gift') { save.leek = true; grantLeek(); grantLyraGifts(); writeSave(); NET.send({ t: 'inv', inv: { w: save.inv.w.slice(), armor: save.inv.armor, pet: save.inv.pet, own: save.inv.own.slice() } }); if (Q) { Q.msg = save.lang === 'vi' ? 'Lyra tặng bạn Kiếm Hành, Giáp Hành và Cây Hành Bay! Mở túi (B) để trang bị.' : 'Lyra gave you the Leek Blade, Leek Armor and Flying Leek! Open your bag (B) to equip.'; Q.msgT = 6; } Snd.play('relic'); }
       else if (d.t === 'welcome') { coop.me = d.slot; coopUI.ph = 'lobby'; coopUI.msg = ''; }
       else if (d.t === 'lobby') { coopUI.slots = d.slots; coopUI.li = d.li; coopUI.code = d.code; if (scene === 'play') { coopUI.ph = 'lobby'; toScene('coop'); } }
       else if (d.t === 'start') { coopUI.li = LPOS(d.li); coop.objs.clear(); startLevel(d.li); Q.client = true; Q.players = []; Q.state = 'intro'; scene = 'play'; }
