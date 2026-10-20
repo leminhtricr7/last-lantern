@@ -475,10 +475,14 @@
 
   // ---------- text queue (drawn at native resolution after blit) ----------
   let texts = [];
-  function txt(s, x, y, o) { o = o || {}; texts.push({ grad: o.grad, ol: o.ol, glow: o.glow, ls: o.ls, s, x, y, size: o.size || 8, col: o.col || '#fff', al: o.al || 'left', sh: o.sh === undefined ? true : o.sh, alpha: o.alpha === undefined ? 1 : o.alpha, bold: o.bold }); }
+  function txt(s, x, y, o) { o = o || {}; texts.push({ world: o.world, grad: o.grad, ol: o.ol, glow: o.glow, ls: o.ls, s, x, y, size: o.size || 8, col: o.col || '#fff', al: o.al || 'left', sh: o.sh === undefined ? true : o.sh, alpha: o.alpha === undefined ? 1 : o.alpha, bold: o.bold }); }
+  // panels drawn over the world this frame (the dialogue box, the tablet): labels that belong to the world stay under them
+  let uiCov = [];
+  const coveredByUi = t => t.world && uiCov.some(r => t.x >= r[0] && t.x <= r[0] + r[2] && t.y >= r[1] - 4 && t.y <= r[1] + r[3]);
   function flushTexts() {
     ctx.textBaseline = 'middle';
     for (const t of texts) {
+      if (coveredByUi(t)) continue;
       ctx.font = (t.bold ? 'bold ' : '') + Math.round(t.size * scale) + 'px ' + FONT;
       ctx.textAlign = t.al; ctx.globalAlpha = t.alpha;
       const px = offX + t.x * scale, py = offY + t.y * scale;
@@ -489,7 +493,7 @@
       if (t.grad) { const hh = t.size * scale / 2, gr = ctx.createLinearGradient(0, py - hh, 0, py + hh); t.grad.forEach((c, i) => gr.addColorStop(i / (t.grad.length - 1), c)); ctx.fillStyle = gr; } else ctx.fillStyle = t.col;
       ctx.fillText(t.s, px, py); ctx.shadowBlur = 0; ctx.letterSpacing = '0px';
     }
-    ctx.globalAlpha = 1; texts = [];
+    ctx.globalAlpha = 1; texts = []; uiCov = [];
   }
   function wrapText(s, maxChars) {
     const words = s.split(' '), lines = []; let cur = '';
@@ -2829,7 +2833,7 @@
       g.globalAlpha = a; g.strokeStyle = '#9fe8ff'; g.lineWidth = 3; g.beginPath(); b.pts.forEach((p, i) => i ? g.lineTo(p[0] - camX, p[1] - camY) : g.moveTo(p[0] - camX, p[1] - camY)); g.stroke();
       g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke(); g.globalAlpha = 1;
     }
-    for (const p of G.pops) txt(p.s, Math.round(p.x - camX), Math.round(p.y - camY - (1.3 - p.t) * 10), { al: 'center', size: 7, col: p.col, bold: true, alpha: Math.min(1, p.t * 2) });
+    for (const p of G.pops) txt(p.s, Math.round(p.x - camX), Math.round(p.y - camY - (1.3 - p.t) * 10), { al: 'center', size: 7, col: p.col, bold: true, alpha: Math.min(1, p.t * 2), world: true });
     if (G.flash > 0 && Q.state !== 'play') G.flash -= 0.02; // keep fading during dialogue / boss intro
     if (G.flash > 0) { g.globalAlpha = Math.min(0.55, G.flash * 1.6); g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
     if (G.slowT > 0) { g.globalAlpha = 0.1 + 0.05 * Math.sin(Q.t * 6); g.fillStyle = '#ffd34e'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
@@ -3456,7 +3460,7 @@
         const n = NPCS[it.who], sp = npcSpr(n.spr), bob = 0, NA = animPose('idle', it.ph, 1, 0);
         drawSprT(g, sp, x, y, Q.P.x + 4 < it.x, false, NA.sx, NA.sy, 0);
         const by = y - sp.h - 4 - bob;
-        if (Q.nearNpc === it && Q.state === 'play') { txt(T('talk'), x, by - 4, { al: 'center', size: 6, col: '#ffd34e' }); }
+        if (Q.nearNpc === it && Q.state === 'play') { txt(T('talk'), x, by - 4, { al: 'center', size: 6, col: '#ffd34e', world: true }); }
         else if (Q.nearNpc !== it) { g.fillStyle = '#1b1626'; g.fillRect(x - 4, by - 5, 9, 7); g.fillStyle = '#fff'; g.fillRect(x - 3, by - 4, 7, 5); g.fillStyle = '#1b1626'; g.fillRect(x - 2, by - 2, 1, 1); g.fillRect(x, by - 2, 1, 1); g.fillRect(x + 2, by - 2, 1, 1); }
       } else if (it.kind === 'cp') {
         g.fillStyle = '#1b1626'; g.fillRect(x - 2, y - 22, 4, 22); g.fillStyle = '#5a3a22'; g.fillRect(x - 1, y - 21, 2, 21);
@@ -3847,7 +3851,7 @@
       const tk = Q.talk, ln0 = tk.lines[tk.i] || {}, who = ln0.w || tk.it.who, cur = (ln0.w && NPCS[ln0.w]) || tk.npc, sp = cur.hero ? getSprite('hero_idle', HERO[cur.hero].sw, 0) : (cur.spr ? npcSpr(cur.spr) : null);
       const col = who.indexOf('h_') === 0 && HERO[who.slice(2)] ? HERO_CLS[HERO[who.slice(2)].cls].col : who.indexOf('boss') === 0 ? '#ff7a7a' : (SPEAKER_COL[who] || '#ffd34e');
       if (tk.cine) { const k = Math.min(1, Q.stateT * 3); g.fillStyle = '#000'; g.fillRect(0, 0, VW, Math.round(20 * k)); g.fillRect(0, VH - Math.round(5 * k), VW, 5); }
-      const X = 6, Y = 145, W = VW - 12, H = 64, box = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, 1); g.fillRect(x, y + h - 1, w, 1); g.fillRect(x, y, 1, h); g.fillRect(x + w - 1, y, 1, h); };
+      const X = 6, Y = 145, W = VW - 12, H = 64; uiCov.push([X, Y, W, H]); const box = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, 1); g.fillRect(x, y + h - 1, w, 1); g.fillRect(x, y, 1, h); g.fillRect(x + w - 1, y, 1, h); };
       g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(X + 3, Y + 3, W, H);
       { const gr = g.createLinearGradient(0, Y, 0, Y + H); gr.addColorStop(0, 'rgba(30,24,54,.97)'); gr.addColorStop(1, 'rgba(10,8,22,.97)'); g.fillStyle = gr; g.fillRect(X, Y, W, H); }
       g.fillStyle = hexA(col, 0.08); g.fillRect(X + 2, Y + 2, W - 4, 10);
@@ -3896,7 +3900,7 @@
       if (Q.stateT > 0.8) txt(T('cont2'), VW / 2, 212, { al: 'center', size: 7, alpha: 0.6 + 0.4 * Math.sin(Q.stateT * 5) });
     } else if (st === 'tablet' && Q.tablet) {
       const gd = Q.tablet, cs = gd.seqColors || [];
-      g.fillStyle = 'rgba(8,6,20,.95)'; g.fillRect(70, 56, VW - 140, 100);
+      g.fillStyle = 'rgba(8,6,20,.95)'; g.fillRect(70, 56, VW - 140, 100); uiCov.push([70, 56, VW - 140, 100]);
       g.fillStyle = '#6ee7f2'; g.fillRect(70, 56, VW - 140, 1); g.fillRect(70, 155, VW - 140, 1); g.fillRect(70, 56, 1, 100); g.fillRect(VW - 71, 56, 1, 100);
       txt(T('tabletT'), VW / 2, 68, { al: 'center', size: 8, col: '#6ee7f2', bold: true });
       txt(T('tabletH'), VW / 2, 84, { al: 'center', size: 6, col: '#cfd6e6' });
@@ -5983,7 +5987,7 @@
   function drawCoopTag(p, x, bot) {
     if (!coop) return;
     if (Q.boss && Q.arenaSealed && !Q.bossDead && Q.btSlot === p.slot && (Q.players || []).length > 1) { const k = Math.round(Math.sin(Q.t * 8) * 1.5); g.fillStyle = '#ff3a3a'; g.fillRect(x - 1, bot - 40 + k, 3, 6); g.fillRect(x - 1, bot - 32 + k, 3, 2); }
-    txt('P' + (p.slot + 1), x, bot - 26, { al: 'center', size: 5, col: PCOL[p.slot] || '#fff', bold: true });
+    txt('P' + (p.slot + 1), x, bot - 26, { al: 'center', size: 5, col: PCOL[p.slot] || '#fff', bold: true, world: true });
   }
   function drawDown(p, camX, camY) {
     const x = Math.round(p.x + 4 - camX), bot = Math.round(p.y + p.h - camY);
