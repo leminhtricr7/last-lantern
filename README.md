@@ -530,3 +530,4 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - **Controls guide:** "Controls" on the title menu and the pause menu shows every button and what it does (keyboard / mouse and gamepad); it opens by itself the first time you control a hero (`save.ctrlSeen`).
 - **The top of the map is a ceiling:** Kirby (and Bong, who flies the same way) could flutter-jump past the top of the map and over the arena walls; every hero now stops at the top edge.
 - **Double jump for every hero from map 1** (it used to unlock on map 2). The map-1 tip now says how to double jump and where the controls guide is (the old tip listed every key and ran past the screen's edges).
+- **Old intro film retired:** the title menu's "Intro film" now replays the new opening film and returns to the title; the first screen at launch only waits for a key (it unlocks the sound) and then shows the title.

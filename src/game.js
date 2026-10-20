@@ -4907,7 +4907,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     it.push({ k: 'lang', fn: () => { save.lang = save.lang === 'vi' ? 'en' : 'vi'; writeSave(); } });
     it.push({ k: 'sound', fn: () => { const st = [1, 0.8, 0.6, 0.4, 0.2, 0]; if (Snd.muted) { Snd.setMuted(false); save.muted = false; save.vol = 1; } else { const i = st.findIndex(v => v <= save.vol + 0.001); save.vol = st[(i + 1) % st.length]; } Snd.setVol(save.vol); writeSave(); } });
     it.push({ k: 'full', fn: toggleFull });
-    it.push({ k: 'movie', fn: () => toScene('intro') });
+    it.push({ k: 'movie', fn: () => { opReplay = true; toScene('opening'); } });
     it.push({ k: 'credits', fn: () => toScene('credits') });
     it.push({ k: 'quit', fn: () => { try { window.close(); } catch (e) { } } });
     return it;
@@ -7463,7 +7463,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   }
   // ===================== OPENING FILM (60 s): the ten Lantern Towers, the festival, the Eclipse, Lyra taken, the lantern chooses the child, the road =====================
   const OP_END = 60;   // seconds until the "press Enter" card
-  let op = null, opIntro = false;   // opIntro: the map-1 dialogue plays right after the film
+  let op = null, opIntro = false, opReplay = false;   // opIntro: the map-1 dialogue plays right after the film
   const ez = x => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
   const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
   // captions: [from, to, speaker (n = narrator, q = Quoc, l = Lyra, e = the player's hero), english, vietnamese]
@@ -7502,7 +7502,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (act.okP || act.atkP || act.backP) {
       if (t < 1.2 && !act.backP) return;
       if (t < OP_END) { op.t = OP_END; op.skipped = true; Snd.play('select'); }
-      else if (t > OP_END + 0.6) { Snd.play('ok'); save.seen = { 0: 1 }; writeSave(); opIntro = true; startLevelFade(0); }
+      else if (t > OP_END + 0.6) { Snd.play('ok'); if (opReplay) { opReplay = false; toScene('title'); } else { save.seen = { 0: 1 }; writeSave(); opIntro = true; startLevelFade(0); } }
     }
     if (act.backP && t < OP_END) { op.t = OP_END; op.skipped = true; }
   }
@@ -8309,7 +8309,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   const CN_LEN = { intro: 60, outro: 60 }, CN_GY = 176, CN_BAR = 18;
   const CN_SUMS = ['dragonking', 'ninetail', 'titan', 'phoenix'];
   function startCine(kind, next, gate) { cn = { kind, t: 0, fired: {}, next: next || 'title', gate: !!gate }; CN_SUMS.forEach(k => sumArt(k)); Snd.ambience(null); if (!gate) cnBegin(); }
-  function cnBegin() { cn.gate = false; Snd.init(); Snd.cine('sad', 2.5); }
+  function cnBegin() { cn.gate = false; Snd.init(); if (cn.kind === 'intro') { cnEnd(); return; } Snd.cine('sad', 2.5); }   // (the launch screen only unlocks the sound, then the title)
   function cnEnd() { if (!cn || cn.done) return; cn.done = true; Snd.cine(null, 1); if (cn.kind === 'outro') { save.outroSeen = 1; writeSave(); } toScene(cn.next); }
   function updateCine(dt) {
     if (!cn) startCine('intro');
