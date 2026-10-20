@@ -90,7 +90,7 @@
     locked: { en: 'LOCKED', vi: 'CHƯA MỞ' },
     ab1: { en: 'NEW: Double Jump — press jump in mid-air', vi: 'MỚI: Nhảy đôi — nhấn nhảy khi đang bay' },
     ab3: { en: 'NEW: Dash — press K / Shift (you are invincible while dashing)', vi: 'MỚI: Lướt — nhấn K / Shift (bất tử khi lướt)' },
-    ctl: { en: 'Move A/D  Jump Space  Attack J / Click  Throw L / Right-click  Switch Q / Wheel  Dash K  Parry F  Skills 1-4  Use E', vi: 'Di chuyển A/D  Nhảy Space  Đánh J / Nhấp chuột  Ném L / Chuột phải  Đổi đồ Q / Lăn chuột  Lướt K  Đỡ đòn F  Kỹ năng 1-4  Dùng E' },
+    ctl: { en: 'Move A/D  Jump Space  Attack J / Click  Weapon T  Throw L / Right-click  Item Q / Wheel  Dash K  Parry F  Skills 1-4  Use E', vi: 'Di chuyển A/D  Nhảy Space  Đánh J / Nhấp chuột  Đổi vũ khí T  Ném L / Chuột phải  Đổi đồ Q / Lăn chuột  Lướt K  Đỡ đòn F  Kỹ năng 1-4  Dùng E' },
     thanks: { en: 'Thank you for playing!', vi: 'Cảm ơn bạn đã chơi!' },
     talk: { en: 'E / Enter: Talk', vi: 'E / Enter: Nói chuyện' },
     free: { en: 'E: Free her', vi: 'E: Giải cứu' }, guards: { en: 'Defeat the guards first!', vi: 'Hạ hết lính canh trước đã!' },
@@ -527,9 +527,9 @@
     act.up = keys.ArrowUp || keys.KeyW || gb.u; act.down = keys.ArrowDown || keys.KeyS || gb.d;
     act.jump = any(keys, ['Space', 'ArrowUp', 'KeyW', 'KeyZ']) || gb.a;
     act.jumpP = any(pressed, ['Space', 'ArrowUp', 'KeyW', 'KeyZ']) || gpP('a');
-    act.atkH = !!(keys.KeyJ || keys.KeyX || gb.x || mouseHeld); act.atk2H = !!(keys.KeyH || keys.KeyU || gb.lt);
+    act.atkH = !!(keys.KeyJ || keys.KeyX || gb.x || mouseHeld); act.atk2H = false;
     act.atkP = any(pressed, ['KeyJ', 'KeyX']) || gpP('x');
-    act.atk2P = any(pressed, ['KeyH', 'KeyU']) || gpP('lt');
+    act.atk2P = false; act.wswapP = any(pressed, ['KeyT']) || gpP('lt');
     act.throwP = any(pressed, ['KeyL']) || gpP('y'); act.swapP = any(pressed, ['KeyQ']) || gpP('lb');
     act.dashP = any(pressed, ['KeyK', 'KeyC', 'ShiftLeft', 'ShiftRight']) || gpP('b') || gpP('rt');
     act.pauseP = pressed.Escape || pressed.KeyP || gpP('start');
@@ -546,7 +546,7 @@
     act.muteP = pressed.KeyM; act.fullP = pressed.KeyF || pressed.F11;
     gpPrev = gb;
   }
-  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.atk2P = act.throwP = act.swapP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = act.skillP = act.shopP = act.sumP = act.parryP = act.sk1P = act.sk2P = act.sk3P = act.sk4P = false; }
+  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.atk2P = act.throwP = act.swapP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = act.skillP = act.shopP = act.sumP = act.parryP = act.wswapP = act.sk1P = act.sk2P = act.sk3P = act.sk4P = false; }
   function toggleFull() {
     try { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch (e) { }
   }
@@ -559,7 +559,7 @@
       { k: 'ArrowLeft', x: s * 0.8, y: h - s * 0.9, r, l: '◀' }, { k: 'ArrowRight', x: s * 2.0, y: h - s * 0.9, r, l: '▶' },
       { k: 'Space', x: w - s * 0.8, y: h - s * 0.9, r: r * 1.15, l: '▲' }, { k: 'KeyJ', x: w - s * 2.1, y: h - s * 0.75, r, l: 'X' },
       { k: 'KeyK', x: w - s * 1.5, y: h - s * 1.9, r: r * 0.85, l: '»' }, { k: 'Escape', x: w - s * 0.5, y: s * 0.5, r: r * 0.7, l: 'II' },
-      { k: 'KeyL', x: w - s * 2.9, y: h - s * 1.5, r: r * 0.8, l: '●' }, { k: 'KeyH', x: w - s * 2.3, y: h - s * 2.7, r: r * 0.85, l: 'H' }, { k: 'KeyQ', x: w - s * 3.3, y: h - s * 0.5, r: r * 0.6, l: '⇄' }, { k: 'KeyF', x: w - s * 3.5, y: h - s * 2.4, r: r * 0.8, l: '◆' }, { k: 'Digit0', x: w - s * 2.3, y: h - s * 2.9, r: r * 0.75, l: '★' }
+      { k: 'KeyL', x: w - s * 2.9, y: h - s * 1.5, r: r * 0.8, l: '●' }, { k: 'KeyT', x: w - s * 2.3, y: h - s * 2.7, r: r * 0.85, l: '⇆' }, { k: 'KeyQ', x: w - s * 3.3, y: h - s * 0.5, r: r * 0.6, l: '⇄' }, { k: 'KeyF', x: w - s * 3.5, y: h - s * 2.4, r: r * 0.8, l: '◆' }, { k: 'Digit0', x: w - s * 2.3, y: h - s * 2.9, r: r * 0.75, l: '★' }
     ];
     if (scene === 'play' && Q && (Q.nearNpc || Q.nearPz) && Q.state === 'play') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '...' });
     if (scene === 'shop') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '→' });
@@ -617,7 +617,7 @@
       if (inPlay && Q.state === 'play') { faceMouse(gx); pressed.KeyL = true; } else if (inPlay && (Q.state === 'talk' || Q.state === 'tablet')) pressed.Escape = true; else if (scene === 'shop') pressed.Escape = true;
       return;
     }
-    if (e.button === 1) { if (inPlay && Q.state === 'play') { faceMouse(gx); pressed.KeyH = true; } return; }
+    if (e.button === 1) { if (inPlay && Q.state === 'play') pressed.KeyT = true; return; }
     if (e.button !== 0) return;
     if (skipShown() && near(gx, gy, VW - 33, 9, 29, 6)) { pressed.Escape = true; Snd.play('select'); return; }
     if (scene === 'title') { const L = titleLayout(titleItems()), i = L.findIndex(r => gx >= r.x && gx < r.x + r.w && gy >= r.y && gy < r.y + r.h); if (i >= 0) { titleSel = i; pressed.Enter = true; } }
@@ -1295,8 +1295,10 @@
       else P.vy = P.flutter && mechOf(P) === 'inhale' ? Math.min(42, P.vy + g2 * 0.32 * dt) : (P.stoneT > 0 ? 380 : Math.min(380, P.vy + g2 * dt));
     }
     // attack: slot 1 (J / click) and slot 2 (H / middle-click / LT) - swords swing, special weapons fire
-    if (P.dash <= 0) { if (act.atkP && !heroAttack(P)) useSlot(0); if (act.atk2P && !(isFan(P) && heroAttack(P))) useSlot(1); }
-    if (P.dash <= 0) for (let sl = 0; sl < 2; sl++) { const gi = eqIt(sl); if (gi && gi.type === 'gun' && (sl ? act.atk2H : act.atkH) && !(sl ? act.atk2P : act.atkP)) useSlot(sl); }
+    if (act.wswapP) swapWeapon(P);
+    if (!eqIt(P.ws | 0) && eqIt(P.ws ? 0 : 1)) P.ws = P.ws ? 0 : 1;   // the hand is empty: take the other weapon
+    if (P.dash <= 0) { if (act.atkP && !heroAttack(P)) useSlot(P.ws | 0); }
+    if (P.dash <= 0) { const sl = P.ws | 0, gi = eqIt(sl); if (gi && gi.type === 'gun' && act.atkH && !act.atkP) useSlot(sl); }
     P.throwCd -= dt;
     if (P.hero) { const was = P.skCd > 0; P.skCd = (P.skCd || 0) - dt; if (was && P.skCd <= 0 && isMe(P)) { pop(P.x + 4, P.y - 22, sv('R READY!', 'R SẴN SÀNG!'), (HERO[P.hero] && HERO[P.hero].sk.col) || '#ffd34e'); Snd.play('select'); }
       if (act.skillP && P.skCd > 0 && isMe(P)) { Q.msg = sv('R recharging: ', 'R đang hồi: ') + Math.ceil(P.skCd) + 's'; Q.msgT = 1; }
@@ -2575,6 +2577,15 @@
   }
   let curHit = null;
   // ---- special weapons ----
+  // T: weapon 1 <-> weapon 2
+  function swapWeapon(P) {
+    if (isFan(P)) { if (isMe(P)) { Q.msg = sv('This hero fights with their own moves.', 'Nhân vật này đánh bằng chiêu riêng.'); Q.msgT = 1.5; } return; }
+    const n = P.ws ? 0 : 1, it = eqIt(n);
+    if (!it) { if (isMe(P)) { Q.msg = sv('Nothing in weapon slot ' + (n + 1) + ' (equip one with B).', 'Ô vũ khí ' + (n + 1) + ' đang trống (bấm B để trang bị).'); Q.msgT = 2; Snd.play('select'); } return; }
+    P.ws = n; P.hold = it.type === 'sword' ? null : it.id; if (it.type === 'sword') P.sw = it; P.atk = 0;
+    Snd.play('select'); Snd.play('clang'); emit(P.x + 4 + P.face * 6, P.y + 6, 8, { col: [RARITY_COL[it.rar] || '#fff', '#ffffff'], sp0: 10, sp1: 50 });
+    if (isMe(P)) pop(P.x + 4, P.y - 18, '[' + (n + 1) + '] ' + LN(it.name), RARITY_COL[it.rar] || '#ffd34e');
+  }
   function useSlot(s) {
     const P = Q.P, it = eqIt(s); if (!it) return;
     if (it.type === 'sword') P.hold = null; else if (it.type === 'gun' || it.type === 'wpn') P.hold = it.id;
@@ -2846,7 +2857,7 @@
   }
   function drawGearHUD() {
     const P = Q.P, G = Q.G;
-    for (let s = 0; s < 2; s++) {
+    for (let s = 0; s < 0; s++) {   // (the old J / H boxes; weapons now live on skill badges 1 and 2)
       const it = eqIt(s), bx = VW - 62 + s * 30, by = VH - 32;
       g.fillStyle = 'rgba(10,6,22,.6)'; g.fillRect(bx, by, 26, 26);
       if (it) {
@@ -4006,9 +4017,9 @@
   }
   function howTo(it) {
     const cd = it.st.cd ? it.st.cd + 's' : '';
-    if (it.type === 'sword') return sv('Equip it in Slot 1 (J / left-click) or Slot 2 (H / middle-click), then press that key to swing. Hold Down in mid-air to bounce off enemies.', 'Trang bị vào Ô 1 (J / chuột trái) hoặc Ô 2 (H / chuột giữa), rồi bấm phím đó để chém. Giữ Xuống khi đang nhảy để nảy lên đầu quái.');
-    if (it.type === 'wpn') return sv('Equip it in Slot 1 (J / left-click) or Slot 2 (H / middle-click), then press that key to use it. Hold Up or Down to aim. Cooldown: ' + cd + '.', 'Trang bị vào Ô 1 (J / chuột trái) hoặc Ô 2 (H / chuột giữa), rồi bấm phím đó để dùng. Giữ Lên hoặc Xuống để ngắm. Hồi chiêu: ' + cd + '.');
-    if (it.type === 'gun') return sv('Equip it in Slot 1 or Slot 2, then HOLD the attack key to keep firing. Hold Up or Down to aim. Magazine: ' + it.st.mag + ' rounds, reload ' + it.st.reload + 's.', 'Trang bị vào Ô 1 hoặc Ô 2, rồi GIỮ nút tấn công để bắn liên tục. Giữ Lên/Xuống để ngắm. Băng đạn ' + it.st.mag + ' viên, nạp lại ' + it.st.reload + ' giây.');
+    if (it.type === 'sword') return sv('Equip it in weapon slot 1 or 2. J / left-click swings the weapon in hand; T switches between weapon 1 and 2. Hold Down in mid-air to bounce off enemies.', 'Trang bị vào ô vũ khí 1 hoặc 2. J / chuột trái đánh bằng vũ khí đang cầm; T đổi qua lại vũ khí 1 và 2. Giữ Xuống khi đang nhảy để nảy lên đầu quái.');
+    if (it.type === 'wpn') return sv('Equip it in weapon slot 1 or 2, hold it with T, then press J / left-click to use it. Hold Up or Down to aim. Cooldown: ' + cd + '.', 'Trang bị vào ô vũ khí 1 hoặc 2, bấm T để cầm, rồi bấm J / chuột trái để dùng. Giữ Lên hoặc Xuống để ngắm. Hồi chiêu: ' + cd + '.');
+    if (it.type === 'gun') return sv('Equip it in weapon slot 1 or 2, hold it with T, then HOLD J to keep firing. Hold Up or Down to aim. Magazine: ' + it.st.mag + ' rounds, reload ' + it.st.reload + 's.', 'Trang bị vào ô vũ khí 1 hoặc 2, bấm T để cầm, rồi GIỮ J để bắn liên tục. Giữ Lên/Xuống để ngắm. Băng đạn ' + it.st.mag + ' viên, nạp lại ' + it.st.reload + ' giây.');
     if (it.type === 'armor') return sv('Passive. Just equip it - the armor protects you automatically in every level.', 'Bị động. Chỉ cần trang bị - giáp tự bảo vệ bạn ở mọi màn chơi.');
     return sv('Passive. Equip it and your pet follows you and helps all by itself.', 'Bị động. Trang bị xong, thú cưng tự đi theo và giúp bạn chiến đấu.');
   }
@@ -4024,8 +4035,8 @@
       case 'gold': return SHOP_FREE ? sv('Get it FREE!', 'Lấy MIỄN PHÍ!') : sv('Buy ' + it.gold + ' gold', 'Mua ' + it.gold + ' vàng');
       case 'gems': return sv('Buy ' + it.gems + ' gems', 'Mua ' + it.gems + ' gem');
       case 'eq': return sv('Equip', 'Trang bị');
-      case 'slot0': return sv('Slot 1 (J)', 'Ô 1 (J)') + (save.inv.w[0] === it.id ? ' *' : '');
-      case 'slot1': return sv('Slot 2 (H)', 'Ô 2 (H)') + (save.inv.w[1] === it.id ? ' *' : '');
+      case 'slot0': return sv('Weapon 1', 'Vũ khí 1') + (save.inv.w[0] === it.id ? ' *' : '');
+      case 'slot1': return sv('Weapon 2', 'Vũ khí 2') + (save.inv.w[1] === it.id ? ' *' : '');
       case 'uneq': return sv('Unequip', 'Tháo ra');
       default: return sv('Close', 'Đóng');
     }
@@ -5408,7 +5419,7 @@
     if (sc !== 1) g.restore();
   }
   // ---------- host: guests' heroes ----------
-  const EDGE = ['jumpP', 'atkP', 'atk2P', 'dashP', 'throwP', 'swapP', 'skillP', 'talkP', 'sumP', 'parryP', 'sk1P', 'sk2P', 'sk3P', 'sk4P'];
+  const EDGE = ['jumpP', 'atkP', 'atk2P', 'dashP', 'throwP', 'swapP', 'skillP', 'talkP', 'sumP', 'parryP', 'wswapP', 'sk1P', 'sk2P', 'sk3P', 'sk4P'];
   const LVL = ['left', 'right', 'up', 'down', 'jump', 'atkH', 'atk2H'];
   function withAct(p, fn) {
     const keep = {}; for (const k of LVL.concat(EDGE)) { keep[k] = act[k]; act[k] = false; }
@@ -5562,7 +5573,7 @@
     return out;
   }
   function packPlayer(p) {
-    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, armT: p.armT, armDur: p.armDur, armDir: p.armDir, armSpin: p.armSpin, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
+    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, ws: p.ws, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, armT: p.armT, armDur: p.armDur, armDir: p.armDir, armSpin: p.armSpin, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
   }
   function coopSnapshot() {
     if (Q.talk && !Q.talk.id) { Q.talk.id = ++coop.tkN; Q.talk.doneList = Q.talk.doneList || []; }
@@ -6645,6 +6656,7 @@
   function drawSkBadges() {
     const P = Q.P, ch = P.chg || [0, 0, 0, 0], x0 = Math.round(VW / 2 - 51), y0 = VH - 31;
     drawRBadge(P, x0 + 4 * 26 + 6, y0 - 2);
+    if (!isFan(P) && eqIt(0) && eqIt(1)) txt(sv('T: swap', 'T: đổi'), x0 + 26, y0 - 6, { al: 'center', size: 5, col: '#ffd34e', ol: '#14121f' });
     for (let i = 0; i < 4; i++) {
       const id = slotId(i), it = id && ITEM[id], bx = x0 + i * 26, by = y0;
       g.fillStyle = 'rgba(20,18,31,.85)'; g.fillRect(bx, by, 24, 24);
@@ -6656,6 +6668,12 @@
       g.globalAlpha = ready ? 0.65 + 0.35 * Math.sin(Q.t * 8) : 0.6; g.fillStyle = ready ? col : '#6a6f8a'; g.fillRect(bx, by, 24, 1); g.fillRect(bx, by + 23, 24, 1); g.fillRect(bx, by, 1, 24); g.fillRect(bx + 23, by, 1, 24); g.globalAlpha = 1;
       g.fillStyle = col; g.fillRect(bx + 1, by + 21, Math.round(22 * k), 2);
       txt(String(i + 1), bx + 4, by + 5, { size: 6.5, bold: true, col: ready ? '#ffffff' : '#cfd6e6', ol: '#14121f' });
+      if (i < 2) {
+        const gsx = it.type === 'gun' ? gunState(it, P) : null, cdn = gsx ? (gsx.rel > 0 ? gsx.rel / it.st.reload : 0) : (it.type === 'wpn' ? P.wcd[i] / (P.wmax[i] || 1) : 0);
+        if (cdn > 0) { g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(bx + 1, by + 1 + Math.round(22 * (1 - Math.min(1, cdn))), 22, Math.round(22 * Math.min(1, cdn))); }
+        if (gsx) txt(String(gsx.rel > 0 ? sv('RLD', 'NẠP') : gsx.mag), bx + 22, by + 17, { al: 'right', size: gsx.rel > 0 ? 4.5 : 6, col: gsx.rel > 0 ? '#ff7a7a' : (gsx.mag <= 2 ? '#ffb03a' : '#ffffff'), ol: '#14121f' });
+        if ((P.ws | 0) === i) { g.fillStyle = '#ffd34e'; g.fillRect(bx - 1, by - 1, 26, 1); g.fillRect(bx - 1, by + 24, 26, 1); g.fillRect(bx - 1, by - 1, 1, 26); g.fillRect(bx + 24, by - 1, 1, 26); g.fillRect(bx + 10, by - 4, 4, 1); g.fillRect(bx + 11, by - 3, 2, 1); }
+      }
     }
   }
   // ===== the pet's transformation: 3 seconds of light, then its Ancient form steps out =====

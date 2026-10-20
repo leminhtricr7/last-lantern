@@ -406,3 +406,9 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - The pet's red dragon form is now a vivid red instead of a muddy brown.
 - Summons called at the same time appear side by side instead of on top of each other.
 
+## Weapons: one attack button, T to switch
+- **J / left-click** attacks with the weapon in hand; hold it to keep a gun firing.
+- **T** switches between weapon 1 and weapon 2. On touch screens use the ⇆ button; middle-click and gamepad LT also switch.
+- The old J / H boxes in the corner are gone. Skill badges 1 and 2 show both weapons: the one in hand has a gold frame and a little arrow, and the badges also show gun ammo or reload and weapon cooldowns.
+- H no longer attacks. Q / the mouse wheel still switches the throwing item.
+
