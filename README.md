@@ -430,3 +430,21 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 
 - The story's sun is still drawn by the game (it brightens as you collect its shards).
 
+## Multi-level terrain and themed platforms
+- Every map now has at least three **multi-level sections** (`tiers()` in levels.js; the short Verdant Meadow currently gets two). A stair ramp climbs onto a long deck, two higher decks and a top deck hold coins and sometimes an item or a heart, and a ramp leads back down. The ground under the decks stays open: drop through a deck with Down. The puzzles of every map are unchanged.
+- A final pass lifts any monster, coin or item that would start inside a solid tile onto the first free tile above.
+- The one-way platforms are drawn in each map's own material:
+
+  | Map | Platform |
+  |---|---|
+  | Meadow | Wooden plank with grass |
+  | Forest | Mossy branch |
+  | Caves | Stone set with glowing crystals |
+  | Desert | Carved sandstone |
+  | Frost | Ice with snow and icicles |
+  | Volcano | Obsidian with glowing cracks |
+  | Swamp | Glowing mushroom cap |
+  | Ocean | Coral |
+  | Tunnels | Scaffold planks with iron braces |
+  | Citadel | Gothic stone with red runes |
+

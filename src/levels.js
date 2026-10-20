@@ -509,6 +509,24 @@ function genLevel(li) {
     flat(R(4, 6));
   }
   function drop() { gy = Math.min(11, gy + R(1, 3)); flat(R(4, 6)); }
+  // multi-level section: a stair ramp climbs onto a long deck, higher decks above it hold rewards, a ramp leads back down.
+  // The ground under the deck stays open (drop through the deck with Down), so the way forward never closes.
+  function tiers() {
+    if (gy < 8) gy = 8;
+    const n = R(18, 24), x0 = x, g0 = gy, y1 = g0 - 3, y2 = g0 - 5, y3 = Math.max(2, g0 - 7), s0 = L.spawns.length;
+    flat(n, {});
+    for (let k = 1; k <= 3; k++) for (let y = g0 - k; y < g0; y++) { set(x0 + k, y, '#'); set(x0 + n - 1 - k, y, '#'); }   // the ramps up and down
+    for (let i = s0; i < L.spawns.length; i++) {   // anything placed where a ramp step now stands goes on top of the step
+      const sp = L.spawns[i], tx = Math.floor(sp.x / TS), k = tx - x0 >= 1 && tx - x0 <= 3 ? tx - x0 : (x0 + n - 1 - tx >= 1 && x0 + n - 1 - tx <= 3 ? x0 + n - 1 - tx : 0);
+      if (k && sp.y >= (g0 - k) * TS) sp.y -= k * TS;
+    }
+    for (let i = x0 + 4; i <= x0 + n - 5; i++) set(i, y1, '=');                                                      // deck 1
+    const a = x0 + 6, b = x0 + n - 10; for (let i = 0; i < 4; i++) { set(a + i, y2, '='); set(b + i, y2, '='); }   // deck 2, left and right
+    const m = x0 + (n >> 1) - 1; for (let i = 0; i < 3; i++) set(m + i, y3, '=');                                    // the top deck
+    coinsLine(x0 + 5, y1 - 2, 4); coinsLine(a, y2 - 2, 3); coinsLine(m, y3 - 2, 3);
+    if (rnd() < 0.35) spawn('pk', m + 1, y3, { what: pickWhat() }); else if (rnd() < 0.3) spawn('heart', m + 1, y3 - 1);
+    if (rnd() < 0.6) addEnemy(x0 + R(6, n - 7), y1);
+  }
   function arena() { // enemy gauntlet
     const n = 14;
     for (let i = 0; i < n; i++) col(x + i, gy);
@@ -542,14 +560,16 @@ function genLevel(li) {
   let cpNpcIdx = 0;
   const pzList = PUZZLES[li] || []; let pzIdx = 0;
   const pzAt = pzList.map((t, i) => (t === 'dragon' && li === 0) ? 26 : Math.floor(B.len * (0.14 + 0.7 * (i + 0.5) / pzList.length)));
-  let nextCp = 42, placed = 0;
+  let nextCp = 42, placed = 0, tierN = 0;
   const shardAt = [0.2, 0.5, 0.76].map(f => Math.floor(B.len * f));
   while (x < B.len - 16) {
     if (x > nextCp) { const ax = x; flat(6, { safe: true, cp: true, heart: rnd() < 0.5 }); if (plan.cps && cpNpcIdx < plan.cps.length) { spawn('npc', ax + 4, gy, { who: plan.cps[cpNpcIdx++] }); } nextCp = x + R(38, 52); continue; }
     if (placed < 3 && x > shardAt[placed]) { secret(placed); placed++; continue; }
     if (pzIdx < pzList.length && x > pzAt[pzIdx]) { runPuzzle(pzList[pzIdx++]); continue; }
+    if (tierN < 3 && x > B.len * (0.18 + 0.24 * tierN)) { tiers(); tierN++; continue; }   // at least three multi-level sections per map
     const r = rnd(), d = diff();
-    if (r < 0.18) flat(R(6, 12));
+    if (r < 0.07) flat(R(6, 12));
+    else if (r < 0.18) { tiers(); tierN++; }
     else if (r < 0.34) gap(R(2, maxGap));
     else if (r < 0.40) stairs(rnd() < 0.5 ? -1 : 1);
     else if (r < 0.47) spikes();
@@ -561,6 +581,7 @@ function genLevel(li) {
     else if (r < 0.95) { if (li >= 1 && rnd() < (li === 6 ? 0.65 : 0.4)) arena(); else trapRun(); }
     else flat(R(6, 10));
   }
+  while (tierN < 3 && x < B.len) { tiers(); tierN++; }   // a map crowded with puzzles still gets its multi-level sections
   { const ax = x; flat(plan.pre ? 16 : 8, { safe: true, cp: true, heart: true }); (plan.pre || []).forEach((w, i) => spawn('npc', ax + 3 + i * 2, gy, { who: w })); }
   if (li === 7) {   // THE GIANT FOREST: a long dark stretch of huge glowing mushrooms and trees, full of monsters, ending at the Spore Queen's glade
     gy = 10; flat(6, { safe: true, cp: true, heart: true }); const f0 = x;
@@ -644,6 +665,13 @@ function genLevel(li) {
       const seg = (L.arena ? L.arena.x0 : W) / 4, inSeg = cand.filter(c => c[0] >= seg * k && c[0] < seg * (k + 1));
       const c = inSeg.length ? inSeg[Math.floor(rr2() * inSeg.length)] : [Math.floor(seg * k + seg * 0.6), 9];
       picks.push(c); L.spawns.push({ id: L.id++, type: 'rare', k, x: c[0] * TS + TS / 2, y: (c[1] - 1) * TS + 4 });
+    } }
+  // nothing that walks or is picked up may start inside a solid tile: lift it onto the first free tile above
+  { const lift = new Set(['coin', 'pk', 'heart'].concat(B.enemies.map(e => e.t).filter(t => !FLY.has(t) && t !== 'cavespider')));
+    for (const sp of L.spawns) {
+      if (!lift.has(sp.type)) continue; const tx = Math.floor(sp.x / TS); let ty = Math.floor((sp.y - 1) / TS), n = 0;
+      while (ty > 1 && n < 5 && (grid[ty][tx] === '#' || grid[ty][tx] === 'I')) { ty--; n++; }
+      if (n) sp.y = (ty + 1) * TS;
     } }
   return L;
 }

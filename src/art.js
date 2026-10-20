@@ -1157,19 +1157,19 @@ function buildTileset(B) {
   T.iceBody = [body(0, '#8fd8ee', '#4fb0d0', '#d8f8ff'), body(1, '#8fd8ee', '#4fb0d0', '#d8f8ff')];
   T.iceTop = [top(0, '#8fd8ee', '#4fb0d0', '#d8f8ff', '#e8fbff', '#9fe0f0', '#ffffff'), top(1, '#8fd8ee', '#4fb0d0', '#d8f8ff', '#e8fbff', '#9fe0f0', '#ffffff')];
   // one-way platform, styled for each land
-  { const [c, x] = mkCanvas(16, 8), st = { caves: 'stone', frost: 'ice', citadel: 'stone', volcano: 'metal', ocean: 'coral', tunnels: 'wood' }[B.id] || 'wood';
-    if (st === 'wood') {
-      x.fillStyle = B.plat[0]; x.fillRect(0, 0, 16, 5); x.fillStyle = B.plat[1]; x.fillRect(0, 5, 16, 2); x.fillRect(0, 0, 16, 1); x.fillRect(7, 0, 1, 5); x.fillRect(15, 0, 1, 5);
-      x.fillStyle = 'rgba(255,255,255,.22)'; x.fillRect(1, 1, 5, 1); x.fillRect(9, 1, 5, 1); x.fillStyle = 'rgba(0,0,0,.18)'; x.fillRect(2, 3, 3, 1); x.fillRect(10, 2, 4, 1);
-      x.fillStyle = '#c8c8d4'; x.fillRect(1, 2, 1, 1); x.fillRect(5, 2, 1, 1); x.fillRect(9, 2, 1, 1); x.fillRect(13, 2, 1, 1);
-    } else if (st === 'stone' || st === 'ice') {
-      x.fillStyle = B.plat[0]; x.fillRect(0, 0, 16, 6); x.fillStyle = B.plat[1]; x.fillRect(0, 6, 16, 2); x.fillRect(5, 0, 1, 6); x.fillRect(11, 2, 1, 4);
-      x.fillStyle = st === 'ice' ? 'rgba(255,255,255,.6)' : 'rgba(255,255,255,.22)'; x.fillRect(0, 0, 16, 1); x.fillRect(1, 1, 3, 1); x.fillRect(7, 1, 3, 1);
-      if (st === 'ice') { x.fillStyle = '#e8fbff'; x.fillRect(3, 6, 1, 2); x.fillRect(12, 6, 1, 2); }
-    } else if (st === 'metal') {
-      x.fillStyle = '#3a3a44'; x.fillRect(0, 0, 16, 6); x.fillStyle = '#5a5a66'; x.fillRect(0, 0, 16, 1); x.fillStyle = '#1c1c22'; for (let i = 0; i < 4; i++) x.fillRect(1 + i * 4, 2, 2, 3); x.fillStyle = '#ff7a2a'; x.fillRect(2, 3, 1, 1); x.fillRect(10, 3, 1, 1); x.fillStyle = '#2a2a30'; x.fillRect(0, 6, 16, 2);
-    } else {
-      x.fillStyle = B.plat[0]; x.fillRect(0, 1, 16, 5); x.fillStyle = B.plat[1]; x.fillRect(0, 6, 16, 2); x.fillStyle = '#ffb0c8'; for (let i = 0; i < 6; i++) x.fillRect(1 + i * 3, i % 2, 2, 2); x.fillStyle = 'rgba(255,255,255,.3)'; x.fillRect(3, 2, 2, 1); x.fillRect(11, 3, 2, 1);
+  { const [c, x] = mkCanvas(16, 8), P = (col, a, b, w, h) => { x.fillStyle = col; x.fillRect(a, b, w, h); };
+    switch (B.id) {   // each map's one-way platforms match its art direction
+      case 'meadow': P('#c28a4e', 0, 1, 16, 5); P('#7a4e28', 0, 6, 16, 2); P('#7a4e28', 7, 1, 1, 5); P('#e0b070', 0, 1, 16, 1); P('#c8c8d4', 2, 3, 1, 1); P('#c8c8d4', 12, 3, 1, 1); P('#5fcf5a', 0, 0, 16, 1); P('#a4e86b', 2, 0, 2, 1); P('#a4e86b', 10, 0, 3, 1); P('#2b8a3e', 5, 0, 1, 1); break;   // a wooden plank with grass
+      case 'forest': P('#6a4a30', 0, 1, 16, 6); P('#4a3020', 0, 5, 16, 2); P('#8a6a44', 0, 2, 16, 1); P('#4a3020', 3, 3, 4, 1); P('#4a3020', 10, 2, 3, 1); P('#3a9a4a', 0, 0, 16, 2); P('#6ad070', 1, 0, 3, 1); P('#6ad070', 9, 0, 4, 1); P('#2a6a3a', 5, 1, 2, 2); P('#2a6a3a', 13, 1, 1, 3); break;   // a mossy branch
+      case 'caves': P('#2e2858', 0, 1, 16, 6); P('#1a1638', 0, 6, 16, 2); P('#4a4080', 0, 1, 16, 1); P('#6ee7f2', 2, 0, 2, 2); P('#bff6ff', 2, 0, 1, 1); P('#c07bff', 9, 0, 2, 2); P('#e6d0ff', 9, 0, 1, 1); P('#6ee7f2', 13, 0, 1, 1); P('#5a4a9a', 6, 3, 2, 1); break;   // stone with glowing crystals
+      case 'desert': P('#e0b070', 0, 0, 16, 6); P('#b88a50', 0, 6, 16, 2); P('#fff0c0', 0, 0, 16, 1); P('#c89a5a', 0, 3, 16, 1); P('#c89a5a', 4, 1, 1, 2); P('#c89a5a', 11, 1, 1, 2); P('#b07a40', 7, 4, 2, 1); break;   // carved sandstone
+      case 'frost': P('#9fe0f0', 0, 1, 16, 4); P('#5aa8d0', 0, 5, 16, 1); P('#ffffff', 0, 0, 16, 2); P('#e8fbff', 2, 2, 3, 1); P('#e8fbff', 9, 2, 4, 1); P('#bfeaff', 3, 6, 1, 2); P('#bfeaff', 8, 6, 1, 1); P('#bfeaff', 13, 6, 1, 2); break;   // ice with snow and icicles
+      case 'volcano': P('#1c1018', 0, 0, 16, 6); P('#0c060a', 0, 6, 16, 2); P('#3a2430', 0, 0, 16, 1); P('#ff5a1a', 3, 2, 3, 1); P('#ff5a1a', 5, 3, 1, 2); P('#ffd34e', 4, 2, 1, 1); P('#ff7a2a', 11, 1, 1, 3); P('#ff7a2a', 12, 3, 2, 1); break;   // obsidian with glowing cracks
+      case 'swamp': for (let i = 0; i < 16; i++) { const h2 = 4 - Math.round(Math.abs(i - 7.5) / 4); P('#2a9a8a', i, 4 - h2, 1, h2 + 2); } P('#1a5a4e', 0, 5, 16, 2); P('#d8ccb0', 0, 7, 16, 1); P('#a4ffc0', 3, 1, 2, 1); P('#a4ffc0', 10, 2, 2, 1); P('#4affe0', 7, 0, 1, 1); P('#6ac8b8', 1, 3, 14, 1); break;   // a glowing mushroom cap
+      case 'ocean': P('#ff6a8a', 0, 1, 16, 5); P('#c84a6a', 0, 6, 16, 2); P('#ffb0c8', 1, 0, 2, 2); P('#ffb0c8', 6, 0, 2, 2); P('#ffb0c8', 11, 0, 2, 2); P('#ffd34e', 4, 2, 1, 1); P('#a06af0', 14, 1, 1, 2); P('rgba(255,255,255,.3)', 2, 3, 3, 1); break;   // coral
+      case 'tunnels': P('#8a5a2a', 0, 0, 16, 5); P('#5a3a1a', 0, 5, 16, 2); P('#5a3a1a', 7, 0, 1, 5); P('#b07a44', 0, 0, 16, 1); P('#8a8a96', 0, 2, 2, 3); P('#8a8a96', 14, 2, 2, 3); P('#c8c8d4', 1, 3, 1, 1); P('#c8c8d4', 14, 3, 1, 1); break;   // scaffold planks with iron braces
+      case 'citadel': P('#2a1820', 0, 0, 16, 6); P('#140a10', 0, 6, 16, 2); P('#4a2a34', 0, 0, 16, 1); P('#140a10', 5, 1, 1, 5); P('#140a10', 11, 1, 1, 5); P('#a01020', 1, 3, 3, 1); P('#ff3a3a', 2, 3, 1, 1); P('#a01020', 13, 3, 2, 1); break;   // gothic stone with red runes
+      default: P(B.plat[0], 0, 0, 16, 5); P(B.plat[1], 0, 5, 16, 2);
     }
     T.plat = c; }
   // spikes
