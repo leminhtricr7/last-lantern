@@ -331,3 +331,19 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - **Grounded check:** while a walker is falling it neither walks forward nor attacks. If it ever falls out of the level it reappears next to its owner.
 - The real flyers (Phoenix, Dragons, Sky Whale) still fly.
 
+## Fan heroes (TEST BUILD ONLY)
+- The team's own drawings of Kayn (2 forms: Shadow / Rhaast), Tom, Jerry, Luffy, Sonic, Kirby, Jotaro and Dio. The art is in `assets/fanheroes`; it is cut from the team's sheet at its native pixel size and drawn at full screen resolution in play.
+- They are behind `FAN_HEROES = true` in `src/heroes.js`. **Set it to false before selling**: these characters belong to Riot, Warner Bros., Shueisha, SEGA, Nintendo/HAL and Araki. The original heroes with the same mechanics stay in the game.
+
+| Hero | Passive | R |
+|---|---|---|
+| Kayn (Shadow) | Hits fill the Darkin bar | Dash through enemies; with a full bar, turn into Rhaast |
+| Kayn (Rhaast) | +2 damage, every 3rd hit heals | Wide scythe sweep (heals), then back to Shadow |
+| Tom | Cartoon squash & stretch; 20% of hits drop a frying pan that stuns | Bomb / pan / anvil gag |
+| Jerry | 35% dodge ("Missed!"); drops a snap trap every 5 s | Quick slip that drags nearby enemies along and stuns them |
+| Luffy | Stretch punch | Gatling |
+| Sonic | Momentum, spin ball | Spin Dash |
+| Kirby | Flutter jumps | Inhale and copy; spit the power out as a star |
+| Jotaro | Star Platinum punches with every attack | Ora Ora barrage |
+| Dio | A knife with every attack | The World: 3.5 s time stop; knives fill the screen around enemies and fly when time flows |
+

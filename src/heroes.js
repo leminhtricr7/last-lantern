@@ -51,8 +51,27 @@ const HEROES = [
   { id: 'bong', name: H2('Puff', 'Bông Gòn'), cls: 'sup', custom: 'puff', sw: { a: '#e4fff4', A: '#7ee8c0', q: '#2a8a6a', b: '#ff9fd0', r: '#ff7fb0', f: '#e4fff4', o: '#7ee8c0' }, mech: 'inhale', hp: 1, spd: 0, dmg: 0, sk: { k: 'inhale', cd: 1.2, col: '#7ee8c0', d: 3, n: H2('Big Inhale', 'Hút Thật Sâu') } },
   { id: 'thoi', name: H2('Chrono', 'Thời Vương'), cls: 'mage', sw: { a: '#fff0c0', A: '#c89a1c', q: '#3a2a10', b: '#2a1a4a', r: '#a98bff', f: '#ffe08a', o: '#c89a1c' }, hat: 'chrono', hatCol: '#ffd34e', mech: 'timestop', hp: 0, spd: 0, dmg: 0, sk: { k: 'timestop', cd: 18, col: '#a98bff', d: 2, n: H2('Time Stop', 'Ngưng Đọng Thời Gian') } }
 ];
+// ===== TEST BUILD ONLY: fan heroes drawn by the team (Kayn (c) Riot Games, Tom & Jerry (c) Warner Bros., Luffy (c) Eiichiro Oda / Shueisha,
+// Sonic (c) SEGA, Kirby (c) Nintendo / HAL, Jotaro & Dio (c) Hirohiko Araki). Set FAN_HEROES = false before selling the game:
+// they disappear from the hero list and the original heroes above (same mechanics) stay.
+const FAN_HEROES = true;
+const FAN = [
+  { id: 'kayn', fan: 'kayn', name: H2('Kayn', 'Kayn'), cls: 'sin', custom: 'fan', mech: 'kayn', sw: {}, hp: 0, spd: 0.1, dmg: 1, sk: { k: 'kaynR', cd: 3, col: '#a15be0', d: 5, n: H2('Shadow Step / Rhaast', 'Lướt Bóng / Biến Rhaast') } },
+  { id: 'tom', fan: 'tom', name: H2('Tom', 'Tom'), cls: 'war', custom: 'fan', mech: 'toon', sw: {}, hp: 1, spd: 0.05, dmg: 0, sk: { k: 'gag', cd: 5, col: '#ffd34e', d: 5, n: H2('Gag Bag', 'Túi Trò Hề') } },
+  { id: 'jerry', fan: 'jerry', name: H2('Jerry', 'Jerry'), cls: 'sin', custom: 'fan', mech: 'jerry', sw: {}, hp: -1, spd: 0.2, dmg: 0, sk: { k: 'jerrydash', cd: 5, col: '#f0a050', d: 4, n: H2('Slip Away', 'Chạy Lách') } },
+  { id: 'luffy', fan: 'luffy', name: H2('Luffy', 'Luffy'), cls: 'war', custom: 'fan', mech: 'stretch', sw: {}, hp: 1, spd: 0, dmg: 0, sk: { k: 'gatling', cd: 7, col: '#ff7a5a', d: 2, n: H2('Gatling', 'Mưa Đấm Gatling') } },
+  { id: 'sonic', fan: 'sonic', name: H2('Sonic', 'Sonic'), cls: 'sin', custom: 'fan', mech: 'momentum', sw: { A: '#2a5ad0', q: '#14287a', a: '#ffffff' }, hp: 0, spd: 0, dmg: 0, sk: { k: 'spindash', cd: 3, col: '#4a8bf0', d: 3, n: H2('Spin Dash', 'Spin Dash') } },
+  { id: 'kirby', fan: 'kirby', name: H2('Kirby', 'Kirby'), cls: 'sup', custom: 'fan', mech: 'inhale', sw: {}, hp: 1, spd: 0, dmg: 0, sk: { k: 'inhale', cd: 1.2, col: '#ff9fd0', d: 3, n: H2('Inhale', 'Hút & Sao Chép') } },
+  { id: 'jotaro', fan: 'jotaro', name: H2('Jotaro', 'Jotaro'), cls: 'war', custom: 'fan', mech: 'stand', sw: {}, hp: 1, spd: 0, dmg: 1, sk: { k: 'ora', cd: 8, col: '#8a7aff', d: 2, n: H2('Ora Ora', 'Ora Ora') } },
+  { id: 'dio', fan: 'dio', name: H2('Dio', 'Dio'), cls: 'mage', custom: 'fan', mech: 'world', sw: {}, hp: 0, spd: 0.05, dmg: 0, sk: { k: 'theworld', cd: 18, col: '#ffd34e', d: 2, n: H2('The World', 'The World') } }
+];
+if (FAN_HEROES) HEROES.push(...FAN);
 const HERO = {}; HEROES.forEach(h => { HERO[h.id] = h; });
 const SKILL_DESC = {
+  kaynR: H2('Shadow: hits fill the Darkin bar; R dashes through enemies, and with a full bar R turns you into Rhaast. Rhaast: harder hits that heal you; R is a wide scythe sweep, then you return to Shadow.', 'Shadow: đánh trúng nạp thanh Darkin; R lướt xuyên kẻ địch, thanh đầy thì R biến thành Rhaast. Rhaast: đánh mạnh hơn, hồi máu khi đánh; R chém hái quét rộng rồi quay lại dạng Shadow.'),
+  jerrydash: H2('Tiny and hard to hit; sets snap traps behind him by himself. Skill: a quick slip that drags nearby enemies along.', 'Nhỏ, khó trúng, tự đặt bẫy kẹp sau chỗ đứng. Kỹ năng: chạy lách nhanh, quái gần bị kéo theo.'),
+  ora: H2('Star Platinum punches along with every attack. Skill: Ora Ora, a storm of punches in front of you.', 'Star Platinum đấm kèm mỗi đòn đánh. Kỹ năng: Ora Ora, đấm dồn dập trước mặt.'),
+  theworld: H2('Throws a knife with every attack. Skill: The World stops time for a few seconds and fills the screen with knives.', 'Ném dao kèm đòn đánh. Kỹ năng: The World dừng thời gian vài giây, ném dao đầy màn hình.'),
   reapdash: H2('Dash straight through enemies. Every hit fills your soul; when full you switch form: Assassin (fast, double dash damage) or Brawler (heals on dash, hits harder).', 'Lướt xuyên qua kẻ địch. Mỗi đòn trúng nạp linh hồn; đầy thì đổi dạng: Sát Thủ (nhanh, lướt x2 sát thương) hoặc Đấu Sĩ (lướt trúng hồi máu, đánh mạnh hơn).'),
   gag: H2('Throw a random gag: a lit bomb, a frying pan that stuns, or an anvil that flattens. Squeak the mouse also sets traps.', 'Ném trò hề ngẫu nhiên: bom châm ngòi, chảo choáng, hoặc đe sắt đè bẹp. Chuột Tí còn tự đặt bẫy kẹp.'),
   gatling: H2('Your attack is a stretching punch that reaches far. Skill: a storm of rubber punches.', 'Đòn đánh là cú đấm cao su vươn rất xa. Kỹ năng: mưa đấm liên hoàn.'),
