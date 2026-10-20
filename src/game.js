@@ -3865,6 +3865,14 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const ax = x + am.bx * P.face, ab = bot + am.by;   // where the head and hands are in this frame (hats, weapons, lantern follow)
     if (hh && hh.custom) { const fa = Math.floor(P.anim * 12) % 4, ck = P.inhT > 0 ? 'inhale' : (P.flutter && !P.onGround ? 'big' : (swim || (Math.abs(P.vx) > 15 && P.onGround) ? 'run' : (!P.onGround ? 'air' : 'idle'))); spr = custSpr(hh, ck, ck === 'run' ? fa : ck === 'idle' ? Math.floor(P.anim * 3) % 2 : 0, P); if (an.red) spr = redOf(spr); }
     const bob = 0;
+    if (P.cpy) {   // Kirby in the shape of what he swallowed (a flickering pink outline marks it as a copy)
+      const m = P.cpy; let ms = m.bspr || getSprite(m.key, m.swap || {}, m.key === 'bat' ? Math.floor(P.anim * 8) % 2 : 0, m.out);
+      const hgt = ms.h || m.h || 14, k = m.bspr ? clamp(34 / hgt, 0.25, 1) : 1.1, bobY = Math.round(Math.sin(P.anim * 9) * (Math.abs(P.vx) > 15 ? 1 : 0.4));
+      g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.25 + 0.1 * Math.sin(Q.t * 12); disc(g, x, Math.round(bot - hgt * k / 2), Math.round(hgt * k * 0.7), '#ff9fd0'); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+      drawSprT(g, ms, x, bot + bobY, P.face < 0, P.copyT < 1 && Math.floor(Q.t * 12) % 2 === 0, k, k, 0, 1);
+      g.fillStyle = '#14121f'; g.fillRect(x - 9, bot - Math.round(hgt * k) - 7, 18, 3); g.fillStyle = '#ff9fd0'; g.fillRect(x - 8, bot - Math.round(hgt * k) - 6, Math.round(16 * Math.max(0, P.copyT) / 5), 1);
+      if (swim) g.restore(); if (coop) drawCoopTag(P, x, bot); return;
+    }
     if (P.trail) for (const tr of P.trail) {
       g.globalCompositeOperation = 'lighter'; const tx = Math.round(tr.x + P.w / 2 - camX), ty = Math.round(tr.y + P.h - camY), ta = tr.t / 0.22;
       if (P.dc) { const gr = g.createRadialGradient(tx, ty - 7, 0, tx, ty - 7, 11); gr.addColorStop(0, hexA(P.dc[0], 0.5 * ta)); gr.addColorStop(1, hexA(P.dc[0], 0)); g.fillStyle = gr; g.fillRect(tx - 11, ty - 18, 22, 22); }
@@ -5202,8 +5210,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       case 'gatling': P.gatT = 1.2; P.gatTick = 0; Snd.play('whoosh'); pop(cx, cy - 26, sv('PUNCH PUNCH PUNCH!', 'ĐẤM ĐẤM ĐẤM!'), '#ff7a5a'); break;
       case 'spindash': P.armT = P.armDur = 0.4; P.mom = 1; P.spinT = 0.7; P.vx = f * RUN * 2; Snd.play('dash'); for (let i = 0; i < 12; i++) emit(cx - f * 6, P.y + P.h, 1, { col: ['#ffffff', '#d0a070'], sp0: 10, sp1: 50, vx: -f * 80, vy: -20 }); break;
       case 'inhale':
-        if (P.copy) { shootG({ x: cx + f * 8, y: cy, vx: f * 280, vy: 0, life: 0.9, dmg: d * 2 + 2, pierceN: 5, shape: 'orb', col: '#ffd34e', trail: '#ffffff', sz: 6, f, skill: true }); pop(cx, cy - 22, sv('Spit!', 'Nhả!'), '#ffd34e'); P.copy = null; Snd.play('relic'); }
-        else { P.inhT = 0.9; P.inhGot = false; Snd.play('whoosh'); }
+        P.inhT = 0.9; P.inhGot = false; P.scanT = 0; Snd.play('whoosh');   // Copy: breathe in; whatever you swallow (or scan, for a boss) becomes your shape for 5 s
         break;
       case 'timestop': {
         const G = Q.G; G.tsT = 4; G.tsOwner = P; G.tsTick = 0; Q.shake = Math.max(Q.shake, 0.4); Snd.play('chime'); if (Snd.cineHit) Snd.cineHit('drop');
@@ -5319,8 +5326,18 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (key === 'sonic' && run && R < 0.25) emit(fx - f * 4, fy - 1, 1, { col: ['#ffe44e', '#ffffff'], sp0: 4, sp1: 20, vx: -f * 40, vy: -20, grav: 120, l0: 0.15, l1: 0.3 });
   }
   // Puff copies what it swallows
+  // Kirby's Copy: take the shape of what was inhaled for 5 s (a boss or a big foe is scanned; the boss only loses a little)
+  function kirbyCopy(P, e) {
+    const huge = !!(e.isBoss || isBig(e)), key = e.cfg && e.cfg.spr, ab = huge ? 'boss' : (COPY[key] || 'star'), ci = COPY_INFO[ab];
+    P.inhGot = true; P.inhT = 0; P.scanT = 0; P.copy = ab; P.copyT = 5; P.skCd = 7;
+    const bspr = e.isBoss ? (e.spr && e.spr.c ? e.spr : null) : null;
+    P.cpy = (bspr || key) ? { key, swap: e.cfg && e.cfg.swap, out: e.cfg && e.cfg.out, bspr, w: e.w, h: e.h, tk: 0 } : null;
+    const nm = e.cfg && e.cfg.name, label = nm && typeof nm === 'object' ? LN(nm) : (typeof nm === 'string' ? nm : '');
+    Snd.play('relic'); pop(P.x + 4, P.y - 22, sv('Copy: ', 'Sao chép: ') + (label || LN(ci.n)) + '!', ci.col); addRing(P.x + 4, P.y + 7, '#ff9fd0', 50, 0.45);
+    emit(P.x + 4, P.y + 6, 26, { col: [ci.col, '#ff9fd0', '#ffffff'], sp0: 20, sp1: 100 }); Q.G.tint = { c: '#ff9fd0', t: 0.3 };
+  }
   const COPY = { imp: 'fire', wisp: 'spark', ghost: 'spark', shroom: 'spark', spider: 'web', scorpion: 'web', bat: 'wing', beetle: 'stone', knight: 'stone', snowman: 'stone', zombie: 'stone' };
-  const COPY_INFO = { fire: { n: { en: 'Fire', vi: 'Lửa' }, col: '#ff7a2a' }, spark: { n: { en: 'Spark', vi: 'Điện' }, col: '#ffe44e' }, web: { n: { en: 'Web', vi: 'Tơ Nhện' }, col: '#e8e8f0' }, wing: { n: { en: 'Wing', vi: 'Cánh' }, col: '#9fe8ff' }, stone: { n: { en: 'Stone', vi: 'Đá' }, col: '#a8a8b8' }, star: { n: { en: 'Star', vi: 'Sao' }, col: '#ffd34e' } };
+  const COPY_INFO = { fire: { n: { en: 'Fire', vi: 'Lửa' }, col: '#ff7a2a' }, boss: { n: { en: 'Boss', vi: 'Trùm' }, col: '#ff9fd0' }, spark: { n: { en: 'Spark', vi: 'Điện' }, col: '#ffe44e' }, web: { n: { en: 'Web', vi: 'Tơ Nhện' }, col: '#e8e8f0' }, wing: { n: { en: 'Wing', vi: 'Cánh' }, col: '#9fe8ff' }, stone: { n: { en: 'Stone', vi: 'Đá' }, col: '#a8a8b8' }, star: { n: { en: 'Star', vi: 'Sao' }, col: '#ffd34e' } };
   // each fan hero's basic attack: reach, height, speed, colour and the effect that is drawn
   const FAN_ATK = {
     kayn: { r: 34, h: 22, cd: 0.38, col: '#a15be0', fx: 'scythe', d: 1 }, rhaast: { r: 42, h: 28, cd: 0.42, col: '#ff3a3a', fx: 'scythe', d: 2 },
@@ -5372,7 +5389,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (mk === 'world') { shootG({ x: P.x + 4 + f * 6, y: P.y + 6, vx: f * 360, vy: 0, life: 0.7, dmg: baseDmg() + 1, shape: 'bolt', col: '#e8e8f0', trail: '#ffd34e', sz: 2, f }); return false; }   // a knife with every attack
     if (mk === 'stretch' && !gun) { if (P.punch) return true; const d = baseDmg() + ((it0 && it0.st && it0.st.dmg) || 0) + 1 + (P.hdmg || 0); P.punch = { t: 0, dur: 0.26, dir: f, reach: 92, dy: act.up ? -40 : (act.down && !P.onGround ? 40 : 0), d, hit: new Set() }; Snd.play('whoosh'); return true; }
     if (mk === 'inhale' && !gun) {
-      const x = P.x + 4 + f * 6, y = P.y + 6, d = 2 + baseDmg() + (P.hdmg || 0);
+      const x = P.x + 4 + f * 6, y = P.y + 6, d = Math.round((2 + baseDmg() + (P.hdmg || 0)) * (P.cpy ? 1.7 : 1));
       if (P.flutter && !P.onGround) { P.flutter = false; shootG({ x, y, vx: f * 220, vy: 0, life: 0.35, dmg: d, shape: 'wind', col: '#e4fff4', sz: 6, f, skill: true }); Snd.play('whoosh'); return true; }
       const c = P.copy; if (!c) { if (!isFan(P)) return false; if (P.atkCd > 0) return true; P.atkCd = 0.3; P.armT = P.armDur = 0.3; shootG({ x, y, vx: f * 230, vy: 0, life: 0.28, dmg: d, shape: 'wind', col: '#ffd0e4', sz: 6, f, skill: false }); P.fsw = { t: 0.22, fx: 'spin', col: '#ff9fd0', r: 14, f }; Snd.play('whoosh'); return true; }
       if (c === 'fire') { for (let k = -2; k <= 2; k++) shootG({ x, y, vx: f * 170 + rr(-20, 20), vy: k * 22, life: 0.35, dmg: d, burn: 2, shape: 'fire', col: '#ff7a2a', trail: '#ffd34e', sz: 3, f }); Snd.play('flame'); }
@@ -5380,6 +5397,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       else if (c === 'web') { shootG({ x, y, vx: f * 240, vy: 0, life: 0.9, dmg: d, slowE: 4, shape: 'orb', col: '#e8e8f0', sz: 4, f }); Snd.play('whoosh'); }
       else if (c === 'wing') { for (let k = -1; k <= 1; k++) shootG({ x, y: y + k * 4, vx: f * 300, vy: k * 30, life: 0.7, dmg: d, shape: 'arrow', col: '#9fe8ff', sz: 2, f }); Snd.play('whoosh'); }
       else if (c === 'stone') { if (!P.onGround) { P.stoneT = 1.2; P.stoneLand = false; P.vy = 380; Snd.play('boom'); } else { nova(P.x + 4, P.y + 10, 44, d + 2); Q.shake = Math.max(Q.shake, 0.3); Snd.play('boom'); } }
+      else if (c === 'boss') { nova(P.x + 4, P.y + 7, 56, d + 3); for (let k = -1; k <= 1; k++) shootG({ x, y, vx: f * 250, vy: k * 40, life: 0.9, dmg: d + 1, pierceN: 3, shape: 'orb', col: '#ff9fd0', trail: '#ffffff', sz: 5, f }); Q.shake = Math.max(Q.shake, 0.3); Snd.play('boom'); }
       else { shootG({ x, y, vx: f * 260, vy: 0, life: 0.8, dmg: d + 2, pierceN: 3, shape: 'orb', col: '#ffd34e', trail: '#fff', sz: 4, f }); Snd.play('relic'); }
       return true;
     }
@@ -5473,16 +5491,28 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }
     if (mk === 'inhale') {   // inhale: pull small enemies into the mouth and copy them; only air = puff up and float
       if (P.onGround) P.flutter = false;
+      if (P.copyT > 0) {   // the copy lasts 5 s; in a copied body anything you touch is hurt
+        P.copyT -= dt; const cm = P.cpy;
+        if (cm) { cm.tk = (cm.tk || 0) - dt; if (cm.tk <= 0) { cm.tk = 0.35; const box = { x: P.x - 8, y: P.y - 6, w: P.w + 16, h: P.h + 8 }; for (const e of foes()) if (ov(box, e)) { dmgFoe(e, 2 + baseDmg(), true); emit(e.x + e.w / 2, e.y + e.h / 2, 6, { col: ['#ff9fd0', '#fff'], sp0: 30, sp1: 90 }); } } }
+        if (P.copyT <= 0) { P.copy = null; P.cpy = null; P.copyT = 0; emit(P.x + 4, P.y + 6, 24, { col: ['#ff9fd0', '#ffffff', '#ffd34e'], sp0: 30, sp1: 120 }); addRing(P.x + 4, P.y + 7, '#ff9fd0', 44, 0.4); Snd.play('chime'); pop(P.x + 4, P.y - 18, sv('Back to normal', 'Trở lại bình thường'), '#ff9fd0'); }
+      }
       if (P.inhT > 0) {
         P.inhT -= dt; const mx = P.x + 4 + P.face * 8, my = P.y + 6;
         if (Math.random() < 0.9) { const a = (Math.random() - 0.5) * 0.9, r = 50 + Math.random() * 20; emit(mx + P.face * Math.cos(a) * r, my + Math.sin(a) * r, 1, { col: ['#ffffff', '#cfeee4'], sp0: 0, sp1: 4, vx: -P.face * 140 * Math.cos(a), vy: -Math.sin(a) * 140, grav: 0, l0: 0.25, l1: 0.35 }); }
         for (const e of foes()) {
-          if (e.isBoss || isBig(e) || e.hid || e.dead) continue; const dx = e.x + e.w / 2 - mx, dy = e.y + e.h / 2 - my, dd = Math.hypot(dx, dy);
+          if (e.hid || e.dead) continue; const huge = !!(e.isBoss || isBig(e)), dx = e.x + e.w / 2 - mx, dy = e.y + e.h / 2 - my, dd = Math.hypot(dx, dy);
+          if (huge) {   // too big to swallow: hold the breath at it for half a second to scan it
+            const edge = Math.max(0, Math.abs(dx) - e.w / 2);
+            if (edge > 64 || (Math.sign(dx) !== P.face && Math.abs(dx) > e.w / 2) || Math.abs(dy) > e.h / 2 + 24) continue;
+            P.scanT = (P.scanT || 0) + dt; emit(e.x + e.w / 2 + rr(-e.w / 3, e.w / 3), e.y + e.h / 2 + rr(-e.h / 3, e.h / 3), 1, { col: ['#ff9fd0', '#ffffff'], sp0: 0, sp1: 4, vx: (mx - e.x - e.w / 2) * 1.6, vy: (my - e.y - e.h / 2) * 1.6, grav: 0, l0: 0.25, l1: 0.4 });
+            if (P.scanT > 0.5) { dmgFoe(e, 3 + baseDmg(), true, true); kirbyCopy(P, e); break; }
+            continue;
+          }
           if (dd > 72 || (Math.sign(dx) !== P.face && Math.abs(dx) > 4) || Math.abs(dy) > 10 + dd * 0.5) continue;
           e.x -= dx / (dd || 1) * 150 * dt; e.y -= dy / (dd || 1) * 150 * dt; e.vx = 0; e.stunT = Math.max(e.stunT || 0, 0.2);
-          if (dd < 12) { e.dead = true; onKill(e); P.inhGot = true; P.copy = COPY[e.cfg && e.cfg.spr] || 'star'; P.inhT = 0; Snd.play('relic'); const ci = COPY_INFO[P.copy]; pop(P.x + 4, P.y - 20, sv('Copy: ', 'Sao chép: ') + LN(ci.n) + '!', ci.col); emit(mx, my, 16, { col: [ci.col, '#ffffff'], sp0: 20, sp1: 80 }); break; }
+          if (dd < 12) { e.dead = true; onKill(e); kirbyCopy(P, e); break; }
         }
-        if (P.inhT <= 0 && !P.inhGot) { P.flutter = true; if (P.onGround) { P.vy = -120; P.onGround = false; } P.jumps = Math.max(P.jumps, 1); Snd.play('djump'); pop(P.x + 4, P.y - 18, sv('Puffed up!', 'Phồng bay!'), '#7ee8c0'); }
+        if (P.inhT <= 0 && !P.inhGot) { P.skCd = 0.6; P.flutter = true; if (P.onGround) { P.vy = -120; P.onGround = false; } P.jumps = Math.max(P.jumps, 1); Snd.play('djump'); pop(P.x + 4, P.y - 18, sv('Puffed up!', 'Phồng bay!'), '#7ee8c0'); }
       }
       if (P.stoneT > 0) { P.stoneT -= dt; if (P.onGround && !P.stoneLand) { P.stoneLand = true; P.stoneT = 0; Q.shake = Math.max(Q.shake, 0.5); Snd.play('boom'); for (const e of foes()) if (Math.abs(e.x + e.w / 2 - P.x - 4) < 50 && Math.abs(e.y + e.h - P.y - P.h) < 30) dmgFoe(e, 4 + baseDmg(), true); for (let i = -4; i <= 4; i++) emit(P.x + 4 + i * 8, P.y + P.h, 2, { col: ['#a8a8b8', '#fff'], sp0: 15, sp1: 60, vy: -60 }); } }
     }
@@ -5621,8 +5651,11 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   function drawHeroAt(id, x, bot, f, fr, sc) {
     const h = HERO[id] || HERO.ember; sc = sc || 1;
     if (sc !== 1) { g.save(); g.translate(x, bot); g.scale(sc, sc); x = 0; bot = 0; }
-    if (h.custom === 'fan') g.imageSmoothingEnabled = true;
-    drawSpr(g, h.custom ? custSpr(h, 'idle', (fr || 0) & 1) : getSprite('hero_idle', h.sw, fr || 0), x, bot, f < 0);
+    const fo = h.custom === 'fan' && FAN_IMG[h.fan];
+    if (fo) {   // the team's drawing at full resolution (not the half-size copy), so the pickers are as sharp as the game
+      const w = fo.spr.w, hh = fo.spr.h; g.save(); g.translate(x, bot); if (f < 0) g.scale(-1, 1);
+      hiImg(fo.im, 0, 0, fo.im.width, fo.im.height, -w / 2, -hh, w, hh); g.restore();
+    } else drawSpr(g, h.custom ? custSpr(h, 'idle', (fr || 0) & 1) : getSprite('hero_idle', h.sw, fr || 0), x, bot, f < 0);
     g.imageSmoothingEnabled = false;
     if (h.hat) drawHat(h, x, bot, f);
     if (sc !== 1) g.restore();
@@ -6168,7 +6201,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const C = 10, cw = 36, chh = 28, x0 = (VW - C * cw) / 2, y0 = 40;
     HEROES.forEach((h, i) => {
       const cx = x0 + (i % C) * cw, cy = y0 + Math.floor(i / C) * chh, on = i === coopUI.hs;
-      g.fillStyle = on ? 'rgba(255,211,78,.18)' : 'rgba(255,255,255,.04)'; g.fillRect(cx + 1, cy, cw - 2, chh - 2);
+      g.fillStyle = on ? 'rgba(255,211,78,.18)' : (h.custom === 'fan' ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.04)'); g.fillRect(cx + 1, cy, cw - 2, chh - 2);
       g.fillStyle = HERO_CLS[h.cls].col; g.fillRect(cx + 1, cy + chh - 3, cw - 2, 1);
       if (heroLocked(h)) g.globalAlpha = 0.35;
       drawHeroAt(h.id, cx + cw / 2, cy + chh - 4, 1, on ? Math.floor(sceneT * 4) % 2 : 0, 1); g.globalAlpha = 1;
