@@ -528,3 +528,5 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - **Smarter movement:** a boss picks its next attack early and walks into range for it (close for stomps and slams, a run-up for leaps and charges, keeps away for shots and spells), turns with a short delay instead of flipping every frame, speeds up and slows down smoothly, and hops when blocked.
 - **Walking bosses:** one-picture bosses now step (the two halves of the legs take turns lifting, the body bobs and leans, dust at each footfall); fast movement plays the run pose.
 - **Controls guide:** "Controls" on the title menu and the pause menu shows every button and what it does (keyboard / mouse and gamepad); it opens by itself the first time you control a hero (`save.ctrlSeen`).
+- **The top of the map is a ceiling:** Kirby (and Bong, who flies the same way) could flutter-jump past the top of the map and over the arena walls; every hero now stops at the top edge.
+- **Double jump for every hero from map 1** (it used to unlock on map 2). The map-1 tip now says how to double jump and where the controls guide is (the old tip listed every key and ran past the screen's edges).

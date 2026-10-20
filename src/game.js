@@ -96,9 +96,8 @@
     mapt: { en: 'THE ROAD OF AURELIA', vi: 'CON ĐƯỜNG AURELIA' },
     maphelp: { en: '←/→ choose   ENTER play   ESC back', vi: '←/→ chọn   ENTER chơi   ESC quay lại' },
     locked: { en: 'LOCKED', vi: 'CHƯA MỞ' },
-    ab1: { en: 'NEW: Double Jump — press jump in mid-air', vi: 'MỚI: Nhảy đôi — nhấn nhảy khi đang bay' },
     ab3: { en: 'NEW: Dash — press K / Shift (you are invincible while dashing)', vi: 'MỚI: Lướt — nhấn K / Shift (bất tử khi lướt)' },
-    ctl: { en: 'Move A/D  Jump Space  Attack J / Click  Weapon T  Throw L / Right-click  Item Q / Wheel  Dash K  Parry F  Skills 1-4  Use E', vi: 'Di chuyển A/D  Nhảy Space  Đánh J / Nhấp chuột  Đổi vũ khí T  Ném L / Chuột phải  Đổi đồ Q / Lăn chuột  Lướt K  Đỡ đòn F  Kỹ năng 1-4  Dùng E' },
+    ctl: { en: 'Double jump: press jump again in the air.   All buttons: Esc > Controls', vi: 'Nhảy đôi: nhấn nhảy lần nữa trên không.   Xem mọi nút: Esc > Hướng dẫn nút' },
     thanks: { en: 'Thank you for playing!', vi: 'Cảm ơn bạn đã chơi!' },
     talk: { en: 'E / Enter: Talk', vi: 'E / Enter: Nói chuyện' },
     free: { en: 'E: Free her', vi: 'E: Giải cứu' }, guards: { en: 'Defeat the guards first!', vi: 'Hạ hết lính canh trước đã!' },
@@ -1000,7 +999,7 @@
       li, L, P, B: L.B, bg: bgs(li), ts: tiles(li), crum: new Map(), taken: new Set(), cp: null, cpIdx: -1,
       ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), trials: [], trialsDone: new Set(), rings: [], ghosts: [], corpses: [], zones: [], tmpCells: [], dragon: null, dragons: [], dragonsDone: new Set(), tmpCells2: 0, windT: 0, windDir: 1, darkBoost: 0, darkBoostT: 0, nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
       cam: { x: 0, y: 0 }, coinsRun: 0, time: 0, safe: { x: P.x, y: P.y }, menu: 0,
-      dj: li >= 1 || save.cleared.indexOf(0) >= 0, dashAb: li >= 3 || save.cleared.indexOf(2) >= 0,
+      dj: true, dashAb: li >= 3 || save.cleared.indexOf(2) >= 0,
       arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0, minisDone: new Set(), mainBoss: null, mainArena: null, syFig: null
     };
     if (!save.shards[li]) save.shards[li] = [0, 0, 0];
@@ -1014,7 +1013,7 @@
     snapCam();
     scene = 'play';
     Snd.music('lvl' + li, L.B.music); Snd.ambience(L.B.id); Snd.ambVol(0.9);
-    if (li === 1) Q.msg = T('ab1'); else if (li === 3) Q.msg = T('ab3'); else if (li === 0) Q.msg = T('ctl');
+    if (li === 3) Q.msg = T('ab3'); else if (li === 0) Q.msg = T('ctl');
     Q.msgT = Q.msg ? 6 : 0;
   }
   function initEntities() {
@@ -1438,7 +1437,7 @@
     if (P.emoT > 0) { P.emoT -= dt; if (P.emoT <= 0) P.emo = null; }
     if (!P.emo && P.hp <= 1 && P.hp > 0) P.emo = 'cry';
     if (P.emo === 'cry' && Math.random() < 0.12) emit(P.x + 4 + (Math.random() < 0.5 ? -3 : 3) * P.face, P.y + 3, 1, { col: '#8ad8ff', sp0: 2, sp1: 8, vy: 20, grav: 160, l0: 0.4, l1: 0.7 }); P.atkCd -= dt; P.dashCd -= dt; P.drop -= dt;
-    if (!P.vine) { unembed(P, P.face || 1); P.x = clamp(P.x, 0, Q.L.W * TS - P.w); }   // never inside a wall, never past the map's sides
+    if (!P.vine) { unembed(P, P.face || 1); P.x = clamp(P.x, 0, Q.L.W * TS - P.w); if (P.y < 0) { P.y = 0; P.vy = Math.max(P.vy, 0); } }   // never inside a wall, never past the map's sides or its top
     if (P.vineCd > 0) P.vineCd -= dt;
     if (vineStep(P, dt)) return;   // hanging on a vine: the vine drives the body
     // timers
@@ -1516,6 +1515,7 @@
     const wasAir = !P.onGround, impact = P.vy;
     P.riding = null;
     moveY(P, P.vy * dt);
+    if (P.y < 0) { P.y = 0; if (P.vy < 0) P.vy = 0; }   // the top of the map is a ceiling (no flying out over the walls)
     // moving platforms
     if (P.vy >= 0 && !P.onGround) {
       for (const p of L.plats) {
@@ -4852,7 +4852,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   const CTRL = [
     ['g', 'MOVE', 'DI CHUYỂN', '#8ad8ff'],
     ['Walk left / right', 'Đi trái / phải', 'A D  /  ← →', ['Left stick / D-pad', 'Cần trái / D-pad']],
-    ['Jump', 'Nhảy', 'Space / W / ↑ / Z', 'A'],
+    ['Jump (press again in the air: double jump)', 'Nhảy (nhấn thêm trên không: nhảy đôi)', 'Space / W / ↑ / Z', 'A'],
     ['Dash (nothing can hit you mid-dash)', 'Lướt (không bị đánh trúng khi lướt)', 'K / Shift / C', 'B / RT'],
     ['Up / down: climb vines, aim, drop through thin floors', 'Lên / xuống: leo dây, ngắm, xuống ván mỏng', 'W S  /  ↑ ↓', ['Left stick', 'Cần trái']],
     ['g', 'FIGHT', 'CHIẾN ĐẤU', '#ff9a7a'],
