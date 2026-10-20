@@ -3295,7 +3295,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       }
       return;
     }
-    if (st === 'talk') { updateTalk(dt); updateParticles(dt); return; }
+    if (st === 'talk') { for (const p of Q.players || [Q.P]) { p.vx = 0; p.mom = 0; if (p.onGround) p.vy = 0; } updateTalk(dt); updateParticles(dt); return; }   // everybody stands still while the story talks (no stale run speed -> no flailing animation)
     if (st === 'shop') { updateShop(); return; }
     if (st === 'reward') { Q.stateT += 0; if (Q.stateT > 0.8 && (act.okP || act.talkP || act.atkP)) Q.state = 'play'; updateParticles(dt); return; }
     if (st === 'tablet') { if (act.okP || act.talkP || act.backP || act.pauseP || act.atkP) { Q.state = 'play'; } return; }
@@ -5677,7 +5677,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (!Q) return;
     coop.since += dt; Q.t += dt; sceneT += dt;
     if (coop.since < 0.15) {
-      const mv = o => { if (o && typeof o.vx === 'number' && typeof o.x === 'number' && !o.dead) { o.x += o.vx * dt; if (typeof o.vy === 'number' && !o.onGround) o.y += o.vy * dt; } };
+      const still = Q.state === 'talk' || Q.state === 'bossintro';
+      const mv = o => { if (!still && o && typeof o.vx === 'number' && typeof o.x === 'number' && !o.dead) { o.x += o.vx * dt; if (typeof o.vy === 'number' && !o.onGround) o.y += o.vy * dt; } };
       for (const p of Q.players || []) if (!p.down) mv(p);
       for (const e of Q.ents || []) mv(e);
       for (const p of Q.projs || []) mv(p);
