@@ -512,3 +512,10 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - **Hero poses:** sword swing (wind-up, strike, follow-through), dash, F guard and falling (`hero_atk`, `hero_dash`, `hero_guard`, `hero_die` in src/art.js). A hero who falls now kneels and fades instead of vanishing; custom heroes sink and fade.
 - **Performance:** the lighting pass skips things far from the camera; particles drop their oldest in one go.
 - **Map 4 film (Sunscorch Desert, 28 s):** the third thread of light dives into the sand by a pyramid; heat and cold ("the more towers we light, the colder it gets"); a carving on a ruined wall lights up and shows Quoc refusing the Pharaoh, who begged him to let the tower sleep; at night two eyes open in the pyramid's doorway.
+- **Map films 5-10:** every map now opens with a short film (24-28 s) and an opening dialogue:
+  - **Frostbite Peaks:** the Fifth Tower locked in ice; Lyra's song cracks it a little; Seraph tells how the king froze his own heart; Sy shatters the ice cage on the summit.
+  - **Ember Volcano:** the Sixth Tower sinking in lava; a shard of old lantern glass: here Quoc's lantern cracked for the first time, and he walked on with it; Ignarok, grown up, flies over the smoke.
+  - **Glowcap Swamp:** cold glowing mushrooms remember Quoc's dream and whisper his last words, "I wish someone would walk with me"; the Spore Queen opens her eyes.
+  - **Sunken Deep:** the thread dives off the cliff; a whale of light shows the way down to the drowned Eighth Tower and the Kraken's arms (Nami's shore quest still plays when the map begins).
+  - **Deepdig Tunnels:** Shorty, alone, admits he only wanted his master to smile; Gravemaw breaks through the rock.
+  - **Shadow Citadel:** nine threads meet over the Citadel; Quoc waits under the dark Tenth Tower; the friends from the road walk up behind the team.
