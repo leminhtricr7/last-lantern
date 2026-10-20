@@ -606,8 +606,8 @@ function getSprite(name, swap, frame, outlineColor) {
   swap = swap || {}; frame = frame || 0;
   const key = name + '|' + JSON.stringify(swap) + '|' + frame + '|' + (outlineColor || '');
   if (_cache[key]) return _cache[key];
-  const frames = ART[name] || [DECOR[name]];
-  const rows = frames[frame % frames.length];
+  const frames = ART[name] || [DECOR[name]], fi = Number.isFinite(frame) ? Math.floor(frame) : 0;
+  const rows = frames[((fi % frames.length) + frames.length) % frames.length] || frames[0] || [' '];
   const s = makeSprite(rows, swap, outlineColor || (ART[name] ? PAL.k : null));
   _cache[key] = s;
   return s;

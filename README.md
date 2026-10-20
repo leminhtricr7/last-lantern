@@ -489,3 +489,13 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - More monsters on each stretch (about 1.5-2x per map), more big and elite monsters, a chance of a second trap on long stretches, and more pitch-black zones on the long maps.
 - Monsters on maps 3-10 have 35% more health, bosses x2.2 instead of x1.7, Quoc's first form x1.9 and his later forms x1.25.
 - Checkpoints still come every 38-52 tiles, so a longer map also has more of them (15-27 per map).
+
+## Release switch and stability (P0)
+- **`RELEASE` in src/heroes.js** (false now). Set it to `true` for the build you sell: the fan heroes disappear (other companies' characters), Star Fox becomes "Comet Fox", and every testing shortcut in the link stops working (`?unlock`, `?debug`, `?level=`, `?boss=`, `?quoc=`, `?leekdemo`). Room links (`?room=`) keep working.
+- **Crash guards:** a frame step can no longer get a negative time (the co-op background worker and the browser's frames could interleave and make summons and sprites draw with negative sizes). If a frame still throws, the error is logged once, both canvases and the text/hi-res queues are reset and the game carries on; after about 90 failing frames in a row (outside co-op) it returns to the title instead of freezing. Sprite frame indexes can no longer be negative.
+- **Save:** a damaged save is copied to `last_lantern_save_v1_broken` and the game starts from what can be read (shards, cleared maps, coins and the seen/films lists are checked). Saves carry a format number (`v: 2`). "New game" also resets which map films were seen.
+
+## One story everywhere
+- Maps 4-10, the ending, Quoc's scenes after each map, Shorty/Sy in the Citadel, the allies' arrival, the co-op story, the Sunken Deep quest, the HUD and the film captions now follow the Lantern Towers story: every boss sleeps on a tower (the Fourth in the desert ... the Tenth on top of the Citadel), and beating it lets Lyra sing the tower back to life.
+- Quoc is cold and sad in his scenes (a fallen Lanternbearer who lit nine towers alone); Shorty, Sy and the imp keep the jokes. The ending brings him home instead of destroying him.
+- The collectibles are "Tower Embers / Tàn Lửa Tháp" (30 in total), the relic is "Heart of the Towers". In Vietnamese text Quoc is always "Quốc" and the title is always "Người Giữ Đèn".

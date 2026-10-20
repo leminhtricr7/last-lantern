@@ -36,8 +36,14 @@
   // ---------- save / i18n ----------
   const SAVEKEY = 'last_lantern_save_v1';
   let save = { cleared: [], shards: {}, coins: 0, lang: 'vi', vol: 0.6, relics: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], ammo: { dagger: 0, bomb: 0, flask: 0 }, leek: false };
-  try { Object.assign(save, JSON.parse(localStorage.getItem(SAVEKEY) || '{}')); } catch (e) { }
-  const DEMO = location.search.indexOf('leekdemo') >= 0; // ?leekdemo: try the leek blade without touching your save
+  try { Object.assign(save, JSON.parse(localStorage.getItem(SAVEKEY) || '{}')); } catch (e) { try { localStorage.setItem(SAVEKEY + '_broken', localStorage.getItem(SAVEKEY) || ''); } catch (e2) { } }
+  if (!Array.isArray(save.cleared)) save.cleared = []; save.cleared = save.cleared.filter(n => Number.isInteger(n));
+  if (!save.shards || typeof save.shards !== 'object' || Array.isArray(save.shards)) save.shards = {};
+  for (const k in save.shards) if (!Array.isArray(save.shards[k])) delete save.shards[k];
+  for (const k of ['seen', 'films']) if (save[k] && typeof save[k] !== 'object') save[k] = {};
+  if (typeof save.coins !== 'number' || !isFinite(save.coins)) save.coins = 0;
+  save.v = 2;   // save format version
+  const DEMO = !RELEASE && location.search.indexOf('leekdemo') >= 0; // ?leekdemo: try the leek blade without touching your save
   let coop = null, inSwap = 0;   // online co-op session (see ONLINE CO-OP below); inSwap > 0 while a guest's hero is being simulated
   const writeSave = () => { if (DEMO || inSwap) return; try { localStorage.setItem(SAVEKEY, JSON.stringify(save)); } catch (e) { } };
   if (!Array.isArray(save.relics)) save.relics = [];
@@ -68,7 +74,7 @@
   const baseDmg = () => Math.max(1, (Q && Q.P && Q.P.hdmg || 0) + (Q && Q.G && Q.G.powerT > 0 ? 2 : 0) + 1 + (save.bonusDmg | 0) + Math.floor(totalShards() / 7) + (hasRelic(1) ? 1 : 0) + ((ITEM[save.inv.pet] || { st: {} }).st.role === 'rainbow' ? 1 : 0));
   const swordDmg = () => baseDmg() + save.inv.w.reduce((m, id) => (ITEM[id] && ITEM[id].type === 'sword' ? Math.max(m, ITEM[id].st.dmg || 0) : m), 0);
   // every map open for testing: add ?unlock to the link (it is remembered on this browser); ?lock turns it off again. Normal players never see it.
-  const UNLOCK_ALL = (() => { const q = location.search, off = /[?&]lock(&|$)/.test(q), on = /[?&]unlock(&|$)/.test(q); try { if (off) localStorage.removeItem('ll_unlock'); if (on) localStorage.setItem('ll_unlock', '1'); return !off && (on || localStorage.getItem('ll_unlock') === '1'); } catch (e) { return !off && on; } })();
+  const UNLOCK_ALL = !RELEASE && (() => { const q = location.search, off = /[?&]lock(&|$)/.test(q), on = /[?&]unlock(&|$)/.test(q); try { if (off) localStorage.removeItem('ll_unlock'); if (on) localStorage.setItem('ll_unlock', '1'); return !off && (on || localStorage.getItem('ll_unlock') === '1'); } catch (e) { return !off && on; } })();
   const maxPlayable = () => UNLOCK_ALL ? 9 : save.cleared.length ? Math.min(9, Math.max.apply(null, save.cleared.map(LPOS)) + 1) : 0;   // a position in LORDER
   const sunPower = () => save.cleared.length / 7;
   Snd.setVol(save.vol);
@@ -83,7 +89,7 @@
     died: { en: 'Your flame went out...', vi: 'Ngọn lửa của bạn đã tắt...' },
     retry: { en: 'ENTER: Retry from lantern   ESC: Map', vi: 'ENTER: Hồi sinh tại đèn   ESC: Bản đồ' },
     clear: { en: 'SUN FRAGMENT RECLAIMED!', vi: 'ĐÃ LẤY LẠI MẢNH MẶT TRỜI!' },
-    coins: { en: 'Coins', vi: 'Xu' }, shards: { en: 'Sun Shards', vi: 'Mảnh nắng' }, time: { en: 'Time', vi: 'Thời gian' },
+    coins: { en: 'Coins', vi: 'Xu' }, shards: { en: 'Tower Embers', vi: 'Tàn Lửa Tháp' }, time: { en: 'Time', vi: 'Thời gian' },
     cont2: { en: 'ENTER: Continue', vi: 'ENTER: Tiếp tục' },
     boss: { en: 'GUARDIAN', vi: 'THỦ HỘ' },
     mapt: { en: 'THE ROAD OF AURELIA', vi: 'CON ĐƯỜNG AURELIA' },
@@ -146,36 +152,37 @@
       { en: 'It is dark enough that your lantern feels like the only star. Something in the dark is learning your name.', vi: 'Tối đến mức chiếc đèn của bạn như ngôi sao duy nhất. Có thứ gì đó trong bóng tối đang học thuộc tên bạn.' }
     ],
     3: [
-      { en: 'SUNSCORCH DESERT. The sand remembers the Sun better than anyone. It still burns by day, and by night it burns with hate.', vi: 'SA MẠC CHÁY NẮNG. Cát nhớ Mặt Trời hơn bất kỳ ai. Ban ngày nó vẫn nóng, ban đêm nó cháy bằng hận thù.' },
-      { en: 'Buried here sleeps the Sand Pharaoh, who swore loyalty to Quoc for a promise of eternal night. Walk lightly, Lanternbearer.', vi: 'Nơi đây chôn vùi Pharaoh Cát, kẻ đã thề trung thành với Quoc đổi lấy lời hứa về đêm vĩnh cửu. Bước nhẹ thôi, Người Mang Đèn.' }
+      { en: 'SUNSCORCH DESERT. The sand burns like coal, though no sun has ever shone on it. Somewhere under a pyramid, the Fourth Tower lies buried.', vi: 'SA MẠC CHÁY NẮNG. Cát ở đây nóng như than, dù chưa từng có mặt trời nào chiếu xuống. Đâu đó dưới một kim tự tháp, Tháp Đèn Thứ Tư bị chôn vùi.' },
+      { en: 'The Sand Pharaoh swore loyalty to Quoc for a promise of endless sleep. Walk lightly, Lanternbearer.', vi: 'Pharaoh Cát đã thề trung thành với Quốc để đổi lấy lời hứa về một giấc ngủ vĩnh cửu. Bước nhẹ thôi, Người Giữ Đèn.' }
     ],
     4: [
       { en: 'FROSTBITE PEAKS. Snow falls upward here, as if the sky itself is trying to escape. Your lantern burns blue at the edges.', vi: 'ĐỈNH BĂNG GIÁ. Tuyết rơi ngược lên trời, như thể bầu trời đang cố trốn chạy. Ngọn đèn của bạn cháy xanh ở viền.' },
-      { en: 'The Frost King wanted only to be left alone, once. Quoc whispered that the Sun was the thing that melted his crown.', vi: 'Vua Băng Giá từng chỉ muốn được yên thân. Quoc thì thầm rằng Mặt Trời chính là thứ đã làm tan vương miện của ông.' }
+      { en: 'The Frost King wanted only to be left alone, once. Quoc whispered that light was the thing that melted his crown. The Fifth Tower is frozen on the summit.', vi: 'Vua Băng từng chỉ muốn được yên thân. Quốc thì thầm rằng ánh sáng chính là thứ đã làm tan vương miện của ông. Tháp Đèn Thứ Năm bị đóng băng trên đỉnh núi.' }
     ],
     5: [
-      { en: 'EMBER VOLCANO. The heat is almost kind after the cold. This is where Ignarok swore he would return, and where Quoc keeps his forge.', vi: 'NÚI LỬA THAN HỒNG. Hơi nóng gần như dễ chịu sau giá lạnh. Đây là nơi Ignarok thề sẽ trở lại, và là lò rèn của Quoc.' },
-      { en: 'Your sword is no longer rusty. Every fragment you carry hums with the Sun\'s old song. Quoc can hear it. He is afraid.', vi: 'Thanh kiếm của bạn không còn gỉ nữa. Mỗi mảnh vỡ bạn mang đều ngân lên bài ca cũ của Mặt Trời. Quoc nghe thấy. Hắn đang sợ.' }
+      { en: 'EMBER VOLCANO. The heat is almost kind after the cold. Ignarok swore he would return here, and the Sixth Tower is sinking in the lava.', vi: 'NÚI LỬA TRO TÀN. Hơi nóng gần như dễ chịu sau giá lạnh. Ignarok đã thề sẽ trở lại nơi này, và Tháp Đèn Thứ Sáu đang chìm dần trong dung nham.' },
+      { en: 'Every tower you light rings across the sky like a bell. Quoc hears every one of them.', vi: 'Mỗi ngọn tháp bạn thắp lại vang lên trên trời như một hồi chuông. Quốc nghe thấy từng hồi một.' }
     ],
     6: [
-      { en: 'SHADOW CITADEL. The last door of Aurelia. Behind it, the Eclipse waits where the Sun was swallowed.', vi: 'THÀNH TRÌ BÓNG ĐÊM. Cánh cửa cuối cùng của Aurelia. Phía sau là Nhật Thực, nơi Mặt Trời bị nuốt chửng.' },
+      { en: 'SHADOW CITADEL. The last door of Aurelia. At its top stands the Tenth Tower, the one Quoc never finished lighting a hundred years ago.', vi: 'THÀNH TRÌ BÓNG TỐI. Cánh cửa cuối cùng của Aurelia. Trên đỉnh thành là Tháp Đèn Thứ Mười, ngọn tháp mà Quốc đã bỏ dở trăm năm trước.' },
       { en: 'Everyone you met believes in you: Lila, Lyra, Captain Bram, even sad old QuanSadBoy. Your lantern is small. It is also all of them.', vi: 'Tất cả những người bạn gặp đều tin vào bạn: Lila, Lyra, Đội trưởng Bram, cả QuanSadBoy buồn bã. Đèn của bạn nhỏ thôi. Nhưng nó cũng là tất cả họ.' },
-      { en: 'Step through, Ember. Relight the Sun.', vi: 'Bước vào đi, Ember. Hãy thắp lại Mặt Trời.' }
+      { en: 'Step through, Lanternbearer. Light the last tower.', vi: 'Bước vào đi, Người Giữ Đèn. Hãy thắp sáng ngọn tháp cuối cùng.' }
     ]
   };
   const ENDING = [
-    { en: 'The Shadow Citadel trembles. The seventh fragment burns in Ember\'s hand, brighter than anything he has ever held.', vi: 'Thành Trì Bóng Đêm rung chuyển. Mảnh thứ bảy cháy trong tay Ember, sáng hơn bất cứ thứ gì cậu từng cầm.' },
-    { en: 'The Eclipse screams. For a heartbeat it is no longer a hunger, only a shadow of something that was once lonely and afraid.', vi: 'Nhật Thực gào thét. Trong một nhịp tim, nó không còn là cơn đói, chỉ còn là cái bóng của thứ từng cô đơn và sợ hãi.' },
-    { en: 'The Eclipse breaks. The darkness pours out of the sky like water out of a cracked bowl, and the stars come back behind it.', vi: 'Nhật Thực vỡ tan. Bóng tối đổ khỏi bầu trời như nước chảy khỏi chiếc bát nứt, và các vì sao hiện về phía sau nó.' },
-    { en: 'Seven fragments rise out of the ruins. They find each other. They turn, slowly, around a place in the sky where the Sun used to be.', vi: 'Bảy mảnh vỡ bay lên từ đống đổ nát. Chúng tìm thấy nhau. Chúng xoay chậm quanh nơi Mặt Trời từng ngự trị.' },
-    { en: 'They join with a sound like a thousand bells. The Sun is whole again, and it burns.', vi: 'Chúng hợp lại với âm thanh như ngàn chiếc chuông. Mặt Trời nguyên vẹn trở lại, và nó bừng cháy.' },
-    { en: 'Dawn breaks over Aurelia. In the village, every lantern lights by itself, one after another, all the way to the sea.', vi: 'Bình minh ló rạng trên Aurelia. Trong làng, mọi chiếc đèn tự thắp sáng, cái này đến cái khác, cho tới tận biển.' },
-    { en: 'Lila runs through the square laughing. Captain Bram takes off his helmet. Princess Lyra stands on the meadow and sings, and this time the whole world sings with her.', vi: 'Lila chạy qua quảng trường, cười vang. Đội trưởng Bram bỏ mũ giáp. Công chúa Lyra đứng trên đồng cỏ cất tiếng hát, và lần này cả thế giới hát cùng cô.' },
+    { en: 'The Shadow Citadel trembles. The old lantern burns brighter than it ever has.', vi: 'Thành Trì Bóng Tối rung chuyển. Cây đèn cổ cháy sáng hơn bao giờ hết.' },
+    { en: 'The Eclipse screams. For a heartbeat it is no longer a hunger, only the shadow of a young man who was very tired and very alone.', vi: 'Nhật Thực gào thét. Trong một nhịp tim, nó không còn là cơn đói, chỉ còn là cái bóng của một chàng trai từng rất mệt và rất cô đơn.' },
+    { en: 'Quoc falls to his knees. The lantern light touches his face, and for the first time in a hundred years he remembers how he used to laugh.', vi: 'Quốc quỳ xuống. Ánh đèn chạm vào gương mặt anh, và lần đầu tiên sau trăm năm, anh nhớ ra mình từng cười như thế nào.' },
+    { en: '"I lit nine towers on my own," he says. "At the tenth, there was no warmth left in me."', vi: '"Ta đã thắp chín tháp một mình," anh nói. "Đến tháp thứ mười, trong ta chẳng còn chút hơi ấm nào."' },
+    { en: 'Lyra begins to sing. This time it is not one lantern: the whole team, the whole village, the whole kingdom sings with her.', vi: 'Lyra cất tiếng hát. Lần này không chỉ có một ngọn đèn: cả đội, cả làng, cả vương quốc cùng hát theo cô.' },
+    { en: 'The Tenth Tower blazes. Ten threads of light join across the sky, and the black moon cracks open like an eggshell.', vi: 'Tháp Đèn Thứ Mười bừng sáng. Mười sợi ánh sáng nối liền nhau trên bầu trời, và mặt trăng đen nứt ra như vỏ trứng.' },
+    { en: 'The light of ten towers pours over Aurelia. In the village, every lantern lights by itself, one after another, all the way to the sea.', vi: 'Ánh sáng của mười ngọn tháp tràn khắp Aurelia. Trong làng, mọi chiếc đèn tự thắp sáng, cái này đến cái khác, cho tới tận biển.' },
+    { en: 'Lila runs through the square laughing. Captain Bram takes off his helmet. Princess Lyra stands on the meadow and sings, and the whole world sings with her.', vi: 'Lila chạy qua quảng trường, cười vang. Đội trưởng Bram bỏ mũ giáp. Công chúa Lyra đứng trên đồng cỏ cất tiếng hát, và cả thế giới hát cùng cô.' },
     { en: 'Even QuanSadBoy closes his thick book and smiles for the first time. Mr Shorty Phong, from the top of a tree, sulks that he did not win. Then, quietly, he waves.', vi: 'Ngay cả QuanSadBoy cũng gấp cuốn sách dày lại và mỉm cười lần đầu tiên. Mr Shorty Phong, từ trên ngọn cây, hờn dỗi vì không thắng. Rồi lặng lẽ vẫy tay.' },
-    { en: 'And Ember? His little lantern flickers in the sunlight. It does not need to burn so hard anymore. It dims, softly, like a friend finally allowed to rest.', vi: 'Còn Ember? Chiếc đèn nhỏ chập chờn trong nắng. Nó không cần cháy gắt như trước nữa. Nó dịu đi, nhẹ nhàng, như một người bạn cuối cùng được nghỉ ngơi.' },
-    { en: 'Ember sets it down on the windowsill of his grandmother\'s house. The light of the Sun falls on it, and for a moment it seems to glow back.', vi: 'Ember đặt nó lên bệ cửa sổ nhà bà. Ánh sáng Mặt Trời rọi xuống, và trong khoảnh khắc nó dường như sáng đáp lại.' },
-    { en: 'The last Lanternbearer has done what no one thought possible. A small flame, and a stubborn heart.', vi: 'Người Mang Đèn cuối cùng đã làm điều không ai tin nổi. Một ngọn lửa nhỏ, và một trái tim bướng bỉnh.' },
-    { en: 'Thank you, Ember.', vi: 'Cảm ơn bạn, Ember.' }
+    { en: 'And Quoc? He sits at the foot of the last tower, watching the light he once carried. This time, he does not have to carry it alone.', vi: 'Còn Quốc? Anh ngồi dưới chân ngọn tháp cuối cùng, nhìn thứ ánh sáng mình từng mang. Lần này, anh không phải mang nó một mình.' },
+    { en: 'The old lantern dims softly, like a friend finally allowed to rest. In a hundred years it will choose someone again.', vi: 'Cây đèn cổ dịu đi, nhẹ nhàng, như một người bạn cuối cùng được nghỉ ngơi. Trăm năm nữa, nó sẽ lại chọn một ai đó.' },
+    { en: 'The Lanternbearer did what no one thought possible: not only ten towers lit again, but a lost friend brought home.', vi: 'Người Giữ Đèn đã làm điều không ai tin nổi: không chỉ thắp lại mười ngọn tháp, mà còn đưa một người lạc lối trở về nhà.' },
+    { en: 'Thank you, Lanternbearer.', vi: 'Cảm ơn bạn, Người Giữ Đèn.' }
   ];
 
   const NPCS = {
@@ -192,7 +199,7 @@
       { en: 'Slimes hate light... and they are hungry. Swing your sword - press J!', vi: 'Slime ghét ánh sáng... mà chúng lại đói. Vung kiếm đi - nhấn J!' }
     ] },
     1: { bram: [
-      { en: 'Halt! Captain Bram of the Dawn Guard. This forest has been cursed since the Sun broke.', vi: 'Dừng lại! Đội trưởng Bram của Đội Vệ Binh Bình Minh. Khu rừng này bị nguyền rủa từ khi Mặt Trời vỡ.' },
+      { en: 'Halt! Captain Bram of the Dawn Guard. This forest has been cursed since the towers went dark.', vi: 'Dừng lại! Đội trưởng Bram của Đội Vệ Binh Bình Minh. Khu rừng này bị nguyền rủa từ khi các tháp đèn tắt.' },
       { en: 'Villagers who wandered in came out... wrong. Do not let them touch you.', vi: 'Dân làng lạc vào đây đi ra đã... biến dạng. Đừng để chúng chạm vào bạn.' },
       { en: 'The Spider Queen nests deep inside. When she charges, strike her as she recovers.', vi: 'Nữ Hoàng Nhện làm tổ sâu bên trong. Khi nó lao tới, hãy tấn công lúc nó đang hồi sức.' }
     ], gob: [
@@ -209,9 +216,9 @@
       { en: 'You learned to dash, did you? Use it - you cannot be hurt while dashing.', vi: 'Bạn đã học được lướt rồi à? Hãy dùng nó - lướt thì không bị thương.' }
     ] },
     4: { angel: [
-      { en: 'I am Seraph. I fell with the Sun, and I have waited in the snow for someone with a light.', vi: 'Ta là Seraph. Ta rơi xuống cùng Mặt Trời, và đã chờ trong tuyết một người mang ánh sáng.' },
-      { en: 'The Eclipse feeds on every missing fragment. Each one you return starves it.', vi: 'Nhật Thực ăn từng mảnh bị mất. Mỗi mảnh bạn mang về sẽ làm nó đói.' },
-      { en: 'Take a little warmth, bearer. I can give no more.', vi: 'Nhận chút hơi ấm đi, người mang đèn. Ta chỉ có thể cho bấy nhiêu.' }
+      { en: 'I am Seraph. I fell when the Fifth Tower went out, and I have waited in the snow for someone with a light.', vi: 'Ta là Seraph. Ta rơi xuống khi Tháp Đèn Thứ Năm tắt, và đã chờ trong tuyết một người mang ánh sáng.' },
+      { en: 'The Eclipse feeds on every dark tower. Each one you light starves it.', vi: 'Nhật Thực ăn từng ngọn tháp tối. Mỗi tháp bạn thắp lại sẽ làm nó đói.' },
+      { en: 'Take a little warmth, bearer. I can give no more.', vi: 'Nhận chút hơi ấm đi, người giữ đèn. Ta chỉ có thể cho bấy nhiêu.' }
     ] },
     5: { gob: [
       { en: 'Hot hot hot! Gob hates this place. Fire vents breathe in a rhythm - count before you cross.', vi: 'Nóng nóng nóng! Gob ghét chỗ này. Vòi lửa phun theo nhịp - đếm rồi hãy băng qua.' },
@@ -246,7 +253,7 @@
       { en: 'Keys, torches, rune plates... I will help where I can. Good luck, Lanternbearer!', vi: 'Chìa khóa, đuốc, bàn đá ký hiệu... tớ sẽ giúp khi có thể. Chúc may mắn, Người Giữ Đèn!' }
     ] },
     1: { wizard: [
-      { en: 'Ah, a lantern-bearer. The old mechanisms of this forest still work, if one knows how to wake them.', vi: 'À, người mang đèn. Cơ quan cổ trong khu rừng này vẫn hoạt động, nếu biết cách đánh thức chúng.' },
+      { en: 'Ah, a lantern-bearer. The old mechanisms of this forest still work, if one knows how to wake them.', vi: 'À, người giữ đèn. Cơ quan cổ trong khu rừng này vẫn hoạt động, nếu biết cách đánh thức chúng.' },
       { en: 'An iron door wants a key. Torches want a flame - stand close and press E, your lantern will do.', vi: 'Cửa sắt cần chìa khóa. Đuốc cần ngọn lửa - đứng gần và nhấn E, đèn của bạn đủ để thắp.' },
       { en: 'Remember: patience opens more doors than swords.', vi: 'Nhớ nhé: kiên nhẫn mở được nhiều cửa hơn thanh kiếm.' }
     ] },
@@ -271,7 +278,7 @@
     6: { wizard: [
       { en: 'The final seal: rune plates that remember the dawn. Step on each plate in the order the tablet shows. Only walking counts - jumping over is safe.', vi: 'Phong ấn cuối: các bàn đá ký hiệu nhớ bình minh. Hãy giẫm từng bàn theo thứ tự trên bia. Chỉ bước đi mới tính - nhảy qua thì an toàn.' }
     ], fairy: [
-      { en: 'Pip believes in you! Bring back the Sun!', vi: 'Pip tin ở bạn! Mang Mặt Trời trở lại nhé!' }
+      { en: 'Pip believes in you! Light the last tower!', vi: 'Pip tin ở bạn! Thắp sáng ngọn tháp cuối cùng nhé!' }
     ] }
   };
   for (const k in DLG2) DLG[k] = Object.assign(DLG[k] || {}, DLG2[k]);
@@ -280,7 +287,7 @@
     lyra: { spr: 'npc_lyra', name: LYRA_NAME },
     shorty: { spr: 'npc_shorty', name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' } },
     quan: { spr: 'npc_quan', name: { en: 'QuanSadBoy', vi: 'QuanSadBoy' }, gift: { dagger: 5, bomb: 2, flask: 2 } },
-    quoc: { spr: 'npc_shorty', name: { en: 'Quoc the Devil', vi: 'Quỷ Vương Quoc' } }
+    quoc: { spr: 'npc_shorty', name: { en: 'Quoc, King of the Eclipse', vi: 'Quốc, Vua Nhật Thực' } }
   });
   NPCS.lyra.generic = [{ en: 'Your leek is shining so prettily! La la laaa~ ♪', vi: 'Cây hành của bạn sáng đẹp quá! La la laaa~ ♪' }];
   NPCS.shorty.generic = [{ en: 'Hmph.', vi: 'Hừm.' }];
@@ -306,7 +313,7 @@
     6: { quan: [
       { en: 'I read the last chapter early. I will not spoil it. But... bring snacks. Good luck, Ember.', vi: 'Mình đọc trước chương cuối rồi. Mình sẽ không tiết lộ. Nhưng... nhớ mang đồ ăn vặt. Chúc may mắn, Ember.' }
     ], lyra: [
-      { en: 'I will sing for you the whole way! La la laaa~ Go light up the Sun! ♪', vi: 'Mình sẽ hát cho bạn suốt chặng đường! La la laaa~ Đi thắp lại Mặt Trời nào! ♪' }
+      { en: 'I will sing for you the whole way! La la laaa~ Let us light the last tower! ♪', vi: 'Mình sẽ hát cho bạn suốt chặng đường! La la laaa~ Đi thắp ngọn tháp cuối cùng nào! ♪' }
     ] }
   };
   for (const k in DLG3) DLG[k] = Object.assign(DLG[k] || {}, DLG3[k]);
@@ -339,7 +346,7 @@
       { en: 'This is the hot seat, kid. Even I sweat here.', vi: 'Đây là ghế nóng đó nhóc. Ngay cả ta cũng toát mồ hôi ở đây.' },
       { en: 'Three waves of my FINEST. Do try to enjoy them.', vi: 'Ba đợt tinh nhuệ nhất của ta. Cố mà thưởng thức nhé.' }
     ], outro: [
-      { en: 'N-no... Master Quoc will have my hat for this!', vi: 'K-không... Chủ nhân Quoc sẽ lấy chiếc mũ của ta mất!' }
+      { en: 'N-no... Master Quoc will have my hat for this!', vi: 'K-không... Chủ nhân Quốc sẽ lấy chiếc mũ của ta mất!' }
     ] },
     6: { intro: [
       { en: 'Welcome to the FINAL trial. The Eclipse awaits... but first, ME.', vi: 'Chào mừng tới thử thách CUỐI CÙNG. Nhật Thực đang chờ... nhưng trước tiên, là TA.' },
@@ -348,50 +355,44 @@
       { en: 'Fine. FINE! Go! Be eaten by the Eclipse!', vi: 'Được thôi. ĐƯỢC THÔI! Đi đi! Để Nhật Thực nuốt chửng cậu!' }
     ] }
   };
-  const SPK = { quoc: { name: { en: 'Quoc the Devil', vi: 'Quỷ Vương Quoc' }, col: '#ff5a4a' }, shorty: { name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' }, col: '#ffd34e' }, imp: { name: { en: 'Imp', vi: 'Tiểu quỷ' }, col: '#c07bff' }, sy: { name: { en: 'Mr Sy', vi: 'Mr Sy' }, col: '#7ed957' } };
+  const SPK = { quoc: { name: { en: 'Quoc, King of the Eclipse', vi: 'Quốc, Vua Nhật Thực' }, col: '#ff5a4a' }, shorty: { name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' }, col: '#ffd34e' }, imp: { name: { en: 'Imp', vi: 'Tiểu quỷ' }, col: '#c07bff' }, sy: { name: { en: 'Mr Sy', vi: 'Mr Sy' }, col: '#7ed957' } };
   const CUT = [
     [ // after Verdant Meadow
-      { w: 'quoc', shout: 1, en: 'WHAT?! A WALKING CANDLE BEAT MY KING SLIME?!', vi: 'GÌ CƠ?! MỘT CÂY NẾN BIẾT ĐI ĐÁNH BẠI VUA SLIME CỦA TA SAO?!' },
-      { w: 'shorty', en: 'M-my lord Quoc... it is only one tiny flame...', vi: 'T-thưa ngài Quoc... chỉ là một ngọn lửa nhỏ xíu thôi ạ...' },
-      { w: 'quoc', shout: 1, en: 'TINY FLAMES START BIG FIRES, YOU FOOL! GO! PUT IT OUT!', vi: 'LỬA NHỎ CŨNG GÂY RA ĐÁM CHÁY LỚN, ĐỒ NGỐC! ĐI! DẬP NÓ ĐI!' }
+      { w: 'quoc', en: 'The First Tower burns again. ...So the lantern has chosen someone.', vi: 'Tháp Thứ Nhất lại cháy rồi. ...Vậy là cây đèn đã chọn được người.' },
+      { w: 'shorty', en: 'M-my lord, it is only a child! A tiny one! Almost as small as me!', vi: 'Th-thưa thầy, chỉ là một đứa nhóc thôi! Nhỏ xíu! Gần bằng con luôn!' },
+      { w: 'quoc', en: 'I was a child too, when it chose me. Go. Put out that flame before it learns what it costs.', vi: 'Ta cũng chỉ là một đứa trẻ khi nó chọn ta. Đi đi. Dập ngọn lửa ấy trước khi nó biết cái giá phải trả.' }
     ],
     [ // after Whispering Forest
-      { w: 'quoc', shout: 1, en: 'THE SPIDER QUEEN... DEAD?! I RAISED HER FOR A THOUSAND YEARS!', vi: 'NỮ HOÀNG NHỆN... CHẾT RỒI SAO?! TA NUÔI NÓ HÀNG NGÀN NĂM!' },
-      { w: 'imp', en: 'Master... he fights with a glowing... LEEK.', vi: 'Thưa chủ nhân... hắn chiến đấu bằng một... CÂY HÀNH phát sáng.' },
-      { w: 'quoc', shout: 1, en: 'A... A LEEK?! HE BEAT HER WITH A VEGETABLE?!', vi: 'MỘT... MỘT CÂY HÀNH?! HẮN ĐÁNH BẠI NÓ BẰNG RAU SAO?!' },
-      { w: 'shorty', en: 'A very SHINY vegetable, my lord. Singing, even.', vi: 'Một cây rau rất SÁNG, thưa ngài. Còn biết hát nữa ạ.' },
-      { w: 'quoc', shout: 1, en: 'SILENCE! I WILL NOT BE HUMILIATED BY SALAD!', vi: 'IM LẶNG! TA SẼ KHÔNG BỊ NHỤC NHÃ BỞI MỘT ĐĨA SALAD!' }
+      { w: 'imp', en: 'Master... the child fights with a glowing... LEEK.', vi: 'Thưa chủ nhân... đứa nhóc đánh nhau bằng một cây... HÀNH phát sáng.' },
+      { w: 'shorty', en: 'And the princess sings for it! The Second Tower woke right up!', vi: 'Còn công chúa thì hát cho nó! Tháp Thứ Hai tỉnh dậy luôn!' },
+      { w: 'quoc', en: 'A princess who sings to towers... I knew one like that, once. Keep her away from the tenth tower.', vi: 'Một nàng công chúa hát cho tháp nghe... Ta từng quen một người như thế. Đừng để cô ấy tới được tháp thứ mười.' }
     ],
     [ // after Crystal Caverns
-      { w: 'quoc', shout: 1, en: 'THE GOLEM SHATTERED LIKE CHEAP GLASS! WHO IS HELPING HIM?!', vi: 'NGƯỜI KHỔNG LỒ VỠ NHƯ THỦY TINH RẺ TIỀN! AI ĐANG GIÚP HẮN?!' },
-      { w: 'shorty', en: 'A sad bookworm wizard, my lord. They call him QuanSadBoy.', vi: 'Một phù thủy mọt sách buồn bã, thưa ngài. Người ta gọi hắn là QuanSadBoy.' },
-      { w: 'quoc', shout: 1, en: 'A BOOKWORM?! I AM BEING DEFEATED BY HOMEWORK?!', vi: 'MỘT CON MỌT SÁCH?! TA ĐANG BỊ ĐÁNH BẠI BỞI BÀI TẬP VỀ NHÀ SAO?!' },
-      { w: 'sy', en: 'He also gave the hero snacks, my lord. I watched. I took notes.', vi: 'Hắn còn đưa đồ ăn vặt cho anh hùng nữa, thưa chủ nhân. Thần đã quan sát. Thần đã ghi chép.' },
-      { w: 'quoc', shout: 1, en: 'SNACKS?! UNFORGIVABLE!!', vi: 'ĐỒ ĂN VẶT?! KHÔNG THỂ THA THỨ!!' }
+      { w: 'sy', en: 'The crystals showed the child your memory, my lord. I watched. I took notes.', vi: 'Pha lê đã cho đứa nhóc xem ký ức của ngài, thưa chủ nhân. Thần đứng xem. Thần có ghi chép.' },
+      { w: 'quoc', en: 'Then it knows the price. Good. Let us see if it still wants to pay.', vi: 'Vậy là nó biết cái giá rồi. Tốt. Để xem nó còn muốn trả nữa không.' },
+      { w: 'shorty', en: 'And a sad bookworm keeps giving it snacks, my lord!', vi: 'Còn có một gã mọt sách buồn bã cứ cho nó đồ ăn vặt nữa, thưa thầy!' },
+      { w: 'quoc', en: '...Snacks. Nobody brought me snacks.', vi: '...Đồ ăn vặt. Hồi đó chẳng ai mang đồ ăn vặt cho ta cả.' }
     ],
     [ // after Sunscorch Desert
-      { w: 'quoc', shout: 1, en: 'MY PHARAOH! MY SANDS! MY PYRAMID COLLECTION!', vi: 'PHARAOH CỦA TA! CÁT CỦA TA! BỘ SƯU TẬP KIM TỰ THÁP CỦA TA!' },
-      { w: 'shorty', en: 'Master, I tried my little trial again. He... passed.', vi: 'Thưa chủ nhân, thần lại thử thách nhỏ của thần. Hắn... vượt qua rồi.' },
-      { w: 'quoc', shout: 1, en: 'AGAIN?! YOU CANNOT EVEN BEAT A CHILD WITH A LANTERN?!', vi: 'LẠI NỮA SAO?! NGƯƠI KHÔNG THỂ THẮNG NỔI MỘT ĐỨA TRẺ CẦM ĐÈN?!' },
-      { w: 'shorty', en: '...I am very short, my lord. It is hard to see him coming.', vi: '...Thần rất thấp, thưa ngài. Khó mà thấy hắn đang tới.' },
-      { w: 'quoc', shout: 1, en: 'THEN STAND ON A BOX AND TRY HARDER!!', vi: 'THÌ ĐỨNG LÊN CÁI HỘP VÀ CỐ GẮNG HƠN!!' },
-      { w: 'sy', en: 'Allow me, my lord. The boy keeps eating my little experiments. I will meet him in the Citadel with something... more dramatic.', vi: 'Xin để thần, thưa chủ nhân. Thằng nhóc cứ ăn hết mấy thí nghiệm nhỏ của thần. Thần sẽ gặp hắn ở Thành Trì với thứ gì đó... kịch tính hơn.' },
-      { w: 'quoc', shout: 1, en: 'FINALLY! SOMEONE WITH A PLAN!!', vi: 'CUỐI CÙNG! CÓ KẺ CÓ KẾ HOẠCH RỒI!!' }
+      { w: 'shorty', en: 'Master, I tried my little trial again. The child... passed.', vi: 'Thưa thầy, con lại bày thử thách nhỏ của con. Đứa nhóc... lại qua được.' },
+      { w: 'quoc', en: 'Again.', vi: 'Lại nữa.' },
+      { w: 'shorty', en: '...I am very short, my lord. It is hard to see it coming.', vi: '...Con thấp lắm, thưa thầy. Khó mà thấy nó tới.' },
+      { w: 'sy', en: 'Allow me, my lord. I will meet the child in the Citadel with something... more dramatic.', vi: 'Để thần, thưa chủ nhân. Thần sẽ đón đứa nhóc ở Thành Trì bằng một thứ... kịch tính hơn.' },
+      { w: 'quoc', en: 'Do what you must. Four towers burn now. I can feel each one, like a fever.', vi: 'Cứ làm điều ngươi phải làm. Bốn tháp đã cháy. Ta cảm thấy từng ngọn, như một cơn sốt.' }
     ],
     [ // after Frostbite Peaks
-      { w: 'quoc', shout: 1, en: 'THE FROST KING MELTED?! HE WAS FROZEN BY DEFINITION!', vi: 'VUA BĂNG TAN CHẢY SAO?! THEO ĐỊNH NGHĨA HẮN LÀ BĂNG CƠ MÀ!' },
-      { w: 'sy', en: 'He used fire flasks, my lord. I... may have underestimated the Frost King\'s melting point.', vi: 'Hắn dùng bình lửa, thưa chủ nhân. Thần... có lẽ đã đánh giá thấp điểm nóng chảy của Vua Băng.' },
-      { w: 'quoc', shout: 1, en: 'THEN FREEZE THE FLASKS, YOU FOOL!!', vi: 'THÌ ĐÓNG BĂNG CÁI BÌNH ĐÓ ĐI, ĐỒ NGỐC!!' },
-      { w: 'shorty', en: 'Only the volcano and the Citadel remain, my lord...', vi: 'Chỉ còn núi lửa và Thành Trì thôi, thưa ngài...' },
-      { w: 'quoc', shout: 1, en: 'ENOUGH! WAKE THE TITAN! AND IF HE FAILS... WAKE THE ECLIPSE!', vi: 'ĐỦ RỒI! ĐÁNH THỨC TITAN! VÀ NẾU HẮN THẤT BẠI... ĐÁNH THỨC NHẬT THỰC!' }
+      { w: 'sy', en: 'The Frost King melted, my lord. He... smiled at the child, before he turned into rain.', vi: 'Vua Băng tan chảy rồi, thưa chủ nhân. Ông ta... mỉm cười với đứa nhóc, trước khi hóa thành mưa.' },
+      { w: 'quoc', en: 'He smiled at me too, once. Then the cold came back.', vi: 'Ông ấy cũng từng mỉm cười với ta. Rồi cái lạnh quay lại.' },
+      { w: 'shorty', en: 'Five towers, master... half the sky is glowing again...', vi: 'Năm tháp rồi, thưa thầy... nửa bầu trời lại sáng rồi...' },
+      { w: 'quoc', shout: 1, en: 'Wake the Titan. Let the mountain show the child how heavy a flame can be.', vi: 'Đánh thức Titan. Để ngọn núi cho đứa nhóc thấy một ngọn lửa có thể nặng đến thế nào.' }
     ],
-    [ // after Ember Volcano
-      { w: 'quoc', shout: 1, en: 'THE TITAN IS ASH!! ASH!!! HE WAS MY FAVORITE VOLCANO!', vi: 'TITAN THÀNH TRO RỒI!! TRO!!! HẮN LÀ NGỌN NÚI LỬA YÊU THÍCH CỦA TA!' },
-      { w: 'shorty', en: 'Master... six fragments of the Sun burn together again.', vi: 'Thưa chủ nhân... sáu mảnh Mặt Trời lại cháy cùng nhau.' },
-      { w: 'quoc', shout: 1, en: 'THEN THE ECLIPSE WILL END THIS! AWAKEN IT!!', vi: 'VẬY NHẬT THỰC SẼ KẾT THÚC TẤT CẢ! ĐÁNH THỨC NÓ!!' },
-      { w: 'sy', en: 'My lord, Shorty and I will hold the Citadel. My serpent is hungry... and so is his hat.', vi: 'Thưa chủ nhân, thần và Shorty sẽ giữ Thành Trì. Con rắn của thần đang đói... và cái mũ của hắn cũng vậy.' },
-      { w: 'quoc', shout: 1, en: 'GO, BOTH OF YOU! AND IF THE LANTERN REACHES ME... I WILL BECOME SEVEN!', vi: 'ĐI ĐI, CẢ HAI NGƯƠI! VÀ NẾU CHIẾC ĐÈN ĐẾN ĐƯỢC CHỖ TA... TA SẼ HÓA THÀNH BẢY!' },
-      { w: 'quoc', shout: 1, en: 'LET THE WORLD GO DARK FOREVER!!!', vi: 'ĐỂ THẾ GIỚI TỐI ĐEN MÃI MÃI!!!' }
+    [ // before the Citadel (shown after the tunnels)
+      { w: 'quoc', en: 'Nine towers. Exactly as many as I lit.', vi: 'Chín tháp. Đúng bằng số tháp ta từng thắp.' },
+      { w: 'shorty', en: 'Master... the child is coming to the Citadel. To the tenth tower.', vi: 'Thưa thầy... đứa nhóc đang tới Thành Trì. Tới tháp thứ mười.' },
+      { w: 'quoc', en: 'Then it will learn what I learned there.', vi: 'Vậy thì nó sẽ học được điều ta đã học ở đó.' },
+      { w: 'sy', en: 'My lord, Shorty and I will hold the gates. My serpent is hungry... and so is his hat.', vi: 'Thưa chủ nhân, thần và Shorty sẽ giữ cổng. Con rắn của thần đang đói... và cái mũ của hắn cũng vậy.' },
+      { w: 'quoc', en: 'Go, both of you. And if the lantern still reaches me... I will show it every face this darkness gave me.', vi: 'Đi đi, cả hai. Và nếu cây đèn vẫn tới được chỗ ta... ta sẽ cho nó xem mọi gương mặt mà bóng tối này đã cho ta.' },
+      { w: 'quoc', shout: 1, en: 'LET THE WORLD SLEEP!!!', vi: 'HÃY ĐỂ THẾ GIỚI NGỦ YÊN!!!' }
     ]
   ];
   NPCS.dragon = { spr: 'dragon_head', name: { en: 'Ignarok the Ashwing', vi: 'Ignarok Cánh Tro' } };
@@ -399,7 +400,7 @@
   // ---------- the new cast: Mr Sy, Quoc, and the four helpers who appear on maps 2-5 ----------
   Object.assign(NPCS, {
     sy: { spr: 'npc_sy', name: { en: 'Mr Sy', vi: 'Mr Sy' } },
-    quoc: { spr: 'npc_quoc', name: { en: 'Quoc the Devil', vi: 'Quỷ Vương Quoc' } },
+    quoc: { spr: 'npc_quoc', name: { en: 'Quoc, King of the Eclipse', vi: 'Quốc, Vua Nhật Thực' } },
     ember: { spr: 'hero_idle', name: { en: 'Ember', vi: 'Ember' } },
     narr: { spr: null, name: { en: 'Story', vi: 'Kể chuyện' } },
     hoang: { spr: 'npc_hoang', name: { en: 'HoangKiller', vi: 'HoangKiller' } },
@@ -415,17 +416,17 @@
     { en: 'Psst. Do not scream. I am HoangKiller. Yes, killer. Of boredom, mostly.', vi: 'Suỵt. Đừng la. Tôi là HoangKiller. Ừ, sát thủ. Chủ yếu là giết thời gian chán.' },
     { en: 'I came into these caves for a rare crystal, and a very rude Golem chased me back out. We have history.', vi: 'Tôi vào hang này tìm một viên pha lê hiếm, và một Người Khổng Lồ rất thô lỗ đuổi tôi chạy ra. Tụi tôi có thù cũ.' },
     { en: 'Wait... you are the lantern kid? The one who beat the Spider Queen with a LEEK? QuanSadBoy wrote me about you!', vi: 'Khoan... cậu là cậu bé cầm đèn? Người đã hạ Nữ Hoàng Nhện bằng một CÂY HÀNH? QuanSadBoy đã viết thư kể về cậu!' },
-    { en: 'Listen. When you face Quoc himself, I will find you. HoangKiller never misses a fight that matters.', vi: 'Nghe này. Khi cậu đối đầu với chính Quoc, tôi sẽ tìm cậu. HoangKiller không bao giờ bỏ lỡ một trận chiến quan trọng.' }
+    { en: 'Listen. When you face Quoc himself, I will find you. HoangKiller never misses a fight that matters.', vi: 'Nghe này. Khi cậu đối đầu với chính Quốc, tôi sẽ tìm cậu. HoangKiller không bao giờ bỏ lỡ một trận chiến quan trọng.' }
   ] });
   DLG[3] = Object.assign(DLG[3] || {}, { duong: [
-    { en: 'Ah... the Sun has fallen, so a vampire may walk the desert at noon. Irony is delicious.', vi: 'À... Mặt Trời đã rơi, nên một ma cà rồng có thể đi trên sa mạc giữa trưa. Sự trớ trêu thật ngon.' },
+    { en: 'Ah... the towers are dark, so a vampire may walk the desert at noon. Irony is delicious.', vi: 'À... các tháp đèn đã tắt, nên một ma cà rồng có thể đi trên sa mạc giữa trưa. Sự trớ trêu thật ngon.' },
     { en: 'I am Duong Dracular, count of nothing and keeper of a very large tomb. I was napping when the Pharaoh\'s sand woke me.', vi: 'Ta là Duong Dracular, bá tước của hư vô và người giữ một ngôi mộ rất lớn. Ta đang ngủ trưa thì cát của Pharaoh đánh thức ta.' },
-    { en: 'You carry the Sun\'s flame? ...I know you. QuanSadBoy\'s letter said: "a boy with a lantern; protect him." Fascinating.', vi: 'Cậu mang ngọn lửa của Mặt Trời sao? ...Ta biết cậu. Thư của QuanSadBoy viết: "một cậu bé cầm đèn; hãy bảo vệ cậu ấy." Thú vị.' },
+    { en: 'You carry the Last Lantern? ...I know you. QuanSadBoy\'s letter said: "a child with a lantern; protect them." Fascinating.', vi: 'Bạn mang Đèn Cuối Cùng sao? ...Ta biết bạn. Thư của QuanSadBoy viết: "một đứa trẻ cầm đèn; hãy bảo vệ nó." Thú vị.' },
     { en: 'I do not fight in daylight, usually. For you I will make an exception. Call, and my bats will answer.', vi: 'Thường thì ta không chiến đấu dưới ánh sáng. Vì cậu ta sẽ ngoại lệ. Hãy gọi, và lũ dơi của ta sẽ đáp lời.' }
   ] });
   DLG[4] = Object.assign(DLG[4] || {}, { santree: [
     { en: 'HO HO HO! Do not mind me, I am a tree. A walking one. A... SANTREE! Hee!', vi: 'HO HO HO! Đừng bận tâm tôi, tôi là một cái cây. Một cây biết đi. Một... SANTREE! Hí!' },
-    { en: 'I was a seed in the north before Quoc\'s winter. The Frost King froze my forest and I had to walk away. Walking is hard with roots.', vi: 'Tôi từng là một hạt giống ở phương bắc trước mùa đông của Quoc. Vua Băng đóng băng rừng của tôi và tôi phải bỏ đi. Đi bộ khó lắm khi có rễ.' },
+    { en: 'I was a seed in the north before Quoc\'s winter. The Frost King froze my forest and I had to walk away. Walking is hard with roots.', vi: 'Tôi từng là một hạt giống ở phương bắc trước mùa đông của Quốc. Vua Băng đóng băng rừng của tôi và tôi phải bỏ đi. Đi bộ khó lắm khi có rễ.' },
     { en: 'You are the one who melted the king? Duong\'s bats told me! We trees talk. Mostly about you.', vi: 'Cậu là người đã làm tan chảy vị vua đó? Lũ dơi của Duong kể tôi nghe! Cây cối tụi tôi hay nói chuyện. Chủ yếu là về cậu.' },
     { en: 'When the final night comes, Santree will plant itself right next to you. Presents optional. Hee hee!', vi: 'Khi đêm cuối cùng đến, Santree sẽ cắm rễ ngay cạnh cậu. Quà tặng không bắt buộc. Hí hí!' }
   ] });
@@ -433,7 +434,7 @@
   const DRG_DLG = {
     young_intro: [
       { en: 'So... the little lantern-bearer crawls through my meadow. I can smell the last flame of Aurelia on you!', vi: 'Thì ra... cậu bé cầm đèn bé nhỏ đang bò qua đồng cỏ của ta. Ta ngửi thấy ngọn lửa cuối cùng của Aurelia trên người ngươi!' },
-      { en: 'I am Ignarok the Ashwing. Quoc promised me a throne of ash if I snuff you out, little spark.', vi: 'Ta là Ignarok Cánh Tro. Quoc hứa ban cho ta ngai vàng bằng tro tàn nếu ta dập tắt ngươi, tia lửa nhỏ.' },
+      { en: 'I am Ignarok the Ashwing. Quoc promised me a throne of ash if I snuff you out, little spark.', vi: 'Ta là Ignarok Cánh Tro. Quốc hứa ban cho ta ngai vàng bằng tro tàn nếu ta dập tắt ngươi, tia lửa nhỏ.' },
       { en: 'Come, then! Burn bright... for as long as you can!', vi: 'Lại đây nào! Hãy cháy thật sáng... chừng nào ngươi còn cháy được!' }
     ],
     young_flee: [
@@ -442,14 +443,14 @@
     ],
     map6_intro: [
       { en: 'Did you miss me, little spark? The volcano is MY forge now.', vi: 'Nhớ ta không, tia lửa nhỏ? Núi lửa giờ là lò rèn của ta.' },
-      { en: 'Quoc gave me his strongest fire. This time, I will not run.', vi: 'Quoc đã ban cho ta ngọn lửa mạnh nhất của hắn. Lần này ta sẽ không bỏ chạy.' }
+      { en: 'Quoc gave me his strongest fire. This time, I will not run.', vi: 'Quốc đã ban cho ta ngọn lửa mạnh nhất của hắn. Lần này ta sẽ không bỏ chạy.' }
     ],
     morph: [
       [{ en: 'You CUT me?! Then meet my brothers... we are THREE heads with ONE hunger!', vi: 'Ngươi dám CHÉM ta?! Vậy hãy gặp các anh em của ta... chúng ta có BA cái đầu và chung MỘT cơn đói!' }],
       [{ en: 'Fire dies... but shadow remains. Come into the dark with me, little light.', vi: 'Lửa sẽ tàn... nhưng bóng tối còn mãi. Hãy vào bóng tối cùng ta, ánh sáng nhỏ.' },
        { en: 'I am not Ignarok anymore. I am the night itself!', vi: 'Ta không còn là Ignarok nữa. Ta là chính màn đêm!' }]
     ],
-    death: [{ en: 'The... dark... was never... enough... Quoc... forgive...', vi: 'Bóng tối... chưa bao giờ... đủ... Quoc... tha thứ cho...' }]
+    death: [{ en: 'The... dark... was never... enough... Quoc... forgive...', vi: 'Bóng tối... chưa bao giờ... đủ... Quốc... tha thứ cho...' }]
   };
   const DRG = {
     young: { stages: [{ form: 0, hp: 45, armor: 0, w: 58, h: 28, sp: 52, skills: ['fireballs', 'dive', 'breath', 'gust', 'perch'] }] },
@@ -470,7 +471,7 @@
     { name: { en: "Pharaoh's Scarab", vi: 'Bọ Hung Pharaoh' }, desc: { en: 'Coins are worth double and fly to you', vi: 'Xu giá trị gấp đôi và bay về phía bạn' } },
     { name: { en: 'Frost Heart', vi: 'Trái Tim Băng' }, desc: { en: 'Never slip on ice; dash recharges faster', vi: 'Không trượt trên băng; lướt hồi nhanh hơn' } },
     { name: { en: 'Magma Core', vi: 'Lõi Dung Nham' }, desc: { en: 'Your sword throws a wave of flame', vi: 'Kiếm bắn ra sóng lửa' } },
-    { name: { en: 'Heart of the Sun', vi: 'Trái Tim Mặt Trời' }, desc: { en: 'The Sun burns again', vi: 'Mặt Trời cháy sáng trở lại' } }
+    { name: { en: 'Heart of the Towers', vi: 'Trái Tim Tháp Đèn' }, desc: { en: 'The towers burn again', vi: 'Các tháp đèn lại cháy sáng' } }
   ];
 
   // ---------- text queue (drawn at native resolution after blit) ----------
@@ -713,81 +714,81 @@
       { name: { en: 'SY, THE VENOM SERPENT', vi: 'SY, RẮN CHÚA ĐỘC' }, spr: 'sy_m', w: 70, h: 62, hp: 680, armor: 0.3, smart: 0.5, sp: 22, minion: 'spider', proj: '#7ed957', skills: ['breath', 'spit', 'lobs', 'wall', 'rain', 'charge', 'slam'], skills2: ['summon', 'curse', 'spin', 'tornado'], skills3: ['blizzard', 'shield', 'roar'] }
     ],
     quoc: [
-      { name: { en: 'Quoc, the Dark Lord', vi: 'Quoc - Quỷ Vương Hắc Ám' }, spr: 'quoc0', img: 'form0', anim: { idle: [0, 1], move: [0, 1], melee: [2], cast: [3], special: [4] }, w: 34, h: 78, hp: 220, armor: 0.1, smart: 0.9, sp: 40, minion: 'imp', proj: '#ff3a2a', skills: ['shoot', 'fan', 'teleport', 'rush', 'jump', 'crossBeam'], skills2: ['lobs', 'guard', 'summon'] },
-      { name: { en: 'Quoc - Dark Imp', vi: 'Quoc - Tiểu Quỷ Bóng Tối' }, spr: 'quoc1', img: 'form1', anim: { idle: [0, 1], move: [0, 1], air: [2, 3], melee: [4, 5], cast: [4, 5] }, w: 26, h: 46, hp: 200, armor: 0.1, smart: 0.9, sp: 52, minion: 'imp', proj: '#c07bff', skills: ['jump', 'bounce3', 'charge', 'rush', 'shoot'], skills2: ['teleport', 'fan'] },
-      { name: { en: 'Quoc - Hellhound', vi: 'Quoc - Chó Địa Ngục' }, spr: 'quoc2', img: 'form2', anim: { idle: [0, 1], move: [0, 1, 2, 3], air: [3], melee: [2, 3], cast: [4] }, w: 60, h: 46, hp: 260, armor: 0.15, smart: 0.7, sp: 54, minion: 'imp', proj: '#ff7a2a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
-      { name: { en: 'Quoc - Chained Demon', vi: 'Quoc - Quỷ Xích' }, spr: 'quoc3', img: 'form3', anim: { idle: [0, 1], move: [0, 1], melee: [2, 3], cast: [2, 3], slam: [4] }, w: 50, h: 70, hp: 340, armor: 0.25, smart: 0.6, sp: 28, minion: 'imp', proj: '#a8b2c8', skills: ['slam', 'stomp', 'charge', 'erupt', 'sweep', 'crossBeam'], skills2: ['spin', 'summon'] },
-      { name: { en: 'Quoc - Iron General', vi: 'Quoc - Đại Tướng Giáp Sắt' }, spr: 'quoc4', img: 'form4', anim: { idle: [0, 1], move: [0, 1, 2, 3], melee: [4], cast: [4] }, w: 40, h: 74, hp: 420, armor: 0.4, smart: 0.6, sp: 26, minion: 'eclipseclone', proj: '#ff8a2a', skills: ['shield', 'guard', 'sweep', 'charge', 'slam', 'lobs', 'crossBeam'], skills2: ['roar', 'erupt', 'meteor'] },
-      { name: { en: 'Quoc - Winged Archdemon', vi: 'Quoc - Đại Quỷ Có Cánh' }, spr: 'quoc5', img: 'form5', anim: { idle: [0, 1], move: [0, 1], melee: [2], cast: [3, 4] }, w: 50, h: 68, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffb02a', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
-      { name: { en: 'Quoc - Ashen Titan', vi: 'Quoc - Titan Tro Tàn' }, spr: 'quoc6', img: 'form6', anim: { idle: [0, 1], move: [0, 1], melee: [4], cast: [2, 3], slam: [2, 3] }, w: 60, h: 98, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
+      { name: { en: 'Quoc, the Dark Lord', vi: 'Quốc - Quỷ Vương Hắc Ám' }, spr: 'quoc0', img: 'form0', anim: { idle: [0, 1], move: [0, 1], melee: [2], cast: [3], special: [4] }, w: 34, h: 78, hp: 220, armor: 0.1, smart: 0.9, sp: 40, minion: 'imp', proj: '#ff3a2a', skills: ['shoot', 'fan', 'teleport', 'rush', 'jump', 'crossBeam'], skills2: ['lobs', 'guard', 'summon'] },
+      { name: { en: 'Quoc - Dark Imp', vi: 'Quốc - Tiểu Quỷ Bóng Tối' }, spr: 'quoc1', img: 'form1', anim: { idle: [0, 1], move: [0, 1], air: [2, 3], melee: [4, 5], cast: [4, 5] }, w: 26, h: 46, hp: 200, armor: 0.1, smart: 0.9, sp: 52, minion: 'imp', proj: '#c07bff', skills: ['jump', 'bounce3', 'charge', 'rush', 'shoot'], skills2: ['teleport', 'fan'] },
+      { name: { en: 'Quoc - Hellhound', vi: 'Quốc - Chó Địa Ngục' }, spr: 'quoc2', img: 'form2', anim: { idle: [0, 1], move: [0, 1, 2, 3], air: [3], melee: [2, 3], cast: [4] }, w: 60, h: 46, hp: 260, armor: 0.15, smart: 0.7, sp: 54, minion: 'imp', proj: '#ff7a2a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
+      { name: { en: 'Quoc - Chained Demon', vi: 'Quốc - Quỷ Xích' }, spr: 'quoc3', img: 'form3', anim: { idle: [0, 1], move: [0, 1], melee: [2, 3], cast: [2, 3], slam: [4] }, w: 50, h: 70, hp: 340, armor: 0.25, smart: 0.6, sp: 28, minion: 'imp', proj: '#a8b2c8', skills: ['slam', 'stomp', 'charge', 'erupt', 'sweep', 'crossBeam'], skills2: ['spin', 'summon'] },
+      { name: { en: 'Quoc - Iron General', vi: 'Quốc - Đại Tướng Giáp Sắt' }, spr: 'quoc4', img: 'form4', anim: { idle: [0, 1], move: [0, 1, 2, 3], melee: [4], cast: [4] }, w: 40, h: 74, hp: 420, armor: 0.4, smart: 0.6, sp: 26, minion: 'eclipseclone', proj: '#ff8a2a', skills: ['shield', 'guard', 'sweep', 'charge', 'slam', 'lobs', 'crossBeam'], skills2: ['roar', 'erupt', 'meteor'] },
+      { name: { en: 'Quoc - Winged Archdemon', vi: 'Quốc - Đại Quỷ Có Cánh' }, spr: 'quoc5', img: 'form5', anim: { idle: [0, 1], move: [0, 1], melee: [2], cast: [3, 4] }, w: 50, h: 68, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffb02a', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
+      { name: { en: 'Quoc - Ashen Titan', vi: 'Quốc - Titan Tro Tàn' }, spr: 'quoc6', img: 'form6', anim: { idle: [0, 1], move: [0, 1], melee: [4], cast: [2, 3], slam: [2, 3] }, w: 60, h: 98, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
       { name: { en: 'QUOC, THE ETERNAL ECLIPSE', vi: 'QUOC, NHẬT THỰC VĨNH CỬU' }, spr: 'quoc7', img: 'form7', anim: { idle: [0], move: [0], melee: [3], cast: [1, 2, 3], special: [4] }, w: 44, h: 106, hp: 780, armor: 0.45, smart: 0.9, sp: 30, minion: 'ghost', eclipse: true, proj: '#d58bff', skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak', 'crossBeam', 'rush'], skills2: ['dark', 'clone', 'summon', 'roar', 'fan', 'lobs'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
     ]
   };
   const MINI = {
     shorty: { forms: FORMS.shorty,
       intro: [
-        { en: 'Well, well. You made it all the way to the Citadel, little lantern-boy. I am done playing with trials.', vi: 'Chà chà. Cậu đã đến được tận Thành Trì, cậu bé cầm đèn. Ta chán trò thử thách rồi.' },
-        { w: 'ember', en: 'Mr Shorty... you do not have to do this. Quoc is only using you.', vi: 'Mr Shorty... ông không cần làm vậy. Quoc chỉ đang lợi dụng ông thôi.' },
+        { en: 'Well, well. You made it all the way to the Citadel, little lantern. I am done playing with trials.', vi: 'Chà chà. Nhóc đến được tận Thành Trì rồi đấy, đèn nhỏ. Ta chán mấy trò thử thách rồi.' },
+        { w: 'ember', en: 'Mr Shorty... you do not have to do this. Quoc is only using you.', vi: 'Mr Shorty... ông không cần làm vậy. Quốc chỉ đang lợi dụng ông thôi.' },
         { en: 'Using me?! He promised me a taller throne and a TALLER HAT! ...And I am short, not small. Come on!', vi: 'Lợi dụng ta?! Ngài hứa cho ta ngai vàng cao hơn và một chiếc MŨ CAO HƠN! ...Ta thấp chứ không nhỏ. Lại đây!' }
       ],
       outro: [
-        { en: 'My lord... Quoc... I only wanted to be... tall...', vi: 'Chủ nhân... Quoc... ta chỉ muốn được... cao thôi...' },
-        { en: '...Go on, lantern-boy. Sy waits ahead. He is not as kind as I was. Tee-hee... hee...', vi: '...Đi đi, cậu bé cầm đèn. Sy đang đợi phía trước. Hắn không tử tế như ta đâu. Hí hí... hí...' },
-        { w: 'ember', en: '(Shorty dissolves into a shower of top hats. For a moment Ember almost feels sorry for him.)', vi: '(Shorty tan thành một cơn mưa mũ cao. Trong thoáng chốc Ember suýt thấy thương hại hắn.)' }
+        { en: 'My lord... Quoc... I only wanted to be... tall...', vi: 'Chủ nhân... Quốc... ta chỉ muốn được... cao thôi...' },
+        { en: '...Go on, little lantern. Sy waits ahead. He is not as kind as I was. Tee-hee... hee...', vi: '...Đi đi, đèn nhỏ. Sy đang đợi phía trước. Hắn không tử tế như ta đâu. Hí hí... hí...' },
+        { w: 'ember', en: '(Shorty dissolves into a shower of top hats. For a moment the Lanternbearer almost feels sorry for him.)', vi: '(Shorty tan thành một cơn mưa mũ chóp cao. Trong một thoáng, Người Giữ Đèn gần như thấy tội cho hắn.)' }
       ] },
     sy: { forms: FORMS.sy,
       intro: [
-        { en: 'Shorty fell? A pity. He was loud, but cheap. I am Sy. Quoc\'s second hand, and the quieter one.', vi: 'Shorty gục rồi à? Tiếc thật. Hắn ồn ào nhưng rẻ tiền. Ta là Sy. Cánh tay thứ hai của Quoc, và là người kín tiếng hơn.' },
+        { en: 'Shorty fell? A pity. He was loud, but cheap. I am Sy. Quoc\'s second hand, and the quieter one.', vi: 'Shorty gục rồi à? Tiếc thật. Hắn ồn ào nhưng rẻ tiền. Ta là Sy. Cánh tay thứ hai của Quốc, và là người kín tiếng hơn.' },
         { w: 'ember', en: 'You were in the caves, and in the snow. You woke the Golem and the Frost King for me.', vi: 'Ông đã ở trong hang động, và cả trên tuyết. Ông đã đánh thức Người Khổng Lồ và Vua Băng cho tôi.' },
         { en: 'Test subjects, boy. I wanted to see how bright your lantern really burns. Now I want to see how long it lasts against my venom.', vi: 'Vật thí nghiệm thôi, nhóc. Ta muốn xem đèn của nhóc thực sự cháy sáng đến đâu. Giờ ta muốn xem nó chịu nổi bao lâu trước nọc độc của ta.' }
       ],
       outro: [
         { en: 'Ha... ha... even my venom... could not put you out.', vi: 'Ha... ha... ngay cả nọc độc của ta... cũng không dập được ngươi.' },
-        { en: 'Listen, boy. Quoc is not one monster. He is seven. Each one angrier than the last. Do not let your light flicker.', vi: 'Nghe này, nhóc. Quoc không phải một con quái vật. Hắn có bảy dạng. Dạng sau giận dữ hơn dạng trước. Đừng để ánh sáng của nhóc chập chờn.' },
-        { w: 'ember', en: '(Sy fades into green mist. The Citadel gate groans open. Only Quoc remains.)', vi: '(Sy tan vào làn sương xanh. Cổng Thành Trì rền rĩ mở ra. Chỉ còn lại Quoc.)' }
+        { en: 'Listen, little lantern. Quoc is not one monster any more. The dark gave him many faces. Do not let your light flicker.', vi: 'Nghe này, đèn nhỏ. Quốc không còn là một con quái nữa. Bóng tối đã cho hắn rất nhiều gương mặt. Đừng để ánh sáng của nhóc chao đảo.' },
+        { w: 'ember', en: '(Sy fades into green mist. The Citadel gate groans open. Only Quoc remains, and the Tenth Tower above him.)', vi: '(Sy tan vào màn sương xanh. Cổng Thành Trì rên rỉ mở ra. Chỉ còn Quốc, và Tháp Đèn Thứ Mười phía trên hắn.)' }
       ] }
   };
   const FORM_LINES = {
     shorty: { 1: [
-      { en: 'IMPOSSIBLE?! Then... Quoc\'s gift... AWAKEN! I WILL BE TALL!! GRAAAH!!', vi: 'KHÔNG THỂ NÀO?! Vậy thì... món quà của Quoc... THỨC TỈNH! TA SẼ CAO LỚN!! GRAAAH!!' }
+      { en: 'IMPOSSIBLE?! Then... Quoc\'s gift... AWAKEN! I WILL BE TALL!! GRAAAH!!', vi: 'KHÔNG THỂ NÀO?! Vậy thì... món quà của Quốc... THỨC TỈNH! TA SẼ CAO LỚN!! GRAAAH!!' }
     ] },
     sy: { 1: [
       { en: 'Your leek is amusing, boy. But venom spoils every blade. Behold, the true Sy!', vi: 'Cây hành của nhóc thật thú vị. Nhưng nọc độc làm hỏng mọi lưỡi kiếm. Chiêm ngưỡng Sy thực sự đi!' }
     ] },
     quoc: {
-      1: [{ en: 'YOU CUT MY HUMAN FACE?! THEN MEET MY SHADOW... THE DARK IMP!', vi: 'NGƯƠI DÁM CHÉM KHUÔN MẶT NGƯỜI CỦA TA?! VẬY HÃY GẶP BÓNG TỐI CỦA TA... TIỂU QUỶ!' }],
-      2: [{ en: 'TOO SLOW! SMELL THE HELLFIRE... HELLHOUND!', vi: 'QUÁ CHẬM! HÃY NGỬI MÙI LỬA ĐỊA NGỤC... CHÓ ĐỊA NGỤC!' }],
-      4: [{ en: 'ENOUGH!! IRON GENERAL, CRUSH THEM ALL!', vi: 'ĐỦ RỒI!! ĐẠI TƯỚNG GIÁP SẮT, NGHIỀN NÁT TẤT CẢ!' }],
-      5: [{ en: 'WINGS OF THE ARCHDEMON! THE SKY ITSELF WILL BURN!', vi: 'ĐÔI CÁNH CỦA ĐẠI QUỶ! CẢ BẦU TRỜI SẼ CHÁY!' }],
-      6: [{ en: 'I AM THE ASH OF EVERY VOLCANO! KNEEL!', vi: 'TA LÀ TRO TÀN CỦA MỌI NGỌN NÚI LỬA! QUỲ XUỐNG!' }],
-      7: [{ en: 'I AM THE ECLIPSE! THE END OF ALL LIGHT! GO DARK... FOREVER!!!', vi: 'TA LÀ NHẬT THỰC! SỰ KẾT THÚC CỦA MỌI ÁNH SÁNG! HÃY TỐI ĐEN... MÃI MÃI!!!' }]
+      1: [{ en: 'YOU CUT MY HUMAN FACE?! THEN MEET WHAT THE TENTH TOWER MADE OF ME... THE DARK IMP!', vi: 'NGƯƠI CHÉM ĐƯỢC GƯƠNG MẶT NGƯỜI CỦA TA?! VẬY HÃY GẶP THỨ MÀ THÁP THỨ MƯỜI ĐÃ BIẾN TA THÀNH... TIỂU QUỶ BÓNG TỐI!' }],
+      2: [{ en: 'TOO SLOW! THE DARK HUNTED ME LIKE A HOUND... NOW I AM THE HOUND!', vi: 'CHẬM QUÁ! BÓNG TỐI TỪNG SĂN TA NHƯ SĂN THÚ... GIỜ TA LÀ CON CHÓ SĂN!' }],
+      4: [{ en: 'ENOUGH!! I STOOD GUARD OVER THE DARK FOR A HUNDRED YEARS... IRON GENERAL!', vi: 'ĐỦ RỒI!! TA ĐÃ CANH GIỮ BÓNG TỐI SUỐT TRĂM NĂM... ĐẠI TƯỚNG GIÁP SẮT!' }],
+      5: [{ en: 'I FLEW TO EVERY TOWER ON MY OWN... ON WINGS LIKE THESE!', vi: 'TA ĐÃ TỰ MÌNH BAY TỚI TỪNG NGỌN THÁP... BẰNG ĐÔI CÁNH NHƯ THẾ NÀY!' }],
+      6: [{ en: 'I AM THE ASH OF EVERY FLAME I GAVE AWAY! KNEEL!', vi: 'TA LÀ TRO TÀN CỦA MỌI NGỌN LỬA TA ĐÃ CHO ĐI! QUỲ XUỐNG!' }],
+      7: [{ en: 'I AM THE ECLIPSE! LET THE WORLD SLEEP... FOREVER!!!', vi: 'TA LÀ NHẬT THỰC! HÃY ĐỂ THẾ GIỚI NGỦ YÊN... MÃI MÃI!!!' }]
     }
   };
   const QUOC_PRE = [
-    { en: 'So... the little flame crawls into my house. You have burned my slimes, my kings, my titans...', vi: 'Thì ra... ngọn lửa nhỏ bò vào nhà ta. Ngươi đã thiêu slime của ta, vua của ta, titan của ta...' },
-    { w: 'ember', en: 'And I will burn the Eclipse too. Give back the Sun, Quoc!', vi: 'Và cháu sẽ thiêu cả Nhật Thực. Trả Mặt Trời lại đây, Quoc!' },
-    { en: 'GIVE IT BACK?! I SWALLOWED IT!! IT IS PART OF ME NOW! COME, LANTERNBEARER... TASTE MY SEVEN FACES!', vi: 'TRẢ LẠI SAO?! TA ĐÃ NUỐT NÓ!! NÓ LÀ MỘT PHẦN CỦA TA RỒI! LẠI ĐÂY, NGƯỜI MANG ĐÈN... NẾM THỬ BẢY KHUÔN MẶT CỦA TA!' }
+    { en: 'So... the little flame has walked into my house. Nine towers. You lit every one I ever lit.', vi: 'Vậy là... ngọn lửa nhỏ đã vào tới nhà ta. Chín tháp. Ngươi đã thắp lại từng ngọn tháp ta từng thắp.' },
+    { w: 'ember', en: 'And the tenth one. The one you left dark, Quoc.', vi: 'Còn tháp thứ mười. Ngọn tháp anh đã bỏ dở, Quốc.' },
+    { en: 'LEFT DARK?! I GAVE IT ALL THE WARMTH I HAD! COME, LANTERNBEARER... SEE WHAT IT MADE OF ME!', vi: 'BỎ DỞ?! TA ĐÃ CHO NÓ TẤT CẢ HƠI ẤM CỦA TA! LẠI ĐÂY, NGƯỜI GIỮ ĐÈN... XEM NÓ ĐÃ BIẾN TA THÀNH GÌ!' }
   ];
   const ALLY_STORY = [
-    { w: 'quoc', en: 'THREE FACES, AND YOU STILL STAND?! THEN I WILL DROWN YOU IN SHADOW, LANTERN-BOY!', vi: 'BA KHUÔN MẶT MÀ NGƯƠI VẪN ĐỨNG ĐƯỢC SAO?! VẬY TA SẼ NHẤN CHÌM NGƯƠI TRONG BÓNG TỐI, CẬU BÉ CẦM ĐÈN!' },
+    { w: 'quoc', en: 'THREE FACES, AND YOU STILL STAND?! THEN I WILL DROWN YOU IN SHADOW, LANTERNBEARER!', vi: 'BA KHUÔN MẶT MÀ NGƯƠI VẪN ĐỨNG ĐƯỢC SAO?! VẬY TA SẼ NHẤN CHÌM NGƯƠI TRONG BÓNG TỐI, NGƯỜI GIỮ ĐÈN!' },
     { w: 'ember', en: '(coughing) ...I cannot keep this up. His power is too much...', vi: '(ho) ...Mình không trụ nổi nữa. Sức mạnh của hắn quá lớn...' },
-    { w: 'quan', en: 'EMBER!! Hold on! I read it in the Great Book of Embers: a Lanternbearer never fights alone!', vi: 'EMBER!! Cố lên! Mình đã đọc trong Đại Thư Tro Tàn: Người Mang Đèn không bao giờ chiến đấu một mình!' },
+    { w: 'quan', en: 'HOLD ON!! I read it in the Great Book of Lanterns: a Lanternbearer never fights alone!', vi: 'CỐ LÊN!! Mình đã đọc trong Đại Thư Đèn Lồng: Người Giữ Đèn không bao giờ chiến đấu một mình!' },
     { w: 'ember', en: 'QuanSadBoy?! How did you get into the Citadel?!', vi: 'QuanSadBoy?! Làm sao cậu vào được Thành Trì?!' },
     { w: 'hoang', en: 'Through the back door. HoangKiller is very good at back doors.', vi: 'Qua cửa sau. HoangKiller rất giỏi các cánh cửa sau.' },
     { w: 'ember', en: 'HoangKiller! The one from the Crystal Caverns?', vi: 'HoangKiller! Người ở Hang Pha Lê đó sao?' },
     { w: 'hoang', en: 'You beat the Golem that chased me. I never forget a debt... or a friend.', vi: 'Cậu đã hạ Người Khổng Lồ từng đuổi tôi. Tôi không bao giờ quên ơn... hay một người bạn.' },
-    { w: 'duong', en: 'And Duong Dracular could not miss such a splendid night. The Sun is whole, and a vampire may stand in daylight thanks to you, Ember. I owe you my afternoons.', vi: 'Và Duong Dracular sao có thể bỏ lỡ một đêm tuyệt vời thế này. Mặt Trời trọn vẹn, và một ma cà rồng được đứng dưới nắng là nhờ cậu, Ember. Ta nợ cậu những buổi chiều.' },
+    { w: 'duong', en: 'And Duong Dracular could not miss such a splendid night. The towers burn again, and a vampire can finally see the stars. I owe you my evenings.', vi: 'Và Duong Dracular sao có thể bỏ lỡ một đêm tuyệt vời thế này. Các tháp đã cháy lại, và một ma cà rồng cuối cùng cũng được ngắm sao. Ta nợ bạn những buổi tối.' },
     { w: 'santree', en: 'SANTREE IS HERE TOO! HO HO HO! Santree grows wherever there is hope! And there is a LOT of hope in this room!', vi: 'SANTREE CŨNG ĐÂY! HO HO HO! Santree mọc ở nơi nào có hy vọng! Và trong căn phòng này có RẤT NHIỀU hy vọng!' },
     { w: 'ember', en: 'Everyone... why did you all come?', vi: 'Mọi người... sao tất cả lại đến đây?' },
-    { w: 'quan', en: 'Because we each heard the same news: a boy with a lantern is going to defeat the Eclipse. And we each decided, on our own, that you are not doing it alone.', vi: 'Vì ai trong chúng mình cũng nghe cùng một tin: có một cậu bé cầm đèn sẽ đánh bại Nhật Thực. Và mỗi người đều tự quyết định rằng cậu sẽ không làm điều đó một mình.' },
+    { w: 'quan', en: 'Because we each heard the same news: a child with a lantern is going to light the tenth tower. And we each decided, on our own, that you are not doing it alone.', vi: 'Vì ai trong chúng mình cũng nghe cùng một tin: có một đứa trẻ cầm đèn sắp thắp ngọn tháp thứ mười. Và mỗi người đều tự quyết định rằng bạn sẽ không làm điều đó một mình.' },
     { w: 'quoc', en: 'A BOOKWORM, A KNIFE, A BAT AND A... CHRISTMAS TREE?! HAHAHA! I AM QUOC! LORD OF THE ECLIPSE!', vi: 'MỘT CON MỌT SÁCH, MỘT CON DAO, MỘT CON DƠI VÀ MỘT... CÂY THÔNG NOEL?! HAHAHA! TA LÀ QUOC! CHÚA TỂ NHẬT THỰC!' },
-    { w: 'ember', en: 'Then watch us, Quoc. TOGETHER!', vi: 'Vậy hãy xem chúng tôi, Quoc. CÙNG NHAU!' }
+    { w: 'ember', en: 'Then watch us, Quoc. TOGETHER!', vi: 'Vậy hãy xem chúng tôi, Quốc. CÙNG NHAU!' }
   ];
   const SY_CAMEO = {
     2: {
       pre: [
         { en: 'Hm. The Golem is sleeping on the job. Allow me. *snaps fingers* ARISE, my little experiment!', vi: 'Hm. Người Khổng Lồ đang ngủ gật khi làm việc. Để ta. *búng tay* TRỖI DẬY, thí nghiệm bé nhỏ của ta!' },
-        { en: 'I am Sy, one of Quoc\'s two hands. Do not worry, boy. I will not fight you today. Today... I only watch.', vi: 'Ta là Sy, một trong hai cánh tay của Quoc. Đừng lo, nhóc. Hôm nay ta sẽ không đánh nhau với nhóc. Hôm nay... ta chỉ xem.' }
+        { en: 'I am Sy, one of Quoc\'s two hands. Do not worry, boy. I will not fight you today. Today... I only watch.', vi: 'Ta là Sy, một trong hai cánh tay của Quốc. Đừng lo, nhóc. Hôm nay ta sẽ không đánh nhau với nhóc. Hôm nay... ta chỉ xem.' }
       ],
       post: [
         { en: 'Impressive. The Golem lasted longer than I bet. Keep the shiny dust, boy.', vi: 'Ấn tượng. Người Khổng Lồ trụ lâu hơn ta cược. Cứ giữ lấy bụi lấp lánh đi, nhóc.' },
@@ -795,11 +796,11 @@
       ] },
     4: {
       pre: [
-        { en: 'The Frost King. A prince of ice. Quoc told me to wake him, but I like him better angry.', vi: 'Vua Băng. Một hoàng tử của băng giá. Quoc bảo ta đánh thức ông ta, nhưng ta thích ông ta khi nổi giận hơn.' },
+        { en: 'The Frost King. A prince of ice. Quoc told me to wake him, but I like him better angry.', vi: 'Vua Băng. Một hoàng tử của băng giá. Quốc bảo ta đánh thức ông ta, nhưng ta thích ông ta khi nổi giận hơn.' },
         { en: '*shatters the ice cage* WAKE UP, Majesty! A lantern has come to melt you!', vi: '*đập vỡ lồng băng* DẬY ĐI, Bệ hạ! Có một chiếc đèn đến để làm tan chảy ngài!' }
       ],
       post: [
-        { en: 'Tsk. He melted faster than my notes predicted. Quoc is very, very angry now.', vi: 'Chậc. Ông ta tan nhanh hơn ghi chép của ta dự đoán. Quoc đang rất, rất giận.' },
+        { en: 'Tsk. He melted faster than my notes predicted. Quoc is very, very angry now.', vi: 'Chậc. Ông ta tan nhanh hơn ghi chép của ta dự đoán. Quốc đang rất, rất giận.' },
         { en: 'Run along, little flame. I will tell him you said hello.', vi: 'Đi đi, ngọn lửa nhỏ. Ta sẽ nói với hắn là nhóc gửi lời chào.' }
       ] }
   };
@@ -836,31 +837,31 @@
         { w: 'narr', en: 'Lyra sings. Deep under the mountain the Third Tower blazes, its light pours up through every crystal into the sky, and a new thread runs towards the desert.', vi: 'Lyra cất tiếng hát. Sâu dưới lòng núi, Tháp Đèn Thứ Ba bừng sáng, ánh sáng tràn qua từng viên pha lê lên tận bầu trời, và một sợi sáng mới chạy về phía sa mạc.' }
       ] },
     3: { pre: [
-        { en: 'KNEEL, child of the Sun! In my desert, even the Sun bows to ME!', vi: 'QUỲ XUỐNG, đứa con của Mặt Trời! Trên sa mạc của ta, ngay cả Mặt Trời cũng phải cúi đầu trước TA!' },
-        { w: 'ember', en: 'The Sun does not bow. It rises.', vi: 'Mặt Trời không cúi đầu. Nó mọc lên.' }
+        { en: 'KNEEL, little lamplighter! In my desert, even light lies down to sleep!', vi: 'QUỲ XUỐNG, kẻ thắp đèn bé nhỏ! Trên sa mạc của ta, ngay cả ánh sáng cũng phải nằm xuống ngủ!' },
+        { w: 'ember', en: 'Light does not sleep. It waits.', vi: 'Ánh sáng không ngủ. Nó chờ.' }
       ], post: [
         { en: 'My tomb... was so... quiet...', vi: 'Lăng mộ của ta... từng thật... yên tĩnh...' },
-        { w: 'narr', en: 'The sandstorm dies. Under the stars, the dunes look almost peaceful.', vi: 'Bão cát lặng đi. Dưới bầu trời sao, những đụn cát trông gần như bình yên.' }
+        { w: 'narr', en: 'The sandstorm dies. Lyra sings, and the Fourth Tower rises out of the sand, burning.', vi: 'Cơn bão cát lặng đi. Lyra cất tiếng hát, và Tháp Đèn Thứ Tư trồi lên khỏi cát, rực cháy.' }
       ] },
     4: { pre: [
         { en: 'Who dares bring FIRE into my halls? ...I have been cold so long that I forgot what warmth feels like.', vi: 'Kẻ nào dám mang LỬA vào cung điện của ta? ...Ta đã lạnh quá lâu, đến mức quên mất hơi ấm là gì.' },
         { w: 'ember', en: 'Then let me remind you.', vi: 'Vậy để ta nhắc lại cho ngươi.' }
       ], post: [
         { en: 'Warm... it is... warm... thank you... little flame...', vi: 'Ấm... thật... ấm... cảm ơn... ngọn lửa nhỏ...' },
-        { w: 'narr', en: 'For the first time in a hundred years, the Frost King smiles. Then he melts into a quiet spring rain.', vi: 'Lần đầu tiên sau trăm năm, Vua Băng mỉm cười. Rồi ông tan thành một cơn mưa xuân lặng lẽ.' }
+        { w: 'narr', en: 'For the first time in a hundred years, the Frost King smiles. Then he melts into a quiet spring rain, and the Fifth Tower shines through the ice.', vi: 'Lần đầu tiên sau trăm năm, Vua Băng mỉm cười. Rồi ông tan thành một cơn mưa xuân lặng lẽ, và Tháp Đèn Thứ Năm tỏa sáng xuyên qua lớp băng.' }
       ] },
     5: { pre: [
         { en: 'I AM THE MOUNTAIN\'S HEART! YOUR LITTLE LANTERN IS A SPARK IN MY FURNACE!', vi: 'TA LÀ TRÁI TIM CỦA NGỌN NÚI! CHIẾC ĐÈN BÉ NHỎ CỦA NGƯƠI CHỈ LÀ MỘT TIA LỬA TRONG LÒ RÈN CỦA TA!' },
         { w: 'ember', en: 'Sparks are how every fire begins.', vi: 'Mọi ngọn lửa đều bắt đầu từ một tia lửa.' }
       ], post: [
         { en: 'The mountain... grows... quiet...', vi: 'Ngọn núi... đang... lặng đi...' },
-        { w: 'narr', en: 'Six fragments now. They hum together like a choir. Only one remains, in the Shadow Citadel.', vi: 'Giờ đã có sáu mảnh. Chúng ngân lên cùng nhau như một dàn đồng ca. Chỉ còn một mảnh, trong Thành Trì Bóng Đêm.' }
+        { w: 'narr', en: 'The Sixth Tower erupts with light instead of lava. Six threads now hum across the sky like a choir.', vi: 'Tháp Đèn Thứ Sáu phun trào ánh sáng thay cho dung nham. Sáu sợi sáng giờ ngân lên trên bầu trời như một dàn đồng ca.' }
       ] },
     6: { post: [
-        { w: 'quoc', en: 'Impossible... a little flame... and a handful of... friends...', vi: 'Không thể nào... một ngọn lửa nhỏ... và một nhúm... bạn bè...' },
-        { w: 'quoc', en: 'The Sun... it burns... so bright...', vi: 'Mặt Trời... nó cháy... sáng quá...' },
-        { w: 'ember', en: 'It always did, Quoc. You were just standing in front of it.', vi: 'Nó vẫn luôn sáng như vậy, Quoc. Chỉ là ngươi đứng chắn trước nó thôi.' },
-        { w: 'narr', en: 'The Eclipse cracks like old glass. The seventh fragment falls, warm and bright, into Ember\'s hands.', vi: 'Nhật Thực nứt vỡ như tấm kính cũ. Mảnh thứ bảy rơi xuống, ấm áp và rực sáng, vào tay Ember.' }
+        { w: 'quoc', en: 'Impossible... a little flame... and a handful of... friends...', vi: 'Không thể nào... một ngọn lửa nhỏ... và một nhóm... bạn bè...' },
+        { w: 'quoc', en: 'The light... it is warm... I forgot how warm it was...', vi: 'Ánh sáng... ấm quá... ta đã quên mất nó ấm đến thế nào...' },
+        { w: 'ember', en: 'You do not have to carry it alone any more, Quoc.', vi: 'Anh không phải mang nó một mình nữa, Quốc.' },
+        { w: 'narr', en: 'The Eclipse cracks like old glass. Inside there is only a tired young man, and his old lantern, still flickering.', vi: 'Nhật Thực nứt vỡ như tấm kính cũ. Bên trong chỉ còn một chàng trai mệt mỏi, và cây đèn cũ của anh vẫn còn le lói.' }
       ] }
   };
   const MAP1_OPEN = [   // plays as map 1 begins, right after the opening film
@@ -885,7 +886,7 @@
         { w: 'narr', en: 'The wind carries a sad, frozen song from the castle on the peak.', vi: 'Cơn gió mang theo một khúc ca buồn, đóng băng, từ tòa lâu đài trên đỉnh núi.' }],
     5: [{ w: 'narr', en: 'The air burns. The ground shakes. Somewhere above the smoke, huge wings beat.', vi: 'Không khí bỏng rát. Mặt đất rung chuyển. Đâu đó trên làn khói, những đôi cánh khổng lồ vỗ mạnh.' },
         { w: 'ember', en: 'Ignarok... I know you are here.', vi: 'Ignarok... ta biết ngươi đang ở đây.' }],
-    6: [{ w: 'narr', en: 'The Shadow Citadel. Every stone whispers one name: Quoc.', vi: 'Thành Trì Bóng Đêm. Từng phiến đá đều thì thầm một cái tên: Quoc.' },
+    6: [{ w: 'narr', en: 'The Shadow Citadel. Every stone whispers one name: Quoc.', vi: 'Thành Trì Bóng Đêm. Từng phiến đá đều thì thầm một cái tên: Quốc.' },
         { w: 'ember', en: 'Lyra, Lila, the King... everyone. This is for you.', vi: 'Lyra, Lila, nhà vua... tất cả mọi người. Lần này là vì các bạn.' }]
   };
   // the worlds Quoc drags you into, one for each of his forms
@@ -2567,7 +2568,7 @@
         if (d < 11 && coop && Q.players) { const need = Q.players.filter(p => !p.down && p.hp < (p.mhp || maxHP())); if (need.length) { for (const p of need) { p.hp++; emit(p.x + 4, p.y + 2, 8, { col: ['#e0453a', '#ff7fb0'], sp0: 10, sp1: 40 }); } it.dead = true; Snd.play('heart'); if (it.id >= 0) Q.taken.add(it.id); pop(it.x, it.y - 10, sv('+1 HP for the team', '+1 máu cả đội'), '#ff7fb0'); } }
         else if (d < 11) { if (P.hp < maxHP()) { P.hp++; it.dead = true; Snd.play('heart'); setEmo('happy', 1); if (it.id >= 0) Q.taken.add(it.id); emit(it.x, it.y, 10, { col: ['#e0453a', '#ff7fb0'], sp0: 10, sp1: 50 }); } }
       } else if (it.kind === 'shard') {
-        if (d < 13) { it.dead = true; save.shards[Q.li][it.k] = 1; writeSave(); Q.taken.add(it.id); Snd.play('shard'); setEmo('happy', 2.2); Q.shardFlash = 1.2; emit(it.x, it.y, 30, { col: ['#ffd34e', '#fff', '#6ee7f2'], sp0: 20, sp1: 120 }); const ts = totalShards(); Q.msg = (save.lang === 'vi' ? 'Mảnh nắng ' : 'Sun Shard ') + ts + '/21' + (ts % 3 === 0 ? (save.lang === 'vi' ? '  — Tim tối đa tăng!' : '  — Max hearts up!') : '') + (ts % 7 === 0 ? (save.lang === 'vi' ? '  — Kiếm mạnh hơn!' : '  — Sword stronger!') : ''); Q.msgT = 4; if (P.hp < maxHP()) P.hp = maxHP(); }
+        if (d < 13) { it.dead = true; save.shards[Q.li][it.k] = 1; writeSave(); Q.taken.add(it.id); Snd.play('shard'); setEmo('happy', 2.2); Q.shardFlash = 1.2; emit(it.x, it.y, 30, { col: ['#ffd34e', '#fff', '#6ee7f2'], sp0: 20, sp1: 120 }); const ts = totalShards(); Q.msg = (save.lang === 'vi' ? 'Tàn Lửa Tháp ' : 'Tower Ember ') + ts + '/' + BIOMES.length * 3 + (ts % 3 === 0 ? (save.lang === 'vi' ? '  — Tim tối đa tăng!' : '  — Max hearts up!') : '') + (ts % 7 === 0 ? (save.lang === 'vi' ? '  — Kiếm mạnh hơn!' : '  — Sword stronger!') : ''); Q.msgT = 4; if (P.hp < maxHP()) P.hp = maxHP(); }
       } else if (it.kind === 'pk') {
         if (d < 13) {
           it.dead = true; P.ammo[it.what] += it.amt; Snd.play('pickup'); if (it.id >= 0 && !it.keep) Q.taken.add(it.id);
@@ -4489,8 +4490,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     { w: 'ember', en: '(half smiling, not sure) The stars? ...Right. Yeah. Lovely. (He knows she was about to say something else. He is not sure he is allowed to hope.)', vi: '(nửa cười, nửa ngờ) Sao á? ...Ừ. Ừ, đẹp thật. (Cậu biết cô định nói điều khác. Cậu không chắc mình có được phép hy vọng hay không.)' },
     { w: 'lyra', heart: 1, en: 'If I told you something silly, would you believe me?', vi: 'Nếu mình nói một điều ngốc nghếch, bạn có tin không?' },
     { w: 'ember', en: 'Depends. Silly like "slimes can learn to dance"? Or silly like "something I should be careful with"?', vi: 'Còn tùy. Ngốc kiểu "slime biết nhảy múa"? Hay ngốc kiểu "thứ mà mình nên cẩn thận"?' },
-    { w: 'lyra', heart: 1, en: 'Silly like a song. I will sing it for you when the Sun is back. Then you can decide whether to believe it.', vi: 'Ngốc như một bài hát. Mình sẽ hát cho bạn nghe khi Mặt Trời trở lại. Lúc đó bạn hãy quyết định có tin hay không.' },
-    { w: 'narr', en: 'The hoofbeats fade into the dusk. Ember does not answer. But for the first time since the Sun fell, his lantern burns a little warmer.', vi: 'Tiếng vó ngựa tan vào hoàng hôn. Ember không đáp. Nhưng lần đầu tiên kể từ khi Mặt Trời rơi, chiếc đèn của cậu cháy ấm hơn một chút.' }
+    { w: 'lyra', heart: 1, en: 'Silly like a song. I will sing it for you when all ten towers are burning. Then you can decide whether to believe it.', vi: 'Ngốc như một bài hát. Mình sẽ hát cho bạn nghe khi cả mười tháp cùng cháy sáng. Lúc đó bạn tự quyết có tin hay không.' },
+    { w: 'narr', en: 'The hoofbeats fade into the dusk. No answer comes. But for the first time since the moon turned black, the lantern burns a little warmer.', vi: 'Tiếng vó ngựa xa dần trong hoàng hôn. Không ai đáp lại. Nhưng lần đầu tiên kể từ khi mặt trăng hóa đen, cây đèn cháy ấm hơn một chút.' }
   ];
   let ride = null;
   function horseSprite(fr) {
@@ -4754,7 +4755,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (save.cleared.length || UNLOCK_ALL) it.push({ k: 'cont', fn: () => { mapSel = UNLOCK_ALL ? 0 : maxPlayable(); toScene('map'); } });
     it.push({ k: 'shopT', fn: () => { shopFrom = 'title'; toScene('shop'); } });
     it.push({ k: 'coopT', fn: () => { coopUI.ph = 'menu'; coopUI.sel = 0; coopUI.msg = ''; toScene('coop'); } });
-    it.push({ k: 'newgame', fn: () => { save.castle = 0; save.ride = 0; save.seen = {}; save.inv = { own: ['iron'], w: ['iron', null], armor: null, pet: null, gems: save.inv.gems | 0 }; save.cleared = []; save.shards = {}; save.coins = 0; save.leek = false; save.relics = [0, 0, 0, 0, 0, 0, 0]; save.ammo = { dagger: 0, bomb: 0, flask: 0 }; writeSave(); mapSel = 0; toScene('opening'); } });
+    it.push({ k: 'newgame', fn: () => { save.castle = 0; save.ride = 0; save.seen = {}; save.films = {}; save.inv = { own: ['iron'], w: ['iron', null], armor: null, pet: null, gems: save.inv.gems | 0 }; save.cleared = []; save.shards = {}; save.coins = 0; save.leek = false; save.relics = [0, 0, 0, 0, 0, 0, 0]; save.ammo = { dagger: 0, bomb: 0, flask: 0 }; writeSave(); mapSel = 0; toScene('opening'); } });
     it.push({ k: 'lang', fn: () => { save.lang = save.lang === 'vi' ? 'en' : 'vi'; writeSave(); } });
     it.push({ k: 'sound', fn: () => { Snd.toggleMute(); } });
     it.push({ k: 'full', fn: toggleFull });
@@ -6034,22 +6035,22 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   };
   // {p0} {p1}... = the heroes of player 1, 2... (wrapping around when the team is smaller)
   const COOP_INTRO = [
-    L2('narr', 'Long ago, the Sun hung whole above the kingdom of Lumen, and no night lasted longer than a lullaby.', 'Ngày xưa, Mặt Trời còn nguyên vẹn trên vương quốc Lumen, và chẳng đêm nào dài hơn một bài hát ru.'),
-    L2('narr', 'Then Quoc the Devil reached into the sky and tore the Sun into seven burning fragments.', 'Rồi Quỷ Vương Quoc vươn tay lên trời, xé Mặt Trời thành bảy mảnh rực cháy.'),
+    L2('narr', 'Long ago, the world had no Sun. The kingdom of Aurelia lived on the light of ten Lantern Towers.', 'Ngày xưa, thế giới không có Mặt Trời. Vương quốc Aurelia sống nhờ ánh sáng của mười Tháp Đèn.'),
+    L2('narr', 'Then Quoc, King of the Eclipse, turned the moon black, and every tower went out in a single night.', 'Rồi Quốc, Vua Nhật Thực, biến mặt trăng thành màu đen, và mọi tháp đèn tắt trong một đêm.'),
     L2('narr', 'Darkness poured over the land. Fields froze, rivers fell silent, and monsters crawled out of every shadow.', 'Bóng tối tràn khắp nơi. Đồng ruộng đóng băng, sông ngòi im bặt, quái vật bò ra từ mọi góc tối.'),
     L2('narr', 'In the last lit village, an old lantern began to glow on its own... and its light flew out in every direction.', 'Ở ngôi làng cuối cùng còn ánh sáng, một chiếc đèn lồng cũ bỗng tự phát sáng... và ánh sáng của nó bay đi muôn hướng.'),
     L2('narr', 'It searched the whole kingdom for hearts brave enough to answer. Tonight, it found {N} of them.', 'Nó lục tìm khắp vương quốc những trái tim đủ dũng cảm để đáp lời. Đêm nay, nó tìm thấy {N} người.'),
     '{hello}',
-    L2('narr', 'The lantern settled among them, warm as a heartbeat, and showed them seven roads, seven monsters, seven pieces of the Sun.', 'Chiếc đèn lồng đáp xuống giữa họ, ấm như một nhịp tim, và chỉ cho họ bảy con đường, bảy con quái vật, bảy mảnh Mặt Trời.'),
+    L2('narr', 'The lantern settled among them, warm as a heartbeat, and showed them ten roads, ten towers, and the monsters sleeping on them.', 'Chiếc đèn lồng đáp xuống giữa họ, ấm như một nhịp tim, và chỉ cho họ mười con đường, mười ngọn tháp, cùng những con quái đang ngủ trên đó.'),
     L2('quoc', 'More of them? Fine. Come, little candles. My darkness has room for all of you.', 'Thêm mấy đứa nữa à? Được thôi. Lại đây, những ngọn nến bé nhỏ. Bóng tối của ta đủ chỗ cho tất cả các ngươi.'),
     L2('{p0}', 'Did everyone hear that? Good. Now he knows we are coming.', 'Mọi người nghe thấy chứ? Tốt. Giờ hắn biết tụi mình đang tới rồi đó.'),
     L2('{p1}', 'Stay close. If one of us falls, the others pick them back up.', 'Đi sát nhau nhé. Ai ngã xuống thì những người còn lại kéo người đó dậy.'),
     L2('narr', '(Stand next to a fallen friend to bring them back faster. In this story, no one is left in the dark.)', '(Đứng cạnh đồng đội bị gục để hồi sinh họ nhanh hơn. Trong câu chuyện này, không ai bị bỏ lại trong bóng tối.)'),
-    L2('{plast}', 'Then let us go and take our Sun back. Together!', 'Vậy thì đi lấy lại Mặt Trời của chúng ta thôi. Cùng nhau!'),
+    L2('{plast}', 'Then let us light them again. All ten. Together!', 'Vậy thì đi thắp lại chúng thôi. Cả mười tháp. Cùng nhau!'),
     L2('narr', 'And so the journey began...', 'Và thế là cuộc hành trình bắt đầu...')
   ];
   const COOP_MAP = {
-    0: [L2('narr', 'The Verdant Meadow. The first fragment fell here, and the slimes have been acting strange ever since.', 'Đồng Cỏ Xanh. Mảnh đầu tiên rơi xuống đây, và lũ slime cứ hành xử kỳ lạ từ hôm đó.'),
+    0: [L2('narr', 'The Verdant Meadow. The First Tower stands dark here, and the slimes have been acting strange ever since.', 'Đồng Cỏ Xanh. Tháp Đèn Thứ Nhất đứng tối om ở đây, và lũ slime cứ hành động kỳ lạ từ đó.'),
         L2('{p0}', 'Slimes? That is our first monster? I was hoping for something scarier.', 'Slime á? Quái đầu tiên là slime hả? Tưởng phải đáng sợ hơn chứ.'),
         L2('{p1}', 'Please do not jinx it.', 'Làm ơn đừng nói gở.')],
     1: [L2('narr', 'The Whispering Forest. High in the webs above, eight red eyes are watching the team.', 'Rừng Thì Thầm. Trên những tấm tơ cao kia, tám con mắt đỏ đang dõi theo cả nhóm.'),
@@ -6058,21 +6059,21 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     2: [L2('narr', 'The Crystal Caverns. Down here, the only light is the light you carry with you.', 'Hang Pha Lê. Dưới này, ánh sáng duy nhất là thứ các bạn tự mang theo.'),
         L2('{p0}', 'Stay near the lanterns. If you get lost, shout my name.', 'Đi gần đèn nhé. Ai lạc thì hét tên tôi.'),
         L2('{p1}', 'If I get lost, I am blaming the bats.', 'Nếu tôi lạc thì là tại lũ dơi.')],
-    3: [L2('narr', 'The Endless Desert. Under the sand, an old Pharaoh guards a fragment like his last treasure.', 'Sa Mạc Bất Tận. Dưới lớp cát, một Pharaoh già canh giữ mảnh Mặt Trời như báu vật cuối cùng.'),
+    3: [L2('narr', 'The Endless Desert. Under the sand, an old Pharaoh sleeps on the Fourth Tower like his last treasure.', 'Sa Mạc Bất Tận. Dưới lớp cát, một Pharaoh già ngủ trên Tháp Đèn Thứ Tư như ôm báu vật cuối cùng.'),
         L2('{p1}', 'So hot... whose idea was it to wear armour in a desert?', 'Nóng quá... ai bày ra vụ mặc giáp đi sa mạc vậy?'),
         L2('{p0}', 'Drink water, dodge the mummies, win. Simple plan.', 'Uống nước, né xác ướp, thắng. Kế hoạch đơn giản.')],
     4: [L2('narr', 'The Frozen Peaks. A king made of ice has forgotten what warmth feels like.', 'Đỉnh Núi Băng Giá. Một vị vua bằng băng đã quên mất hơi ấm là gì.'),
         L2('{p0}', 'Then we will remind him. All of us, at the same time.', 'Vậy tụi mình nhắc lại cho ông ta. Tất cả cùng một lúc.')],
-    5: [L2('narr', 'The Volcano. Ignarok the fire dragon sleeps on the sixth fragment, and the mountain breathes with him.', 'Núi Lửa. Rồng lửa Ignarok ngủ trên mảnh thứ sáu, và cả ngọn núi thở theo nó.'),
+    5: [L2('narr', 'The Volcano. Ignarok the fire dragon sleeps beside the Sixth Tower, and the mountain breathes with him.', 'Núi Lửa. Rồng lửa Ignarok ngủ cạnh Tháp Đèn Thứ Sáu, và cả ngọn núi thở theo nó.'),
         L2('{p1}', 'Good news: it is warm. Bad news: everything else.', 'Tin vui: ở đây ấm. Tin buồn: mọi thứ còn lại.'),
-        L2('{p0}', 'Six fragments. Only one left after this. Nobody stops now!', 'Sáu mảnh rồi. Xong chỗ này chỉ còn một. Không ai được dừng lại!')],
-    6: [L2('narr', 'The Shadow Citadel. Every stone whispers one name: Quoc.', 'Thành Trì Bóng Đêm. Từng phiến đá đều thì thầm một cái tên: Quoc.'),
+        L2('{p0}', 'Six towers. Four more after this. Nobody stops now!', 'Sáu tháp rồi. Xong chỗ này còn bốn tháp nữa. Không ai được dừng lại!')],
+    6: [L2('narr', 'The Shadow Citadel. Every stone whispers one name: Quoc.', 'Thành Trì Bóng Đêm. Từng phiến đá đều thì thầm một cái tên: Quốc.'),
         L2('quoc', 'So the candles came together. How touching. I will snuff you out one by one.', 'Vậy là lũ nến kéo nhau tới đủ cả. Cảm động thật. Ta sẽ thổi tắt từng đứa một.'),
         L2('{p0}', 'Not one by one. All of us. At once.', 'Không phải từng người. Tất cả. Cùng một lúc.'),
-        L2('{plast}', 'For the Sun!', 'Vì Mặt Trời!')]
+        L2('{plast}', 'For the ten towers!', 'Vì mười ngọn tháp!')]
   };
   const COOP_END = [
-    L2('narr', 'The seventh fragment fell into many hands at once, and the Sun remembered how to shine.', 'Mảnh thứ bảy rơi vào nhiều bàn tay cùng một lúc, và Mặt Trời nhớ lại cách tỏa sáng.'),
+    L2('narr', 'The Tenth Tower blazed under many hands at once, and the whole sky remembered how to shine.', 'Tháp Đèn Thứ Mười bừng sáng dưới nhiều bàn tay cùng một lúc, và cả bầu trời nhớ lại cách tỏa sáng.'),
     L2('narr', 'Across the kingdom, the long night ended. People stepped out of their homes and looked up, laughing and crying at the same time.', 'Khắp vương quốc, đêm dài đã kết thúc. Mọi người bước ra khỏi nhà, ngước lên trời, vừa cười vừa khóc.'),
     L2('{p0}', 'We... actually did it.', 'Tụi mình... làm được thật rồi.'),
     L2('{p1}', 'Of course we did. Nobody fights alone on this team.', 'Đương nhiên rồi. Trong đội này không ai phải chiến đấu một mình.'),
@@ -6327,18 +6328,18 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   );
   Object.assign(MAP_STORY, {
     7: [{ en: 'GLOWCAP SWAMP. After the volcano, the road sinks into a swamp where the mushrooms are taller than houses and glow like lanterns.', vi: 'ĐẦM LẦY NẤM PHÁT QUANG. Sau núi lửa, con đường chìm vào một đầm lầy nơi nấm cao hơn nhà và phát sáng như đèn lồng.' },
-        { en: 'Their light is not warm. It is the cold glow of the Spore Queen, who promised Quoc to choke the last fragment in her roots.', vi: 'Thứ ánh sáng ấy không ấm. Đó là ánh lạnh của Nữ Hoàng Bào Tử, kẻ đã hứa với Quoc sẽ siết chặt mảnh cuối trong rễ của mình.' },
+        { en: 'Their light is not warm. It is the cold glow of the Spore Queen, who promised Quoc to smother the Seventh Tower in her roots.', vi: 'Thứ ánh sáng ấy không ấm. Đó là ánh lạnh của Nữ Hoàng Bào Tử, kẻ đã hứa với Quốc sẽ bóp nghẹt Tháp Đèn Thứ Bảy trong rễ của mình.' },
         { en: 'Watch your step. Breathe through your scarf. And never trust a mushroom that smiles.', vi: 'Nhìn kỹ đường đi. Thở qua khăn quàng. Và đừng bao giờ tin một cây nấm biết cười.' }],
     8: [{ en: 'SUNKEN DEEP. The swamp drains into the sea, and the sea swallows the road. Ember takes a deep breath... and dives.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Đầm lầy đổ ra biển, và biển nuốt mất con đường. Ember hít một hơi thật sâu... rồi lặn xuống.' },
         { en: 'Down here you swim: press jump again and again to rise, and let the water carry you down gently.', vi: 'Dưới này bạn phải bơi: nhấn nhảy liên tục để ngoi lên, và để nước nhẹ nhàng đưa bạn xuống.' },
-        { en: 'Somewhere in the dark below, something with eight arms is holding a piece of the Sun like a toy.', vi: 'Đâu đó trong bóng tối bên dưới, một thứ có tám cánh tay đang cầm một mảnh Mặt Trời như món đồ chơi.' }],
+        { en: 'Somewhere in the dark below, something with eight arms is hugging the drowned Eighth Tower like a toy.', vi: 'Đâu đó trong bóng tối bên dưới, một thứ có tám cánh tay đang ôm Tháp Đèn Thứ Tám bị nhấn chìm như ôm một món đồ chơi.' }],
     9: [{ en: 'DEEPDIG TUNNELS. The last road to the Citadel goes under the earth, through tunnels the old miners dug and then ran away from.', vi: 'ĐƯỜNG HẦM SÂU. Con đường cuối cùng tới Thành Trì đi xuyên lòng đất, qua những đường hầm thợ mỏ xưa đã đào rồi bỏ chạy.' },
         { en: 'They ran because of Gravemaw, a worm so big it swims through rock like water. When the ground shakes under your feet - jump away!', vi: 'Họ bỏ chạy vì Gravemaw, một con sâu to đến mức bơi trong đá như bơi trong nước. Khi mặt đất rung dưới chân - hãy nhảy tránh!' }]
   });
   Object.assign(MID_STORY, {
     7: [{ w: 'ember', en: 'Everything glows here... and everything is watching me.', vi: 'Mọi thứ ở đây đều phát sáng... và đều đang nhìn mình.' },
         { w: 'narr', en: 'A choir of tiny mushrooms turns their caps to follow the lantern. Somewhere ahead, a great one laughs.', vi: 'Một dàn đồng ca nấm nhỏ xoay mũ theo chiếc đèn. Ở phía trước, một cây nấm khổng lồ cất tiếng cười.' }],
-    8: [{ w: 'ember', en: 'The lantern still burns underwater. The Sun really does not give up.', vi: 'Đèn vẫn cháy dưới nước. Mặt Trời đúng là không chịu bỏ cuộc.' },
+    8: [{ w: 'ember', en: 'The lantern still burns underwater. It really does not give up.', vi: 'Đèn vẫn cháy dưới nước. Nó đúng là không chịu bỏ cuộc.' },
         { w: 'narr', en: 'A shadow passes overhead, longer than a ship. The whole sea goes quiet.', vi: 'Một cái bóng lướt qua trên đầu, dài hơn cả con tàu. Cả biển lặng ngắt.' }],
     9: [{ w: 'ember', en: 'Did the floor just... breathe?', vi: 'Mặt đất vừa... thở à?' },
         { w: 'narr', en: 'Far below, something enormous turns over in its sleep. The tunnels groan like an old ship.', vi: 'Sâu bên dưới, một thứ khổng lồ trở mình trong giấc ngủ. Các đường hầm rên lên như một con tàu cũ.' }]
@@ -6347,32 +6348,31 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     7: { pre: [{ en: 'Shhh, little flame. Breathe in. Every breath of my swamp makes you mine.', vi: 'Suỵt, ngọn lửa nhỏ. Hít vào đi. Mỗi hơi thở trong đầm lầy này đều biến ngươi thành của ta.' },
         { w: 'ember', en: 'Then I will hold my breath and swing fast.', vi: 'Vậy ta sẽ nín thở và chém thật nhanh.' }],
       post: [{ en: 'My garden... will grow again... in the dark...', vi: 'Khu vườn của ta... sẽ mọc lại... trong bóng tối...' },
-        { w: 'narr', en: 'The cold glow fades. For the first time in years, real fireflies return to the swamp.', vi: 'Ánh sáng lạnh tắt dần. Lần đầu tiên sau nhiều năm, đom đóm thật quay về đầm lầy.' }] },
+        { w: 'narr', en: 'The cold glow fades. Lyra sings, the Seventh Tower lights up, and real fireflies return to the swamp.', vi: 'Ánh sáng lạnh lẽo tắt dần. Lyra cất tiếng hát, Tháp Đèn Thứ Bảy bừng sáng, và đom đóm thật quay về đầm lầy.' }] },
     8: { pre: [{ en: 'GLUB... SHINY... MINE... ALL EIGHT ARMS SAY MINE!', vi: 'ỌC... LẤP LÁNH... CỦA TA... CẢ TÁM CÁNH TAY ĐỀU NÓI CỦA TA!' },
         { w: 'ember', en: 'You have eight arms and you still cannot share?', vi: 'Có tám cánh tay mà vẫn không biết chia sẻ à?' }],
       post: [{ en: 'Glub... the light... tickles...', vi: 'Ọc... ánh sáng... nhột quá...' },
-        { w: 'narr', en: 'The Kraken lets go and sinks into the deep, almost smiling. Sunlight reaches the seabed again.', vi: 'Thủy Quái buông tay, chìm vào đáy sâu, gần như mỉm cười. Ánh nắng lại chạm tới đáy biển.' }] },
+        { w: 'narr', en: 'The Kraken lets go and sinks into the deep, almost smiling. Lyra sings, and the Eighth Tower shines up through the water.', vi: 'Kraken buông ra và chìm xuống đáy sâu, gần như mỉm cười. Lyra cất tiếng hát, và Tháp Đèn Thứ Tám chiếu sáng xuyên qua làn nước.' }] },
     9: { pre: [{ en: 'RRRRUMBLE... I TASTE LIGHT ABOVE ME. I WILL SWALLOW IT WHOLE.', vi: 'GRỪỪỪ... TA NẾM THẤY ÁNH SÁNG Ở TRÊN. TA SẼ NUỐT CHỬNG NÓ.' },
         { w: 'ember', en: 'Everyone said this would be the easy part. Everyone lied.', vi: 'Ai cũng bảo đoạn này dễ. Ai cũng nói dối.' }],
       post: [{ en: 'Too... bright... back to... the deep...', vi: 'Sáng... quá... trở về... lòng đất...' },
-        { w: 'narr', en: 'Gravemaw burrows away for good. Above the tunnels, the black towers of the Shadow Citadel are waiting.', vi: 'Gravemaw đào đi mãi mãi. Phía trên đường hầm, những ngọn tháp đen của Thành Trì Bóng Đêm đang chờ đợi.' }] }
+        { w: 'narr', en: 'Gravemaw burrows away for good. The Ninth Tower blazes in the dark, and above the tunnels the black towers of the Shadow Citadel are waiting.', vi: 'Gravemaw đào sâu xuống và không bao giờ quay lại. Tháp Đèn Thứ Chín bừng cháy trong bóng tối, và phía trên những đường hầm, các tòa tháp đen của Thành Trì Bóng Tối đang chờ.' }] }
   });
   // devil cutscenes: the old "after the volcano" scene now plays after the tunnels, right before the Citadel
   CUT[9] = CUT[5];
   CUT[5] = [
-    { w: 'quoc', shout: 1, en: 'THE TITAN IS ASH!! ASH!!! HE WAS MY FAVORITE VOLCANO!', vi: 'TITAN THÀNH TRO RỒI!! TRO!!! HẮN LÀ NGỌN NÚI LỬA YÊU THÍCH CỦA TA!' },
-    { w: 'shorty', en: 'Master, the lantern now walks toward the Glowcap Swamp...', vi: 'Thưa chủ nhân, chiếc đèn giờ đang đi về phía Đầm Lầy Nấm...' },
-    { w: 'quoc', en: 'Good. The Spore Queen will fill its little lungs with my darkness.', vi: 'Tốt. Nữ Hoàng Bào Tử sẽ lấp đầy hai lá phổi bé nhỏ của nó bằng bóng tối của ta.' }
+        { w: 'quoc', en: 'The Titan is ash. Six towers.', vi: 'Titan thành tro rồi. Sáu tháp.' },
+        { w: 'shorty', en: 'Master, the lantern now walks toward the Glowcap Swamp...', vi: 'Thưa thầy, cây đèn đang đi về phía Đầm Lầy Nấm...' },
+        { w: 'quoc', en: 'Good. The Spore Queen will fill its little lungs with sleep.', vi: 'Tốt. Nữ Hoàng Bào Tử sẽ lấp đầy hai lá phổi nhỏ của nó bằng giấc ngủ.' }
   ];
   CUT[7] = [
-    { w: 'quoc', shout: 1, en: 'MY QUEEN... COMPOST?! WHO LETS A CANDLE WALK THROUGH A SWAMP?!', vi: 'NỮ HOÀNG CỦA TA... THÀNH PHÂN BÓN?! AI CHO CÂY NẾN ĐI QUA ĐẦM LẦY VẬY?!' },
-    { w: 'sy', en: 'My lord, the road goes under the sea now. No flame survives the deep.', vi: 'Thưa chủ nhân, con đường giờ đi xuống đáy biển. Không ngọn lửa nào sống nổi dưới đó.' },
-    { w: 'quoc', en: 'Then wake the Kraken. Let it squeeze that light until it pops.', vi: 'Vậy đánh thức Thủy Quái đi. Để nó siết ánh sáng đó tới khi vỡ tan.' }
+        { w: 'shorty', en: 'The Spore Queen... is compost now, master.', vi: 'Nữ Hoàng Bào Tử... thành phân bón rồi, thưa thầy.' },
+        { w: 'sy', en: 'My lord, the road goes under the sea now. No flame survives the deep.', vi: 'Thưa chủ nhân, con đường giờ đi xuống dưới biển. Không ngọn lửa nào sống sót dưới đáy sâu.' },
+        { w: 'quoc', en: 'Mine did. That was the worst part. ...Wake the Kraken.', vi: 'Ngọn lửa của ta đã sống sót. Đó mới là phần tệ nhất. ...Đánh thức Kraken.' }
   ];
   CUT[8] = [
-    { w: 'quoc', shout: 1, en: 'IT SWIMS?! THE CANDLE SWIMS?!', vi: 'NÓ BIẾT BƠI?! CÂY NẾN BIẾT BƠI?!' },
-    { w: 'shorty', en: 'It... also tickled the Kraken, master. He looked happy.', vi: 'Nó... còn cù lét Thủy Quái nữa, thưa chủ nhân. Trông hắn vui lắm.' },
-    { w: 'quoc', shout: 1, en: 'NOBODY IS HAPPY IN MY KINGDOM! GRAVEMAW! SWALLOW THE ROAD! SWALLOW EVERYTHING!', vi: 'KHÔNG AI ĐƯỢC VUI TRONG VƯƠNG QUỐC CỦA TA! GRAVEMAW! NUỐT CON ĐƯỜNG! NUỐT HẾT MỌI THỨ!' }
+        { w: 'shorty', en: 'It swims, master! And it tickled the Kraken. He looked happy.', vi: 'Nó biết bơi, thưa thầy! Còn cù lét con Kraken nữa. Trông nó vui lắm.' },
+        { w: 'quoc', shout: 1, en: 'Happy. Nobody is supposed to be happy down there. Gravemaw... swallow the road.', vi: 'Vui. Dưới đó lẽ ra không ai được vui cả. Gravemaw... nuốt chửng con đường đi.' }
   ];
   Object.assign(COOP_MAP, {
     7: [L2('narr', 'Glowcap Swamp. The mushrooms here are taller than houses, and the Spore Queen rules them all.', 'Đầm Lầy Nấm Phát Quang. Nấm ở đây cao hơn nhà, và Nữ Hoàng Bào Tử cai trị tất cả.'),
@@ -6391,7 +6391,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       { en: 'Croak... a lantern in my swamp. I have waited one hundred rainy seasons for you.', vi: 'Ộp... một chiếc đèn trong đầm lầy của ta. Ta đã đợi ngươi một trăm mùa mưa.' },
       { en: 'The Queen\'s spores make you slow. Keep moving, keep swinging, and never stand in the green clouds.', vi: 'Bào tử của Nữ Hoàng làm ngươi chậm lại. Cứ di chuyển, cứ chém, và đừng bao giờ đứng trong đám mây xanh.' }] },
     witch: { spr: 'npc_witch', name: { en: 'Granny Moss', vi: 'Bà Rêu' }, gift: { dagger: 3, bomb: 2, flask: 2 }, generic: [
-      { en: 'Heh heh. Not every witch works for Quoc, dearie. Some of us just like soup.', vi: 'Hê hê. Không phải phù thủy nào cũng làm cho Quoc đâu cưng. Có người chỉ thích nấu súp thôi.' },
+      { en: 'Heh heh. Not every witch works for Quoc, dearie. Some of us just like soup.', vi: 'Hê hê. Không phải phù thủy nào cũng làm cho Quốc đâu cưng. Có người chỉ thích nấu súp thôi.' },
       { en: 'Take these. Bombs for mushrooms, flasks for anything that bites. Now shoo!', vi: 'Cầm lấy. Bom cho lũ nấm, bình lửa cho bất cứ thứ gì biết cắn. Giờ thì đi đi!' }] },
     mermaid: { spr: 'npc_mermaid', name: { en: 'Nami the Mermaid', vi: 'Nàng Tiên Cá Nami' }, generic: [
       { en: 'A land-walker with a little sun! The fish told me you were coming.', vi: 'Một người trên cạn mang theo mặt trời nhỏ! Lũ cá đã kể với tôi bạn sắp tới.' },
@@ -6409,7 +6409,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       { en: 'Eh? Speak up, I cannot see you. I cannot see anyone. I am a mole.', vi: 'Hả? Nói to lên, ông không thấy cháu. Ông chẳng thấy ai cả. Ông là chuột chũi mà.' },
       { en: 'But I can FEEL the worm. When the dust jumps, he is right below. Run!', vi: 'Nhưng ông CẢM được con sâu. Khi bụi nảy lên là nó ở ngay bên dưới. Chạy!' }] },
     bard: { spr: 'npc_bard', name: { en: 'Lirio the Bard', vi: 'Lirio Người Hát Rong' }, generic: [
-      { en: 'Ah, the Lanternbearer! I am writing a song about you. So far it has three verses and one rhyme.', vi: 'A, Người Mang Đèn! Tôi đang viết một bài hát về bạn. Hiện có ba đoạn và đúng một vần.' },
+      { en: 'Ah, the Lanternbearer! I am writing a song about you. So far it has three verses and one rhyme.', vi: 'A, Người Giữ Đèn! Tôi đang viết một bài hát về bạn. Hiện có ba đoạn và đúng một vần.' },
       { en: '"Oh little flame, so brave and bright, you hit the slimes with all your might..." Too much?', vi: '"Ơi ngọn lửa nhỏ dũng cảm sáng ngời, chém lũ slime chẳng nghỉ ngơi..." Hơi lố hả?' }] }
   });
   // ===================== SCENERY: tile details, props, living sky, foreground, colour mood =====================
@@ -7121,7 +7121,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if ((s.ph === 'enter' && (s.ent === 'shadow' || s.ent === 'roots')) || (s.ph === 'engage' && s.eg === 'shadow')) { g.globalAlpha = 0.75; g.fillStyle = s.ent === 'roots' && s.ph === 'enter' ? '#1e3a1e' : '#1a0a2a'; g.beginPath(); g.ellipse(x, y, 22, 4, 0, 0, 7); g.fill(); g.globalAlpha = 0.5; g.fillStyle = s.ent === 'roots' && s.ph === 'enter' ? '#5fcf5a' : '#a15be0'; g.beginPath(); g.ellipse(x, y, 16 + Math.sin(Q.t * 8) * 2, 2.5, 0, 0, 7); g.fill(); g.globalAlpha = 1; }
     if (s.ph === 'enter' && s.ent === 'beam') { const a = 1 - seg(k, T * 0.8, T); g.globalCompositeOperation = 'lighter'; const gr = g.createLinearGradient(x - 14, 0, x + 14, 0); gr.addColorStop(0, hexA(glow, 0)); gr.addColorStop(0.5, hexA('#fff6c0', 0.55 * a)); gr.addColorStop(1, hexA(glow, 0)); g.fillStyle = gr; g.fillRect(x - 14, 0, 28, y); g.globalCompositeOperation = 'source-over'; }
     if (s.ph === 'enter' && s.ent === 'geyser') { const a = 1 - seg(k, T * 0.7, T); g.globalAlpha = 0.55 * a; g.fillStyle = '#6ee7f2'; g.fillRect(x - 8, y - H - 30, 16, H + 30); g.fillStyle = '#ffffff'; g.fillRect(x - 3, y - H - 30, 6, H + 30); g.globalAlpha = 1; }
-    if (s.ph === 'enter' && s.ent === 'meteor' && k < 0.75) { g.globalCompositeOperation = 'lighter'; const yy = y + (s.ay || 0) - H / 2; const gr = g.createLinearGradient(x, yy - 70, x, yy); gr.addColorStop(0, 'rgba(255,120,40,0)'); gr.addColorStop(1, 'rgba(255,200,90,.6)'); g.fillStyle = gr; g.fillRect(x - 10, yy - 70, 20, 70); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 0.3; g.fillStyle = '#000'; g.beginPath(); g.ellipse(x, y, 10 + k * 20, 3, 0, 0, 7); g.fill(); g.globalAlpha = 1; }
+    if (s.ph === 'enter' && s.ent === 'meteor' && k < 0.75) { g.globalCompositeOperation = 'lighter'; const yy = y + (s.ay || 0) - H / 2; const gr = g.createLinearGradient(x, yy - 70, x, yy); gr.addColorStop(0, 'rgba(255,120,40,0)'); gr.addColorStop(1, 'rgba(255,200,90,.6)'); g.fillStyle = gr; g.fillRect(x - 10, yy - 70, 20, 70); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 0.3; g.fillStyle = '#000'; g.beginPath(); g.ellipse(x, y, Math.max(1, 10 + k * 20), 3, 0, 0, 7); g.fill(); g.globalAlpha = 1; }
     if (s.look) { const hx = x + s.f * H * 0.12 + (s.ax || 0), hy = y + (s.ay || 0) + (s.sink || 0) - H * 0.86 * (s.asy || 1), c = s.kind === 'clones' || s.kind === 'shogun' ? '#c07bff' : glow; g.globalCompositeOperation = 'lighter'; g.fillStyle = c; g.globalAlpha = 0.6 + 0.4 * Math.sin(Q.t * 10); g.fillRect(Math.round(hx - 2), Math.round(hy), 2, 1); g.fillRect(Math.round(hx + 1), Math.round(hy), 2, 1); g.globalAlpha = 0.3; g.fillRect(Math.round(hx - 4), Math.round(hy), 9, 1); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
   }
   function drawSummons(camX, camY) {
@@ -7158,9 +7158,9 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   }
   // ===================== THE SUNKEN DEEP: quest, pearls, currents, depth =====================
   const QUEST8 = [
-    { w: 'narr', en: 'The end of the land. Beyond the cliff the sea falls away into darkness, and somewhere far below, a piece of the Sun is trapped.', vi: 'Tận cùng của đất liền. Sau vách đá, biển khơi đổ xuống bóng tối, và đâu đó rất sâu bên dưới, một mảnh Mặt Trời đang bị giam giữ.' },
-    { w: 'mermaid', en: 'Lanternbearer! You came! My village at the bottom of the sea has been dark for three months.', vi: 'Người Mang Đèn! Bạn đã tới! Làng của tôi dưới đáy biển đã tối suốt ba tháng.' },
-    { w: 'mermaid', en: 'The Kraken keeps the Sun fragment in the deepest cavern and locks it with the Tide Door. The door opens only for three Sea Pearls.', vi: 'Thủy Quái Kraken giữ mảnh Mặt Trời trong hang sâu nhất và khóa bằng Cánh Cửa Thủy Triều. Cửa chỉ mở cho ba Ngọc Trai Biển.' },
+    { w: 'narr', en: 'The end of the land. Beyond the cliff the sea falls away into darkness, and somewhere far below, the Eighth Tower lies drowned.', vi: 'Tận cùng của đất liền. Sau vách đá, biển khơi đổ xuống bóng tối, và đâu đó rất sâu bên dưới, Tháp Đèn Thứ Tám đang chìm.' },
+    { w: 'mermaid', en: 'Lanternbearer! You came! My village at the bottom of the sea has been dark for three months.', vi: 'Người Giữ Đèn! Bạn đã tới! Làng của tôi dưới đáy biển đã tối suốt ba tháng.' },
+    { w: 'mermaid', en: 'The Kraken guards the drowned tower in the deepest cavern and locks it with the Tide Door. The door opens only for three Sea Pearls.', vi: 'Kraken canh giữ ngọn tháp chìm trong hang sâu nhất và khóa nó bằng Cửa Thủy Triều. Cửa chỉ mở khi có đủ ba Ngọc Trai Biển.' },
     { w: 'ember', en: 'And where are the pearls?', vi: 'Vậy ngọc trai ở đâu?' },
     { w: 'mermaid', en: 'Its fish hid them in three rock pockets carved into the walls, on the way down. Swim into the side caves and search!', vi: 'Lũ cá của nó giấu chúng trong ba hốc đá khoét vào vách, trên đường đi xuống. Hãy bơi vào các hang bên và tìm!' },
     { w: 'pirate', en: 'Arr, listen, lad. Hammer the Jump button again and again to swim up, let yourself sink to go down. The deeper you go, the darker and the stronger the currents.', vi: 'Arr, nghe này nhóc. Nhấn Nhảy liên tục để bơi lên, buông ra để chìm xuống. Càng sâu càng tối và dòng nước càng mạnh.' },
@@ -7184,7 +7184,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       { en: 'Hm? A mole in the sea? Do not ask. I followed a worm and got a bit lost.', vi: 'Hử? Chuột chũi ở biển ư? Đừng hỏi. Ông theo một con sâu rồi hơi bị lạc.' }]
   };
   MAP_STORY[8] = [
-    { en: 'SUNKEN DEEP. The road ends at a cliff above the sea. Far below, the Kraken sleeps on the Sun\'s sixth shard.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Con đường dừng lại ở vách đá phía trên biển. Rất sâu bên dưới, Thủy Quái đang ngủ trên mảnh Mặt Trời thứ sáu.' },
+    { en: 'SUNKEN DEEP. The road ends at a cliff above the sea. Far below, the Kraken sleeps wrapped around the Eighth Tower.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Con đường dừng lại ở vách đá phía trên biển. Rất sâu bên dưới, Kraken ngủ quấn quanh Tháp Đèn Thứ Tám.' },
     { en: 'A mermaid waits on the shore. She needs help: the Kraken locked its cave with a Tide Door that opens only for three Sea Pearls.', vi: 'Một nàng tiên cá đang đợi trên bờ. Cô cần giúp đỡ: Thủy Quái đã khóa hang bằng Cánh Cửa Thủy Triều chỉ mở cho ba Ngọc Trai Biển.' },
     { en: 'You will dive from the surface into the deep: swim down through six dark zones, fight what lives there and search the side caves. The deeper you go, the stronger the currents.', vi: 'Bạn sẽ lặn từ mặt biển xuống vực sâu: bơi qua sáu tầng tối, chiến đấu với những gì sống ở đó và tìm trong các hang bên. Càng sâu, dòng nước càng mạnh.' }
   ];
@@ -8003,7 +8003,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     cnMotes(t, 60, 12, ['#7a7088', '#9a90a8'], 0, 0, VW, VH, 18, -8, 1, 0.5);
     cnWrap(cnFore(), cam * 1.6, VH - 80);
     cnSub(sv('The kingdom of Aurelia has fallen...', 'Vương quốc Aurelia đã sụp đổ...'), t, 2.5, 7.5);
-    cnSub(sv('The Sun is shattered. Darkness swallows everything.', 'Mặt Trời vỡ tan. Bóng tối nuốt chửng mọi thứ.'), t, 8.3, 13.8);
+    cnSub(sv('The towers have gone dark. Darkness swallows everything.', 'Các tháp đèn đã tắt. Bóng tối nuốt chửng mọi thứ.'), t, 8.3, 13.8);
     return { bloom: 0.45, grade: 'rgba(70,60,140,.35)', vig: 0.7, black: 1 - seg(t, 0, 2.5) + seg(t, 14.6, 15) };
   }
   function cnIntro2(t) {   // 15-30 s  a glimmer of light: extreme close-up, the camera climbs from the boots to the eyes
@@ -8124,7 +8124,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (dk > 0) cnMotes(t, 80, 71, ['#ffe9a8', '#ffffff', '#d58bff'], qx - 120, 0, 240, CN_GY, 6, 40, 1, 0.9 * (1 - seg(t, 13, 19)));
     const spr = cnHeroSpr('idle', Math.floor(t * 2.2)); cnShadow(104, CN_GY + 1, 18, 0.5, a > 0 ? -24 * a : 10); drawSpr(g, spr, 104, CN_GY, false, false, 2.4, 2.4);
     cnMotes(t, 40, 72, ['#ffe9a8'], 0, 30, VW, 150, 4, 8, 1, 0.5 * a);
-    cnSub(sv('The darkness breaks. The Sun returns.', 'Bóng tối tan đi. Mặt Trời đã trở lại.'), t, 13, 19);
+    cnSub(sv('The darkness breaks. The ten towers burn again.', 'Bóng tối tan đi. Mười ngọn tháp lại cháy sáng.'), t, 13, 19);
     return { bloom: 0.5 + a * 0.35, grade: a > 0.3 ? 'rgba(255,170,90,.3)' : 'rgba(90,70,150,.3)', vig: 0.65 - a * 0.2, black: 1 - seg(t, 0, 1.5) + seg(t, 19.6, 20) };
   }
   function cnOutro2(t) {   // 20-40 s  farewell: the Ancient summons bow and fly back to the sky as light
@@ -8235,16 +8235,26 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   }
   function frame(now) {
     requestAnimationFrame(frame);
-    step(now);
+    safeStep(now);
+  }
+  let stepFails = 0; const stepSeen = new Set();
+  function safeStep(now) {
+    try { step(now); stepFails = 0; }
+    catch (e) {
+      stepFails++; const msg = String(e && e.message); if (!stepSeen.has(msg)) { stepSeen.add(msg); console.error('[Last Lantern] frame error:', e); }
+      for (const c of [g, ctx]) { try { if (c.reset) c.reset(); else { c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.filter = 'none'; } } catch (e2) {} }
+      texts = []; uiCov = []; HIQ.length = 0; clearPressed();
+      if (stepFails > 90 && !coop && scene !== 'title') { stepFails = 0; try { enterScene('title'); } catch (e3) {} }
+    }
   }
   // browsers stop requestAnimationFrame in hidden tabs; during co-op a worker keeps the game ticking so a host
   // (or guest) in a background tab keeps playing - handy when testing with two tabs on one computer
   try {
     const wk = new Worker(URL.createObjectURL(new Blob(['setInterval(() => postMessage(0), 16)'], { type: 'text/javascript' })));
-    wk.onmessage = () => { if (document.hidden && coop) step(performance.now()); };
+    wk.onmessage = () => { if (document.hidden && coop) safeStep(performance.now()); };
   } catch (e) {}
   function step(now) {
-    let dt = Math.min(0.05, (now - (frame.last || now)) / 1000); frame.last = now;
+    let dt = clamp((now - (frame.last || now)) / 1000, 0, 0.05); frame.last = Math.max(frame.last || 0, now);
     readInput();
     coopClientInput();
     if (act.muteP) Snd.toggleMute();
@@ -8317,6 +8327,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   enterScene(location.search.length > 1 ? 'title' : 'intro');
   requestAnimationFrame(frame);
   if (DEMO) { save.leek = true; save.cleared = [0]; save.inv.own = ['iron', 'leek']; save.inv.w = ['leek', null]; save.inv.armor = null; save.inv.pet = null; save.ammo = { dagger: 9, bomb: 3, flask: 3 }; startLevel(0); Q.state = 'play'; Q.msg = 'LEEK DEMO: J / click = swing (3 light beams). Hit = heal + stun. Under 15% HP = leek tornado.'; Q.msgT = 12; }
+  if (!RELEASE) {   // testing shortcuts in the link (off in the build you sell)
   // ?quoc=N jumps straight into the final fight at Quoc's form N (0-7) - handy for checking the boss
   // ?level=N (0-9) starts that map from its beginning, handy for testing a map without unlocking it
   { const m = location.search.match(/[?&]level=(\d)/); if (m) setTimeout(() => { startLevel(+m[1]); }, 400); }
@@ -8331,6 +8342,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       const ar = Q.L.arena; Q.P.x = (ar.x0 + 6) * TS; Q.P.y = (ar.gy - 1) * TS - Q.P.h; snapCam();
       seal(); if (n > 0) { applyForm(Q.boss, n); Q.boss.st = 'intro'; Q.boss.timer = 0; Q.boss.invul = 0; } if (n >= 3) spawnAllies();
     }, 400); }
+  }
   { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
-  if (location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, bossSprite: li => bossSprite(li), formSprite: k => formSprite(k), npcSpr: k => npcSpr(k), pump: (n, ms) => { let t = performance.now(); for (let i = 0; i < n; i++) { t += ms || 16; step(t); } }, mfGo: (li, v, hold) => { startMapFilm(li); mf.t = v || 0; mf.hold = !!hold; }, mfT: v => { mf.t = v; }, opSeek: (v, play) => { if (!op) startOpening(); op.t = v; op.hold = !play; }, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (!RELEASE && location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, bossSprite: li => bossSprite(li), formSprite: k => formSprite(k), npcSpr: k => npcSpr(k), pump: (n, ms) => { let t = performance.now(); for (let i = 0; i < n; i++) { t += ms || 16; step(t); } }, mfGo: (li, v, hold) => { startMapFilm(li); mf.t = v || 0; mf.hold = !!hold; }, mfT: v => { mf.t = v; }, opSeek: (v, play) => { if (!op) startOpening(); op.t = v; op.hold = !play; }, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();

@@ -96,7 +96,7 @@ const ARMOR_LOOK = {
 [
   ['kitty', 1, 'Kitty', 'Mèo Con', 'Collects coins around you (double coin magnet range).', 'Nhặt xu quanh bạn (tầm hút xu gấp đôi).', { role: 'coin' }],
   ['puppy', 2, 'Puppy', 'Cún Con', 'Bites nearby monsters: 1 damage every 1.2s.', 'Cắn quái ở gần: 1 sát thương mỗi 1.2 giây.', { role: 'bite' }],
-  ['birdie', 3, 'Birdie', 'Chim Nhỏ', 'Scout: an arrow points to the nearest uncollected Sun Shard.', 'Trinh sát: mũi tên chỉ hướng Mảnh Nắng gần nhất chưa nhặt.', { role: 'scout' }],
+  ['birdie', 3, 'Birdie', 'Chim Nhỏ', 'Scout: an arrow points to the nearest uncollected Tower Ember.', 'Trinh sát: mũi tên chỉ hướng Tàn Lửa Tháp gần nhất chưa nhặt.', { role: 'scout' }],
   ['bunny', 4, 'Bunny', 'Thỏ Con', '+10% run speed and a higher jump.', '+10% tốc độ chạy và nhảy cao hơn.', { role: 'speed', speed: 0.1, jump: 1.08 }],
   ['fairy', 5, 'Fairy', 'Tiên Nhỏ', 'Heals 1 heart every 35 seconds.', 'Hồi 1 tim mỗi 35 giây.', { role: 'heal', t: 35 }],
   ['slimey', 6, 'Slimey', 'Slime Bạn Thân', 'Absorbs a hit for you every 25 seconds.', 'Đỡ một đòn cho bạn mỗi 25 giây.', { role: 'shield', t: 25 }],

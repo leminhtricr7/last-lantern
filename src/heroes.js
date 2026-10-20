@@ -5,6 +5,9 @@ const HERO_CLS = {
   tank: { en: 'Guardian', vi: 'Hộ vệ', col: '#8fb4ff' }, sin: { en: 'Assassin', vi: 'Sát thủ', col: '#ff5a6a' }, sup: { en: 'Support', vi: 'Hỗ trợ', col: '#ff9fd0' }
 };
 const H2 = (en, vi) => ({ en, vi });
+// THE BUILD YOU SELL: set RELEASE = true. It removes the fan heroes (other companies' characters), renames Star Fox,
+// and turns off the testing shortcuts in the link (?unlock ?debug ?level= ?boss= ?quoc= ?leekdemo).
+const RELEASE = false;
 const HEROES = [
   { id: 'ember', name: H2('Ember', 'Ember'), cls: 'war', sw: {}, hat: null, hp: 0, spd: 0, dmg: 0, sk: { k: 'nova', cd: 9, col: '#ffd34e', r: 70, d: 6, n: H2('Lantern Burst', 'Bùng Nổ Đèn Lồng') } },
   { id: 'lyra', name: H2('Lyra', 'Lyra'), cls: 'sup', sw: { a: '#d8fbf6', A: '#6ee7f2', q: '#2c9ab8', b: '#ff7fb0', r: '#6ee7f2', f: '#a4ffc0', o: '#6ee7f2', y: '#ffffff' }, hat: 'twin', hatCol: '#3ad6c8', hp: 0, spd: 0.05, dmg: -1, sk: { k: 'heal', cd: 12, col: '#a4ffc0', r: 110, d: 2, n: H2('Leek Song', 'Khúc Hát Hành Lá') } },
@@ -40,7 +43,7 @@ const HEROES = [
   { id: 'slimeking', name: H2('Little Slime King', 'Vua Slime Con'), cls: 'tank', sw: { a: '#a4e86b', A: '#5fcf5a', q: '#2b8a3e', b: '#9be564', r: '#ffd34e', f: '#a4e86b', o: '#5fcf5a', y: '#14121f' }, hat: 'crown', hatCol: '#ffd34e', hp: 3, spd: -0.05, dmg: 0, sk: { k: 'quake', cd: 8, col: '#9be564', r: 130, d: 8, n: H2('Royal Bounce', 'Cú Nảy Hoàng Gia') } },
   { id: 'devilkid', name: H2('Little Devil', 'Quỷ Vương Nhí'), cls: 'mage', sw: { a: '#c070ff', A: '#7a1a2a', q: '#2a0e18', b: '#14121f', r: '#e0453a', f: '#c07bff', o: '#7a1a2a', y: '#ff3a3a' }, hat: 'horns', hatCol: '#14121f', cape: '#2a0e18', aura: '#a15be0', hp: 0, spd: 0.05, dmg: 1, sk: { k: 'hole', cd: 11, col: '#a15be0', r: 96, n: H2('Tiny Eclipse', 'Nhật Thực Tí Hon') } },
   { id: 'goldknight', name: H2('Golden Knight', 'Hiệp Sĩ Vàng'), cls: 'war', sw: { a: '#fff6c0', A: '#ffd34e', q: '#a07a1a', b: '#e0453a', r: '#ffffff', f: '#ffffff', o: '#ffd34e' }, hat: 'helm', hatCol: '#ffd34e', aura: '#ffd34e', hp: 2, spd: 0, dmg: 1, sk: { k: 'nova', cd: 8, col: '#ffe08a', r: 90, d: 9, n: H2('Solar Flare', 'Bão Mặt Trời') } },
-  { id: 'starfox', name: H2('Star Fox', 'Hồ Ly Sao'), cls: 'sin', sw: { a: '#cfe8ff', A: '#3a4ad0', q: '#14164a', b: '#2a2a6a', r: '#ffe08a', f: '#ffffff', o: '#ffe08a', y: '#ffe08a' }, hat: 'fox', hatCol: '#3a4ad0', wings: 'angel', hp: 0, spd: 0.25, dmg: 1, sk: { k: 'blades', cd: 7, col: '#ffe08a', d: 6, n8: 10, n: H2('Falling Stars', 'Mưa Sao Băng') } },
+  { id: 'starfox', name: H2(RELEASE ? 'Comet Fox' : 'Star Fox', 'Hồ Ly Sao'), cls: 'sin', sw: { a: '#cfe8ff', A: '#3a4ad0', q: '#14164a', b: '#2a2a6a', r: '#ffe08a', f: '#ffffff', o: '#ffe08a', y: '#ffe08a' }, hat: 'fox', hatCol: '#3a4ad0', wings: 'angel', hp: 0, spd: 0.25, dmg: 1, sk: { k: 'blades', cd: 7, col: '#ffe08a', d: 6, n8: 10, n: H2('Falling Stars', 'Mưa Sao Băng') } },
   // six heroes with their own mechanics (original characters; each one changes how you play, not just the skill)
   { id: 'liem', name: H2('Shade Reaper', 'Liêm Ảnh'), cls: 'sin', sw: { a: '#7a7a9a', A: '#2a2a40', q: '#101018', b: '#1e1e30', r: '#3ad6ff', f: '#3ad6ff', o: '#1a6a9a', y: '#3ad6ff' }, hat: 'reaper', hatCol: '#1a1a2a', cape: '#14121f', mech: 'reaper', hp: 0, spd: 0.1, dmg: 1, sk: { k: 'reapdash', cd: 4, col: '#3ad6ff', d: 4, n: H2('Shadow Step', 'Lướt Ảnh') } },
   { id: 'meo', name: H2('Tabby & Squeak', 'Mướp & Tí'), cls: 'war', sw: { a: '#ffcf8a', A: '#f08a2b', q: '#8a4a1a', b: '#ffffff', r: '#e0453a', f: '#ffcf8a', o: '#f08a2b' }, hat: 'tabby', hatCol: '#f08a2b', mech: 'toon', hp: 1, spd: 0.05, dmg: 0, sk: { k: 'gag', cd: 5, col: '#ffd34e', d: 5, n: H2('Gag Bag', 'Túi Trò Hề') } },
@@ -52,7 +55,7 @@ const HEROES = [
 // ===== TEST BUILD ONLY: fan heroes drawn by the team (Kayn (c) Riot Games, Tom & Jerry (c) Warner Bros., Luffy (c) Eiichiro Oda / Shueisha,
 // Sonic (c) SEGA, Kirby (c) Nintendo / HAL, Jotaro & Dio (c) Hirohiko Araki, Miku (c) Crypton Future Media). Set FAN_HEROES = false before selling the game:
 // they disappear from the hero list and the original heroes above (same mechanics) stay.
-const FAN_HEROES = true;
+const FAN_HEROES = !RELEASE;
 const FAN = [
   { id: 'kayn', fan: 'kayn', name: H2('Kayn', 'Kayn'), cls: 'sin', custom: 'fan', mech: 'kayn', sw: {}, hp: 2, spd: 0.1, dmg: 1, sk: { k: 'kaynR', cd: 3, col: '#a15be0', d: 5, n: H2('Shadow Step / Rhaast', 'Lướt Bóng / Biến Rhaast') } },
   { id: 'tom', fan: 'tom', name: H2('Tom', 'Tom'), cls: 'war', custom: 'fan', mech: 'toon', sw: {}, hp: 2, spd: 0.05, dmg: 0, sk: { k: 'gag', cd: 5, col: '#ffd34e', d: 5, n: H2('Gag Bag', 'Túi Trò Hề') } },
