@@ -1298,7 +1298,9 @@
     if (P.dash <= 0) { if (act.atkP && !heroAttack(P)) useSlot(0); if (act.atk2P) useSlot(1); }
     if (P.dash <= 0) for (let sl = 0; sl < 2; sl++) { const gi = eqIt(sl); if (gi && gi.type === 'gun' && (sl ? act.atk2H : act.atkH) && !(sl ? act.atk2P : act.atkP)) useSlot(sl); }
     P.throwCd -= dt;
-    if (P.hero) { P.skCd = (P.skCd || 0) - dt; if (act.skillP && P.skCd <= 0 && P.dash <= 0) heroSkill(P); }
+    if (P.hero) { const was = P.skCd > 0; P.skCd = (P.skCd || 0) - dt; if (was && P.skCd <= 0 && isMe(P)) { pop(P.x + 4, P.y - 22, sv('R READY!', 'R SẴN SÀNG!'), (HERO[P.hero] && HERO[P.hero].sk.col) || '#ffd34e'); Snd.play('select'); }
+      if (act.skillP && P.skCd > 0 && isMe(P)) { Q.msg = sv('R recharging: ', 'R đang hồi: ') + Math.ceil(P.skCd) + 's'; Q.msgT = 1; }
+      if (act.skillP && P.skCd <= 0 && P.dash <= 0) heroSkill(P); }
     if (act.sk1P) useSk(0); if (act.sk2P) useSk(1); if (act.sk3P) useSk(2); if (act.sk4P) useSk(3);
     if (act.sumP) { const i = [0, 1, 2, 3].find(k => skIsReady(k)); useSk(i === undefined ? 0 : i); }
     if (act.swapP) cycleWeapon();
@@ -5823,14 +5825,7 @@
       g.fillStyle = '#3a1a20'; g.fillRect(55, y - 4, w, 4); g.fillStyle = p.down ? '#5a5470' : '#e0453a'; g.fillRect(55, y - 4, Math.round(w * f), 4);
       y += 11;
     }
-    // my skill
-    if (P && P.hero) {
-      const h = HERO[P.hero], cd = Math.max(0, P.skCd || 0), k = 1 - Math.min(1, cd / h.sk.cd), x = VW / 2 - 40, yy = VH - 14;
-      g.fillStyle = 'rgba(8,6,20,.7)'; g.fillRect(x, yy - 8, 80, 12);
-      g.fillStyle = hexA(h.sk.col, 0.45); g.fillRect(x, yy - 8, Math.round(80 * k), 12);
-      g.fillStyle = cd <= 0 ? h.sk.col : '#5a5470'; g.fillRect(x, yy - 8, 80, 1); g.fillRect(x, yy + 3, 80, 1);
-      txt('R  ' + LN(h.sk.n) + (cd > 0 ? '  ' + cd.toFixed(0) : ''), VW / 2, yy + 1, { al: 'center', size: 5, col: cd <= 0 ? '#fff' : '#a0a0b8' });
-    }
+
     if (Q.state === 'dead') { if (coop.role === 'client') txt(cvs('Waiting for the host to restart the team...', 'Chờ chủ phòng cho cả đội chơi lại...'), VW / 2, 150, { al: 'center', size: 7, col: '#ffd34e' }); }
     else if (P && P.down) { txt(cvs('You are down... a friend can revive you faster', 'Bạn đã gục... đồng đội đứng cạnh để hồi sinh nhanh'), VW / 2, 70, { al: 'center', size: 8, col: '#ff7a7a', bold: true }); txt(Math.max(0, P.downT || 0).toFixed(1) + 's', VW / 2, 84, { al: 'center', size: 10, col: '#fff' }); }
     txt(cvs('Room ', 'Phòng ') + (NET.code || '') + (coop.role === 'host' ? cvs(' (host)', ' (chủ)') : ''), VW - 6, VH - 4, { al: 'right', size: 5, col: '#8892aa' });
@@ -6489,8 +6484,26 @@
     else { nova(x, y, 90, d * 2); Snd.play('boom'); }
   }
   // the four skill slots, bottom centre: icon, charge filling up, a glowing frame when ready
+  function drawRBadge(P, bx, by) {
+    const h = P.hero && HERO[P.hero]; if (!h) return;
+    const cd = Math.max(0, P.skCd || 0), full = (P.form === 'sin' && h.sk.k === 'reapdash') ? 2.5 : h.sk.cd, k = 1 - Math.min(1, cd / full), ready = cd <= 0, col = h.sk.col || '#ffd34e', S = 26, cx = bx + S / 2, cy = by + S / 2;
+    g.fillStyle = 'rgba(20,18,31,.9)'; g.fillRect(bx, by, S, S);
+    g.fillStyle = hexA(col, ready ? 0.55 : 0.3); g.fillRect(bx + 1, by + 1, S - 2, S - 2);
+    if (!ready) {   // the part still recharging is dark, swept away clockwise like a clock
+      g.save(); g.beginPath(); g.rect(bx + 1, by + 1, S - 2, S - 2); g.clip();
+      g.fillStyle = 'rgba(8,6,18,.78)'; g.beginPath(); g.moveTo(cx, cy); g.arc(cx, cy, S, -Math.PI / 2 + k * Math.PI * 2, Math.PI * 1.5); g.closePath(); g.fill(); g.restore();
+      txt(cd < 1 ? cd.toFixed(1) : String(Math.ceil(cd)), cx, cy + 1, { al: 'center', size: 10, bold: true, col: '#ffffff', ol: '#14121f' });
+    } else {
+      g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.25 + 0.2 * Math.sin(Q.t * 7); g.fillStyle = col; g.fillRect(bx - 3, by - 3, S + 6, S + 6); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+      txt('R', cx, cy + 1, { al: 'center', size: 12, bold: true, col: '#ffffff', ol: '#14121f', glow: hexA(col, 0.9) });
+    }
+    g.globalAlpha = ready ? 0.7 + 0.3 * Math.sin(Q.t * 7) : 0.7; g.fillStyle = ready ? col : '#6a6f8a'; g.fillRect(bx, by, S, 1); g.fillRect(bx, by + S - 1, S, 1); g.fillRect(bx, by, 1, S); g.fillRect(bx + S - 1, by, 1, S); g.globalAlpha = 1;
+    if (!ready) txt('R', bx + 4, by + 5, { size: 6, bold: true, col: '#cfd6e6', ol: '#14121f' });
+    txt(fitTxt(LN(h.sk.n), 16), cx, by - 5, { al: 'center', size: 5, col: ready ? col : '#9a9ab0', ol: '#14121f' });
+  }
   function drawSkBadges() {
     const P = Q.P, ch = P.chg || [0, 0, 0, 0], x0 = Math.round(VW / 2 - 51), y0 = VH - 31;
+    drawRBadge(P, x0 + 4 * 26 + 6, y0 - 2);
     for (let i = 0; i < 4; i++) {
       const id = slotId(i), it = id && ITEM[id], bx = x0 + i * 26, by = y0;
       g.fillStyle = 'rgba(20,18,31,.85)'; g.fillRect(bx, by, 24, 24);
