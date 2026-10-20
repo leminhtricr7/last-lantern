@@ -3866,6 +3866,9 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const RUNV = RUN * 0.72, sp = Math.abs(P.vx);
     if (P.hurtA > 0) { const f = Math.min(2, Math.floor((1 - P.hurtA / 0.36) * 3)); return { n: 'hero_hurt', f, red: f === 1 }; }
     if (swim) return { n: 'hero_run6', f: Math.floor(P.anim * (P.vy < -20 ? 14 : 7)) % 6 };
+    if (P.dash > 0) return { n: 'hero_dash', f: P.dash > 0.09 ? 0 : 1 };
+    if (P.guardT > 0 && P.onGround) return { n: 'hero_guard', f: 0 };
+    if (P.atk > 0 && P.onGround) { const u = 1 - P.atk / 0.2; return { n: 'hero_atk', f: u < 0.25 ? 0 : (u < 0.6 ? 1 : 2) }; }
     if (!P.onGround) { const vy = P.vy, f = P.airT < 0.06 && vy < 0 ? 0 : vy < -140 ? 1 : vy < -40 ? 2 : vy < 80 ? 3 : 4; return { n: 'hero_jump6', f }; }
     if (P.landA > 0) return { n: 'hero_jump6', f: 5 };
     if (P.push > 0) return { n: 'hero_push', f: Math.floor(P.anim * 7) % 6 };
@@ -3874,7 +3877,14 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   }
   function drawPlayer1(camX, camY) {
     const P = Q.P;
-    if (Q.state === 'dead') return;
+    if (Q.state === 'dead') {   // falling: kneel, go down, fade (custom heroes sink and fade)
+      const k = Q.stateT || 0, h0 = P.hero && HERO[P.hero]; if (k > 1.2) return;
+      const x = Math.round(P.x + P.w / 2 - camX), bot = Math.round(P.y + P.h - camY);
+      g.globalAlpha = k > 0.7 ? Math.max(0, 1 - (k - 0.7) / 0.5) : 1;
+      if (h0 && h0.custom) { const sp = custSpr(h0, 'idle', 0, P), kk = h0.custom === 'fan' ? 16 / (sp.h || 16) : 1, sq = 1 - 0.45 * Math.min(1, k / 0.5); g.imageSmoothingEnabled = h0.custom === 'fan'; drawSpr(g, sp, x, bot, P.face < 0, false, kk, kk * sq); g.imageSmoothingEnabled = false; }
+      else drawSpr(g, getSprite('hero_die', h0 ? h0.sw : {}, k < 0.2 ? 0 : (k < 0.45 ? 1 : 2)), x, bot, P.face < 0);
+      g.globalAlpha = 1; return;
+    }
     if (P.inv > 0 && P.dash <= 0 && Math.floor(P.inv * 20) % 2 === 0) return;
     const x = Math.round(P.x + P.w / 2 - camX), bot = Math.round(P.y + P.h - camY);
     const swim = wetP(P) && !P.onGround;

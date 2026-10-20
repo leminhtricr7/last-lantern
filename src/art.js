@@ -173,6 +173,11 @@ const ART = {
   hero_push: heroSet('hero_push', [heroPose(heroTop[0], heroLegs.pushA, 2), heroPose(heroTop[1], heroLegs.pushB, 2), heroPose(heroTop[0], heroLegs.pushC, 2), heroPose(heroTop[1], heroLegs.pushA, 2), heroPose(heroTop[0], heroLegs.pushB, 2), heroPose(heroTop[1], heroLegs.pushC, 2)]),
   hero_jump6: heroSet('hero_jump6', [heroPose(heroTop[0], heroLegs.crouch), heroPose(heroTop[1], heroLegs.jump), heroPose(heroTop[0], heroLegs.jump), heroPose(heroTop[1], heroLegs.fall), heroPose(heroTop[0], heroLegs.fall), heroPose(heroTop[1], heroLegs.land)]),
   hero_hurt: heroSet('hero_hurt', [heroPose(heroTop[1], heroLegs.idleS, -1), heroPose(heroTop[1], heroLegs.idleS, -1), heroPose(heroTop[0], heroLegs.idle, -1)]),
+  // sword swing: wind-up (leaning back, knees bent), strike (lunging forward), follow-through
+  hero_atk: heroSet('hero_atk', [heroPose(heroTop[0], heroLegs.crouch, -1), heroPose(heroTop[1], heroLegs.runA, 2), heroPose(heroTop[0], heroLegs.land, 1)]),
+  hero_dash: heroSet('hero_dash', [heroPose(heroTop[1], heroLegs.runB, 3), heroPose(heroTop[0], heroLegs.jump, 2)]),
+  hero_guard: heroSet('hero_guard', [heroPose(heroTop[0], heroLegs.pushA, -1)]),
+  hero_die: heroSet('hero_die', [heroPose(heroTop[1], heroLegs.idleS, -1), heroPose(heroTop[1], heroLegs.crouch, 1), heroPose(heroTop[1], heroLegs.land.slice(2), 2)]),
   slime: [[
     '....tttttt....',
     '..ttgggggggg..',
