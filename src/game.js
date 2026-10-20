@@ -1264,13 +1264,13 @@
         const a = vineIdle(v), dx = Math.sin(a), dy = Math.cos(a), px = hx - v.x, py = hy - v.y, t = px * dx + py * dy, d = Math.abs(px * dy - py * dx);
         if (t < 8 || t > v.len || d > 7) continue;
         const D = Math.hypot(px, py), ang = Math.atan2(px, py), vt = P.vx * Math.cos(ang) - P.vy * Math.sin(ang);
-        P.vine = { v, D: clamp(D, 22, v.len), ang, angv: clamp(vt / Math.max(D, 24), -5, 5) }; P.dash = 0;
+        P.vine = { v, D: clamp(D, 30, v.len), ang, angv: clamp(vt / Math.max(D, 24), -5, 5) }; P.dash = 0;
         Snd.play('djump'); emit(hx, hy, 6, { col: ['#6ac87a', '#c8ffa0'], sp0: 10, sp1: 40 }); return true;
       }
       return false;
     }
     const V = P.vine, v = V.v, dirIn = (act.right ? 1 : 0) - (act.left ? 1 : 0);
-    if (act.up) V.D = Math.max(22, V.D - 48 * dt); if (act.down) V.D = Math.min(v.len, V.D + 48 * dt);   // climb up and down the rope
+    if (act.up) V.D = Math.max(30, V.D - 48 * dt); else if (act.down) V.D = Math.min(v.len, V.D + 60 * dt); else if (V.D < v.len * 0.72) V.D = Math.min(v.len * 0.72, V.D + 90 * dt);   // climb with up / down; grabbed high up, you slide down to a long swing   // climb up and down the rope
     V.angv += (-(GRAV * 0.9) / V.D * Math.sin(V.ang) + dirIn * 5.5) * dt;   // the pendulum plus the pumping with left / right
     V.angv *= 1 - 0.18 * dt; V.ang += V.angv * dt;
     if (Math.abs(V.ang) > 1.3) { V.ang = Math.sign(V.ang) * 1.3; V.angv *= -0.4; }
@@ -1293,7 +1293,7 @@
     const held = new Map(); for (const p of (coop && Q.players ? Q.players : [Q.P])) { const idx = p.vine ? p.vine.v.i : (p.vn >= 0 ? p.vn : -1); if (idx >= 0) held.set(idx, p); }
     for (const v of vs) {
       const sx = Math.round(v.x - camX); if (sx < -60 || sx > VW + 60) continue;
-      const hp = held.get(v.i), a = hp ? Math.atan2((hp.x + 4) - v.x, (hp.y + 4) - v.y) : vineIdle(v), len = hp ? Math.hypot((hp.x + 4) - v.x, (hp.y + 4) - v.y) : v.len;
+      const hp = held.get(v.i), a = hp ? Math.atan2((hp.x + 4) - v.x, (hp.y + 4) - v.y) : vineIdle(v), len = v.len;   // the whole rope is drawn, it hangs on below the hands
       const ay = Math.round(v.y - camY);
       g.fillStyle = '#4a3220'; g.fillRect(sx - 9, ay - 4, 18, 4); g.fillStyle = '#6a4a30'; g.fillRect(sx - 9, ay - 4, 18, 1); g.fillStyle = '#2e8a3e'; for (let k = 0; k < 4; k++) g.fillRect(sx - 8 + k * 5, ay - 1, 3, 4 + (k % 2) * 2);   // the branch it hangs from
       const N = Math.max(6, Math.round(len / 5)), pts = [];
