@@ -138,8 +138,8 @@
       { en: 'Free Lyra. Relight the First Tower. Your journey as the Lanternbearer begins now.', vi: 'Hãy giải cứu Lyra. Thắp lại Tháp Đèn Thứ Nhất. Hành trình Người Giữ Đèn của bạn bắt đầu từ đây.' }
     ],
     1: [
-      { en: 'WHISPERING FOREST. Here the trees listen. Old mechanisms of the Lanternbearers still sleep among the roots.', vi: 'RỪNG THÌ THẦM. Ở đây cây cối biết lắng nghe. Những cơ quan cổ của các Người Mang Đèn vẫn ngủ yên giữa rễ cây.' },
-      { en: 'A small man in a tall hat is watching you from the branches, grinning. Mr Shorty Phong has been waiting.', vi: 'Một người đàn ông thấp bé đội mũ cao đang cười toe nhìn bạn từ trên cành cây. Mr Shorty Phong đã chờ sẵn.' }
+      { en: 'WHISPERING FOREST. Here the trees listen, and they remember. Somewhere among the roots, the Second Tower is sleeping.', vi: 'RỪNG THÌ THẦM. Ở đây cây cối biết lắng nghe, và chúng nhớ. Đâu đó giữa những rễ cây, Tháp Đèn Thứ Hai đang ngủ.' },
+      { en: 'The Ancient Tree says a boy with a lantern passed here a hundred years ago, laughing. His name was Quoc.', vi: 'Cây Cổ Thụ kể rằng trăm năm trước, một cậu bé cầm đèn đã đi qua đây, cười vang. Tên cậu là Quốc.' }
     ],
     2: [
       { en: 'CRYSTAL CAVERNS. The crystals were once the Sun\'s tears. Now they glow weakly, like a heartbeat fading.', vi: 'HANG PHA LÊ. Những viên pha lê từng là nước mắt của Mặt Trời. Giờ chúng chỉ sáng yếu ớt, như nhịp tim đang tàn.' },
@@ -287,7 +287,7 @@
   NPCS.quan.generic = [{ en: 'Sigh... nobody reads anymore.', vi: 'Haizz... giờ chẳng ai đọc sách nữa.' }];
   const DLG3 = {
     1: { quan: [
-      { en: 'Oh! Sorry, I was reading while walking. I am Quan... some call me QuanSadBoy. I am a wizard. Mostly I read.', vi: 'Ồ! Xin lỗi, mình vừa đi vừa đọc sách. Mình là Quan... người ta gọi mình là QuanSadBoy. Mình là phù thủy. Chủ yếu là đọc sách.' },
+      { en: 'There you are! Chapter four: "The Lanternbearer Who Laughed". He really did laugh a lot, back then. Sigh.', vi: 'Bạn đây rồi! Chương bốn: "Người Giữ Đèn Hay Cười". Hồi đó anh ấy cười nhiều thật. Haizz.' },
       { en: 'I found extra supplies between chapter three and four. Please take them - you look like you need them.', vi: 'Mình tìm thấy ít đồ dư giữa chương ba và chương bốn. Bạn cầm lấy đi - trông bạn cần đấy.' },
       { en: 'Forest puzzles? Torches first, then the door. It is all in chapter seven. Probably.', vi: 'Câu đố trong rừng à? Đuốc trước, rồi tới cửa. Tất cả nằm ở chương bảy. Chắc vậy.' }
     ] },
@@ -604,7 +604,7 @@
   const near = (gx, gy, cx, cy, hw, hh) => Math.abs(gx - cx) <= hw && Math.abs(gy - cy) <= hh;
   function menuHit(gx, gy, n, cx, y0, dy, hw) { for (let i = 0; i < n; i++) if (near(gx, gy, cx, y0 + i * dy, hw, dy / 2)) return i; return -1; }
   // a visible SKIP button (top-right) for every dialogue and cinematic; the same as pressing Esc
-  const skipShown = () => (scene === 'play' && Q && Q.state === 'talk' && Q.talk) || (scene === 'story' && storyList !== ENDING) || scene === 'cutscene' || scene === 'castle' || scene === 'ride' || scene === 'opening' || ((scene === 'intro' || scene === 'outro') && cn && !cn.gate);
+  const skipShown = () => (scene === 'play' && Q && Q.state === 'talk' && Q.talk) || (scene === 'story' && storyList !== ENDING) || scene === 'cutscene' || scene === 'castle' || scene === 'ride' || scene === 'opening' || scene === 'mfilm' || ((scene === 'intro' || scene === 'outro') && cn && !cn.gate);
   const SKIP_BOX = [VW - 62, 3, 58, 12];
   function mouseEvt(e) {
     const xy = gameXY(e), gx = xy[0], gy = xy[1]; mouse.gx = gx; mouse.gy = gy;
@@ -625,7 +625,7 @@
     if (e.button !== 0) return;
     if (skipShown() && near(gx, gy, VW - 33, 9, 29, 6)) { pressed.Escape = true; Snd.play('select'); return; }
     if (scene === 'title') { const L = titleLayout(titleItems()), i = L.findIndex(r => gx >= r.x && gx < r.x + r.w && gy >= r.y && gy < r.y + r.h); if (i >= 0) { titleSel = i; pressed.Enter = true; } }
-    else if (scene === 'story' || scene === 'ending' || scene === 'opening' || scene === 'credits') pressed.Enter = true;
+    else if (scene === 'story' || scene === 'ending' || scene === 'opening' || scene === 'mfilm' || scene === 'credits') pressed.Enter = true;
     else if ((scene === 'intro' || scene === 'outro') && cn && cn.gate) pressed.Enter = true;
     else if (scene === 'shop') shopMouse(gx, gy, true);
     else if (scene === 'map') {
@@ -824,7 +824,8 @@
         { w: 'ember', en: 'Your webs are full of stolen light. I am taking it back.', vi: 'Tơ của ngươi đầy ánh sáng bị đánh cắp. Ta sẽ lấy lại nó.' }
       ], post: [
         { en: 'My children... will spin... in the dark... forever...', vi: 'Các con ta... sẽ giăng tơ... trong bóng tối... mãi mãi...' },
-        { w: 'narr', en: 'The webs fall like dead leaves. For the first time in days, moonlight reaches the forest floor.', vi: 'Những tấm tơ rơi xuống như lá úa. Lần đầu tiên sau nhiều ngày, ánh trăng chạm tới mặt đất của khu rừng.' }
+        { w: 'lyra', en: 'Now! Lift the lantern, and I will sing!', vi: 'Ngay bây giờ! Bạn giơ đèn lên, mình sẽ hát!' },
+        { w: 'narr', en: 'The webs fall like dead leaves. Lyra sings, the Second Tower blazes above the trees, and a new thread of light runs towards the crystal mountains.', vi: 'Những tấm tơ rơi xuống như lá úa. Lyra cất tiếng hát, Tháp Đèn Thứ Hai bừng sáng trên ngọn cây, và một sợi ánh sáng mới chạy về phía những ngọn núi pha lê.' }
       ] },
     2: { pre: [
         { en: 'INTRUDER. CRYSTAL. PROTECT. CRUSH.', vi: 'KẺ XÂM NHẬP. PHA LÊ. BẢO VỆ. NGHIỀN NÁT.' },
@@ -3460,6 +3461,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
 
   function updatePlay(dt) {
     if (opIntro && Q && Q.li === 0 && Q.state === 'play' && !coop) { opIntro = false; startScripted('narr', MAP1_OPEN, null); }
+    if (mfIntro >= 0 && Q && Q.li === mfIntro && Q.state === 'play' && !coop) { const L = MFILM[mfIntro] && MFILM[mfIntro].open; mfIntro = -1; if (L) startScripted('narr', L, null); }
     Q.stateT += dt;
     const st = Q.state;
     if (st === 'intro') { if (Q.stateT > 2.6 || act.okP) Q.state = 'play'; updateCam(dt); updateWeather(dt); return; }
@@ -4536,25 +4538,26 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   // ============================== CASTLE CUTSCENE (after map 2): the king, the crowd and a surprise gift ==============================
   const CS = { narr: { n: { en: 'Story', vi: 'Kể chuyện' }, col: '#cfd6e6', v: null }, king: { n: { en: 'King Aurelius', vi: 'Vua Aurelius' }, col: '#ffd34e', v: 'bram' }, lyra: { n: { en: 'Princess Lyra', vi: 'Công chúa Lyra' }, col: '#6ee7f2', v: 'lyra' }, ember: { n: { en: 'Ember', vi: 'Ember' }, col: '#ff9a4a', v: null }, crowd: { n: { en: 'The crowd', vi: 'Đám đông' }, col: '#ffffff', v: 'lila' } };
   const CASTLE = [
-    { w: 'narr', en: 'Through the forest and out of the dark, Ember leads Princess Lyra home. At last the white towers of Castle Aurelia rise above the trees.', vi: 'Xuyên qua khu rừng và bóng tối, Ember đưa công chúa Lyra trở về. Cuối cùng, những tòa tháp trắng của Lâu đài Aurelia hiện lên trên ngọn cây.' },
-    { w: 'narr', en: 'The gates fly open. The bells ring for the first time since the Sun fell. The whole kingdom pours into the courtyard.', vi: 'Cổng thành bật mở. Chuông ngân lên lần đầu tiên kể từ khi Mặt Trời rơi. Cả vương quốc đổ ra sân lâu đài.' },
-    { w: 'crowd', cheer: 1, en: 'The princess is alive! LONG LIVE LYRA! LONG LIVE THE LANTERNBEARER!', vi: 'Công chúa còn sống! CÔNG CHÚA LYRA MUÔN NĂM! NGƯỜI MANG ĐÈN MUÔN NĂM!' },
+    { w: 'narr', en: 'Two towers burn again. The thread of light between them shows the way home, and the white towers of Castle Aurelia rise above the trees.', vi: 'Hai tháp đã cháy sáng trở lại. Sợi ánh sáng nối chúng soi đường về nhà, và những tòa tháp trắng của Lâu đài Aurelia hiện lên trên ngọn cây.' },
+    { w: 'narr', en: 'The gates fly open. The bells ring for the first time since the night the moon turned black. The whole kingdom pours into the courtyard.', vi: 'Cổng thành bật mở. Chuông ngân lên lần đầu tiên kể từ đêm mặt trăng hóa đen. Cả vương quốc đổ ra sân lâu đài.' },
+    { w: 'crowd', cheer: 1, en: 'The princess is alive! LONG LIVE LYRA! LONG LIVE THE LANTERNBEARER!', vi: 'Công chúa còn sống! CÔNG CHÚA LYRA MUÔN NĂM! NGƯỜI GIỮ ĐÈN MUÔN NĂM!' },
     { w: 'king', en: 'Lyra! My little songbird! ...I thought the shadow had taken you from me forever.', vi: 'Lyra! Chim non bé bỏng của cha! ...Cha tưởng bóng tối đã cướp con khỏi cha mãi mãi.' },
-    { w: 'lyra', en: 'Father, it was Ember. He fought through the meadow and the forest with only a lantern and a rusty sword. He never once turned back.', vi: 'Cha ơi, là Ember. Cậu ấy đã chiến đấu xuyên đồng cỏ và khu rừng chỉ với một chiếc đèn và thanh kiếm gỉ. Cậu ấy không một lần quay lại.' },
-    { w: 'king', en: 'Young Ember... the whole kingdom owes you its tears and its laughter. And yet I must ask a heavier thing of you.', vi: 'Chàng trai Ember... cả vương quốc nợ cậu nước mắt và tiếng cười. Vậy mà ta vẫn phải nhờ cậu một việc nặng nề hơn.' },
-    { w: 'king', en: 'Quoc\'s guardians sit upon the fragments of the Sun: in caverns, deserts, frozen peaks, fire and shadow. You alone carry a light they fear. Will you defeat them, and let the world be at peace?', vi: 'Thuộc hạ của Quoc trấn giữ các mảnh Mặt Trời: trong hang động, sa mạc, đỉnh băng, lửa và bóng tối. Chỉ mình cậu mang ánh sáng mà chúng sợ. Cậu có chịu đánh bại chúng, để thế giới được bình yên?' },
-    { w: 'ember', en: '...I will. For Lila, for Lyra, and for everyone who still keeps a lantern lit.', vi: '...Cháu đồng ý. Vì Lila, vì Lyra, và vì tất cả những ai vẫn còn giữ một chiếc đèn sáng.' },
-    { w: 'crowd', cheer: 1, en: 'EM-BER! EM-BER! EM-BER!', vi: 'EM-BER! EM-BER! EM-BER!' },
+    { w: 'lyra', en: 'Father, the new Lanternbearer saved me. We have already lit two towers together!', vi: 'Cha ơi, Người Giữ Đèn mới đã cứu con. Chúng con đã cùng nhau thắp lại hai tháp rồi!' },
+    { w: 'king', en: 'A hundred years ago I said goodbye to a Lanternbearer in this very courtyard. His name was Quoc... and he never came back.', vi: 'Trăm năm trước, ta đã tiễn một Người Giữ Đèn ngay trên sân này. Cậu ấy tên Quốc... và cậu ấy không bao giờ trở về.' },
+    { w: 'king', en: 'Eight towers are still dark: in the crystal caverns, the desert, the frozen peaks, the volcano, the swamp, the deep sea, the tunnels and the Shadow Citadel. Will you go on?', vi: 'Còn tám tháp vẫn tối: trong hang pha lê, sa mạc, đỉnh băng, núi lửa, đầm lầy, biển sâu, đường hầm và Thành Trì Bóng Tối. Cháu có chịu đi tiếp không?' },
+    { w: 'ember', en: '...I will. And I will find out what happened to him.', vi: '...Cháu sẽ đi. Và cháu sẽ tìm hiểu chuyện gì đã xảy ra với anh ấy.' },
+    { w: 'crowd', cheer: 1, en: 'LANTERNBEARER! LANTERNBEARER! LANTERNBEARER!', vi: 'NGƯỜI GIỮ ĐÈN! NGƯỜI GIỮ ĐÈN! NGƯỜI GIỮ ĐÈN!' },
     { w: 'king', en: 'Then take this. My family has guarded it for a thousand years, waiting for a hero brave enough to ask for nothing in return.', vi: 'Vậy hãy nhận lấy. Gia tộc ta đã canh giữ nó suốt một ngàn năm, chờ một người anh hùng đủ dũng cảm để không đòi hỏi gì.' }
   ];
+
   const KISS = [
-    { w: 'ember', en: 'Well... I should get going. The next fragment will not find itself.', vi: 'Thôi... mình nên đi đây. Mảnh vỡ tiếp theo sẽ không tự tìm đến đâu.' },
+    { w: 'ember', en: 'Well... I should get going. The next tower will not light itself.', vi: 'Thôi... mình nên đi đây. Tháp tiếp theo sẽ không tự sáng đâu.' },
     { w: 'lyra', en: 'W-wait, brave knight! I... I have a gift for you too!', vi: 'Đ-đợi đã, hiệp sĩ dũng cảm! Mình... mình cũng có một món quà cho bạn!' },
-    { w: 'narr', en: '(Lyra stands on tiptoe, and quickly kisses Ember on the cheek.)', vi: '(Lyra kiễng chân lên, và nhanh chóng hôn lên má Ember.)' },
+    { w: 'narr', en: '(Lyra stands on tiptoe, and quickly kisses the Lanternbearer on the cheek.)', vi: '(Lyra kiễng chân lên, và nhanh chóng hôn lên má Người Giữ Đèn.)' },
     { w: 'lyra', en: 'T-thank you, for everything! Please... please come back safe!!', vi: 'C-cảm ơn bạn vì tất cả! Xin bạn... xin bạn hãy trở về an toàn!!' },
     { w: 'narr', en: '(Her face turns as red as a tomato. She covers it with both hands, and runs back into the castle.)', vi: '(Mặt cô đỏ như quả cà chua. Cô lấy hai tay che mặt và chạy thẳng vào lâu đài.)' },
     { w: 'ember', en: '...Huh? She... just... what... what was THAT?', vi: '...Hả? Cô ấy... vừa... gì... gì vậy trời?' },
-    { w: 'ember', en: '...No. No time. Fragments to find. (He rubs his cheek, and tries very hard not to smile.)', vi: '...Không. Không có thời gian. Còn mảnh vỡ phải tìm. (Cậu xoa má, và cố hết sức để không mỉm cười.)' }
+    { w: 'ember', en: '...No. No time. Towers to light. (Rubbing a cheek, and trying very hard not to smile.)', vi: '...Không. Không có thời gian. Còn tháp phải thắp. (Xoa má, và cố hết sức để không mỉm cười.)' }
   ];
   let castle = null;
   function kingSprite() {
@@ -4566,7 +4569,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       P.rect(5, 26, 14, 2, 'y'); P.rect(7, 28, 4, 3, 'N'); P.rect(13, 28, 4, 3, 'N');
     }));
   }
-  function startCastle() { castle = { i: 0, lt: 0, t: 0, phase: 'talk', gt: 0, gave: false, lastBlip: 0 }; Q = null; Snd.music('title', TITLE_MUSIC); }
+  function startCastle() { CS.ember.n = (HERO[myHero()] || HERO.ember).name; castle = { i: 0, lt: 0, t: 0, phase: 'talk', gt: 0, gave: false, lastBlip: 0 }; Q = null; Snd.music('title', TITLE_MUSIC); }
   function castleGift() {
     const iv = save.inv; castle.gave = true; save.castle = 1;
     if (iv.own.indexOf('bdragon') < 0) iv.own.push('bdragon');
@@ -5005,7 +5008,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       Snd.play('ok');
       if (!save.seen) save.seen = {};
       const li = LORDER[mapSel];
-      if (MAP_STORY[li] && !save.seen[li]) { save.seen[li] = 1; writeSave(); storyLevel = li; toScene('mstory'); }
+      if (MFILM[li] && !(save.films && save.films[li])) { save.films = save.films || {}; save.films[li] = 1; save.seen[li] = 1; writeSave(); startMapFilm(li); }
+      else if (MAP_STORY[li] && !save.seen[li]) { save.seen[li] = 1; writeSave(); storyLevel = li; toScene('mstory'); }
       else startLevelFade(li);
     }
   }
@@ -7609,6 +7613,119 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }
     if (t < OP_END - 1) txt(sv('ENTER: skip', 'ENTER: bỏ qua'), VW - 6, VH - 6, { al: 'right', size: 5, col: '#6a6a8a' });
   }
+  // ===================== MAP FILMS: a short film the first time you enter a map, then a dialogue as the map begins =====================
+  // MFILM[li] = { len, card: [en, vi] (the map's subtitle on the end card), caps: [[from, to, who, en, vi]], snd: [[at, sound]], draw(t), open: [dialogue] }
+  // who: n narrator, e the player's hero, l Lyra, k QuanSadBoy, t the Ancient Tree, q Quoc
+  let mf = null, mfIntro = -1;
+  const MF_WHO = { e: [null, '#ffd34e', 'ember'], l: ['LYRA', '#6ee7f2', 'lyra'], k: ['QUANSADBOY', '#a98bff', 'quan'], t: [['ANCIENT TREE', 'CÂY CỔ THỤ'], '#a4e86b', 'santree'], q: [['QUOC', 'QUỐC'], '#ff7a7a', 'quoc'] };
+  const MFILM = {};
+  function startMapFilm(li) { mf = { li, t: 0, fired: {}, typed: {} }; Snd.music('title', TITLE_MUSIC); toScene('mfilm'); }
+  function mfDone() { if (!mf || mf.done) return; mf.done = true; mfIntro = mf.li; startLevelFade(mf.li); }
+  function updateMapFilm(dt) {
+    if (!mf || mf.hold) return; const F = MFILM[mf.li]; mf.t += dt; const t = mf.t;
+    if (!mf.skipped) for (const [at, n] of F.snd) { const k = 's' + at; if (t >= at && !mf.fired[k]) { mf.fired[k] = 1; if (n.indexOf('music:') === 0) { const m = n.slice(6); Snd.music(m, m === 'devil' ? DEVIL_MUSIC : (m === 'boss' ? BOSS_MUSIC : TITLE_MUSIC)); } else Snd.play(n); } }
+    for (let i = 0; i < F.caps.length && !mf.skipped; i++) { const c = F.caps[i], w = MF_WHO[c[2]]; if (w && t >= c[0] && t < c[1]) { const n = Math.floor((t - c[0]) * 32); if (n > (mf.typed[i] || 0) && n % 2 === 0) Snd.blip(w[2]); mf.typed[i] = n; } }
+    if (act.okP || act.atkP || act.backP) { if (t < 0.8 && !act.backP) return; if (t < F.len) { mf.t = F.len; mf.skipped = true; Snd.play('select'); } else if (t > F.len + 0.5) { Snd.play('ok'); mfDone(); } }
+    if (t > F.len + 4) mfDone();
+  }
+  function drawMapFilm() {
+    if (!mf) return; const F = MFILM[mf.li], t = mf.t;
+    g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH);
+    if (t < F.len) { F.draw(t); opBars(); g.drawImage(titleArt().vig, 0, 0); }
+    else {   // the end card: the map's name and what waits there
+      const et = t - F.len, k = ez(et / 0.8), B = BIOMES[mf.li];
+      g.fillStyle = '#05030f'; g.fillRect(0, 0, VW, VH);
+      g.globalCompositeOperation = 'lighter'; const cg = g.createRadialGradient(VW / 2, VH / 2, 0, VW / 2, VH / 2, 160); cg.addColorStop(0, 'rgba(255,190,90,' + 0.18 * k + ')'); cg.addColorStop(1, 'rgba(255,150,60,0)'); g.fillStyle = cg; g.fillRect(0, 0, VW, VH); g.globalCompositeOperation = 'source-over';
+      txt(sv('MAP ', 'MAP ') + (LPOS(mf.li) + 1), VW / 2, VH / 2 - 30, { al: 'center', size: 7, bold: true, col: '#c89a1c', ls: 3, alpha: k });
+      txt(LN(B.name).toUpperCase(), VW / 2, VH / 2 - 10, { al: 'center', size: 16, bold: true, col: '#ffd34e', grad: ['#fffbe0', '#ffd34e', '#e08a1a'], ol: '#2a0a10', glow: 'rgba(255,160,50,.8)', ls: 2, sh: false, alpha: k });
+      txt(sv(F.card[0], F.card[1]), VW / 2, VH / 2 + 10, { al: 'center', size: 7, bold: true, col: '#ffe9b8', ls: 2, alpha: k });
+      if (et > 0.8) txt(sv('ENTER: play', 'ENTER: vào chơi'), VW / 2, VH / 2 + 40, { al: 'center', size: 6.5, bold: true, col: '#ffffff', alpha: 0.5 + 0.5 * Math.abs(Math.sin(t * 3)) });
+      if (et < 0.5) { g.globalAlpha = 1 - et / 0.5; g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+      return;
+    }
+    const hn = LN((HERO[myHero()] || HERO.ember).name).toUpperCase();
+    for (let i = 0; i < F.caps.length; i++) {
+      const c = F.caps[i]; if (t < c[0] || t > c[1] + 0.5) continue;
+      const w = MF_WHO[c[2]], who = c[2] === 'e' ? hn : (w ? (Array.isArray(w[0]) ? sv(w[0][0], w[0][1]) : w[0]) : null), col = w ? w[1] : '#e8eaf5';
+      const line = sv(c[3], c[4]), n = Math.floor((t - c[0]) * (c[2] === 'n' ? 26 : 32)), a = Math.min(1, (c[1] + 0.5 - t) / 0.5), wl = wrapText(line.slice(0, n), 78);
+      wl.forEach((l, j) => txt((j === 0 && who ? who + ': ' : '') + l, VW / 2, VH - 17 + j * 8 - (wl.length - 1) * 4, { al: 'center', size: 7, bold: c[2] !== 'n', col, alpha: a }));
+    }
+    if (t < F.len - 1) txt(sv('ENTER: skip', 'ENTER: bỏ qua'), VW - 6, VH - 6, { al: 'right', size: 5, col: '#6a6a8a' });
+  }
+  const mfFade = (t, a, b, out) => { if (t < a || t > b) return; const k = out ? ez(seg(t, a, b)) : 1 - ez(seg(t, a, b)); if (k > 0) { g.globalAlpha = k; g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; } };
+  // a lantern glow round a point (the hero's light in a dark scene)
+  function mfGlow(x, y, r, a, col) { g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, hexA(col || '#ffbe5a', a)); gr.addColorStop(1, hexA(col || '#ffbe5a', 0)); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); g.globalCompositeOperation = 'source-over'; }
+  // the Ancient Tree of the Whispering Forest: a huge trunk with a face that opens its eyes and talks
+  function mfTree(x, gy, t, eyes, talk) {
+    x = Math.round(x);
+    g.fillStyle = '#0e1a10'; g.beginPath(); g.ellipse(x, gy - 112, 92, 52, 0, 0, 7); g.fill(); g.fillStyle = '#14261a'; g.beginPath(); g.ellipse(x - 30, gy - 124, 56, 34, 0, 0, 7); g.fill(); g.beginPath(); g.ellipse(x + 40, gy - 118, 50, 30, 0, 0, 7); g.fill();
+    g.fillStyle = '#1e3424'; for (let i = 0; i < 26; i++) { const a = i * 2.4, r = 30 + (i * 13) % 50; g.fillRect(Math.round(x + Math.cos(a) * r * 1.4), Math.round(gy - 118 + Math.sin(a) * r * 0.6), 6, 3); }
+    g.fillStyle = '#2a1e14'; for (let y = gy - 96; y < gy; y++) { const u = (y - (gy - 96)) / 96, w = Math.round(22 + u * u * 26); g.fillRect(x - w, y, w * 2, 1); }
+    g.fillStyle = '#3a2a1c'; for (let k = 0; k < 7; k++) g.fillRect(x - 18 + k * 6, gy - 90 + (k % 3) * 9, 1, 60 + (k % 2) * 20);
+    g.fillStyle = '#2a1e14'; for (let k = -1; k <= 1; k += 2) for (let i = 0; i < 30; i++) g.fillRect(x + k * (40 + i * 1.6), gy - 6 + Math.round(Math.sin(i * 0.3) * 2) + Math.round(i * 0.2), 4, 3);
+    // the face
+    const ey = gy - 62, open = clamp(eyes, 0, 1), blink = Math.sin(t * 1.3) > 0.97 ? 0.2 : 1;
+    for (const ex of [x - 10, x + 10]) { g.fillStyle = '#120c08'; g.fillRect(ex - 5, ey - 3, 10, 6); if (open > 0) { const h = Math.max(1, Math.round(4 * open * blink)); g.fillStyle = '#c8ff8a'; g.fillRect(ex - 3, ey - Math.floor(h / 2), 6, h); g.fillStyle = '#ffffff'; g.fillRect(ex - 1, ey - Math.floor(h / 2), 2, Math.min(2, h)); mfGlow(ex, ey, 14, 0.35 * open, '#a4ff8a'); } }
+    const mh = talk ? 2 + Math.round(Math.abs(Math.sin(t * 9)) * 5) : 1; g.fillStyle = '#0a0604'; g.fillRect(x - 8, gy - 44, 16, mh); g.fillStyle = '#3a2a1c'; g.fillRect(x - 10, gy - 46, 20, 1);
+  }
+  // ---------- map 2: the Whispering Forest ----------
+  MFILM[1] = {
+    len: 29, card: ['The Second Tower', 'Tháp Đèn Thứ Hai'],
+    snd: [[0.6, 'chime'], [6.6, 'music:title'], [14.6, 'rumble'], [15.0, 'relic'], [18.4, 'chime'], [24.9, 'hit'], [25.0, 'whoosh']],
+    caps: [
+      [0.6, 6.0, 'n', 'A thread of light runs across the sky from the First Tower, towards the Whispering Forest, where the Second Tower sleeps.', 'Sợi ánh sáng từ Tháp Thứ Nhất chạy ngang bầu trời, về phía Rừng Thì Thầm, nơi Tháp Đèn Thứ Hai đang ngủ.'],
+      [7.0, 10.2, 'l', 'Listen... the trees are whispering.', 'Nghe kìa... cây cối đang thì thầm.'],
+      [10.6, 14.0, 'e', 'They are talking about... another Lanternbearer?', 'Chúng đang nói về... một Người Giữ Đèn khác?'],
+      [15.0, 18.4, 't', 'Another lantern... A hundred years ago, a boy with a lantern walked past me too.', 'Lại một ngọn đèn... Trăm năm trước, cũng có một cậu bé cầm đèn đi ngang qua ta.'],
+      [18.6, 22.2, 't', 'He laughed a lot, and he sang with the birds. His name was... Quoc.', 'Cậu ấy cười rất nhiều, và hát cùng lũ chim. Tên cậu ấy là... Quốc.'],
+      [25.3, 28.8, 'k', 'Oh! Sorry, I was reading. You are the new Lanternbearer? I have read about the old one...', 'Ồ! Xin lỗi, mình mải đọc. Bạn là Người Giữ Đèn mới à? Mình có đọc về người cũ đấy...']
+    ],
+    draw(t) {
+      if (t < 6.5) {   // the thread of light flies from the First Tower to the sleeping Second Tower
+        const P2 = opPano(), O = openArt(), a = P2.T[0], b = P2.T[1], camX = clamp(a.x - VW * 0.25 + (b.x - a.x) * 0.55 * ez(seg(t, 0.5, 5.5)), 0, P2.PW - VW), p = ez(seg(t, 1.0, 5.2));
+        opLand(t, camX, 0.85, i => i === 0 ? 1 : (i === 1 ? 0.15 * p : 0), O);
+        const ax = a.x - camX, ay = a.by - a.h - 6, bx = b.x - camX, by = b.by - b.h - 6, mx = (ax + bx) / 2, my = Math.min(ay, by) - 40;
+        g.globalCompositeOperation = 'lighter'; g.strokeStyle = 'rgba(255,220,140,.75)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(ax, ay);
+        for (let s = 1; s <= 30; s++) { const u = s / 30 * p; g.lineTo((1 - u) * (1 - u) * ax + 2 * (1 - u) * u * mx + u * u * bx, (1 - u) * (1 - u) * ay + 2 * (1 - u) * u * my + u * u * by); } g.stroke(); g.lineWidth = 1; g.globalCompositeOperation = 'source-over';
+        const hx = (1 - p) * (1 - p) * ax + 2 * (1 - p) * p * mx + p * p * bx, hy = (1 - p) * (1 - p) * ay + 2 * (1 - p) * p * my + p * p * by; if (p > 0 && p < 1) { mfGlow(hx, hy, 18, 0.8, '#fff0b0'); g.fillStyle = '#fff'; g.fillRect(Math.round(hx) - 1, Math.round(hy) - 1, 3, 3); }
+        mfFade(t, 0, 0.8); mfFade(t, 5.9, 6.5, true);
+      } else if (t < 22.5) {   // into the forest; the Ancient Tree wakes up and remembers
+        const walk = t < 14.5, camX = walk ? (t - 6.5) * 34 : 8 * 34, gy = drawBgOnly(1, camX, t);
+        g.globalAlpha = 0.6; g.fillStyle = '#04081a'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1;
+        for (let i = 0; i < 9; i++) { const ex = (i * 47 + 20 - camX * 0.6) % (VW + 40), ey = 40 + (i * 29) % 70, on = Math.sin(t * 1.7 + i * 2.1) > 0.4; if (on) { g.fillStyle = '#c8ff8a'; g.fillRect(Math.round(ex), ey, 2, 1); g.fillRect(Math.round(ex) + 5, ey, 2, 1); } }   // eyes among the leaves
+        for (let i = 0; i < 12; i++) { const u = (t * 0.12 + i / 12) % 1; g.globalAlpha = Math.sin(u * Math.PI) * 0.6; g.fillStyle = i % 2 ? '#a4e86b' : '#e8ffd0'; g.fillRect(Math.round((i * 61 + t * 14) % VW), Math.round(20 + u * (gy - 30)), 2, 1); } g.globalAlpha = 1;
+        if (!walk) mfTree(262, gy + 2, t, ez(seg(t, 14.6, 15.6)), (t > 15 && t < 18.4) || (t > 18.6 && t < 22.2));
+        const hx = 150, hb = gy + 2, mk = t > 18.5 ? ez(seg(t, 18.5, 19.3)) * (1 - ez(seg(t, 21.8, 22.4))) : 0;
+        if (mk > 0) {   // the tree's memory: a smiling boy with a lantern a hundred years ago, in faded gold, on the path behind
+          g.globalAlpha = 0.45 * mk; g.fillStyle = '#6a4a1a'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1;
+          const gx = -8 + (t - 18.5) * 26, gb = hb - 10; g.globalAlpha = 0.75 * mk; drawSpr(g, getSprite('hero_run', { a: '#ffe9b8', A: '#e0b060', q: '#8a6a30', b: '#fff6c0', r: '#ffd34e' }, Math.floor(t * 9) % 4), Math.round(gx), gb, false, false, 1.2, 1.2); g.globalAlpha = 1;
+          opLantern(gx + 8, gb - 13, 0.8, mk, 0); mfGlow(gx + 5, gb - 13, 40, 0.4 * mk, '#ffe08a');
+        }
+        drawSpr(g, npcSpr('npc_lyra'), Math.round(hx - 26), Math.round(hb - (walk ? Math.abs(Math.sin(t * 6)) * 1.5 : 0)), false, false, 1.3, 1.3);
+        opHero(hx, hb, 1.5, false, walk, t * (walk ? 0.55 : 1)); opLantern(hx + 10, hb - 16, 1, 1, Math.sin(t * 5) * 0.15); mfGlow(hx + 6, hb - 16, 60, 0.35);
+        mfFade(t, 6.5, 7.3); mfFade(t, 14.2, 14.5, true); mfFade(t, 14.5, 15.0); mfFade(t, 22.0, 22.5, true);
+      } else {   // QuanSadBoy walks in reading and bumps into the hero
+        const camX = 300, gy = drawBgOnly(1, camX, t);
+        g.globalAlpha = 0.5; g.fillStyle = '#04081a'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1;
+        const hx = 150, hb = gy + 2, bump = t > 24.9, qx = bump ? 186 + Math.min(6, (t - 24.9) * 30) : 330 - (t - 22.5) * 60.5;
+        drawSpr(g, npcSpr('npc_lyra'), hx - 26, hb, false, false, 1.3, 1.3);
+        opHero(hx, hb, 1.5, false, false, t); opLantern(hx + 10, hb - 16, 1, 1, 0); mfGlow(hx + 6, hb - 16, 60, 0.35);
+        drawSpr(g, npcSpr('npc_quan'), Math.round(qx), Math.round(hb - (bump ? 0 : Math.abs(Math.sin(t * 6)) * 1.5)), true, false, 1.2, 1.2);
+        if (!bump) { g.fillStyle = '#8a5a34'; g.fillRect(Math.round(qx) - 9, Math.round(hb - 20), 6, 5); g.fillStyle = '#f2e0c0'; g.fillRect(Math.round(qx) - 8, Math.round(hb - 19), 4, 3); }   // his open book
+        else { const u = Math.min(1, (t - 24.9) / 0.6); g.save(); g.translate(Math.round(qx - 18 + u * -6), Math.round(hb - 22 + u * u * 20)); g.rotate(u * 3); g.fillStyle = '#8a5a34'; g.fillRect(-3, -2, 6, 5); g.restore(); opBurst(170, hb - 26, 24.9, t, 8, 2, 30, 0.8, ['#ffd34e', '#ffffff'], -10); }   // the book flies, little stars
+        mfFade(t, 22.5, 23.1); mfFade(t, 28.4, 29, true);
+      }
+    },
+    open: [
+      { w: 'narr', en: 'WHISPERING FOREST. Roots lie across the path like old hands. Somewhere in here, the Second Tower is sleeping.', vi: 'RỪNG THÌ THẦM. Rễ cây vắt ngang lối đi như những bàn tay già. Đâu đó trong rừng, Tháp Đèn Thứ Hai đang ngủ.' },
+      { w: 'quan', en: 'I am Quan. People call me QuanSadBoy... I read sad books. This one is about the Lanternbearer of a hundred years ago.', vi: 'Mình là Quan. Người ta gọi mình là QuanSadBoy... vì mình hay đọc sách buồn. Cuốn này kể về Người Giữ Đèn trăm năm trước.' },
+      { w: 'quan', en: 'It says he lit nine towers, then vanished at the tenth. Nobody knows why.', vi: 'Sách nói cậu ấy thắp được chín tháp, rồi biến mất ở tháp thứ mười. Không ai biết vì sao.' },
+      { w: 'ember', en: 'Quoc... was that Lanternbearer?', vi: 'Quốc... chính là Người Giữ Đèn đó sao?' },
+      { w: 'lyra', en: 'Then why does he want to put out every light now...?', vi: 'Vậy sao giờ anh ta lại muốn tắt hết ánh sáng...?' },
+      { w: 'quan', en: 'The answer is in the later chapters. I will follow you and keep reading. Find me in the forest, I packed extra supplies.', vi: 'Câu trả lời nằm ở các chương sau. Mình sẽ đi theo bạn và đọc tiếp. Tìm mình trong rừng nhé, mình mang dư đồ tiếp tế.' },
+      { w: 'narr', en: 'Ahead, the treetops are wrapped in webs. Something big is waiting around the Second Tower.', vi: 'Phía trước, ngọn cây phủ kín tơ nhện. Có thứ gì đó to lớn đang nằm chờ quanh Tháp Thứ Hai.' }
+    ]
+  };
   // ===================== FILMS: the 60 s intro and the 60 s outro =====================
   // Cinematic pixel art: parallax scrolling (layers that move at different speeds), depth of field (far and near layers
   // pre-blurred), volumetric god rays, dynamic shadows, glow, particles. Every frame then goes through a post-processing
@@ -8063,6 +8180,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         else if (scene === 'title') updateTitle(sub);
         else if (scene === 'story' || scene === 'ending') updateStory(sub);
         else if (scene === 'opening') updateOpening(sub);
+        else if (scene === 'mfilm') updateMapFilm(sub);
         else if (scene === 'intro' || scene === 'outro') updateCine(sub);
         else if (scene === 'credits') updateCredits(sub);
         else if (scene === 'map') updateMap(sub);
@@ -8083,6 +8201,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     else if (scene === 'title') drawTitle();
     else if (scene === 'story' || scene === 'ending') drawStory();
     else if (scene === 'opening') drawOpening();
+    else if (scene === 'mfilm') drawMapFilm();
     else if (scene === 'intro' || scene === 'outro') drawCine();
     else if (scene === 'credits') drawCredits();
     else if (scene === 'map') drawMap();
@@ -8127,5 +8246,5 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       seal(); if (n > 0) { applyForm(Q.boss, n); Q.boss.st = 'intro'; Q.boss.timer = 0; Q.boss.invul = 0; } if (n >= 3) spawnAllies();
     }, 400); }
   { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
-  if (location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, opSeek: (v, play) => { if (!op) startOpening(); op.t = v; op.hold = !play; }, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, pump: (n, ms) => { let t = performance.now(); for (let i = 0; i < n; i++) { t += ms || 16; step(t); } }, mfGo: (li, v, hold) => { startMapFilm(li); mf.t = v || 0; mf.hold = !!hold; }, mfT: v => { mf.t = v; }, opSeek: (v, play) => { if (!op) startOpening(); op.t = v; op.hold = !play; }, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();
