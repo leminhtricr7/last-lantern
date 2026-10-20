@@ -219,7 +219,9 @@ Lyra's cage hangs high above a staircase of ledges. Mr Shorty Phong's giant beet
 Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future Media, allowed only for non-commercial use under the Piapro license. BEFORE SELLING on Steam: rename it to the original "Mira Song" (deep green hair: change hatCol/sw colours and the `longtwin` hat colours in src/game.js), and delete the Miku credit line in the credits screen.
 
 ## Summons and bosses
-- Pressing T summons for 30 s, then the summon evolves into its stronger final form (x1.3 size, x1.8 damage, 240 HP, rushes the boss) for 24 s. Bosses and enemies can hit summons.
+- Summons use a seek-and-destroy AI: they never follow the hero. A summon locks the boss (in a sealed arena), else the nearest elite, else the nearest monster within about two screens. It marches there slowly (walkers on the ground, flyers in the air) and attacks once in range. With no target it holds its ground.
+- A T summon evolves after 10 hits or 15 s; a thin gold bar shows the progress. It becomes its Ancient form and casts an ultimate (Firestorm, Blizzard, Thunderstorm or Meteor Storm): three waves that hit every enemy on screen. Then it plays its death animation, dissolves and is removed. Bosses and enemies can hit summons.
+- Summon sprite strips play at a fixed 10 fps, packed on a bottom-centre pivot; the death strip plays once.
 - Bosses have 70% more health (50% for multi-form bosses) and 4 blood phases (75/50/25%): each phase roars, calls minions, raises fury and, from phase 2, adds a short shield.
 - Artist sprites for summons: see assets/summons/README.md.
 - Summon art: the artist's design sheets live in art/summon_sheets; `tools/extract_summons.py` (rembg, birefnet-general-lite) cuts them into idle/walk/attack/hurt/death strips plus the Ancient final form, and `tools/clean_summons.py` removes captions/labels. The game reads assets/summons/manifest.json; kinds without art keep the built-in pixel giants.
