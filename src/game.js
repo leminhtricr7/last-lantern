@@ -1295,7 +1295,7 @@
       else P.vy = P.flutter && mechOf(P) === 'inhale' ? Math.min(42, P.vy + g2 * 0.32 * dt) : (P.stoneT > 0 ? 380 : Math.min(380, P.vy + g2 * dt));
     }
     // attack: slot 1 (J / click) and slot 2 (H / middle-click / LT) - swords swing, special weapons fire
-    if (P.dash <= 0) { if (act.atkP && !heroAttack(P)) useSlot(0); if (act.atk2P) useSlot(1); }
+    if (P.dash <= 0) { if (act.atkP && !heroAttack(P)) useSlot(0); if (act.atk2P && !(isFan(P) && heroAttack(P))) useSlot(1); }
     if (P.dash <= 0) for (let sl = 0; sl < 2; sl++) { const gi = eqIt(sl); if (gi && gi.type === 'gun' && (sl ? act.atk2H : act.atkH) && !(sl ? act.atk2P : act.atkP)) useSlot(sl); }
     P.throwCd -= dt;
     if (P.hero) { const was = P.skCd > 0; P.skCd = (P.skCd || 0) - dt; if (was && P.skCd <= 0 && isMe(P)) { pop(P.x + 4, P.y - 22, sv('R READY!', 'R SẴN SÀNG!'), (HERO[P.hero] && HERO[P.hero].sk.col) || '#ffd34e'); Snd.play('select'); }
@@ -2456,8 +2456,9 @@
   }
 
   // ===================== GEAR: equipment, special weapons, armor, pets =====================
-  const eqIt = s => ITEM[save.inv.w[s]] || null;
-  const armorIt = () => ITEM[save.inv.armor] || null;
+  const isFan = P => !!(P && P.hero && typeof HERO !== 'undefined' && HERO[P.hero] && HERO[P.hero].custom === 'fan');
+  const eqIt = s => (Q && isFan(Q.P)) ? null : (ITEM[save.inv.w[s]] || null);
+  const armorIt = () => (Q && isFan(Q.P)) ? null : (ITEM[save.inv.armor] || null);
   const petIt = () => ITEM[save.inv.pet] || null;
   const aSt = k => { const a = armorIt(); return (a && a.st[k]) || 0; };
   const petRole = () => { const p = petIt(); return p ? p.st.role : ''; };
@@ -2468,7 +2469,7 @@
   const FLY_PET = { leekpet: 1, wyrmling: 1, starwhale: 1, kitsune: 0, birdie: 1, fairy: 1, owl: 1, bat: 1, wisp: 1, bdragon: 1, ghostie: 1, pchick: 1 };
   const hexA = (h, a) => { const n = parseInt(h.substr(1), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; };
   function heldSword() {
-    const P = Q && Q.P;
+    const P = Q && Q.P; if (isFan(P)) return null;
     if (P && P.sw && save.inv.w.indexOf(P.sw.id) >= 0) return P.sw;
     for (const id of save.inv.w) if (ITEM[id] && ITEM[id].type === 'sword') return ITEM[id];
     return null;
@@ -3662,7 +3663,7 @@
     const x = Math.round(P.x + P.w / 2 - camX), bot = Math.round(P.y + P.h - camY);
     const swim = wetP(P) && !P.onGround;
     if (swim) { const rot = clamp(-P.vy / 320, -0.45, 0.45) * P.face + (P.atk > 0 ? P.face * 0.15 : 0); g.save(); g.translate(x, bot - 10); g.rotate(rot); g.translate(-x, -(bot - 10)); }
-    const hh = P.hero && HERO[P.hero], arV = armorVis(save.inv.armor); let av = hh ? (arV ? Object.assign({}, hh, arV, { sw: Object.assign({}, hh.sw, arV.sw) }) : hh) : arV; // a hero wears the armor he has equipped
+    const hh = P.hero && HERO[P.hero], arV = isFan(P) ? null : armorVis(save.inv.armor); let av = hh ? (arV ? Object.assign({}, hh, arV, { sw: Object.assign({}, hh.sw, arV.sw) }) : hh) : arV; // a hero wears the armor he has equipped
     if (!hh && !coop && (save.cos.aura || save.cos.wings)) av = Object.assign({ sw: {} }, av || {}, save.cos.aura ? { aura: '#ffd34e' } : {}, save.cos.wings && !(av && av.wings) ? { wings: 'dragon' } : {});
     const swp = av ? av.sw : {};
     if (av) drawArmorBack(av, x, bot);
@@ -3683,7 +3684,7 @@
     g.fillStyle = '#ffd34e'; g.fillRect(lx - 2, ly - 2, 4, 5); g.fillStyle = '#fff6c0'; g.fillRect(lx - 1, ly - 1, 2, 2);
     const sw = heldSword();
     const hk = P.hold && save.inv.w.indexOf(P.hold) >= 0 ? P.hold : null, hg = hk && GUN_PAINT[hk] ? hk : ((P.gunT > 0 && P.gunId && GUN_PAINT[P.gunId]) ? P.gunId : null);
-    if (hg) drawHeldGun(hg, ax, ab, P.face); else if (hk && WPN_PAINT[hk]) drawHeldWpn(hk, ax, ab, P.face); else if (sw) drawHeldSword(sw, ax, ab);
+    if (isFan(P)) { } else if (hg) drawHeldGun(hg, ax, ab, P.face); else if (hk && WPN_PAINT[hk]) drawHeldWpn(hk, ax, ab, P.face); else if (sw) drawHeldSword(sw, ax, ab);
     if (av) drawArmorFront(av, ax, ab);
     if (hh && hh.hat) drawHat(hh, ax, ab, P.face);
     { const wid = hk || (sw && sw.id), wit = wid && ITEM[wid], ait = save.inv.armor && ITEM[save.inv.armor]; if (wit) rarFx(wit.rar, ax + P.face * 9, ab - 13, 6); if (ait) rarAura(ait.rar, ax, ab); }
@@ -5034,15 +5035,58 @@
   // Puff copies what it swallows
   const COPY = { imp: 'fire', wisp: 'spark', ghost: 'spark', shroom: 'spark', spider: 'web', scorpion: 'web', bat: 'wing', beetle: 'stone', knight: 'stone', snowman: 'stone', zombie: 'stone' };
   const COPY_INFO = { fire: { n: { en: 'Fire', vi: 'Lửa' }, col: '#ff7a2a' }, spark: { n: { en: 'Spark', vi: 'Điện' }, col: '#ffe44e' }, web: { n: { en: 'Web', vi: 'Tơ Nhện' }, col: '#e8e8f0' }, wing: { n: { en: 'Wing', vi: 'Cánh' }, col: '#9fe8ff' }, stone: { n: { en: 'Stone', vi: 'Đá' }, col: '#a8a8b8' }, star: { n: { en: 'Star', vi: 'Sao' }, col: '#ffd34e' } };
+  // each fan hero's basic attack: reach, height, speed, colour and the effect that is drawn
+  const FAN_ATK = {
+    kayn: { r: 34, h: 22, cd: 0.38, col: '#a15be0', fx: 'scythe', d: 1 }, rhaast: { r: 42, h: 28, cd: 0.42, col: '#ff3a3a', fx: 'scythe', d: 2 },
+    tom: { r: 24, h: 16, cd: 0.32, col: '#ffcf8a', fx: 'claw', d: 0 }, jerry: { r: 18, h: 12, cd: 0.2, col: '#f0a050', fx: 'kick', d: -1 },
+    sonic: { r: 30, h: 14, cd: 0.3, col: '#4a8bf0', fx: 'spin', d: 0, lunge: 22 }, jotaro: { r: 26, h: 16, cd: 0.3, col: '#8a7aff', fx: 'punch', d: 1 },
+    dio: { r: 24, h: 16, cd: 0.3, col: '#ffd34e', fx: 'chop', d: 0 }
+  };
+  function fanSwing(P, key) {
+    const A = FAN_ATK[key], f = P.face, cx = P.x + 4, cy = P.y + 7, down = !P.onGround && act.down;
+    if (A.lunge && !down) { moveX(P, f * A.lunge * 0.5); P.vx = f * 200; }
+    const box = down ? { x: cx - 10, y: P.y + P.h - 2, w: 20, h: 20 } : { x: f > 0 ? cx : cx - A.r, y: cy - A.h / 2 - 2, w: A.r, h: A.h + 4 };
+    const d = Math.max(1, baseDmg() + 2 + A.d + Math.floor(((save.cleared && save.cleared.length) || 0) / 2));
+    let any = false;
+    for (const e of foes()) {
+      if (e.dead || e.hid || (e.cfg && e.cfg.ai === 'blob' && e.st !== 'up') || !ov(box, e)) continue;
+      any = true; dmgFoe(e, d, false); chargeHit(); heroOnHit(P, e);
+      emit(e.x + e.w / 2, e.y + e.h / 2, 12, { col: [A.col, '#ffffff'], sp0: 25, sp1: 110 });
+    }
+    for (const pz of Q.pz) if (pz.type === 'lever' && !pz.on && ov(box, { x: pz.x - 9, y: pz.y - 15, w: 18, h: 15 })) leverPull(pz);
+    for (const pr of Q.projs) if (!pr.dead && !pr.boss && ov(box, { x: pr.x - 3, y: pr.y - 3, w: 6, h: 6 })) { pr.dead = true; emit(pr.x, pr.y, 6, { col: pr.col, sp0: 20, sp1: 60 }); }
+    if (any) { Q.freeze = 0.04; Snd.play('hit'); if (down) { P.vy = -250; P.jumps = 1; } } else Snd.play(A.fx === 'kick' || A.fx === 'punch' ? 'whoosh' : 'slash');
+    P.fsw = { t: 0.22, fx: A.fx, col: A.col, r: A.r, f, down };
+  }
+  // the effect of the basic attack, drawn over the hero
+  function drawFanSwing(P, x, bot) {
+    const w = P.fsw; if (!w || w.t <= 0) return; const k = 1 - w.t / 0.22, a = 1 - k, f = w.f, cy = bot - 8;
+    g.save(); g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
+    if (w.down) { g.strokeStyle = hexA(w.col, a); g.lineWidth = 2; g.beginPath(); g.arc(x, bot + 4, 10 + k * 6, 0.2, Math.PI - 0.2); g.stroke(); }
+    else if (w.fx === 'scythe') { for (let i = 0; i < 3; i++) { g.strokeStyle = i ? hexA(w.col, a * 0.5) : hexA('#ffffff', a); g.lineWidth = i ? 4 - i : 1.5; g.beginPath(); const r = w.r * 0.8 + i * 2; g.arc(x, cy, r, f > 0 ? -1.4 : Math.PI + 1.4, f > 0 ? -1.4 + 2.6 * Math.min(1, k * 1.6) : Math.PI + 1.4 - 2.6 * Math.min(1, k * 1.6), f < 0); g.stroke(); } }
+    else if (w.fx === 'claw') { g.strokeStyle = hexA(w.col, a); g.lineWidth = 1.5; for (let i = -1; i <= 1; i++) { g.beginPath(); g.moveTo(x + f * 8, cy - 8 + i * 4); g.lineTo(x + f * (8 + 14 * Math.min(1, k * 2)), cy + 4 + i * 4); g.stroke(); } }
+    else if (w.fx === 'kick') { g.strokeStyle = hexA(w.col, a); g.lineWidth = 2; g.beginPath(); g.arc(x + f * 6, bot - 4, 8, f > 0 ? -0.6 : Math.PI - 0.6, f > 0 ? 0.9 : Math.PI + 0.9, f < 0); g.stroke(); }
+    else if (w.fx === 'spin') { g.strokeStyle = hexA(w.col, a); g.lineWidth = 2; g.beginPath(); g.arc(x, cy, 9 + k * 4, 0, Math.PI * 2); g.stroke(); g.strokeStyle = hexA('#ffffff', a * 0.6); g.beginPath(); g.moveTo(x - f * 4, cy); g.lineTo(x - f * 24, cy); g.stroke(); }
+    else if (w.fx === 'punch') { const fx = x + f * (8 + 14 * Math.min(1, k * 2.5)); g.fillStyle = hexA(w.col, a); g.fillRect(Math.round(fx) - 3, cy - 3, 6, 6); g.fillStyle = hexA('#ffffff', a); g.fillRect(Math.round(fx + f * 4) - 4, cy, 9, 1); g.fillRect(Math.round(fx + f * 4), cy - 4, 1, 9); }
+    else { g.strokeStyle = hexA(w.col, a); g.lineWidth = 2; g.beginPath(); g.moveTo(x + f * 6, cy - 10); g.lineTo(x + f * (6 + 18 * Math.min(1, k * 2)), cy + 6); g.stroke(); }
+    g.restore(); g.lineWidth = 1;
+  }
   function heroAttack(P) {
     const mk = mechOf(P), it0 = eqIt(0), gun = it0 && it0.type === 'gun', f = P.face;
+    if (isFan(P) && P.hero !== 'luffy' && P.hero !== 'kirby') {
+      if (P.atkCd > 0) return true; const key = P.hero === 'kayn' && P.form === 'rhaast' ? 'rhaast' : P.hero, A = FAN_ATK[key] || FAN_ATK.tom; P.atkCd = A.cd;
+      fanSwing(P, FAN_ATK[key] ? key : 'tom');
+      if (mk === 'stand') { P.standT = 0.32; P.standHit = new Set(); P.standD = baseDmg(); }
+      if (mk === 'world') shootG({ x: P.x + 4 + f * 6, y: P.y + 6, vx: f * 360, vy: 0, life: 0.7, dmg: baseDmg() + 1, shape: 'bolt', col: '#e8e8f0', trail: '#ffd34e', sz: 2, f });
+      return true;
+    }
     if (mk === 'stand' && !gun) { P.standT = 0.32; P.standHit = new Set(); P.standD = baseDmg() + 2 + (P.hdmg || 0); return false; }   // Star Platinum punches along with the attack
     if (mk === 'world') { shootG({ x: P.x + 4 + f * 6, y: P.y + 6, vx: f * 360, vy: 0, life: 0.7, dmg: baseDmg() + 1, shape: 'bolt', col: '#e8e8f0', trail: '#ffd34e', sz: 2, f }); return false; }   // a knife with every attack
     if (mk === 'stretch' && !gun) { if (P.punch) return true; const d = baseDmg() + ((it0 && it0.st && it0.st.dmg) || 0) + 1 + (P.hdmg || 0); P.punch = { t: 0, dur: 0.26, dir: f, reach: 92, dy: act.up ? -40 : (act.down && !P.onGround ? 40 : 0), d, hit: new Set() }; Snd.play('whoosh'); return true; }
     if (mk === 'inhale' && !gun) {
       const x = P.x + 4 + f * 6, y = P.y + 6, d = 2 + baseDmg() + (P.hdmg || 0);
       if (P.flutter && !P.onGround) { P.flutter = false; shootG({ x, y, vx: f * 220, vy: 0, life: 0.35, dmg: d, shape: 'wind', col: '#e4fff4', sz: 6, f, skill: true }); Snd.play('whoosh'); return true; }
-      const c = P.copy; if (!c) return false;
+      const c = P.copy; if (!c) { if (!isFan(P)) return false; if (P.atkCd > 0) return true; P.atkCd = 0.3; shootG({ x, y, vx: f * 230, vy: 0, life: 0.28, dmg: d, shape: 'wind', col: '#ffd0e4', sz: 6, f, skill: false }); P.fsw = { t: 0.22, fx: 'spin', col: '#ff9fd0', r: 14, f }; Snd.play('whoosh'); return true; }
       if (c === 'fire') { for (let k = -2; k <= 2; k++) shootG({ x, y, vx: f * 170 + rr(-20, 20), vy: k * 22, life: 0.35, dmg: d, burn: 2, shape: 'fire', col: '#ff7a2a', trail: '#ffd34e', sz: 3, f }); Snd.play('flame'); }
       else if (c === 'spark') { nova(P.x + 4, P.y + 7, 38, d + 1); Snd.play('zap'); emit(P.x + 4, P.y + 7, 16, { col: ['#ffe44e', '#ffffff'], sp0: 30, sp1: 120 }); }
       else if (c === 'web') { shootG({ x, y, vx: f * 240, vy: 0, life: 0.9, dmg: d, slowE: 4, shape: 'orb', col: '#e8e8f0', sz: 4, f }); Snd.play('whoosh'); }
@@ -5065,6 +5109,7 @@
   }
   function heroMech(P, dt, dir) {
     const id = P.hero, mk = mechOf(P); if (!id) return;
+    if (P.fsw && P.fsw.t > 0) P.fsw.t -= dt;
     if (mk === 'stand' && P.standT > 0) {   // Star Platinum's punch lands a moment after the hero's swing
       P.standT -= dt; const f = P.face, box = { x: f > 0 ? P.x + 8 : P.x - 44, y: P.y - 8, w: 44, h: P.h + 14 };
       if (P.standT < 0.2) for (const e of foes()) if (!P.standHit.has(e) && ov(box, e)) { P.standHit.add(e); dmgFoe(e, P.standD, false); chargeHit(); emit(e.x + e.w / 2, e.y + e.h / 2, 10, { col: ['#8a7aff', '#fff'], sp0: 20, sp1: 90 }); Snd.play('hit'); }
@@ -5189,6 +5234,7 @@
   }
   function heroMechOver(P, x, bot, hh) {
     const id = P.hero, mk = mechOf(P), cx0 = Math.round(Q.cam.x), cy0 = Math.round(Q.cam.y);
+    drawFanSwing(P, x, bot);
     if (mk === 'kayn') { const w = 16; g.fillStyle = '#14121f'; g.fillRect(x - w / 2 - 1, bot - 30, w + 2, 3); g.fillStyle = P.form === 'rhaast' ? '#ff3a3a' : '#a15be0'; g.fillRect(x - w / 2, bot - 29, Math.round(w * (P.form === 'rhaast' ? 1 : (P.dk || 0) / 100)), 1); if (P.form === 'rhaast' || (P.dk || 0) >= 100) drawAura(x, bot - 10, 16, '#ff3a3a', 0.3 + Math.sin(Q.t * 6) * 0.1); }
     if (mk === 'stand' && (P.standT > 0 || P.oraT > 0)) {   // the Stand: a tall spirit that steps out in front of the hero
       const f = P.face, sx = x + f * 10, sb = bot - 2 + Math.sin(Q.t * 4), spr = getSprite('hero_idle4', STAND_SW, 0);
@@ -5423,7 +5469,7 @@
     return out;
   }
   function packPlayer(p) {
-    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
+    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
   }
   function coopSnapshot() {
     if (Q.talk && !Q.talk.id) { Q.talk.id = ++coop.tkN; Q.talk.doneList = Q.talk.doneList || []; }
@@ -6447,7 +6493,7 @@
   }
   // ===== skills 1-4: landing hits charges what you wear; a full slot unleashes its power =====
   // 1 = weapon slot 1, 2 = weapon slot 2 (sword, gun or other weapon), 3 = armor, 4 = pet
-  function slotId(i) { const v = save.inv; return i === 0 ? v.w[0] : i === 1 ? v.w[1] : i === 2 ? v.armor : v.pet; }
+  function slotId(i) { const v = save.inv; if (i < 3 && Q && isFan(Q.P)) return null; return i === 0 ? v.w[0] : i === 1 ? v.w[1] : i === 2 ? v.armor : v.pet; }
   const SK_SLOT = [['weapon 1', 'vũ khí 1'], ['weapon 2', 'vũ khí 2'], ['armor', 'giáp'], ['pet', 'pet']];
   function skNeed(it) { return it.st.summon || it.st.form ? 22 : it.type === 'armor' ? 16 : it.type === 'pet' ? 14 : 12; }
   function skName(it) {
@@ -6468,7 +6514,7 @@
   }
   function useSk(i) {
     const P = Q.P, id = slotId(i), it = id && ITEM[id]; P.chg = P.chg || [0, 0, 0, 0];
-    if (!it) { if (isMe(P)) { Q.msg = sv('Nothing equipped in slot ' + (i + 1) + ' (' + SK_SLOT[i][0] + ')', 'Chưa trang bị gì ở ô ' + (i + 1) + ' (' + SK_SLOT[i][1] + ')'); Q.msgT = 2; Snd.play('select'); } return; }
+    if (!it) { if (isMe(P)) { Q.msg = isFan(P) && i < 3 ? sv('This hero fights with their own moves: no weapon or armor (R is the special).', 'Nhân vật này đánh bằng chiêu riêng, không dùng vũ khí/giáp (R là skill riêng).') : sv('Nothing equipped in slot ' + (i + 1) + ' (' + SK_SLOT[i][0] + ')', 'Chưa trang bị gì ở ô ' + (i + 1) + ' (' + SK_SLOT[i][1] + ')'); Q.msgT = 2; Snd.play('select'); } return; }
     const nd = skNeed(it);
     if (P.chg[i] < nd) { if (isMe(P)) { Q.msg = '[' + (i + 1) + '] ' + LN(it.name) + ': ' + P.chg[i] + '/' + nd + sv(' - land hits to charge it', ' - đánh trúng quái để tích nội tại'); Q.msgT = 2; Snd.play('select'); } return; }
     if (it.st.form && Q.G.morph) return;

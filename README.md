@@ -332,6 +332,21 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - The real flyers (Phoenix, Dragons, Sky Whale) still fly.
 
 ## Fan heroes (TEST BUILD ONLY)
+- They fight with their own moves: no sword, gun or armor (equipped ones are ignored while you play them), but a pet works. J and H use the basic attack, which has its own reach, speed and effect:
+
+  | Hero | Basic attack |
+  |---|---|
+  | Kayn | Purple scythe arc |
+  | Rhaast | Bigger red scythe arc |
+  | Tom | Claw marks |
+  | Jerry | Quick kick |
+  | Sonic | Spin lunge |
+  | Kirby | Puff of air, or the copied power |
+  | Luffy | Stretch punch |
+  | Jotaro | Punch plus a Star Platinum punch |
+  | Dio | Chop plus a knife |
+
+  Hold Down in the air to pogo off enemies. Hits charge the passive (the Darkin bar, skill 4 for the pet, Tom's pans) and R stays the hero's own skill.
 - The team's own drawings of Kayn (2 forms: Shadow / Rhaast), Tom, Jerry, Luffy, Sonic, Kirby, Jotaro and Dio. The art is in `assets/fanheroes`; it is cut from the team's sheet at its native pixel size and drawn at full screen resolution in play.
 - They are behind `FAN_HEROES = true` in `src/heroes.js`. **Set it to false before selling**: these characters belong to Riot, Warner Bros., Shueisha, SEGA, Nintendo/HAL and Araki. The original heroes with the same mechanics stay in the game.
 
