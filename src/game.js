@@ -67,7 +67,8 @@
   const maxHP = () => (Q && Q.P && Q.P.hero && Q.P.mhp) || baseHP();
   const baseDmg = () => Math.max(1, (Q && Q.P && Q.P.hdmg || 0) + (Q && Q.G && Q.G.powerT > 0 ? 2 : 0) + 1 + (save.bonusDmg | 0) + Math.floor(totalShards() / 7) + (hasRelic(1) ? 1 : 0) + ((ITEM[save.inv.pet] || { st: {} }).st.role === 'rainbow' ? 1 : 0));
   const swordDmg = () => baseDmg() + save.inv.w.reduce((m, id) => (ITEM[id] && ITEM[id].type === 'sword' ? Math.max(m, ITEM[id].st.dmg || 0) : m), 0);
-  const UNLOCK_ALL = false; // set to false for release: then each win unlocks the next map
+  // every map open for testing: add ?unlock to the link (it is remembered on this browser); ?lock turns it off again. Normal players never see it.
+  const UNLOCK_ALL = (() => { const q = location.search, off = /[?&]lock(&|$)/.test(q), on = /[?&]unlock(&|$)/.test(q); try { if (off) localStorage.removeItem('ll_unlock'); if (on) localStorage.setItem('ll_unlock', '1'); return !off && (on || localStorage.getItem('ll_unlock') === '1'); } catch (e) { return !off && on; } })();
   const maxPlayable = () => UNLOCK_ALL ? 9 : save.cleared.length ? Math.min(9, Math.max.apply(null, save.cleared.map(LPOS)) + 1) : 0;   // a position in LORDER
   const sunPower = () => save.cleared.length / 7;
   Snd.setVol(save.vol);
