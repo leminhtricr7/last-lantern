@@ -77,7 +77,8 @@
   const UNLOCK_ALL = !RELEASE && (() => { const q = location.search, off = /[?&]lock(&|$)/.test(q), on = /[?&]unlock(&|$)/.test(q); try { if (off) localStorage.removeItem('ll_unlock'); if (on) localStorage.setItem('ll_unlock', '1'); return !off && (on || localStorage.getItem('ll_unlock') === '1'); } catch (e) { return !off && on; } })();
   const maxPlayable = () => UNLOCK_ALL ? 9 : save.cleared.length ? Math.min(9, Math.max.apply(null, save.cleared.map(LPOS)) + 1) : 0;   // a position in LORDER
   const sunPower = () => save.cleared.length / 7;
-  Snd.setVol(save.vol);
+  if (typeof save.vol !== 'number') save.vol = 0.6; if (typeof save.mvol !== 'number') save.mvol = 1; if (typeof save.svol !== 'number') save.svol = 1;
+  Snd.setVol(save.vol); Snd.setMusicVol(save.mvol); Snd.setSfxVol(save.svol); Snd.setMuted(!!save.muted);
 
   const STR = {
     newgame: { en: 'New Game', vi: 'Chơi mới' }, shopT: { en: 'Shop & Inventory', vi: 'Cửa hàng & Kho đồ' }, cont: { en: 'Continue', vi: 'Tiếp tục' }, coopT: { en: 'Online Co-op (5 players)', vi: 'Co-op online (5 người)' }, credits: { en: 'Credits', vi: 'Thực hiện bởi' },
@@ -635,7 +636,7 @@
       if (near(gx, gy, VW / 2, 195, 150, 20)) pressed.Enter = true;
     } else if (inPlay) {
       const st = Q.state;
-      if (st === 'pause') { const i = menuHit(gx, gy, 4, VW / 2, 88, 18, 80); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
+      if (st === 'pause') { const i = menuHit(gx, gy, 6, VW / 2, 76, 14, 80); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
       else if (st === 'shop') { const n = (SHOPS[Q.shopWho] || []).length + 1, i = menuHit(gx, gy, n, VW / 2, 96, 14, 110); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
       else if (st === 'play') {
         const wx = gx + Q.cam.x, wy = gy + Q.cam.y;
@@ -1045,7 +1046,7 @@
     else if (v === 'elite') { sc = 1.4; hpv = 4; spv = 0.95; dmg = 2; armor = Math.min(0.35, 0.08 + li * 0.05); }
     if (li >= 5 && v !== 'small') dmg += 1;
     const w = Math.max(5, Math.round(c.w * sc)), h = Math.max(5, Math.round(c.h * sc));
-    const hp = Math.max(1, Math.round(c.hp * (1 + 0.22 * li) * hpv * (s && s.minion ? 0.6 : 1) * (HARD(Q.li) ? 1.35 : 1)));   // maps 3-10: tougher monsters
+    const hp = Math.max(1, Math.round(c.hp * (1 + 0.22 * li) * hpv * (s && s.minion ? 0.6 : 1) * (1 + 0.4 * HARDK(Q.li))));   // maps 3-10: monsters get tougher step by step (x1.05 ... x1.4)
     const e = { type, cfg: c, x: x - w / 2, y: y - h, w, h, vx: 0, vy: 0, hp, maxhp: hp, sc, v, armor, bcd: rr(1, 3), spawnT: (s && s.minion) ? 0.4 : 0, dmg: Math.min(3, dmg), sp: c.sp * (1 + 0.05 * li) * spv, dir: Math.random() < 0.5 ? -1 : 1, t: Math.random() * 5, cd: rr(0.5, 1.5), flash: 0, st: 'patrol', stT: 0, hx: x, hy: y, onGround: false, minion: !!(s && s.minion), grp: s && s.grp, trial: s && s.trial };
     if (FLY.has(type) || c.ai === 'ghost' || c.ai === 'flyshoot') { e.y = y - h / 2; e.hy = e.y; e.fly = true; }
     if (c.ai === 'blob') { e.y = y + 10; e.hy = y; e.cd = rr(0.5, 2.5); e.st = 'wait'; }
@@ -1053,7 +1054,7 @@
   }
   function makeBoss(s) {
     if (Q.li === 6) return makeFormBoss(FORMS.quoc, s.x, s.y, { id: 'quoc', who: 'quoc' });
-    const c = BOSS[Q.li], hp = Math.round(c.hp * (HARD(Q.li) ? 2.2 : 1.7) * (1 + 0.02 * totalShards()));
+    const c = BOSS[Q.li], hp = Math.round(c.hp * (1.7 + 0.55 * HARDK(Q.li)) * (1 + 0.02 * totalShards()));
     return { isBoss: true, cfg: c, spr: bossSprite(Q.li), x: s.x - c.w / 2, y: s.y - c.h, w: c.w, h: c.h, vx: 0, vy: 0, hp, max: 0, dir: -1, st: 'sleep', timer: 0, flash: 0, t: 0, sk: null, atkSk: null, lastSk: null, onGround: false, noOneWay: true, n: 0, phase: 0, shield: 0, evCd: 1, invul: 0, hide: false, closeT: 0, fury: 1, armor: c.armor };
   }
   // ---------- creepy darkness: eyes, watchers, fog, whispers ----------
@@ -1757,11 +1758,11 @@
 
   // ===================== MULTI-FORM BOSSES, MINI-BOSS ARENAS, CAMEOS =====================
   function makeFormBoss(forms, cx, gyPx, extra) {
-    const c = forms[0], hp = Math.round(c.hp * (HARD(Q.li) ? 1.9 : 1.5) * (1 + 0.02 * totalShards()));
+    const c = forms[0], hp = Math.round(c.hp * (1.5 + 0.4 * HARDK(Q.li)) * (1 + 0.02 * totalShards()));
     return Object.assign({ isBoss: true, forms, fi: 0, cfg: c, spr: formSprite(c.spr), x: cx - c.w / 2, y: gyPx - c.h, w: c.w, h: c.h, vx: 0, vy: 0, hp, max: hp, dir: -1, st: 'sleep', timer: 0, flash: 0, t: 0, sk: null, atkSk: null, lastSk: null, onGround: false, noOneWay: true, n: 0, phase: 0, shield: 0, evCd: 1, invul: 0, hide: false, closeT: 0, fury: 1, armor: c.armor }, extra || {});
   }
   function applyForm(b, idx) {
-    const c = b.forms[idx], cx = b.x + b.w / 2, bot = b.y + b.h, hp = Math.round(c.hp * (HARD(Q.li) ? 1.25 : 1) * (1 + 0.02 * totalShards()));
+    const c = b.forms[idx], cx = b.x + b.w / 2, bot = b.y + b.h, hp = Math.round(c.hp * (1 + 0.25 * HARDK(Q.li)) * (1 + 0.02 * totalShards()));
     b.fi = idx; b.cfg = c; b.spr = formSprite(c.spr); b.w = c.w; b.h = c.h; b.x = cx - b.w / 2; b.y = bot - b.h - 2;
     b.hp = b.max = hp; b.armor = c.armor; b.phase = 0; b.t1 = b.t2 = 0; b.p1 = b.p2 = b.p3 = 0; b.pp = 0; b.st = 'rec'; b.timer = 1.1; b.invul = 1.8; b.sk = null; b.atkSk = null; b.shield = 0; b.guard = 0; b.cloak = false; b.hide = false; b.vx = 0; b.vy = 0;
     Q.shake = 1; Q.freeze = 0.1; Snd.creature(Q.li, 'alert', true); Snd.play('boom');
@@ -3468,7 +3469,11 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const st = Q.state;
     if (st === 'intro') { if (Q.stateT > 2.6 || act.okP) Q.state = 'play'; updateCam(dt); updateWeather(dt); return; }
     if (st === 'pause') {
-      if (act.upP) { Q.menu = (Q.menu + 3) % 4; Snd.play('select'); } if (act.downP) { Q.menu = (Q.menu + 1) % 4; Snd.play('select'); }
+      if (act.upP) { Q.menu = (Q.menu + 5) % 6; Snd.play('select'); } if (act.downP) { Q.menu = (Q.menu + 1) % 6; Snd.play('select'); }
+      if (Q.menu >= 4 && (act.leftP || act.rightP || act.okP)) {   // volume rows: 0 % ... 100 % in steps of 10
+        const key = Q.menu === 4 ? 'mvol' : 'svol', d = act.leftP ? -0.1 : 0.1; let v = Math.round(((save[key] === undefined ? 1 : save[key]) + d) * 10) / 10; if (act.okP && v > 1) v = 0; save[key] = clamp(v, 0, 1);
+        if (key === 'mvol') Snd.setMusicVol(save.mvol); else Snd.setSfxVol(save.svol); Snd.play('select'); writeSave(); return;
+      }
       if (act.pauseP && !act.backP) { Q.state = 'play'; return; }
       if (act.pauseP) { Q.state = 'play'; return; }
       if (act.okP) {
@@ -4046,7 +4051,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     } else if (st === 'pause') {
       g.fillStyle = 'rgba(5,3,15,.7)'; g.fillRect(0, 0, VW, VH);
       txt(T('paused'), VW / 2, 52, { al: 'center', size: 16, bold: true });
-      ['resume', 'restart', 'tomap', 'totitle'].forEach((k, i) => txt((Q.menu === i ? '> ' : '  ') + T(k), VW / 2, 88 + i * 18, { al: 'center', size: 10, col: Q.menu === i ? '#ffd34e' : '#cfd6e6' }));
+      ['resume', 'restart', 'tomap', 'totitle'].forEach((k, i) => txt((Q.menu === i ? '> ' : '  ') + T(k), VW / 2, 76 + i * 14, { al: 'center', size: 9, col: Q.menu === i ? '#ffd34e' : '#cfd6e6' }));
+      [[sv('Music', 'Nhạc'), save.mvol], [sv('Effects', 'Hiệu ứng'), save.svol]].forEach(([n, v], j) => { const i = 4 + j, on = Q.menu === i; txt((on ? '< ' : '  ') + n + ': ' + Math.round((v === undefined ? 1 : v) * 100) + '%' + (on ? ' >' : '  '), VW / 2, 76 + i * 14, { al: 'center', size: 8, col: on ? '#ffd34e' : '#a8b0d0' }); });
       txt('M: ' + (Snd.muted ? 'Sound OFF' : 'Sound ON') + '    F11: ' + T('full'), VW / 2, 200, { al: 'center', size: 6, col: '#8892aa' });
       txt(save.lang === 'vi' ? 'Nhấp chuột: đánh / chọn menu   Chuột phải: ném   Lăn chuột: đổi đồ' : 'Click: attack / menus   Right-click: throw   Wheel: switch', VW / 2, 210, { al: 'center', size: 5, col: '#8892aa' });
       txt(T('relics'), VW / 2, 166, { al: 'center', size: 6, col: '#8892aa' });
@@ -4743,7 +4749,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   const TITLE_LBL = { cont: ['World map', 'Bản đồ thế giới'], shopT: ['Shop & bag', 'Cửa hàng'], coopT: ['Online co-op', 'Co-op online'], newgame: ['New game', 'Chơi mới'], full: ['Fullscreen', 'Toàn màn hình'], credits: ['Credits', 'Thực hiện bởi'], movie: ['Intro film', 'Phim mở đầu'], quit: ['Quit', 'Thoát'] };
   function titleLabel(it) {
     if (it.k === 'lang') return save.lang === 'vi' ? 'Tiếng Việt' : 'English';
-    if (it.k === 'sound') return sv('Sound: ', 'Âm thanh: ') + (Snd.muted ? sv('Off', 'Tắt') : sv('On', 'Bật'));
+    if (it.k === 'sound') return sv('Sound: ', 'Âm thanh: ') + (Snd.muted || save.vol <= 0 ? sv('Off', 'Tắt') : Math.round(save.vol * 100) + '%');
     if (it.k === 'newgame' && title.confirmT > 0) return sv('Press again: erase!', 'Nhấn lần nữa: xóa!');
     const l = TITLE_LBL[it.k]; return l ? sv(l[0], l[1]) : T(it.k);
   }
@@ -4757,7 +4763,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     it.push({ k: 'coopT', fn: () => { coopUI.ph = 'menu'; coopUI.sel = 0; coopUI.msg = ''; toScene('coop'); } });
     it.push({ k: 'newgame', fn: () => { save.castle = 0; save.ride = 0; save.seen = {}; save.films = {}; save.inv = { own: ['iron'], w: ['iron', null], armor: null, pet: null, gems: save.inv.gems | 0 }; save.cleared = []; save.shards = {}; save.coins = 0; save.leek = false; save.relics = [0, 0, 0, 0, 0, 0, 0]; save.ammo = { dagger: 0, bomb: 0, flask: 0 }; writeSave(); mapSel = 0; toScene('opening'); } });
     it.push({ k: 'lang', fn: () => { save.lang = save.lang === 'vi' ? 'en' : 'vi'; writeSave(); } });
-    it.push({ k: 'sound', fn: () => { Snd.toggleMute(); } });
+    it.push({ k: 'sound', fn: () => { const st = [1, 0.8, 0.6, 0.4, 0.2, 0]; if (Snd.muted) { Snd.setMuted(false); save.muted = false; save.vol = 1; } else { const i = st.findIndex(v => v <= save.vol + 0.001); save.vol = st[(i + 1) % st.length]; } Snd.setVol(save.vol); writeSave(); } });
     it.push({ k: 'full', fn: toggleFull });
     it.push({ k: 'movie', fn: () => toScene('intro') });
     it.push({ k: 'credits', fn: () => toScene('credits') });
@@ -8257,7 +8263,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     let dt = clamp((now - (frame.last || now)) / 1000, 0, 0.05); frame.last = Math.max(frame.last || 0, now);
     readInput();
     coopClientInput();
-    if (act.muteP) Snd.toggleMute();
+    if (act.muteP) { save.muted = Snd.toggleMute(); writeSave(); }
     if (act.fullP) toggleFull();
     // fade transitions
     if (fadeTo) {

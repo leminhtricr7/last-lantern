@@ -2,7 +2,7 @@
 // ============ PROCEDURAL AUDIO (8-bit sfx + generated music) ============
 const Snd = (() => {
   let ac = null, master, musicG, sfxG, noiseBuf, duck, bassBus, chordBus, leadBus;
-  let vol = 0.6, muted = false, timer = null, cur = null, step = 0, nextT = 0, curKey = '';
+  let vol = 0.6, mVol = 1, sVol = 1, ambBase = 0.9, muted = false, lastT = {}, timer = null, cur = null, step = 0, nextT = 0, curKey = '';
   const mtof = n => 440 * Math.pow(2, (n - 69) / 12);
 
   function init() {
@@ -26,8 +26,11 @@ const Snd = (() => {
     if (cur) { const c = cur; cur = null; curKey = ''; music(c.key, c.def); }
     if (ambKind) ambience(ambKind);
   }
-  function applyVol() { if (master) master.gain.value = muted ? 0 : vol; }
+  function applyVol() { if (master) master.gain.value = muted ? 0 : vol; if (musicG) musicG.gain.value = 0.32 * mVol; if (sfxG) sfxG.gain.value = 0.55 * sVol; if (ambG) ambG.gain.value = ambBase * sVol; }
   function setVol(v) { vol = Math.max(0, Math.min(1, v)); applyVol(); }
+  function setMusicVol(v) { mVol = Math.max(0, Math.min(1, v)); applyVol(); }   // music bus (0..1)
+  function setSfxVol(v) { sVol = Math.max(0, Math.min(1, v)); applyVol(); }     // effects + ambience (0..1)
+  function setMuted(b) { muted = !!b; applyVol(); }
   function toggleMute() { muted = !muted; applyVol(); return muted; }
 
   function tone(f, dur, type, v, slide, when, dest) {
@@ -102,7 +105,7 @@ const Snd = (() => {
     bubbles() { for (let i = 0; i < 4; i++) tone(300 + Math.random() * 300, 0.07, 'sine', 0.05, 400, ac.currentTime + i * 0.05); },
     flame() { noise(0.4, 0.2, 700); tone(220, 0.4, 'sawtooth', 0.08, 120); }
   });
-  function play(n) { if (ac && sfx[n]) sfx[n](); }
+  function play(n) { if (!ac || !sfx[n]) return; const now = ac.currentTime; if (now - (lastT[n] || -1) < 0.03) return; lastT[n] = now; sfx[n](); }
 
   // ---------- voices: creature growls, hero grunts, NPC speech blips ----------
   function voice(o) {
@@ -245,6 +248,7 @@ const Snd = (() => {
   const NV = { ember: ['triangle', 420, 540, 0.05], sy: ['sawtooth', 150, 230, 0.06], hoang: ['square', 200, 290, 0.05], duong: ['triangle', 130, 190, 0.07], santree: ['sine', 300, 430, 0.07], dragon: ['sawtooth', 58, 96, 0.1], lyra: ['triangle', 1100, 1700, 0.07], shorty: ['square', 340, 470, 0.05], quan: ['triangle', 380, 500, 0.06], quoc: ['sawtooth', 62, 105, 0.1], lila: ['sine', 720, 980, 0.07], bram: ['square', 130, 190, 0.06], gob: ['sawtooth', 380, 620, 0.06], angel: ['sine', 880, 1320, 0.07], smith: ['square', 95, 135, 0.07], wizard: ['triangle', 280, 520, 0.09], fairy: ['sine', 1500, 2200, 0.05] };
   function blip(who) {
     if (!ac) return;
+    if (who && who.indexOf('h_') === 0) who = 'ember';
     if (who === 'quoc') { devilVoice(0.15, 0.85 + Math.random() * 0.5, 0.55); return; }
     const v = NV[who] || NV.lila, f = v[1] + Math.random() * (v[2] - v[1]);
     voice({ f0: f, f1: f * (0.92 + Math.random() * 0.2), type: v[0], dur: 0.07, vol: v[3], wob: who === 'wizard' ? 30 : 0, wobHz: 14, noise: who === 'gob' ? 0.04 : 0, nHP: 2000 });
@@ -326,7 +330,7 @@ const Snd = (() => {
     if (A.drone) for (const fr of [55, 55.7, 82.4]) { const o = ac.createOscillator(), og = ac.createGain(); o.type = 'sine'; o.frequency.value = fr; og.gain.value = 0.02; o.connect(og); og.connect(ambG); o.start(); nodes.push(o); }
     amb = { nodes, g, timer: setInterval(() => { for (const e of A.ev) if (Math.random() < e[1] * 0.4) AV[e[0]](); }, 400) };
   }
-  function ambVol(v) { if (ambG && ac) ambG.gain.setTargetAtTime(v, ac.currentTime, 0.5); }
+  function ambVol(v) { ambBase = v; if (ambG && ac) ambG.gain.setTargetAtTime(v * sVol, ac.currentTime, 0.5); }
   // footsteps that sound like the ground you run on
   function foot(kind) {
     if (!ac) return; const r = Math.random();
@@ -450,5 +454,5 @@ const Snd = (() => {
     // ---- riser in the last two bars of the build ----
     if (sec === 7 && s === 0) { const o = ac.createOscillator(), gn = ac.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(2400, t + spb * 16); gn.gain.setValueAtTime(0.02, t); gn.gain.linearRampToValueAtTime(0.12, t + spb * 16); o.connect(gn); gn.connect(leadBus); o.start(t); o.stop(t + spb * 16 + 0.05); }
   }
-  return { init, play, creature, monster, ambience, ambVol, step: foot, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, cine, cineHit, setVol, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
+  return { init, play, creature, monster, ambience, ambVol, step: foot, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, cine, cineHit, setVol, setMusicVol, setSfxVol, setMuted, get mVol() { return mVol; }, get sVol() { return sVol; }, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
 })();
