@@ -519,3 +519,12 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
   - **Sunken Deep:** the thread dives off the cliff; a whale of light shows the way down to the drowned Eighth Tower and the Kraken's arms (Nami's shore quest still plays when the map begins).
   - **Deepdig Tunnels:** Shorty, alone, admits he only wanted his master to smile; Gravemaw breaks through the rock.
   - **Shadow Citadel:** nine threads meet over the Citadel; Quoc waits under the dark Tenth Tower; the friends from the road walk up behind the team.
+
+## Boss fixes and the controls guide
+- **Dragon, shadow form:** a dive toward the left aimed at a point the dragon's body could never reach (its centre is held at least half a body away from the wall), so the dive never ended. The end point is now kept inside the reachable range, and every dragon skill has a time limit (`DS_MAX`) after which it ends by itself.
+- **Every boss skill ends on time:** a skill that runs longer than 7 s ends; a boss hidden longer than that comes back in the middle of the arena (`bossReturn`).
+- **Nothing leaves the map:** long moves are cut into short steps (no passing through walls), a body inside a wall is pushed to the nearest free spot (`unembed`), heroes and monsters are kept between the map's sides, and bosses are kept inside the arena's real walls (`arenaInner`: the seal wall or the duel walls). A boss that falls below the map comes back.
+- **Shorty stuck on the left:** his teleport (and the beast form's wider body) could place him half inside the duel arena's left wall; the push-out sent him into the wall. Teleport, ambush and burrow targets now keep the whole body inside (`arenaClampB`), and a boss that stops making progress jumps out after 1.2 s and reappears in the arena after 2.6 s.
+- **Smarter movement:** a boss picks its next attack early and walks into range for it (close for stomps and slams, a run-up for leaps and charges, keeps away for shots and spells), turns with a short delay instead of flipping every frame, speeds up and slows down smoothly, and hops when blocked.
+- **Walking bosses:** one-picture bosses now step (the two halves of the legs take turns lifting, the body bobs and leans, dust at each footfall); fast movement plays the run pose.
+- **Controls guide:** "Controls" on the title menu and the pause menu shows every button and what it does (keyboard / mouse and gamepad); it opens by itself the first time you control a hero (`save.ctrlSeen`).

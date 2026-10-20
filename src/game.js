@@ -613,9 +613,10 @@
   function mouseEvt(e) {
     const xy = gameXY(e), gx = xy[0], gy = xy[1]; mouse.gx = gx; mouse.gy = gy;
     const inPlay = scene === 'play' && Q;
+    if (ctrlHelp) { if (e.type === 'pointerdown') pressed.Enter = true; return; }
     if (e.type === 'pointermove') {
       if (scene === 'title') { const L = titleLayout(titleItems()), i = L.findIndex(r => gx >= r.x && gx < r.x + r.w && gy >= r.y && gy < r.y + r.h); if (i >= 0 && i !== titleSel) { titleSel = i; Snd.play('select'); } }
-      else if (inPlay && Q.state === 'pause') { const i = menuHit(gx, gy, 4, VW / 2, 88, 18, 80); if (i >= 0 && i !== Q.menu) { Q.menu = i; Snd.play('select'); } }
+      else if (inPlay && Q.state === 'pause') { const i = menuHit(gx, gy, 7, VW / 2, 76, 13, 80); if (i >= 0 && i !== Q.menu) { Q.menu = i; Snd.play('select'); } }
       else if (inPlay && Q.state === 'shop') { const n = (SHOPS[Q.shopWho] || []).length + 1, i = menuHit(gx, gy, n, VW / 2, 96, 14, 110); if (i >= 0 && i !== Q.menu) { Q.menu = i; Snd.play('select'); } }
       else if (scene === 'shop') shopMouse(gx, gy, false);
       return;
@@ -638,7 +639,7 @@
       if (near(gx, gy, VW / 2, 195, 150, 20)) pressed.Enter = true;
     } else if (inPlay) {
       const st = Q.state;
-      if (st === 'pause') { const i = menuHit(gx, gy, 6, VW / 2, 76, 14, 80); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
+      if (st === 'pause') { const i = menuHit(gx, gy, 7, VW / 2, 76, 13, 80); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
       else if (st === 'shop') { const n = (SHOPS[Q.shopWho] || []).length + 1, i = menuHit(gx, gy, n, VW / 2, 96, 14, 110); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
       else if (st === 'play') {
         const wx = gx + Q.cam.x, wy = gy + Q.cam.y;
@@ -920,6 +921,7 @@
     return false;
   }
   function moveX(e, dx) {
+    if (dx > 8 || dx < -8) { const n = Math.ceil(Math.abs(dx) / 8), st = dx / n; for (let i = 0; i < n; i++) if (moveX(e, st)) return true; return false; }   // big moves in short steps: no tunnelling through walls
     e.x += dx;
     const y0 = Math.floor(e.y / TS), y1 = Math.floor((e.y + e.h - 0.01) / TS);
     const x0 = Math.floor(e.x / TS), x1 = Math.floor((e.x + e.w - 0.01) / TS);
@@ -950,6 +952,19 @@
       for (let tx = x0; tx <= x1; tx++) if (solid(tx, ty)) { e.y = (ty + 1) * TS; e.vy = 0; return true; }
     }
     return false;
+  }
+  // is any solid tile inside this body?
+  function overlapsSolid(e) {
+    const x0 = Math.floor(e.x / TS), x1 = Math.floor((e.x + e.w - 0.01) / TS), y0 = Math.floor(e.y / TS), y1 = Math.floor((e.y + e.h - 0.01) / TS);
+    for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) if (solid(tx, ty)) return true;
+    return false;
+  }
+  // a body stuck inside a wall is moved to the nearest free spot (preferring the given side, then the other side, then up)
+  function unembed(e, prefDir) {
+    if (!overlapsSolid(e)) return false;
+    const ox = e.x, oy = e.y, d = prefDir < 0 ? -1 : 1;
+    for (let k = 1; k <= 48; k++) for (const [dx, dy] of (e.vy > 0 ? [[d * k, 0], [-d * k, 0], [0, k], [0, -k]] : [[d * k, 0], [-d * k, 0], [0, -k]])) { e.x = ox + dx; e.y = oy + dy; if (!overlapsSolid(e)) return true; }
+    e.x = ox; e.y = oy; return false;
   }
   function crumbleStart(tx, ty) {
     const k = ty * Q.L.W + tx; if (!Q.crum.has(k)) Q.crum.set(k, { st: 0, t: 0, tx, ty });
@@ -1423,6 +1438,7 @@
     if (P.emoT > 0) { P.emoT -= dt; if (P.emoT <= 0) P.emo = null; }
     if (!P.emo && P.hp <= 1 && P.hp > 0) P.emo = 'cry';
     if (P.emo === 'cry' && Math.random() < 0.12) emit(P.x + 4 + (Math.random() < 0.5 ? -3 : 3) * P.face, P.y + 3, 1, { col: '#8ad8ff', sp0: 2, sp1: 8, vy: 20, grav: 160, l0: 0.4, l1: 0.7 }); P.atkCd -= dt; P.dashCd -= dt; P.drop -= dt;
+    if (!P.vine) { unembed(P, P.face || 1); P.x = clamp(P.x, 0, Q.L.W * TS - P.w); }   // never inside a wall, never past the map's sides
     if (P.vineCd > 0) P.vineCd -= dt;
     if (vineStep(P, dt)) return;   // hanging on a vine: the vine drives the body
     // timers
@@ -1705,7 +1721,7 @@
           e.vy = Math.min(380, e.vy + GRAV * dt);
           if (moveX(e, e.vx * dt)) { e.dir *= -1; if (e.st === 'rush') { e.st = 'rest'; e.stT = 0.7; } }
           moveY(e, e.vy * dt);
-          if (e.y > Q.L.H * TS + 20) e.dead = true;
+          if (e.y > Q.L.H * TS + 20) e.dead = true; if (e.x < 0) e.x = 0; else if (e.x + e.w > Q.L.W * TS) e.x = Q.L.W * TS - e.w;
           break;
         }
         case 'fly': {
@@ -1927,7 +1943,15 @@
   }
   function bounceJump(b) { const P = Q.P; b.vy = -270; b.vx = clamp((P.x - b.x) * 1.5, -140, 140); b.onGround = false; b.jt = 0; }
   const wait = (b, dt) => { b.skT -= dt; return b.skT <= 0; };
-  const arenaClamp = x => clamp(x, Q.L.arena.x0 * TS + 24, Q.L.arena.x1 * TS - 24);
+  // the free space inside the arena: from its middle, out to the first wall on each side
+  function arenaInner() {
+    const ar = Q.L.arena, wall = tx => solid(tx, ar.gy - 1) && solid(tx, ar.gy - 2) && solid(tx, ar.gy - 3);   // a wall = 3+ tiles high (low steps do not count)
+    let mid = Math.floor((ar.x0 + ar.x1) / 2); for (let k = 0; k < 12 && wall(mid); k++) mid += k % 2 ? k : -k;
+    let l = mid, r = mid; while (l > ar.x0 - 1 && !wall(l - 1)) l--; while (r < ar.x1 + 1 && !wall(r + 1)) r++;
+    return [l * TS, (r + 1) * TS];
+  }
+  const arenaClamp = x => { const [a, b] = arenaInner(); return clamp(x, a + 24, b - 24); };
+  const arenaClampB = (bs, x) => { const [a, b] = arenaInner(); return clamp(x, a + bs.w / 2 + 2, b - bs.w / 2 - 2); };   // a centre that keeps the whole body inside
   const BS = {
     jump: { tele: 0.55, start(b) { const P = Q.P; b.vy = -310; b.vx = clamp((P.x - b.x) * 1.4, -150, 150); b.onGround = false; b.jt = 0; }, upd(b, dt) { b.jt += dt; moveX(b, b.vx * dt); if (b.onGround && b.jt > 0.2) { shockwave(b); return true; } } },
     stomp: { tele: 0.45, start(b) { b.vy = -240; b.vx = 0; b.onGround = false; b.jt = 0; }, upd(b, dt) { b.jt += dt; if (b.onGround && b.jt > 0.2) { shockwave(b); return true; } } },
@@ -1948,7 +1972,7 @@
       upd(b, dt) {
         b.skT -= dt; const P = Q.P, ar = Q.L.arena;
         if (b.ph === 0) { if (b.skT <= 0) { b.ph = 1; b.skT = 1.0; b.mx = P.x + 4; } }
-        else if (b.ph === 1) { b.mx = lerp(b.mx, P.x + 4, 0.07); if (b.skT <= 0) { b.ph = 2; b.skT = 0.4; b.lockx = clamp(b.mx, ar.x0 * TS + 30, ar.x1 * TS - 30); } }
+        else if (b.ph === 1) { b.mx = lerp(b.mx, P.x + 4, 0.07); if (b.skT <= 0) { b.ph = 2; b.skT = 0.4; b.lockx = arenaClampB(b, b.mx); } }
         else if (b.ph === 2) { if (b.skT <= 0) { b.hide = false; b.x = b.lockx - b.w / 2; b.y = Q.cam.y - b.h - 8; b.vy = 380; b.ph = 3; b.jt = 0; Snd.creature(Q.li, 'alert', true); } }
         else if (b.ph === 3) { b.jt += dt; if (b.onGround && b.jt > 0.1) { shockwave(b); return true; } }
       } },
@@ -1967,7 +1991,7 @@
     teleport: { tele: 0.3, start(b) { addGhost(b, 'out'); Snd.play('poof'); b.hide = true; b.ph = 0; b.skT = 0.55; emit(b.x + b.w / 2, b.y + b.h / 2, 20, { col: ['#5a2d8f', '#a15be0', '#fff'], sp0: 20, sp1: 90 }); Snd.sting(); b.y = -300; },
       upd(b, dt) {
         b.skT -= dt; const P = Q.P, ar = Q.L.arena;
-        if (b.ph === 0 && b.skT <= 0) { let nx = P.x + 4 + (Math.random() < 0.5 ? -1 : 1) * 70; nx = arenaClamp(nx); b.x = nx - b.w / 2; b.y = ar.gy * TS - b.h; b.vy = 0; b.hide = false; b.ph = 1; b.skT = 0.45; addGhost(b, 'in'); addRing(nx, b.y + b.h, '#a15be0', 50, 0.4); Snd.play('poof'); emit(nx, b.y + b.h / 2, 20, { col: ['#5a2d8f', '#a15be0', '#fff'], sp0: 20, sp1: 90 }); Snd.creature(Q.li, 'alert', true); }
+        if (b.ph === 0 && b.skT <= 0) { let nx = P.x + 4 + (Math.random() < 0.5 ? -1 : 1) * 70; nx = arenaClampB(b, nx); b.x = nx - b.w / 2; b.y = ar.gy * TS - b.h; b.vy = 0; b.hide = false; b.ph = 1; b.skT = 0.45; addGhost(b, 'in'); addRing(nx, b.y + b.h, '#a15be0', 50, 0.4); Snd.play('poof'); emit(nx, b.y + b.h / 2, 20, { col: ['#5a2d8f', '#a15be0', '#fff'], sp0: 20, sp1: 90 }); Snd.creature(Q.li, 'alert', true); }
         else if (b.ph === 1 && b.skT <= 0) { shockwave(b, true); return true; }
       } },
     breath: { tele: 0.7, start(b) { b.n = 10; b.skT = 0; Snd.play('flame'); }, upd(b, dt) { b.skT -= dt; if (b.skT <= 0 && b.n > 0) { const c = bc(b), P = Q.P, a0 = Math.atan2(P.y + 7 - c.y, P.x + 4 - c.x), a = a0 + (b.n - 5) * 0.07; firePr(c.x, c.y, Math.cos(a) * 115, Math.sin(a) * 115, { boss: true, col: '#bfeaff', status: { slow: 1.8 }, life: 1.1 }); b.n--; b.skT = 0.06; } return b.n <= 0; } },
@@ -2008,6 +2032,14 @@
   };
   function groundYAt(x) { const tx = Math.floor(x / TS); for (let ty = (Q.L.arena && Q.L.arena.y0) || 3; ty < Q.L.H; ty++) if (solid(tx, ty)) return ty * TS; return Q.L.arena.gy * TS; }
   const MELEE = ['jump', 'stomp', 'charge', 'erupt', 'teleport', 'bounce3', 'ambush', 'slam', 'cloak', 'rush'], RANGED = ['shoot', 'web', 'spit', 'curse', 'breath', 'rain', 'beam', 'meteor', 'lavaCols', 'sweep', 'spin', 'fan', 'lobs', 'crossBeam'];
+  // how far a boss wants to stand from the hero before an attack: [nearest, farthest] gap in pixels
+  const CLOSE_L = ['stomp', 'slam', 'tentacles', 'guard', 'roar'], LEAP_L = ['jump', 'bounce3', 'charge', 'rush'];
+  function bossRange(sk) {
+    if (CLOSE_L.indexOf(sk) >= 0) return [-999, 24];   // hits up close: walk right up to the hero
+    if (LEAP_L.indexOf(sk) >= 0) return [30, 120];     // leaps and charges need a run-up
+    if (RANGED.indexOf(sk) >= 0 || RANGE_L.indexOf(sk) >= 0 || CAST_L.indexOf(sk) >= 0) return [80, 170];   // shots and spells: keep away
+    return [10, 80];
+  }
   function pickSkill(b) {
     const c = b.cfg, P = Q.P; let list = c.skills.slice();
     if (b.phase >= 1 && c.skills2) list = list.concat(c.skills2);
@@ -2025,6 +2057,12 @@
   function bossSkillSnd(sk) {
     const G = { jump: 'whoosh', stomp: 'bstep', slam: 'boom', bounce3: 'whoosh', charge: 'rumble', rush: 'rumble', shoot: 'shoot', fan: 'shoot', spit: 'shoot', lobs: 'throw', rain: 'rumble', erupt: 'crumble', meteor: 'explode', lavaCols: 'flame', sweep: 'flame', beam: 'flame', crossBeam: 'flame', breath: 'flame', summon: 'poof', clone: 'poof', dark: 'poof', cloak: 'poof', teleport: 'poof', ambush: 'poof', shield: 'chime', guard: 'chime', tornado: 'windy', blizzard: 'windy', wall: 'crumble', curse: 'zap', web: 'throw', goo: 'splash', splitslime: 'splash', spin: 'whoosh', tentacles: 'rumble', burrow: 'crumble' };
     const n = G[sk]; if (n) Snd.play(n); if (sk === 'spin' || sk === 'bounce3') setTimeout(() => Snd.play('whoosh'), 250);
+  }
+  // a boss that got lost (hidden too long, outside the arena, below the map): back to the middle of the arena, on the ground
+  function bossReturn(b) {
+    const [a, c] = arenaInner(), px = Q.P.x + 4; let cx = (a + c) / 2; if (Math.abs(cx - px) < b.w / 2 + 40) cx = clamp(px + (px < cx ? 1 : -1) * (b.w / 2 + 60), a + b.w / 2 + 2, c - b.w / 2 - 2);   // not on top of the hero
+    b.hide = false; b.sk = null; b.st = 'rec'; b.timer = 0.6; b.ph = 0; b.actT = 0;
+    b.x = cx - b.w / 2; b.y = Q.L.arena.gy * TS - b.h - 2; b.vy = 0; unembed(b, 1); addGhost(b, 'in'); emit(cx, b.y + b.h / 2, 16, { col: ['#a15be0', '#fff'], sp0: 20, sp1: 80 });
   }
   function endSkill(b) { b.st = 'rec'; b.timer = (b.recAfter || 0.8) / b.fury; b.recAfter = 0; b.lastSk = b.sk; b.sk = null; }
   function updateBoss(dt) {
@@ -2066,18 +2104,30 @@
     if (b.st === 'intro') { b.timer += dt; if (b.timer > 2.2) { b.st = 'wait'; b.timer = 0.8; Q.state = 'play'; } return; }
     const pct = b.hp / b.max, ph = pct < 0.33 ? 2 : (pct < 0.66 ? 1 : 0);
     if (ph > b.phase) { b.phase = ph; b.invul = 1.0; Q.shake = 0.8; Snd.creature(Q.li, 'alert', true); emit(b.x + b.w / 2, b.y + b.h / 2, 30, { col: ['#fff', bpc()], sp0: 40, sp1: 160 }); Q.msg = save.lang === 'vi' ? 'Boss nổi điên!' : 'The boss is enraged!'; Q.msgT = 3; }
-    if (b.hide) { const sk = BS[b.sk]; if (sk && sk.upd(b, dt)) endSkill(b); return; }
+    if (b.hide) { const sk = BS[b.sk]; b.actT = (b.actT || 0) + dt; if (!sk || sk.upd(b, dt)) endSkill(b); else if (b.actT > 7) { endSkill(b); bossReturn(b); } return; }
     b.vy = Math.min(420, b.vy + GRAV * dt);
     if (c.swim && !b.hide && Q.L.arena.y0 !== undefined) { const ar = Q.L.arena, ty = clamp(P.y + 7 - b.h * 0.5, ar.y0 * TS + 14, ar.gy * TS - b.h); b.vy = clamp((ty - b.y) * 1.4, -62, 62); }
     const cxm = b.x + b.w / 2, cym = b.y + b.h / 2, dxp = (P.x + 4) - cxm;
     switch (b.st) {
       case 'wait': {
-        b.dir = dxp < 0 ? -1 : 1;
+        { const wd = dxp < 0 ? -1 : 1; if (wd !== b.dir && Math.abs(dxp) > 10) { b.turnT = (b.turnT || 0) + dt; if (b.turnT > 0.14) { b.dir = wd; b.turnT = 0; b.squashT = Math.max(b.squashT || 0, 0.08); } } else b.turnT = 0; }   // turn with a short delay, not every frame
+        if (!b.nextSk) b.nextSk = pickSkill(b);   // the next attack is chosen early, so the boss can move into the right range for it
         // chase: when the hero is far away the boss runs after them first and attacks once it is close (or after ~3s)
         const far = Math.abs(dxp) > b.w / 2 + 110;
         b.chaseT = far ? (b.chaseT || 0) + dt : 0;
         if (b.onGround && b.moveT > 0) { b.stepT = (b.stepT || 0) - dt; if (b.stepT <= 0) { b.stepT = clamp(0.62 - b.w / 400, 0.3, 0.6); if (b.w >= 30) { Snd.play('bstep'); Q.shake = Math.max(Q.shake, b.w >= 60 ? 0.12 : 0.05); } } }
-        if (Math.abs(dxp) > b.w / 2 + 36) { moveX(b, b.dir * Math.max(c.sp, 45) * (far ? 1.7 : 1.15) * b.fury * dt); b.moveT = 0.12; }
+        { const rg = bossRange(b.nextSk), gap = Math.abs(dxp) - b.w / 2, sd = Math.sign(dxp) || 1;
+          let mv = gap > rg[1] ? sd : (gap < rg[0] ? -sd : 0);   // approach for close attacks, keep away for ranged ones
+          const [ia, ib] = arenaInner(); if (mv < 0 && ((sd > 0 && b.x < ia + 24) || (sd < 0 && b.x + b.w > ib - 24))) mv = 0;   // no backing into a wall
+          const tv = mv * Math.max(c.sp, 45) * (far ? 1.7 : (mv < 0 ? 0.85 : 1.15)) * b.fury; b.mvV = lerp(b.mvV || 0, tv, Math.min(1, 7 * dt));   // speeds up and slows down smoothly
+          if (Math.abs(b.mvV) > 4) {
+            const x0 = b.x, blocked = moveX(b, b.mvV * dt); b.moveT = 0.12; b.mvSpd = Math.abs(b.mvV);
+            if (blocked && b.onGround && mv > 0 && Math.random() < dt * 4) { b.vy = -340; b.onGround = false; }   // hop over a step or out of a corner
+            b.stillT = Math.abs(b.x - x0) < 0.2 ? (b.stillT || 0) + dt : 0;
+          } else { b.stillT = 0; b.mvSpd = 0; }
+          if (b.stillT > 1.2 && b.onGround) { b.vy = -380; b.onGround = false; b.mvV = -b.mvV * 0.5; b.stillT += 0.01; }   // stuck: jump out
+          if (b.stillT > 2.6) { b.stillT = 0; bossReturn(b); }   // still stuck: reappear in the middle of the arena
+        }
         if (far && b.chaseT < 3 && b.timer < 0.1) b.timer = 0.1;
         if (b.onGround && P.y + P.h < b.y + b.h - 30 && Math.abs(dxp) < b.w / 2 + 70 && Math.random() < dt * 1.2) { b.vy = -380; b.onGround = false; Snd.play('whoosh'); emit(cxm, b.y + b.h, 8, { col: '#cfd6e6', sp0: 20, sp1: 60 }); }
         // intelligence: dodge incoming attacks
@@ -2090,13 +2140,13 @@
         b.closeT = Math.abs(dxp) < b.w / 2 + 22 ? b.closeT + dt : 0;
         b.timer -= dt;
         if (b.timer <= 0 || b.closeT > 1.5) {
-          b.atkSk = b.closeT > 1.5 ? 'stomp' : pickSkill(b); b.closeT = 0; b['u_' + b.atkSk] = Q.t;
+          b.atkSk = b.closeT > 1.5 ? 'stomp' : (b.nextSk || pickSkill(b)); b.nextSk = null; b.closeT = 0; b['u_' + b.atkSk] = Q.t;
           b.st = 'tele'; b.timer = BS[b.atkSk].tele / b.fury; Snd.creature(Q.li, 'attack', true);
         }
         break;
       }
-      case 'tele': b.timer -= dt; b.dir = dxp < 0 ? -1 : 1; if (b.timer <= 0) { b.sk = b.atkSk; BS[b.sk].start(b); b.st = 'act'; bossSkillSnd(b.sk); } break;
-      case 'act': { const sk = BS[b.sk]; if (sk.upd(b, dt)) endSkill(b); break; }
+      case 'tele': b.timer -= dt; b.dir = dxp < 0 ? -1 : 1; if (b.timer <= 0) { b.sk = b.atkSk; b.actT = 0; BS[b.sk].start(b); b.st = 'act'; bossSkillSnd(b.sk); } break;
+      case 'act': { const sk = BS[b.sk]; b.actT = (b.actT || 0) + dt; if (sk.upd(b, dt) || b.actT > 7) endSkill(b); break; }   // (safety timer)
       case 'evade': {
         b.skT -= dt; moveX(b, b.ed * 215 * dt);
         if (Math.random() < 0.6) emit(cxm, b.y + b.h - 2, 1, { col: '#cfd6e6', sp0: 5, sp1: 25, vy: -8, grav: 20 });
@@ -2107,6 +2157,10 @@
       case 'rec': b.timer -= dt; if (b.timer <= 0) { b.st = 'wait'; b.timer = 0.65 / b.fury; } break;
     }
     { const was = b.onGround, pvy = b.vy; moveY(b, b.vy * dt); if (b.onGround && !was && pvy > 140) { b.squashT = 0.22; addRing(cxm, b.y + b.h, '#cfd6e6', 34 + Math.min(40, pvy / 9), 0.4); emit(cxm, b.y + b.h, 8, { col: '#cfd6e6', sp0: 20, sp1: 70, vy: -15, grav: 40 }); } }
+    if (!b.hide && Q.arenaSealed) {   // keep the boss inside: real walls, map bottom, no body inside a wall
+      const [ia, ib] = arenaInner(); if (b.x < ia) b.x = ia; if (b.x + b.w > ib) b.x = ib - b.w;
+      if (b.y > Q.L.H * TS) bossReturn(b); else unembed(b, (b.x + b.w / 2) < (ia + ib) / 2 ? 1 : -1);
+    }
     if (!b.hide) hitPlB({ x: b.x + 3, y: b.y + 3, w: b.w - 6, h: b.h - 4 }, () => hurtPlayer((Q.li >= 3 ? 2 : 1) + ((b.pp || 0) >= 2 ? 1 : 0), cxm));
   }
 
@@ -2215,7 +2269,8 @@
     shadowBreath: { tele: 0.9, start(d) { d.skT = 1.5; d.sdir = (Q.P.x + 4) < dc(d).x ? -1 : 1; d.fireT = 0; Snd.play('breath'); Snd.whisper(); }, upd(d, dt) {
       dMove(d, dc(d).x, dHover(d), 2, dt); d.dir = d.sdir; d.skT -= dt; d.fireT -= dt; const k = 1 - d.skT / 1.5, a = d.sdir > 0 ? 0.25 + k * 0.9 : Math.PI - 0.25 - k * 0.9;
       if (d.fireT <= 0) { d.fireT = 0.05; for (const o of [-0.3, 0.3]) dFire(d, a + o * d.sdir, 140, { col: '#a15be0', onLand: 'poison', life: 1.2 }); } return d.skT <= 0; } },
-    dive: { tele: 0.7, start(d) { const tr = d.tr, P = Q.P; d.ph = 0; d.skT = 0.7; d.side = (P.x + 4) < (tr.lw + tr.rw) / 2 * TS ? 1 : -1; d.sx = d.side > 0 ? (tr.lw + 4) * TS : (tr.rw - 4) * TS; d.ex = d.side > 0 ? (tr.rw - 3) * TS : (tr.lw + 3) * TS; d.dir = d.side; },
+    dive: { tele: 0.7, start(d) { const tr = d.tr, P = Q.P; d.ph = 0; d.skT = 0.7; d.side = (P.x + 4) < (tr.lw + tr.rw) / 2 * TS ? 1 : -1; d.sx = d.side > 0 ? (tr.lw + 4) * TS : (tr.rw - 4) * TS; d.ex = d.side > 0 ? (tr.rw - 3) * TS : (tr.lw + 3) * TS; d.dir = d.side;
+        const lo = (tr.lw + 1) * TS + d.w / 2 + 2, hi = tr.rw * TS - d.w / 2 - 2; d.sx = clamp(d.sx, lo, hi); d.ex = clamp(d.ex, lo, hi); },   // a wide dragon (shadow form) could never reach the old end point and dived forever
       upd(d, dt) {
         const c = dc(d);
         if (d.ph === 0) { dMove(d, d.sx, dHover(d) - 14, 5, dt); d.skT -= dt; if (d.skT <= 0) { d.ph = 1; d.skT = 0.42; d.px = c.x; d.py = c.y; Snd.creature('dragon', 'attack', true); } }
@@ -2238,6 +2293,7 @@
       upd(d, dt) { d.skT -= dt; if (d.ph === 0 && d.skT <= 0) { const tr = d.tr, nx = rr((tr.lw + 6) * TS, (tr.rw - 6) * TS); d.x = nx - d.w / 2; d.y = dHover(d) - d.h / 2; d.hide = false; d.ph = 1; d.skT = 0.5; emit(nx, dHover(d), 24, { col: ['#a15be0', '#fff', '#ff3aff'], sp0: 20, sp1: 100 }); Snd.creature('dragon', 'alert', true); } else if (d.ph === 1 && d.skT <= 0) return true; } },
     darkness: { tele: 0.7, start(d) { Q.darkBoost = 0.78; Q.darkBoostT = 7; const tr = d.tr; for (let i = 0; i < 2; i++) { const m = makeEnemy('shadewisp', (tr.lw + 8 + i * 16) * TS, (tr.gy - 4) * TS, { minion: true }); m.alerted = true; Q.ents.push(m); } Snd.whisper(); d.skT = 1.2; }, upd(d, dt) { dHold(d, dt); d.skT -= dt; return d.skT <= 0; } }
   };
+  const DS_MAX = { dive: 6.5, perch: 5.5, breath: 2.6, tripleBreath: 2.6, shadowBreath: 2.8, fireballs: 4, gust: 3, roar: 2.5, tailsweep: 2.2, summon: 2, vanish: 2.5, darkness: 2.5 };
   function makeDragon(def) {
     const cfg = DRG[def.kind], st = cfg.stages[0], cx = (def.lw + def.rw) / 2 * TS;
     return { isBoss: true, isDragon: true, def, tr: def, stage: 0, form: st.form, w: st.w, h: st.h, x: cx - st.w / 2, y: Q.cam.y - st.h - 80, vx: 0, vy: 0, hp: st.hp, max: st.hp, armor: st.armor, cfg: { name: NPCS.dragon.name, armor: st.armor }, skills: st.skills, sp: st.sp, dir: -1, st: 'enter', timer: 1.8, t: 0, flash: 0, invul: 0, wing: 0, flapT: 0, sk: null, lastSk: null, evCd: 1, fury: 1, hide: false };
@@ -2309,9 +2365,13 @@
       case 'tele': {
         d.timer -= dt; dHold(d, dt, d.atkSk === 'perch' ? dHover(d) - 10 : undefined); d.x += rr(-0.6, 0.6);
         if (Math.random() < 0.4) { const m = dMouth(d); emit(m.x, m.y, 1, { col: ['#ffd34e', '#ff6a3a'], sp0: 5, sp1: 25, grav: -10, l0: 0.2, l1: 0.4 }); }
-        if (d.timer <= 0) { d.sk = d.atkSk; DS[d.sk].start(d); d.st = 'act'; } break;
+        if (d.timer <= 0) { d.sk = d.atkSk; d.actT = 0; DS[d.sk].start(d); d.st = 'act'; } break;
       }
-      case 'act': if (DS[d.sk].upd(d, dt)) { d.st = 'rec'; d.timer = 0.7 / d.fury; d.lastSk = d.sk; d.sk = null; } break;
+      case 'act': {
+        d.actT = (d.actT || 0) + dt;   // safety: no skill may run longer than its limit
+        if (DS[d.sk].upd(d, dt) || d.actT > (DS_MAX[d.sk] || 4)) { d.hide = false; d.ph = 0; d.st = 'rec'; d.timer = 0.7 / d.fury; d.lastSk = d.sk; d.sk = null; d.actT = 0; }
+        break;
+      }
       case 'flee0': case 'morph': dMove(d, c.x, dHover(d) - 10, 2, dt); break;
       case 'flee': d.timer -= dt; d.x += 200 * dt; d.y -= 140 * dt; if (d.timer <= 0) { finishDragon(d); return; } break;
     }
@@ -3473,16 +3533,16 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const st = Q.state;
     if (st === 'intro') { if (Q.stateT > 2.6 || act.okP) Q.state = 'play'; updateCam(dt); updateWeather(dt); return; }
     if (st === 'pause') {
-      if (act.upP) { Q.menu = (Q.menu + 5) % 6; Snd.play('select'); } if (act.downP) { Q.menu = (Q.menu + 1) % 6; Snd.play('select'); }
-      if (Q.menu >= 4 && (act.leftP || act.rightP || act.okP)) {   // volume rows: 0 % ... 100 % in steps of 10
-        const key = Q.menu === 4 ? 'mvol' : 'svol', d = act.leftP ? -0.1 : 0.1; let v = Math.round(((save[key] === undefined ? 1 : save[key]) + d) * 10) / 10; if (act.okP && v > 1) v = 0; save[key] = clamp(v, 0, 1);
+      if (act.upP) { Q.menu = (Q.menu + 6) % 7; Snd.play('select'); } if (act.downP) { Q.menu = (Q.menu + 1) % 7; Snd.play('select'); }
+      if (Q.menu >= 5 && (act.leftP || act.rightP || act.okP)) {   // volume rows: 0 % ... 100 % in steps of 10
+        const key = Q.menu === 5 ? 'mvol' : 'svol', d = act.leftP ? -0.1 : 0.1; let v = Math.round(((save[key] === undefined ? 1 : save[key]) + d) * 10) / 10; if (act.okP && v > 1) v = 0; save[key] = clamp(v, 0, 1);
         if (key === 'mvol') Snd.setMusicVol(save.mvol); else Snd.setSfxVol(save.svol); Snd.play('select'); writeSave(); return;
       }
       if (act.pauseP && !act.backP) { Q.state = 'play'; return; }
       if (act.pauseP) { Q.state = 'play'; return; }
       if (act.okP) {
         Snd.play('ok');
-        if (Q.menu === 0) Q.state = 'play'; else if (Q.menu === 1) startLevel(Q.li); else if (coop) coopBackToLobby(); else if (Q.menu === 2) { toScene('map'); } else toScene('title');
+        if (Q.menu === 0) Q.state = 'play'; else if (Q.menu === 1) startLevel(Q.li); else if (Q.menu === 4) openHelp(false); else if (coop) coopBackToLobby(); else if (Q.menu === 2) { toScene('map'); } else toScene('title');
       }
       return;
     }
@@ -3498,6 +3558,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }
     if (st === 'complete') { updateParticles(dt); if (Q.stateT > 1 && act.okP) { Snd.play('ok'); if (coop) { if (Q.li === 6 && !Q.endShown) { Q.endShown = true; startScripted('narr', COOP_END, () => coopBackToLobby()); return; } coopBackToLobby(); return; } if (Q.li === 6) toScene('ending'); else if (Q.li === 0 && !save.ride) toScene('ride'); else if (Q.li === 1 && !save.castle) toScene('castle'); else { cutLevel = Q.li; mapSel = Math.min(9, LPOS(Q.li) + 1); toScene(CUT[Q.li] ? 'cutscene' : 'map'); } } return; }
     // play / bossintro
+    if (st === 'play' && !save.ctrlSeen && !coop) { openHelp(true); return; }   // first play: show the controls once
     if (act.pauseP && st === 'play') { Q.state = 'pause'; Q.menu = 0; return; }
     if (act.shopP && st === 'play') { openShopInGame(); return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
@@ -3750,6 +3811,17 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     else if (b.moveT > 0 || b.st === 'evade') { list = A.move; fps = 8; }
     return set.frames[list[Math.floor(b.t * fps) % list.length]];
   }
+  // a walking stride for one-picture bosses: the body bobs and leans into the walk, the two halves of the legs take
+  // turns stepping (one lifts and moves forward while the other stays planted), and dust puffs at each footfall
+  function drawBossStride(spr, x, bot, flip, flash, sx, sy, rot, al, ph, amp, b) {
+    const W = spr.w * sx, H = spr.h * sy, legH = Math.round(H * 0.3), cut = bot - legH, sw = Math.sin(ph), fw = flip ? -1 : 1, bob = -Math.abs(sw) * (1 + amp * 3);
+    g.save(); g.beginPath(); g.rect(x - W, bot - H - 8, W * 2, H - legH + 8); g.clip(); drawSprT(g, spr, x, bot + bob, flip, flash, sx, sy, rot + fw * amp * 0.12, al); g.restore();
+    for (const side of [-1, 1]) {
+      const st = side * sw, lift = Math.max(0, st) * (1 + amp * 6), fx = st * (1 + amp * 5) * fw;
+      g.save(); g.beginPath(); g.rect(side < 0 ? x - W : x, cut, W, legH + 2); g.clip(); drawSprT(g, spr, x + fx, bot - lift, flip, flash, sx, sy, rot, al); g.restore();
+    }
+    if (Math.abs(sw) > 0.97 && (b.stepFx || 0) < Q.t) { b.stepFx = Q.t + 0.12; emit(b.x + b.w / 2 - Math.sign(sw) * b.w * 0.22, b.y + b.h, 3, { col: ['#cfd6e6', '#8a8aa0'], sp0: 5, sp1: 25, vy: -12, grav: 40, l0: 0.2, l1: 0.4 }); }
+  }
   function drawBoss(camX, camY) {
     const b = Q.boss; if (b.dead && Q.t % 0.1 > 0.05) return;
     { const fr = bossFrame(b); if (fr) b.spr = fr; }
@@ -3782,9 +3854,12 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (b.st === 'evade') { g.globalAlpha = 0.35; drawSprT(g, b.spr, x - b.ed * 14, bot, b.dir < 0, false, 1, 1, 0, 0.35); g.globalAlpha = 1; }
     if ((b.sk === 'charge' || b.sk === 'rush') && b.st === 'act') { g.globalAlpha = 0.25; drawSprT(g, b.spr, x - b.dir * 12, bot, b.dir < 0, false, 1.1, 0.92, b.dir * 0.2, 0.25); drawSprT(g, b.spr, x - b.dir * 24, bot, b.dir < 0, false, 1.05, 0.95, b.dir * 0.2, 0.15); g.globalAlpha = 1; }
     let al = P.al; if (b.invul > 0 && Math.floor(Q.t * 20) % 2 === 0) al = Math.min(al, 0.45);
-    const bst = b.flash > 0 ? 'hurt' : (!b.onGround && !c.fly && !c.eclipse ? 'jump' : (b.moveT > 0 || b.st === 'evade' ? (Math.abs(b.vx || 0) > 140 ? 'run' : 'walk') : 'idle'));
+    const bst = b.flash > 0 ? 'hurt' : (!b.onGround && !c.fly && !c.eclipse ? 'jump' : (b.moveT > 0 || b.st === 'evade' ? ((b.mvSpd || 0) > 75 || b.st === 'evade' || Math.abs(b.vx || 0) > 140 ? 'run' : 'walk') : 'idle'));
     const BA = animPose(bst, b.t, b.dir || 1, bst === 'hurt' ? 1 - clamp(b.flash / 0.15, 0, 1) : b.vy), bsx = bst === 'hurt' ? 1 : BA.sx, bsy = bst === 'hurt' ? 1 : BA.sy;
-    drawSprT(g, BA.red ? redOf(b.spr) : b.spr, x + P.ox + (bst === 'hurt' ? BA.ox : 0), bot + bob + P.oy + BA.oy, b.dir < 0, (b.flash > 0 && !BA.red) || tele || b.revT > 0, P.sx * bsx * (c.artScale || 1), P.sy * bsy * (c.artScale || 1), P.rot + BA.rot * 0.5, al);
+    { const walker = (bst === 'walk' || bst === 'run') && b.onGround && !c.fly && !c.eclipse && !c.swim && !c.art, img = BA.red ? redOf(b.spr) : b.spr, fl = (b.flash > 0 && !BA.red) || tele || b.revT > 0;
+      const dx = x + P.ox + (bst === 'hurt' ? BA.ox : 0), dy = bot + bob + P.oy + BA.oy, ksx = P.sx * bsx * (c.artScale || 1), ksy = P.sy * bsy * (c.artScale || 1), rt = P.rot + BA.rot * 0.5;
+      if (walker) drawBossStride(img, dx, dy, b.dir < 0, fl, ksx, ksy, rt, al, b.t * (bst === 'run' ? 13 : 8), bst === 'run' ? 0.28 : 0.18, b);
+      else drawSprT(g, img, dx, dy, b.dir < 0, fl, ksx, ksy, rt, al); }
     if (b.cloak && Math.random() < 0.5) { g.fillStyle = Math.random() < 0.5 ? '#a15be0' : '#fff'; g.fillRect(x + Math.round(rr(-b.w / 2, b.w / 2)), bot - Math.round(rr(0, b.h)), 1, 2); }
     if (b.shield > 0) { g.globalAlpha = 0.35 + Math.sin(Q.t * 12) * 0.12; disc(g, x, bot - (b.h >> 1), Math.round(b.h * 0.62), '#6ee7f2'); g.globalAlpha = 1; g.fillStyle = '#fff'; g.fillRect(x - 1, bot - b.h - 8, 3, 3); }
     if (b.guard > 0) { g.globalAlpha = 0.5; g.strokeStyle = '#cfd6e6'; g.lineWidth = 2; g.strokeRect(x - (b.w >> 1) - 3, bot - b.h - 3, b.w + 6, b.h + 4); g.globalAlpha = 1; for (let i = 0; i < 3; i++) { const a = Q.t * 5 + i * 2.1; g.fillStyle = '#fff'; g.fillRect(Math.round(x + Math.cos(a) * (b.w / 2 + 4)), Math.round(bot - (b.h >> 1) + Math.sin(a) * (b.h / 2)), 2, 2); } }
@@ -4069,8 +4144,9 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     } else if (st === 'pause') {
       g.fillStyle = 'rgba(5,3,15,.7)'; g.fillRect(0, 0, VW, VH);
       txt(T('paused'), VW / 2, 52, { al: 'center', size: 16, bold: true });
-      ['resume', 'restart', 'tomap', 'totitle'].forEach((k, i) => txt((Q.menu === i ? '> ' : '  ') + T(k), VW / 2, 76 + i * 14, { al: 'center', size: 9, col: Q.menu === i ? '#ffd34e' : '#cfd6e6' }));
-      [[sv('Music', 'Nhạc'), save.mvol], [sv('Effects', 'Hiệu ứng'), save.svol]].forEach(([n, v], j) => { const i = 4 + j, on = Q.menu === i; txt((on ? '< ' : '  ') + n + ': ' + Math.round((v === undefined ? 1 : v) * 100) + '%' + (on ? ' >' : '  '), VW / 2, 76 + i * 14, { al: 'center', size: 8, col: on ? '#ffd34e' : '#a8b0d0' }); });
+      ['resume', 'restart', 'tomap', 'totitle'].forEach((k, i) => txt((Q.menu === i ? '> ' : '  ') + T(k), VW / 2, 76 + i * 13, { al: 'center', size: 9, col: Q.menu === i ? '#ffd34e' : '#cfd6e6' }));
+      txt((Q.menu === 4 ? '> ' : '  ') + sv('Controls', 'Hướng dẫn nút'), VW / 2, 76 + 4 * 13, { al: 'center', size: 8.5, col: Q.menu === 4 ? '#ffd34e' : '#9fe8ff' });
+      [[sv('Music', 'Nhạc'), save.mvol], [sv('Effects', 'Hiệu ứng'), save.svol]].forEach(([n, v], j) => { const i = 5 + j, on = Q.menu === i; txt((on ? '< ' : '  ') + n + ': ' + Math.round((v === undefined ? 1 : v) * 100) + '%' + (on ? ' >' : '  '), VW / 2, 76 + i * 13, { al: 'center', size: 8, col: on ? '#ffd34e' : '#a8b0d0' }); });
       txt('M: ' + (Snd.muted ? 'Sound OFF' : 'Sound ON') + '    F11: ' + T('full'), VW / 2, 200, { al: 'center', size: 6, col: '#8892aa' });
       txt(save.lang === 'vi' ? 'Nhấp chuột: đánh / chọn menu   Chuột phải: ném   Lăn chuột: đổi đồ' : 'Click: attack / menus   Right-click: throw   Wheel: switch', VW / 2, 210, { al: 'center', size: 5, col: '#8892aa' });
       txt(T('relics'), VW / 2, 166, { al: 'center', size: 6, col: '#8892aa' });
@@ -4756,20 +4832,67 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   // title menu layout: the main action as a big card, the rest as a tidy 2-column grid
   const TM = { x: 214, y: 80, w: 164 };
   function titleLayout(items) {
-    const L = [], x0 = TM.x + 6, cw = (TM.w - 12 - 4) / 2; let y = TM.y + 6;
+    const L = [], x0 = TM.x + 6, cw = (TM.w - 12 - 4) / 2, tight = items.length > 11; let y = TM.y + 6;   // (6 rows of buttons: a little closer together, so the box stays above the footer)
     items.forEach((it, i) => {
-      if (i === 0) { L.push({ x: x0, y, w: TM.w - 12, h: 24, primary: true }); y += 29; return; }
+      if (i === 0) { L.push({ x: x0, y, w: TM.w - 12, h: 24, primary: true }); y += tight ? 27 : 29; return; }
       const k = i - 1, rest = items.length - 1, col = k % 2, row = Math.floor(k / 2), lastOdd = rest % 2 === 1 && k === rest - 1;
-      L.push({ x: lastOdd ? x0 : x0 + col * (cw + 4), y: y + row * 15, w: lastOdd ? TM.w - 12 : cw, h: 12 });
+      L.push({ x: lastOdd ? x0 : x0 + col * (cw + 4), y: y + row * (tight ? 13 : 15), w: lastOdd ? TM.w - 12 : cw, h: 12 });
     });
     return L;
   }
-  const TITLE_LBL = { cont: ['World map', 'Bản đồ thế giới'], shopT: ['Shop & bag', 'Cửa hàng'], coopT: ['Online co-op', 'Co-op online'], newgame: ['New game', 'Chơi mới'], full: ['Fullscreen', 'Toàn màn hình'], credits: ['Credits', 'Thực hiện bởi'], movie: ['Intro film', 'Phim mở đầu'], quit: ['Quit', 'Thoát'] };
+  const TITLE_LBL = { cont: ['World map', 'Bản đồ thế giới'], shopT: ['Shop & bag', 'Cửa hàng'], coopT: ['Online co-op', 'Co-op online'], newgame: ['New game', 'Chơi mới'], full: ['Fullscreen', 'Toàn màn hình'], credits: ['Credits', 'Thực hiện bởi'], movie: ['Intro film', 'Phim mở đầu'], help: ['Controls', 'Hướng dẫn nút'], quit: ['Quit', 'Thoát'] };
   function titleLabel(it) {
     if (it.k === 'lang') return save.lang === 'vi' ? 'Tiếng Việt' : 'English';
     if (it.k === 'sound') return sv('Sound: ', 'Âm thanh: ') + (Snd.muted || save.vol <= 0 ? sv('Off', 'Tắt') : Math.round(save.vol * 100) + '%');
     if (it.k === 'newgame' && title.confirmT > 0) return sv('Press again: erase!', 'Nhấn lần nữa: xóa!');
     const l = TITLE_LBL[it.k]; return l ? sv(l[0], l[1]) : T(it.k);
+  }
+  // ---------- the controls guide: what every button does (title menu, pause menu, and once on the first play) ----------
+  // rows: a group title ['g', en, vi, colour] or [action en, action vi, keyboard / mouse, gamepad] (a key text can be [en, vi])
+  const CTRL = [
+    ['g', 'MOVE', 'DI CHUYỂN', '#8ad8ff'],
+    ['Walk left / right', 'Đi trái / phải', 'A D  /  ← →', ['Left stick / D-pad', 'Cần trái / D-pad']],
+    ['Jump', 'Nhảy', 'Space / W / ↑ / Z', 'A'],
+    ['Dash (nothing can hit you mid-dash)', 'Lướt (không bị đánh trúng khi lướt)', 'K / Shift / C', 'B / RT'],
+    ['Up / down: climb vines, aim, drop through thin floors', 'Lên / xuống: leo dây, ngắm, xuống ván mỏng', 'W S  /  ↑ ↓', ['Left stick', 'Cần trái']],
+    ['g', 'FIGHT', 'CHIẾN ĐẤU', '#ff9a7a'],
+    ['Attack (hold to keep firing a gun)', 'Đánh (giữ để bắn súng liên tục)', ['J / X / left click', 'J / X / chuột trái'], 'X'],
+    ['Guard (block a hit)', 'Đỡ đòn', 'F', ['L3 (press left stick)', 'L3 (bấm cần trái)']],
+    ['Hero skill', 'Chiêu anh hùng', 'R', 'RB'],
+    ['Charged skills (slots 1-4)', 'Chiêu tích lũy (ô 1-4)', ['1 2 3 4   (0: first ready one)', '1 2 3 4   (0: chiêu sẵn đầu tiên)'], ['R3 (first ready one)', 'R3 (chiêu sẵn đầu)']],
+    ['Throw an item', 'Ném đồ', ['L / right click', 'L / chuột phải'], 'Y'],
+    ['Next throwing item', 'Đổi đồ ném', ['Q / mouse wheel', 'Q / lăn chuột'], 'LB'],
+    ['Swap weapon', 'Đổi vũ khí', ['T / middle click', 'T / chuột giữa'], 'LT'],
+    ['g', 'OTHER', 'KHÁC', '#c8a0ff'],
+    ['Talk / use (people, levers, signs)', 'Nói chuyện / dùng (người, cần gạt, bảng)', 'E / Enter', 'RB'],
+    ['Shop & bag', 'Cửa hàng & túi đồ', 'B / I', 'Back'],
+    ['Pause menu', 'Tạm dừng', 'Esc / P', 'Start'],
+    ['Sound on / off  ·  fullscreen', 'Tắt / bật tiếng  ·  toàn màn hình', 'M  ·  F11', '-'],
+    ['Menus: choose / go back', 'Menu: chọn / quay lại', 'Enter Space Z J  /  Esc', 'A / B']
+  ];
+  function openHelp(first) { ctrlHelp = { first: !!first, t: 0 }; Snd.play('select'); }
+  function updateHelp(dt) {
+    ctrlHelp.t += dt;
+    if (ctrlHelp.t > 0.4 && (act.okP || act.backP || act.pauseP || act.talkP)) { if (ctrlHelp.first) { save.ctrlSeen = true; writeSave(); } ctrlHelp = null; Snd.play('ok'); }
+  }
+  function drawHelp() {
+    texts.length = 0; uiCov = [];   // the panel covers the whole screen: nothing from behind shows through
+    g.fillStyle = 'rgba(4,3,12,.94)'; g.fillRect(0, 0, VW, VH);
+    const X = 6, Y = 4, W = VW - 12, H = VH - 8, kv = v => Array.isArray(v) ? sv(v[0], v[1]) : v;
+    { const gr = g.createLinearGradient(0, Y, 0, Y + H); gr.addColorStop(0, 'rgba(30,24,54,.98)'); gr.addColorStop(1, 'rgba(10,8,22,.98)'); g.fillStyle = gr; g.fillRect(X, Y, W, H); }
+    g.fillStyle = '#c89a1c'; g.fillRect(X, Y, W, 1); g.fillRect(X, Y + H - 1, W, 1); g.fillRect(X, Y, 1, H); g.fillRect(X + W - 1, Y, 1, H);
+    txt(sv('CONTROLS', 'HƯỚNG DẪN NÚT'), VW / 2, Y + 9, { al: 'center', size: 10, bold: true, col: '#ffd34e' });
+    const c1 = X + 10, c2 = X + 170, c3 = X + 294; let y = Y + 22;
+    txt(sv('What it does', 'Làm gì'), c1, y, { size: 5.5, col: '#8892aa' }); txt(sv('Keyboard / mouse', 'Bàn phím / chuột'), c2, y, { size: 5.5, col: '#8892aa' }); txt(sv('Gamepad', 'Tay cầm'), c3, y, { size: 5.5, col: '#8892aa' });
+    y += 8;
+    for (const r of CTRL) {
+      if (r[0] === 'g') { y += 2; txt(sv(r[1], r[2]), c1 - 3, y, { size: 6, bold: true, col: r[3] }); g.fillStyle = hexA(r[3], 0.3); g.fillRect(c1 + 46, Math.round(y), W - 66, 1); y += 8; continue; }
+      txt(sv(r[0], r[1]), c1, y, { size: 6, col: '#e8ecf6' }); txt(kv(r[2]), c2, y, { size: 6, col: '#ffe9b8' }); txt(kv(r[3]), c3, y, { size: 6, col: '#9fe8ff' });
+      y += 8;
+    }
+    const bl = Math.floor(ctrlHelp.t * 2) % 2 === 0;
+    txt(ctrlHelp.first ? sv('You can open this again any time: Pause (Esc) > Controls.   Press Enter to play!', 'Mở lại lúc nào cũng được: Tạm dừng (Esc) > Hướng dẫn nút.   Nhấn Enter để chơi!')
+      : sv('Enter / Esc / click: close', 'Enter / Esc / nhấp chuột: đóng'), VW / 2, Y + H - 7, { al: 'center', size: 5.5, col: bl || !ctrlHelp.first ? '#ffd34e' : '#c89a1c' });
   }
   function titleItems() {
     const it = [];
@@ -4780,6 +4903,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     it.push({ k: 'shopT', fn: () => { shopFrom = 'title'; toScene('shop'); } });
     it.push({ k: 'coopT', fn: () => { coopUI.ph = 'menu'; coopUI.sel = 0; coopUI.msg = ''; toScene('coop'); } });
     it.push({ k: 'newgame', fn: () => { save.castle = 0; save.ride = 0; save.seen = {}; save.films = {}; save.inv = { own: ['iron'], w: ['iron', null], armor: null, pet: null, gems: save.inv.gems | 0 }; save.cleared = []; save.shards = {}; save.coins = 0; save.leek = false; save.relics = [0, 0, 0, 0, 0, 0, 0]; save.ammo = { dagger: 0, bomb: 0, flask: 0 }; writeSave(); mapSel = 0; toScene('opening'); } });
+    it.push({ k: 'help', fn: () => openHelp(false) });
     it.push({ k: 'lang', fn: () => { save.lang = save.lang === 'vi' ? 'en' : 'vi'; writeSave(); } });
     it.push({ k: 'sound', fn: () => { const st = [1, 0.8, 0.6, 0.4, 0.2, 0]; if (Snd.muted) { Snd.setMuted(false); save.muted = false; save.vol = 1; } else { const i = st.findIndex(v => v <= save.vol + 0.001); save.vol = st[(i + 1) % st.length]; } Snd.setVol(save.vol); writeSave(); } });
     it.push({ k: 'full', fn: toggleFull });
@@ -6319,7 +6443,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     start(b) { b.n = 2 + (b.phase >= 1 ? 1 : 0); b.ph = 0; b.skT = 0.45; b.hide = true; b.vx = 0; const c = bc(b); Snd.play('crumble'); Q.shake = Math.max(Q.shake, 0.4); emit(c.x, b.y + b.h, 26, { col: ['#8a6a4a', '#5a4430', '#c8a070'], sp0: 30, sp1: 120, vy: -60 }); addRing(c.x, b.y + b.h, '#8a6a4a', 50, 0.5); },
     upd(b, dt) {
       b.skT -= dt;
-      if (b.ph === 0) { if (b.skT <= 0) { const t = Q.P; b.tx = arenaClamp(t.x + 4); b.ph = 1; b.skT = 1.0 - Math.min(0.3, b.phase * 0.12); } }
+      if (b.ph === 0) { if (b.skT <= 0) { const t = Q.P; b.tx = arenaClampB(b, t.x + 4); b.ph = 1; b.skT = 1.0 - Math.min(0.3, b.phase * 0.12); } }
       else if (b.ph === 1) {
         const gy = groundYAt(b.tx); Q.shake = Math.max(Q.shake, 0.12);
         if (Math.random() < 0.7) emit(b.tx + rr(-14, 14), gy, 1, { col: ['#8a6a4a', '#c8a070'], sp0: 10, sp1: 50, vy: -50 });
@@ -8633,8 +8757,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       }
       clearPressed();
     } else {
-      const n = Math.max(1, Math.ceil(dt / (1 / 100))), sub = dt / n;
-      for (let i = 0; i < n; i++) {
+      if (ctrlHelp) { updateHelp(dt); clearPressed(); }   // the controls guide is open: everything waits behind it
+      else for (let i = 0, n = Math.max(1, Math.ceil(dt / (1 / 100))), sub = dt / n; i < n; i++) {
         if (scene === 'play') { if (coop && coop.role === 'client') coopClientTick(sub); else updatePlay(sub); }
         else if (scene === 'coop') updateCoop(sub);
         if (scene === 'shop' && coop && coop.role === 'host' && Q) { const keep = Object.assign({}, act); for (const k in act) act[k] = false; try { updatePlay(sub); } finally { Object.assign(act, keep); } updateShopScene(sub); }
@@ -8657,7 +8781,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }
     // render
     g.imageSmoothingEnabled = false;
-    hiOn = scene === 'play' && !!Q && Q.state === 'play' && !fadeTo && scale >= 2; HIQ.length = 0;
+    hiOn = scene === 'play' && !!Q && Q.state === 'play' && !fadeTo && scale >= 2 && !ctrlHelp; HIQ.length = 0;
     if (scene === 'play' && Q) drawPlay();
     else if (scene === 'title') drawTitle();
     else if (scene === 'story' || scene === 'ending') drawStory();
@@ -8675,6 +8799,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const f = fadeTo ? fade : fadeIn;
     // (with hi-res sprites on, the fade is drawn in the HUD pass instead)
     if (f > 0 && !(hiOn && scene === 'play' && Q)) { g.globalAlpha = Math.min(1, f); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+    if (ctrlHelp) drawHelp();
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(buf, offX, offY, VW * scale, VH * scale);
@@ -8694,7 +8819,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     flushTexts();
     drawTouch();
   }
-  let fadeIn = 0;
+  let fadeIn = 0, ctrlHelp = null;   // ctrlHelp: the controls guide, when it is open
   enterScene(location.search.length > 1 ? 'title' : 'intro');
   requestAnimationFrame(frame);
   if (DEMO) { save.leek = true; save.cleared = [0]; save.inv.own = ['iron', 'leek']; save.inv.w = ['leek', null]; save.inv.armor = null; save.inv.pet = null; save.ammo = { dagger: 9, bomb: 3, flask: 3 }; startLevel(0); Q.state = 'play'; Q.msg = 'LEEK DEMO: J / click = swing (3 light beams). Hit = heal + stun. Under 15% HP = leek tornado.'; Q.msgT = 12; }
