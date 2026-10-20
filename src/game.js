@@ -1646,19 +1646,20 @@
     const L = Q.L, def = MINI[m.who];
     Q.mainBoss = Q.boss; Q.mainArena = L.arena; L.arena = { x0: m.lw, x1: m.rw, gy: m.gy };
     const b = makeFormBoss(def.forms, (m.lw + m.rw) / 2 * TS + 48, m.gy * TS, { id: m.who, who: m.who, mini: m });
-    b.st = 'intro'; b.timer = 0; Q.boss = b; Q.arenaSealed = true; Q.bossDead = false; if (coop) coopGather();
+    b.st = 'intro'; b.timer = 0; Q.boss = b; Q.arenaSealed = true; Q.bossDead = false; if (coop) coopGather(false, m.lead);
     Q.state = 'bossintro'; Q.stateT = 0; Snd.music('boss', BOSS_MUSIC); setEmo('angry', 2.6); Snd.creature(Q.li, 'alert', true); Q.shake = 0.6;
   }
   function updateMiniEnc() {
-    const P = Q.P;
     if (!Q.minis) return;
     for (const m of Q.minis) {
       if (m.state !== 'idle') continue;
-      if (P.x > m.trig * TS && P.x < m.rw * TS - 8 && P.onGround && Q.state === 'play' && !Q.arenaSealed && coopAllIn(m.lw, m.rw, 'mini' + m.id)) {
-        m.state = 'active';
+      const lead = Q.state === 'play' && !Q.arenaSealed && allPl().find(p => p.x > m.trig * TS && p.x < m.rw * TS - 8 && p.onGround);
+      if (lead) {
+        m.state = 'active'; m.lead = lead;
         for (let y = 0; y < m.gy; y++) { Q.L.grid[y][m.lw] = 'G'; Q.L.grid[y][m.rw] = 'G'; }
         Snd.play('gate'); Q.shake = 0.8; setEmo('scared', 2);
         startScripted(m.who, MINI[m.who].intro, () => beginMini(m));
+        if (coop && (Q.players || []).length > 1) coopGather(false, lead, { x0: m.lw, x1: m.rw });
       }
     }
   }
@@ -2151,11 +2152,11 @@
     if (d.st === 'tele' || (d.st === 'act' && /reath/.test(d.sk || ''))) { const m = dMouth(d), mx = Math.round(m.x - camX), my = Math.round(m.y - camY); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(mx, my, 0, mx, my, 16); gr.addColorStop(0, d.form === 3 ? 'rgba(200,100,255,.7)' : 'rgba(255,170,40,.75)'); gr.addColorStop(1, 'rgba(255,100,20,0)'); g.fillStyle = gr; g.fillRect(mx - 16, my - 16, 32, 32); g.globalCompositeOperation = 'source-over'; }
   }
   function updateDragonEnc() {
-    const P = Q.P;
     for (const dr of Q.dragons) {
       if (dr.state !== 'idle') continue;
-      if (P.x > dr.trig * TS && P.x < dr.rw * TS - 8 && P.onGround) {
-        dr.state = 'active'; for (let y = 0; y < dr.gy; y++) { Q.L.grid[y][dr.lw] = 'G'; Q.L.grid[y][dr.rw] = 'G'; }
+      const lead = allPl().find(p => p.x > dr.trig * TS && p.x < dr.rw * TS - 8 && p.onGround);
+      if (lead) {
+        dr.state = 'active'; if (coop && (Q.players || []).length > 1) { coopGather(false, lead, { x0: dr.lw, x1: dr.rw }); Q.msg = cvs('Dragon fight! Your teammates are pulled in!', 'Đánh rồng! Đồng đội được kéo vào đánh cùng!'); Q.msgT = 3.5; } for (let y = 0; y < dr.gy; y++) { Q.L.grid[y][dr.lw] = 'G'; Q.L.grid[y][dr.rw] = 'G'; }
         Q.dragon = makeDragon(dr); Snd.creature('dragon', 'alert', true); Snd.play('gate'); Q.shake = 1.2; setEmo('scared', 2.5);
       }
     }
@@ -2405,7 +2406,9 @@
           Q.msg = Q.pearls >= 3 ? (save.lang === 'vi' ? 'Đủ 3 Ngọc Trai! Mang xuống Cánh Cửa Thủy Triều ở đáy biển.' : 'All 3 Sea Pearls! Take them to the Tide Door at the bottom.') : (save.lang === 'vi' ? 'Ngọc Trai Biển ' : 'Sea Pearl ') + Q.pearls + '/3'; Q.msgT = 4; }
       } else if (it.kind === 'egg') {
         if (d < 26 && !it.seen && Q.state === 'play') { it.seen = true; const E = EGGS[it.k]; const first = !save.eggs[it.k]; save.eggs[it.k] = 1; writeSave(); Snd.play('relic'); emit(it.x, it.y - 10, 20, { col: ['#ffd34e', '#fff', '#ff7fb0'], sp0: 20, sp1: 70 });
-          startScripted('narr', [{ en: E.en, vi: E.vi }, { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + Object.keys(EGGS).length + ')' + (first ? ' +1 Star Gem' : ''), vi: 'Tìm thấy bí mật! (' + Object.keys(save.eggs).length + ' / ' + Object.keys(EGGS).length + ')' + (first ? ' +1 Ngọc Sao' : '') }], null); if (first) save.rare++; }
+const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + Object.keys(EGGS).length + ')' + (first ? ' +1 Star Gem' : ''), vi: 'Tìm thấy bí mật! (' + Object.keys(save.eggs).length + ' / ' + Object.keys(EGGS).length + ')' + (first ? ' +1 Ngọc Sao' : '') };
+          if (coop) { if (first) save.rare++; Q.msg = found[save.lang]; Q.msgT = 6; wrapText(E[save.lang], 44).forEach((ln, k) => pop(it.x, it.y - 34 - (wrapText(E[save.lang], 44).length - k) * 8, ln, '#ffe9b8')); }   // in co-op the team keeps playing: the story is a floating note, no blocking dialogue
+          else { startScripted('narr', [{ en: E.en, vi: E.vi }, found], null); if (first) save.rare++; } }
       } else if (it.kind === 'orb') {
         if (d < 13) {
           it.dead = true; if (save.orbs.indexOf(Q.li) < 0) save.orbs.push(Q.li); writeSave(); Snd.play('shard'); emit(it.x, it.y, 30, { col: ['#ffb04a', '#ffd34e', '#fff'], sp0: 20, sp1: 120 }); addRing(it.x, it.y, '#ffb04a', 40, 0.5);
@@ -5480,13 +5483,13 @@
       if (far || out) { emit(p.x + 4, p.y + 7, 10, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 60 }); p.x = out ? (ar.x0 + 4) * TS : lead.x - 10; p.y = out ? (ar.gy - 2) * TS : lead.y - 8; p.vx = p.vy = 0; p.safe = { x: p.x, y: p.y }; emit(p.x + 4, p.y + 7, 10, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 60 }); }
     }
   }
-  function coopGather(all) {
-    const ar = Q.L.arena, L0 = Q.P; let k = 0;
+  function coopGather(all, leader, rect) {
+    const ar = rect || Q.L.arena, L0 = leader || Q.P; let k = 0;
     for (const p of Q.players || []) {
       if (p === L0) continue; k++;
-      if (!all && p.x >= (ar.x0 + 2) * TS && p.x <= ar.x1 * TS) continue;
+      if (!all && p.x >= (ar.x0 + 2) * TS && p.x <= ar.x1 * TS && Math.abs(p.y - L0.y) < 60) continue;
       emit(p.x + 4, p.y + 7, 12, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 70 });
-      p.x = Math.max((ar.x0 + 2) * TS, L0.x - 12 * k); p.y = L0.y; p.vx = p.vy = 0; p.inv = Math.max(p.inv || 0, 1); p.safe = { x: p.x, y: p.y }; if (p.down) { p.down = false; p.hp = Math.max(1, Math.ceil(p.mhp / 2)); }
+      p.x = clamp(L0.x - 12 * k, (ar.x0 + 2) * TS, ar.x1 * TS - 16); p.y = L0.y; p.vx = p.vy = 0; p.inv = Math.max(p.inv || 0, 1); p.safe = { x: p.x, y: p.y }; if (p.down) { p.down = false; p.hp = Math.max(1, Math.ceil(p.mhp / 2)); }
       emit(p.x + 4, p.y + 7, 12, { col: [PCOL[p.slot], '#fff'], sp0: 20, sp1: 70 });
     }
   }
