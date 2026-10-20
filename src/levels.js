@@ -156,7 +156,7 @@ function genOcean(B, li) {
   const rnd = mulberry32(9001 + li * 7919), R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
   const W = 84, H = 132, WY = 10, SH = [26, 40, 54, 68, 82, 96], ARY0 = 99, GY = H - 4;
   const grid = []; for (let y = 0; y < H; y++) grid.push(new Array(W).fill(' '));
-  const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], dragons: [], minis: [], dark: [], creep: [], id: 0, waterY: WY, currents: [], nooks: [] };
+  const L = { B, li, W, H, grid, vines: [], spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], dragons: [], minis: [], dark: [], creep: [], id: 0, waterY: WY, currents: [], nooks: [] };
   const set = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) grid[y][x] = c; };
   const rect = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) set(x, y, c); };
   const spawn = (type, tx, ty, ex) => { L.spawns.push(Object.assign({ id: L.id++, type, x: tx * TS + TS / 2, y: ty * TS }, ex)); };
@@ -227,7 +227,7 @@ function genLevel(li) {
   const R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
   let H = 15; const W = B.len + (li === 7 ? 190 : 100);
   const grid = []; for (let y = 0; y < H; y++) grid.push(new Array(W).fill(' '));
-  const L = { B, li, W, H, grid, spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], dragons: [], minis: [], dark: [], creep: [], id: 0 };
+  const L = { B, li, W, H, grid, vines: [], spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], dragons: [], minis: [], dark: [], creep: [], id: 0 };
   const set = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) grid[y][x] = c; };
   const col = (x, top) => { for (let y = top; y < H; y++) grid[y][x] = (B.ice && rnd() < 0.55) ? 'I' : '#'; };
   const solidCol = (x, top) => { for (let y = top; y < H; y++) grid[y][x] = '#'; };
@@ -427,6 +427,15 @@ function genLevel(li) {
     placeTrap(B.traps[R(0, B.traps.length - 1)], x0, n);
     coinsLine(x0 + 3, gy - 4, 3);
   }
+  // the swamp's Tarzan crossing: a wide pit with a long vine hanging over its middle, a perch beside the take-off ledge
+  function vineGap() {
+    gy = Math.max(gy, 9); flat(4, { safe: true });
+    const nn = R(6, 8), mid = x + nn / 2, top = Math.max(1, gy - 9);
+    L.vines.push({ x: mid * TS, y: (top + 1) * TS, len: (gy - top - 1.6) * TS, i: L.vines.length });   // the tip hangs just above the ground line so a jump from the ledge reaches it
+    for (let i = 0; i < nn; i++) set(x + i, H - 1, '^');
+    for (let i = 1; i < nn - 1; i++) if (i % 2 === 0) spawn('coin', x + i, gy - 3 - Math.round(Math.sin(i / (nn - 1) * Math.PI) * 2));
+    x += nn; flat(R(5, 7), { safe: true });
+  }
   function gap(n) {
     const ny = Math.max(8, Math.min(11, gy + R(-1, 1)));
     let nn = Math.min(n, maxGap + (ny > gy ? 1 : 0) - (ny < gy ? 1 : 0)); if (nn < 2) nn = 2;
@@ -560,10 +569,11 @@ function genLevel(li) {
   let cpNpcIdx = 0;
   const pzList = PUZZLES[li] || []; let pzIdx = 0;
   const pzAt = pzList.map((t, i) => (t === 'dragon' && li === 0) ? 26 : Math.floor(B.len * (0.14 + 0.7 * (i + 0.5) / pzList.length)));
-  let nextCp = 42, placed = 0, tierN = 0;
+  let nextCp = 42, placed = 0, tierN = 0, vineN = 0;
   const shardAt = [0.2, 0.5, 0.76].map(f => Math.floor(B.len * f));
   while (x < B.len - 16) {
     if (x > nextCp) { const ax = x; flat(6, { safe: true, cp: true, heart: rnd() < 0.5 }); if (plan.cps && cpNpcIdx < plan.cps.length) { spawn('npc', ax + 4, gy, { who: plan.cps[cpNpcIdx++] }); } nextCp = x + R(38, 52); continue; }
+    if (li === 7 && vineN < 5 && x > B.len * (0.08 + 0.15 * vineN)) { vineGap(); vineN++; continue; }   // at least five vine crossings in the swamp
     if (placed < 3 && x > shardAt[placed]) { secret(placed); placed++; continue; }
     if (pzIdx < pzList.length && x > pzAt[pzIdx]) { runPuzzle(pzList[pzIdx++]); continue; }
     if (tierN < 3 && x > B.len * (0.18 + 0.24 * tierN)) { tiers(); tierN++; continue; }   // at least three multi-level sections per map

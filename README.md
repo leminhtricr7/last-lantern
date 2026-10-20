@@ -453,3 +453,15 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - When a boss fight starts, every summon drops what it was doing (even a fight with normal monsters far away), appears inside the arena and goes for the boss.
 - **Co-op:** the moment one player walks into the boss arena, the fight starts and every teammate is pulled in to fight together, with a message. Players who were down come back with half their hearts. There is no more waiting for everyone to walk in.
 
+## Tarzan vines and the new swamp / ocean / tunnels art
+- **Swamp vines:** the Glowcap Swamp has at least five wide pits crossed on long hanging vines (`vineGap()` in levels.js, `vineStep()` in game.js).
+  - Jump toward one: touching it in the air makes you grab it, with no button needed.
+  - Left / Right pumps the swing, Up / Down climbs the rope, and Jump lets go with a little boost.
+  - You also let go if you hit a wall or reach the ground, and a hit knocks you off.
+  - Every player in co-op has their own grip, and the others see the rope bend toward them.
+  - The tip hangs just above the ground line so a normal jump from the ledge reaches it.
+- **Glowcap Swamp backdrop:** a jungle canopy with lianas, distant ancient trees with buttress roots, tangled vines over glowing water, giant mushrooms, mossy ledges.
+- **Sunken Deep:** a vertical descent. The screen fades toward black the deeper you go. Far away are giant leviathan and manta silhouettes, with steep cliffs, a kelp forest, glowing jellyfish and coral ledges stepping down.
+- **Deepdig Tunnels:** an epic sinkhole. Behind the player are glowing mining tunnels with lanterns, ladders and rails climbing the far wall, giant cavern walls with strata and scaffolding, lava seeping out, and ledges over a pit that glows hotter toward its bottom.
+- The boss arenas of maps 8 and 9 already lock the camera.
+

@@ -1217,6 +1217,7 @@
     const P = Q.P;
     if (P.down) return false;
     if (P.parryT > 0 && src !== 'pit' && Q.state === 'play') { parrySuccess(fromX); return false; }
+    if (P.vine && src !== 'pit') { P.vine = null; P.vineCd = 0.5; }   // a hit knocks you off the vine
     if (P.inv > 0 || P.dash > 0 || Q.state !== 'play' && Q.state !== 'bossplay') return false;
     if (P.shield) { P.shield = false; P.inv = 1.0; Snd.play('hit'); emit(P.x + 4, P.y + 7, 14, { col: ['#ffd34e', '#fff'], sp0: 30, sp1: 90 }); thornsAndFx(); return false; }
     if (src !== 'pit') {
@@ -1249,12 +1250,69 @@
     P.x = Q.safe.x; P.y = Q.safe.y; P.vx = P.vy = 0; P.inv = 1.5;
   }
 
+  // ---------- vines ----------
+  const vineTip = (v, a) => ({ x: v.x + Math.sin(a) * v.len, y: v.y + Math.cos(a) * v.len });
+  const vineIdle = v => Math.sin(Q.t * 0.8 + v.i * 1.7) * 0.06;
+  // returns true while the player hangs on a vine (the normal movement is skipped)
+  function vineStep(P, dt) {
+    const vs = Q.L.vines; if (!vs || !vs.length) return false;
+    if (!P.vine) {
+      if (P.onGround || P.vineCd > 0 || P.down || Q.state !== 'play') return false;
+      const hx = P.x + 4, hy = P.y + 4;
+      for (const v of vs) {
+        const a = vineIdle(v), dx = Math.sin(a), dy = Math.cos(a), px = hx - v.x, py = hy - v.y, t = px * dx + py * dy, d = Math.abs(px * dy - py * dx);
+        if (t < 8 || t > v.len || d > 7) continue;
+        const D = Math.hypot(px, py), ang = Math.atan2(px, py), vt = P.vx * Math.cos(ang) - P.vy * Math.sin(ang);
+        P.vine = { v, D: clamp(D, 22, v.len), ang, angv: clamp(vt / Math.max(D, 24), -5, 5) }; P.dash = 0;
+        Snd.play('djump'); emit(hx, hy, 6, { col: ['#6ac87a', '#c8ffa0'], sp0: 10, sp1: 40 }); return true;
+      }
+      return false;
+    }
+    const V = P.vine, v = V.v, dirIn = (act.right ? 1 : 0) - (act.left ? 1 : 0);
+    if (act.up) V.D = Math.max(22, V.D - 48 * dt); if (act.down) V.D = Math.min(v.len, V.D + 48 * dt);   // climb up and down the rope
+    V.angv += (-(GRAV * 0.9) / V.D * Math.sin(V.ang) + dirIn * 5.5) * dt;   // the pendulum plus the pumping with left / right
+    V.angv *= 1 - 0.18 * dt; V.ang += V.angv * dt;
+    if (Math.abs(V.ang) > 1.3) { V.ang = Math.sign(V.ang) * 1.3; V.angv *= -0.4; }
+    const hx = v.x + Math.sin(V.ang) * V.D, hy = v.y + Math.cos(V.ang) * V.D;
+    P.x = hx - 4; P.y = hy - 3; P.vx = V.angv * V.D * Math.cos(V.ang); P.vy = -V.angv * V.D * Math.sin(V.ang); P.onGround = false; P.vineCd = 0;
+    if (Math.abs(V.angv) > 0.25) P.face = V.angv > 0 ? 1 : -1; else if (dirIn) P.face = dirIn;
+    if (Math.random() < 0.15) emit(hx, hy - 2, 1, { col: ['#6ac87a', '#c8ffa0'], sp0: 3, sp1: 14, grav: 40, l0: 0.3, l1: 0.6 });
+    const hit = (tx, ty) => solid(Math.floor(tx / TS), Math.floor(ty / TS));
+    const free = !hit(P.x + 1, P.y + 1) && !hit(P.x + 7, P.y + 1) && !hit(P.x + 1, P.y + 12) && !hit(P.x + 7, P.y + 12);
+    const feet = hit(P.x + 4, P.y + P.h + 1);
+    if (act.jumpP || !free || (feet && Math.abs(V.angv) < 1.2)) {   // let go: fly along the swing, with a little jump
+      P.vine = null; P.vineCd = 0.35; P.vx *= 1.05; P.vy = (act.jumpP ? P.vy - 150 : P.vy); P.jumps = 1; if (!free) { P.x -= Math.sign(P.vx) * 3; P.vx *= -0.3; }
+      if (act.jumpP) { Snd.play('jump'); emit(P.x + 4, P.y + 6, 8, { col: ['#6ac87a', '#fff'], sp0: 15, sp1: 50 }); }
+      return false;
+    }
+    P.inv = Math.max(P.inv - 0, P.inv); return true;
+  }
+  function drawVines(camX, camY) {
+    const vs = Q.L.vines; if (!vs || !vs.length) return;
+    const held = new Map(); for (const p of (coop && Q.players ? Q.players : [Q.P])) { const idx = p.vine ? p.vine.v.i : (p.vn >= 0 ? p.vn : -1); if (idx >= 0) held.set(idx, p); }
+    for (const v of vs) {
+      const sx = Math.round(v.x - camX); if (sx < -60 || sx > VW + 60) continue;
+      const hp = held.get(v.i), a = hp ? Math.atan2((hp.x + 4) - v.x, (hp.y + 4) - v.y) : vineIdle(v), len = hp ? Math.hypot((hp.x + 4) - v.x, (hp.y + 4) - v.y) : v.len;
+      const ay = Math.round(v.y - camY);
+      g.fillStyle = '#4a3220'; g.fillRect(sx - 9, ay - 4, 18, 4); g.fillStyle = '#6a4a30'; g.fillRect(sx - 9, ay - 4, 18, 1); g.fillStyle = '#2e8a3e'; for (let k = 0; k < 4; k++) g.fillRect(sx - 8 + k * 5, ay - 1, 3, 4 + (k % 2) * 2);   // the branch it hangs from
+      const N = Math.max(6, Math.round(len / 5)), pts = [];
+      for (let k = 0; k <= N; k++) { const s2 = k / N, bend = Math.sin(s2 * Math.PI) * (hp ? 0 : 1.2) + (hp ? Math.sin(Q.t * 6 + k) * 0.2 * Math.abs(Math.sin(a)) : 0); pts.push([sx + Math.sin(a) * len * s2 + Math.cos(a) * bend, ay + Math.cos(a) * len * s2]); }
+      g.lineCap = 'round'; g.strokeStyle = '#14301c'; g.lineWidth = 3.2; g.beginPath(); pts.forEach((q, k) => k ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.stroke();
+      g.strokeStyle = hp ? '#8aff9a' : '#3aa04a'; g.lineWidth = 1.8; g.beginPath(); pts.forEach((q, k) => k ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.stroke();
+      g.strokeStyle = '#a8ffb8'; g.lineWidth = 0.6; g.beginPath(); pts.forEach((q, k) => k ? g.lineTo(q[0] - 0.6, q[1]) : g.moveTo(q[0] - 0.6, q[1])); g.stroke(); g.lineWidth = 1;
+      pts.forEach((q, k) => { if (k % 3 === 1) { g.fillStyle = k % 2 ? '#2e8a3e' : '#5ac86a'; g.fillRect(Math.round(q[0] + (k % 2 ? 1 : -3)), Math.round(q[1]), 3, 2); } });   // leaves
+      const e = pts[pts.length - 1]; g.fillStyle = '#c8a060'; g.fillRect(Math.round(e[0]) - 2, Math.round(e[1]) - 1, 4, 4); g.fillStyle = '#6a4a30'; g.fillRect(Math.round(e[0]) - 2, Math.round(e[1]) + 2, 4, 1);   // the knot at the bottom
+      if (!hp && Q.P && Math.abs(Q.P.x - v.x) < 90 && !Q.P.onGround) { g.globalAlpha = 0.5 + 0.3 * Math.sin(Q.t * 6); g.fillStyle = '#ffffff'; g.fillRect(Math.round(e[0]) - 1, Math.round(e[1]) - 6, 2, 2); g.globalAlpha = 1; }
+    }
+  }
   function updatePlayer(dt) {
     const P = Q.P, L = Q.L;
     P.anim += dt; P.inv = Math.max(0, P.inv - dt);
     if (P.emoT > 0) { P.emoT -= dt; if (P.emoT <= 0) P.emo = null; }
     if (!P.emo && P.hp <= 1 && P.hp > 0) P.emo = 'cry';
     if (P.emo === 'cry' && Math.random() < 0.12) emit(P.x + 4 + (Math.random() < 0.5 ? -3 : 3) * P.face, P.y + 3, 1, { col: '#8ad8ff', sp0: 2, sp1: 8, vy: 20, grav: 160, l0: 0.4, l1: 0.7 }); P.atkCd -= dt; P.dashCd -= dt; P.drop -= dt;
+    if (P.vineCd > 0) P.vineCd -= dt;
+    if (vineStep(P, dt)) return;   // hanging on a vine: the vine drives the body
     // timers
     if (act.jumpP) P.jumpBuf = 0.12; else P.jumpBuf -= dt;
     if (P.onGround) { P.coyote = 0.09; P.jumps = 0; } else P.coyote -= dt;
@@ -3357,6 +3415,10 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       g.drawImage(ly.c, Math.round(ox), y); g.drawImage(ly.c, Math.round(ox) + 512, y);
     }
     drawSurface(camX, camY);
+    // depth: the Sunken Deep fades to black the further down you go; the Deepdig sinkhole glows hotter toward its bottom
+    if (B.deep) { const dp = clamp((cam.y / TS - 6) / Math.max(10, L.H - 6 - VH / TS), 0, 1);
+      if (B.id === 'ocean') { g.fillStyle = 'rgba(0,4,16,' + (dp * 0.62).toFixed(3) + ')'; g.fillRect(0, 0, VW, VH); }
+      else { const gr = g.createLinearGradient(0, VH * 0.3, 0, VH); gr.addColorStop(0, 'rgba(255,90,20,0)'); gr.addColorStop(1, 'rgba(255,90,20,' + (dp * 0.35).toFixed(3) + ')'); g.fillStyle = gr; g.fillRect(0, 0, VW, VH); } }
     { const hz = g.createLinearGradient(0, VH * 0.42, 0, VH); hz.addColorStop(0, hexA(B.sky[2], 0)); hz.addColorStop(1, hexA(B.sky[2], B.dark > 0.5 ? 0.1 : 0.22)); g.fillStyle = hz; g.fillRect(0, VH * 0.42, VW, VH * 0.58); }
     if (Q.li === 6 && Q.boss && Q.boss.id === 'quoc' && Q.arenaSealed && Q.boss.fi > 0) drawFormScene(Q.boss.fi);
     const tx0 = Math.floor(camX / TS), tx1 = Math.floor((camX + VW) / TS), ty0 = Math.floor(camY / TS), ty1 = Math.floor((camY + VH) / TS);
@@ -3410,6 +3472,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     drawFx(camX, camY);
     drawGearFx(camX, camY);
     drawSummons(camX, camY);
+    drawVines(camX, camY);
     drawPlayer(camX, camY);
     // projectiles
     for (const p of Q.projs) {
@@ -5624,7 +5687,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     return out;
   }
   function packPlayer(p) {
-    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, ws: p.ws, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, armT: p.armT, armDur: p.armDur, armDir: p.armDir, armSpin: p.armSpin, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
+    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, vn: p.vine ? p.vine.v.i : -1, ws: p.ws, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, armT: p.armT, armDur: p.armDur, armDir: p.armDir, armSpin: p.armSpin, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
   }
   function coopSnapshot() {
     if (Q.talk && !Q.talk.id) { Q.talk.id = ++coop.tkN; Q.talk.doneList = Q.talk.doneList || []; }
