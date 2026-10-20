@@ -247,3 +247,18 @@ Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future 
   - Time-based particles: ash, embers and star dust.
   - Post-processing on every frame: bloom (bright pass, blur, additive), colour grade (soft-light), vignette, film grain and 2.35:1-style letterbox bars.
 - **Score:** a separate film score (`Snd.cine`) with a sad piano, a building taiko and strings, an epic part with brass and choir, and a calm part with bells. One-shot hits come from `Snd.cineHit` (parry ring, roar, bass drop). Code: `tools/cine_block.js`, added by `tools/patch_cine.py`.
+
+## Animator (every character)
+- **Heroes** have six pixel-art animations drawn frame by frame. All 30 heroes share them through their colour swaps, and frames are 21 rows tall so the feet never jump. Hats, weapons, the lantern and armour follow the head and hands.
+
+  | Animation | Frames | When it plays |
+  |---|---|---|
+  | Idle | 4 | Breathing (the body sinks 1 px) |
+  | Walk | 6 | Starting to move or slowed |
+  | Run | 6 | Full speed, leaning forward |
+  | Push | 6 | Walking into a wall, leaning in |
+  | Jump | 6 | Crouch, take-off, rise, top, fall, landing squash |
+  | Hurt | 3 | The middle frame is a red silhouette |
+
+- **Monsters, bosses, pets, NPCs and summons** use a shared stepped animator, `animPose`, with the same states: idle, walk, run, push (shield block), jump and hurt. It runs at about 10 fps like pixel art and includes the red hurt frame. Each enemy type's own poses (charge, dive, dig...) are layered on top. `redOf(sprite)` makes the red version of any sprite.
+

@@ -53,6 +53,30 @@ const heroLegs = {
 };
 const rev = rows => rows.map(r => r.split('').reverse().join(''));
 const heroFrame = (top, legs) => top.concat(heroBody, legs);
+// ---- the full animator set (idle 4, walk 6, run 6, push 6, jump 6, hurt 3), all 21 rows tall so the feet stay put ----
+Object.assign(heroLegs, {
+  idleS: ['......AAbbbbAA......', '......AAA..AAA......', '......qAq..qAq......', '......qqq..qqq......', '.....qqqq..qqqq.....'],
+  walkA: ['......AAbbbbAA......', '......AAA...AAA.....', '.....AAA.....AAA....', '.....qAq.....qAq....', '.....qqq.....qqq....', '....qqqq.....qqqq...'],
+  walkB: ['......AAbbbbAA......', '......AAA..AAA......', '......AAA...AAA.....', '......qAq...qAq.....', '......qqq...qqq.....', '.....qqqq...qqqq....'],
+  runC: ['......AAbbbbAA......', '.....AAA...AAAA.....', '....AAA.......AAq...', '...qAq.........qqq..', '...qqq..............', '..qqqq..............'],
+  pushA: ['......AAbbbbAA......', '.....AAA....AA......', '....AAA.....AAA.....', '...qAq.......qAq....', '..qqq........qqq....', '.qqqq........qqqq...'],
+  pushB: ['......AAbbbbAA......', '......AAA..AA.......', '.....AAA...AAA......', '....qAq.....qAq.....', '...qqq......qqq.....', '..qqqq......qqqq....'],
+  pushC: ['......AAbbbbAA......', '.......AAAAA........', '......AAA.AAA.......', '.....qAq...qAq......', '....qqq....qqq......', '...qqqq....qqqq.....'],
+  crouch: ['......AAbbbbAA......', '.....AAAA..AAAA.....', '....qAAq....qAAq....', '...qqqqq...qqqqq....'],
+  land: ['......AAbbbbAA......', '.....AAA....AAA.....', '.....qAq....qAq.....', '.....qqq....qqq.....', '....qqqq....qqqq....']
+});
+const shiftRow = (r, n) => n > 0 ? '.'.repeat(n) + r.slice(0, r.length - n) : (n < 0 ? r.slice(-n) + '.'.repeat(-n) : r);
+// lean: the head moves n pixels (forward = right, the way the sprite faces), the chest half as much; short legs = the body sinks
+const HERO_META = {};
+function heroPose(top, legs, lean) {
+  lean = lean || 0; const sink = 6 - legs.length, W = 20, half = Math.round(lean / 2);
+  const rows = [];
+  for (let i = 0; i < sink; i++) rows.push('.'.repeat(W));
+  top.forEach(r => rows.push(shiftRow(r, lean)));
+  heroBody.forEach((r, i) => rows.push(shiftRow(r, i < 8 ? lean : half)));
+  return { rows: rows.concat(legs), meta: { bx: lean, by: sink } };
+}
+function heroSet(name, poses) { HERO_META[name] = poses.map(p => p.meta); return poses.map(p => p.rows); }
 
 const withSpear = rows => rows.map((r, i) => (i >= 3 ? r.substr(0, 14) + 'n' + r.substr(15) : (i >= 1 ? r.substr(0, 14) + 'a' + r.substr(15) : r)));
 const ART = {
@@ -143,6 +167,12 @@ const ART = {
   hero_run: [heroFrame(heroTop[0], heroLegs.runA), heroFrame(heroTop[1], heroLegs.runB), heroFrame(heroTop[0], rev(heroLegs.runA)), heroFrame(heroTop[1], heroLegs.runB)],
   hero_jump: [heroFrame(heroTop[0], heroLegs.jump)],
   hero_fall: [heroFrame(heroTop[1], heroLegs.fall)],
+  hero_idle4: heroSet('hero_idle4', [heroPose(heroTop[0], heroLegs.idle), heroPose(heroTop[1], heroLegs.idle), heroPose(heroTop[0], heroLegs.idleS), heroPose(heroTop[1], heroLegs.idleS)]),
+  hero_walk: heroSet('hero_walk', [heroPose(heroTop[0], heroLegs.walkA), heroPose(heroTop[1], heroLegs.walkB), heroPose(heroTop[0], heroLegs.runB), heroPose(heroTop[1], rev(heroLegs.walkA)), heroPose(heroTop[0], rev(heroLegs.walkB)), heroPose(heroTop[1], heroLegs.runB)]),
+  hero_run6: heroSet('hero_run6', [heroPose(heroTop[0], heroLegs.runA, 1), heroPose(heroTop[1], heroLegs.runC, 1), heroPose(heroTop[0], heroLegs.runB, 1), heroPose(heroTop[1], rev(heroLegs.runA), 1), heroPose(heroTop[0], rev(heroLegs.runC), 1), heroPose(heroTop[1], heroLegs.runB, 1)]),
+  hero_push: heroSet('hero_push', [heroPose(heroTop[0], heroLegs.pushA, 2), heroPose(heroTop[1], heroLegs.pushB, 2), heroPose(heroTop[0], heroLegs.pushC, 2), heroPose(heroTop[1], heroLegs.pushA, 2), heroPose(heroTop[0], heroLegs.pushB, 2), heroPose(heroTop[1], heroLegs.pushC, 2)]),
+  hero_jump6: heroSet('hero_jump6', [heroPose(heroTop[0], heroLegs.crouch), heroPose(heroTop[1], heroLegs.jump), heroPose(heroTop[0], heroLegs.jump), heroPose(heroTop[1], heroLegs.fall), heroPose(heroTop[0], heroLegs.fall), heroPose(heroTop[1], heroLegs.land)]),
+  hero_hurt: heroSet('hero_hurt', [heroPose(heroTop[1], heroLegs.idleS, -1), heroPose(heroTop[1], heroLegs.idleS, -1), heroPose(heroTop[0], heroLegs.idle, -1)]),
   slime: [[
     '....tttttt....',
     '..ttgggggggg..',
@@ -1058,6 +1088,13 @@ function bossSprite(i) {
   return _cache[key];
 }
 
+// the red "hurt" silhouette of any sprite (the middle frame of every Hurt animation)
+function redOf(spr) {
+  if (!spr || !spr.c) return spr; if (spr._red) return spr._red;
+  const tint = src => { const c = document.createElement('canvas'); c.width = src.width; c.height = src.height; const x = c.getContext('2d'); x.drawImage(src, 0, 0); x.globalCompositeOperation = 'source-atop'; x.fillStyle = 'rgba(232,40,52,.82)'; x.fillRect(0, 0, c.width, c.height); return c; };
+  const c = tint(spr.c), f = spr.f ? tint(spr.f) : c;
+  return (spr._red = Object.assign({}, spr, { c, f, cw: c, fw: f }));
+}
 // draw sprite: x = centre, y = bottom (feet)
 function drawSpr(g, spr, x, y, flip, flash, sx, sy, alpha) {
   sx = sx || 1; sy = sy || sx;

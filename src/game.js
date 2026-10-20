@@ -1221,7 +1221,7 @@
       if (take <= 0) { P.inv = 0.8; Snd.play('clang'); emit(P.x + 4, P.y + 7, 8, { col: ['#cfd6e6', '#fff'], sp0: 20, sp1: 70 }); thornsAndFx(); return false; }
       n = take;
     }
-    P.hp -= n; P.inv = 1.2; if (!coop || P === Q.me) { Q.freeze = 0.07; Q.shake = 0.25; }
+    P.hp -= n; P.inv = 1.2; P.hurtA = 0.36; if (!coop || P === Q.me) { Q.freeze = 0.07; Q.shake = 0.25; }
     Snd.play('hurt'); Snd.hero('hurt'); setEmo('hurt', 0.45);
     emit(P.x + P.w / 2, P.y + P.h / 2, 10, { col: ['#e0453a', '#f6f3e9'], sp0: 30, sp1: 90 });
     if (!noKnock) { P.vx = (P.x + P.w / 2 < fromX ? -1 : 1) * 130; P.vy = -170; P.atk = 0; }
@@ -1301,7 +1301,8 @@
     if (P.atk > 0) P.atk -= dt;
     // riding platforms
     if (P.riding) { P.x += P.riding.dx; P.y += P.riding.dy; }
-    moveX(P, P.vx * dt);
+    { const blk = moveX(P, P.vx * dt); P.push = blk && dir !== 0 && P.onGround ? 0.14 : Math.max(0, (P.push || 0) - dt); }
+    if (P.hurtA > 0) P.hurtA -= dt; if (P.landA > 0) P.landA -= dt; P.airT = P.onGround ? 0 : (P.airT || 0) + dt;
     const wasAir = !P.onGround, impact = P.vy;
     P.riding = null;
     moveY(P, P.vy * dt);
@@ -1314,6 +1315,7 @@
         }
       }
     }
+    if (wasAir && P.onGround && impact > 60) P.landA = 0.12;
     if (wasAir && P.onGround && impact > 180) { Snd.play('land'); emit(P.x + 4, P.y + P.h, 6, { col: '#cfd6e6', sp0: 15, sp1: 40, vy: -5, grav: 50 }); }
     // safe pos tracking
     if (P.onGround && P.groundCh !== 'C' && P.groundCh !== 'P') {
@@ -1915,6 +1917,17 @@
   // ===================== ANIMATION / EFFECTS =====================
   function addRing(x, y, col, max, dur) { Q.rings.push({ x, y, col, max: max || 60, dur: dur || 0.45, t: 0 }); }
   function addGhost(b, type) { Q.ghosts.push({ spr: b.spr, x: b.x + b.w / 2, bot: b.y + b.h, flip: b.dir < 0, type, t: 0, dur: 0.32 }); }
+  // the shared animator for code-drawn characters: the same six states as the hero, stepped at ~10 fps like pixel art
+  // st: 'idle' | 'walk' | 'run' | 'push' | 'jump' | 'hurt'; k: progress for jump (vy) or hurt (0..1). Returns {sx, sy, ox, oy, rot, red}
+  function animPose(st, t, dir, k) {
+    const F = (fps, n) => Math.floor(t * fps) % n, o = { sx: 1, sy: 1, ox: 0, oy: 0, rot: 0, red: false };
+    if (st === 'hurt') { const f = Math.min(2, Math.floor(k * 3)); o.red = f === 1; o.ox = -dir * (f === 2 ? 1 : 2); o.rot = -dir * 0.08; o.sx = 1.06; o.sy = 0.94; return o; }
+    if (st === 'jump') { const vy = k || 0; if (vy < -120) { o.sy = 1.12; o.sx = 0.9; } else if (vy < 60) { o.sy = 1.02; o.sx = 0.98; o.rot = dir * 0.04; } else { o.sy = 1.08; o.sx = 0.94; o.rot = -dir * 0.04; } return o; }
+    if (st === 'push') { const f = F(7, 6); o.rot = dir * 0.14; o.ox = dir * 1; o.oy = f % 3 === 1 ? -1 : 0; o.sx = 1.04; return o; }
+    if (st === 'run') { const f = F(12, 6); o.oy = [0, -2, -1, 0, -2, -1][f]; o.rot = dir * 0.1; o.sy = [0.94, 1.06, 1, 0.94, 1.06, 1][f]; o.sx = 2 - o.sy; return o; }
+    if (st === 'walk') { const f = F(9, 6); o.oy = [0, -1, -1, 0, -1, -1][f]; o.rot = dir * [0.03, 0.05, 0.02, 0.03, 0.05, 0.02][f]; o.sy = [0.97, 1.02, 1, 0.97, 1.02, 1][f]; o.sx = 2 - o.sy; return o; }
+    const f = F(4, 4); o.sy = [1, 1.025, 1.04, 1.025][f]; o.sx = 2 - o.sy; return o;   // idle: breathing in 4 steps
+  }
   function drawSprT(gc, spr, x, bot, flip, flash, sx, sy, rot, alpha) {
     const img = flash ? (flip ? spr.fw : spr.cw) : (flip ? spr.f : spr.c);
     gc.save(); gc.translate(Math.round(x), Math.round(bot)); if (rot) gc.rotate(rot); if (alpha !== undefined && alpha < 1) gc.globalAlpha = Math.max(0, alpha);
@@ -2752,7 +2765,8 @@
     if (G.lyra) { const ly = G.lyra, hop = Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(ly.t * 12)) * 2 : Math.sin(ly.t * 3) * 0.6; drawSpr(g, npcSpr('npc_lyra_leek'), Math.round(ly.x - camX), Math.round(ly.y - camY + hop), ly.x > P.x + 4); }
     drawAllies(camX, camY);
     const pt = G.pet;
-    if (pt && !(G.petForm > 0)) { const sp = petSprite(pt.id), fly = FLY_PET[pt.id], hop = fly ? 0 : (Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(pt.t * 14)) * 2 : 0), off = pt.lunge > 0 ? pt.tdir * 5 : 0; g.globalAlpha = pt.id === 'ghostie' ? 0.75 : 1; drawSpr(g, sp, Math.round(pt.x - camX + off), Math.round(pt.y - camY + hop), pt.f < 0); g.globalAlpha = 1; }
+    if (pt && !(G.petForm > 0)) { const sp = petSprite(pt.id), fly = FLY_PET[pt.id], hop = fly ? 0 : (Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(pt.t * 14)) * 2 : 0), off = pt.lunge > 0 ? pt.tdir * 5 : 0; const pvx = (pt.x - (pt.lx === undefined ? pt.x : pt.lx)) * 60; pt.lx = pt.x; const PA = animPose(fly ? 'idle' : (Math.abs(pvx) > 90 ? 'run' : Math.abs(pvx) > 8 ? 'walk' : 'idle'), pt.t, pt.f < 0 ? -1 : 1, 0);
+      drawSprT(g, sp, Math.round(pt.x - camX + off + PA.ox), Math.round(pt.y - camY + (fly ? hop : 0) + PA.oy), pt.f < 0, false, PA.sx, PA.sy, PA.rot, pt.id === 'ghostie' ? 0.75 : 1); }
     if (G.god) {
       const gd = G.god, gs = godSprite(), x = Math.round(gd.x - camX), y = Math.round(gd.y - camY), a = Math.min(1, gd.life / 0.8, gd.t / 0.4);
       g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x, y + 10, 0, x, y + 10, 46); gr.addColorStop(0, 'rgba(255,230,90,' + 0.4 * a + ')'); gr.addColorStop(1, 'rgba(255,230,90,0)'); g.fillStyle = gr; g.fillRect(x - 46, y - 40, 92, 100); g.globalCompositeOperation = 'source-over';
@@ -3414,8 +3428,8 @@
         drawSpr(g, icon('key'), x, y + 5 + Math.round(Math.sin(it.ph * 3) * 1.5), false);
         if (Math.random() < 0.15) emit(it.x + rr(-6, 6), it.y + rr(-5, 5), 1, { col: ['#fff', '#ffd34e'], sp0: 2, sp1: 8, grav: -10, l0: 0.3, l1: 0.7 });
       } else if (it.kind === 'npc') {
-        const n = NPCS[it.who], sp = npcSpr(n.spr), bob = Math.round(Math.sin(it.ph * 2) * 0.5 + 0.5);
-        drawSpr(g, sp, x, y - bob, Q.P.x + 4 < it.x);
+        const n = NPCS[it.who], sp = npcSpr(n.spr), bob = 0, NA = animPose('idle', it.ph, 1, 0);
+        drawSprT(g, sp, x, y, Q.P.x + 4 < it.x, false, NA.sx, NA.sy, 0);
         const by = y - sp.h - 4 - bob;
         if (Q.nearNpc === it && Q.state === 'play') { txt(T('talk'), x, by - 4, { al: 'center', size: 6, col: '#ffd34e' }); }
         else if (Q.nearNpc !== it) { g.fillStyle = '#1b1626'; g.fillRect(x - 4, by - 5, 9, 7); g.fillStyle = '#fff'; g.fillRect(x - 3, by - 4, 7, 5); g.fillStyle = '#1b1626'; g.fillRect(x - 2, by - 2, 1, 1); g.fillRect(x, by - 2, 1, 1); g.fillRect(x + 2, by - 2, 1, 1); }
@@ -3443,9 +3457,14 @@
     if (x < -40 || x > VW + 40) return;
     if (c.ai === 'blob' && e.st === 'wait') return;
     if (e.hid) { g.fillStyle = '#a07030'; g.fillRect(Math.round(x - 4), Math.round(bot - 2), 8, 2); g.fillStyle = '#c8964a'; g.fillRect(Math.round(x - 2), Math.round(bot - 3), 4, 1); return; }
-    const fr = c.spr === 'bat' ? (Math.floor(e.t * 8) % 2) : 0, spr = getSprite(c.spr, c.swap || {}, fr, c.out), t = e.t;
+    const fr = c.spr === 'bat' ? (Math.floor(e.t * 8) % 2) : 0, t = e.t;
+    let spr = getSprite(c.spr, c.swap || {}, fr, c.out);
     let sx = 1, sy = 1, rot = 0, ox = 0, oy = 0, al;
     const ground = e.onGround;
+    { const sp = Math.abs(e.vx || 0), hurt = e.hitT > 0 || e.flash > 0, flyer = c.ai === 'fly' || c.ai === 'ghost' || c.ai === 'flyshoot' || e.fly;
+      const st = hurt ? 'hurt' : (!ground && !flyer ? 'jump' : (e.st === 'block' ? 'push' : (sp > 60 || e.st === 'rush' ? 'run' : (sp > 2 ? 'walk' : 'idle'))));
+      const A = animPose(flyer && st !== 'hurt' ? 'idle' : st, t, e.dir || 1, st === 'hurt' ? 1 - clamp(Math.max(e.hitT || 0, e.flash || 0) / 0.18, 0, 1) : e.vy);
+      sx = A.sx; sy = A.sy; ox = A.ox; oy = A.oy; rot = A.rot; if (A.red) spr = redOf(spr); }
     if (c.ai === 'hop') {
       if (ground) { const ant = (e.cd > 0 && e.cd < 0.3) ? (1 - e.cd / 0.3) : 0; sy = 1 - 0.3 * ant + 0.04 * Math.sin(t * 5); sx = 1 + 0.25 * ant; }
       else { const st = clamp(Math.abs(e.vy) / 700, 0, 0.3); sy = 1 + st; sx = 1 - st * 0.6; }
@@ -3456,8 +3475,8 @@
       else if (e.st === 'block') { sy = 0.92; sx = 1.08; rot = -e.dir * 0.05; }
       else if (e.st === 'dig') { const k = clamp(1 - e.stT / 0.5, 0, 1); sy = 1 - 0.7 * k; oy = 3 * k; }
       else if (e.st === 'pop') { sy = 1.2; sx = 0.88; rot = e.dir * 0.1; }
-      else if (mv) { oy = -Math.abs(Math.sin(t * (7 + e.sp / 12))) * 1.6; rot = e.dir * 0.06 * Math.sin(t * 8); sy = 1 + 0.04 * Math.sin(t * 15); }
-      else sy = 1 + 0.03 * Math.sin(t * 3);
+      else if (mv) { }   // walk / run come from animPose
+      else { }
     } else if (c.ai === 'fly') {
       rot = clamp(e.vx / 160, -0.3, 0.3);
       if (e.st === 'dive') { rot = Math.atan2(e.dvy || 0, Math.abs(e.dvx || 1)) * (e.dir < 0 ? -1 : 1) * 0.8; sx = 1.1; sy = 0.9; }
@@ -3532,7 +3551,9 @@
     if (b.st === 'evade') { g.globalAlpha = 0.35; drawSprT(g, b.spr, x - b.ed * 14, bot, b.dir < 0, false, 1, 1, 0, 0.35); g.globalAlpha = 1; }
     if ((b.sk === 'charge' || b.sk === 'rush') && b.st === 'act') { g.globalAlpha = 0.25; drawSprT(g, b.spr, x - b.dir * 12, bot, b.dir < 0, false, 1.1, 0.92, b.dir * 0.2, 0.25); drawSprT(g, b.spr, x - b.dir * 24, bot, b.dir < 0, false, 1.05, 0.95, b.dir * 0.2, 0.15); g.globalAlpha = 1; }
     let al = P.al; if (b.invul > 0 && Math.floor(Q.t * 20) % 2 === 0) al = Math.min(al, 0.45);
-    drawSprT(g, b.spr, x + P.ox, bot + bob + P.oy, b.dir < 0, b.flash > 0 || tele || b.revT > 0, P.sx * (c.artScale || 1), P.sy * (c.artScale || 1), P.rot, al);
+    const bst = b.flash > 0 ? 'hurt' : (!b.onGround && !c.fly && !c.eclipse ? 'jump' : (b.moveT > 0 || b.st === 'evade' ? (Math.abs(b.vx || 0) > 140 ? 'run' : 'walk') : 'idle'));
+    const BA = animPose(bst, b.t, b.dir || 1, bst === 'hurt' ? 1 - clamp(b.flash / 0.15, 0, 1) : b.vy), bsx = bst === 'hurt' ? 1 : BA.sx, bsy = bst === 'hurt' ? 1 : BA.sy;
+    drawSprT(g, BA.red ? redOf(b.spr) : b.spr, x + P.ox + (bst === 'hurt' ? BA.ox : 0), bot + bob + P.oy + BA.oy, b.dir < 0, (b.flash > 0 && !BA.red) || tele || b.revT > 0, P.sx * bsx * (c.artScale || 1), P.sy * bsy * (c.artScale || 1), P.rot + BA.rot * 0.5, al);
     if (b.cloak && Math.random() < 0.5) { g.fillStyle = Math.random() < 0.5 ? '#a15be0' : '#fff'; g.fillRect(x + Math.round(rr(-b.w / 2, b.w / 2)), bot - Math.round(rr(0, b.h)), 1, 2); }
     if (b.shield > 0) { g.globalAlpha = 0.35 + Math.sin(Q.t * 12) * 0.12; disc(g, x, bot - (b.h >> 1), Math.round(b.h * 0.62), '#6ee7f2'); g.globalAlpha = 1; g.fillStyle = '#fff'; g.fillRect(x - 1, bot - b.h - 8, 3, 3); }
     if (b.guard > 0) { g.globalAlpha = 0.5; g.strokeStyle = '#cfd6e6'; g.lineWidth = 2; g.strokeRect(x - (b.w >> 1) - 3, bot - b.h - 3, b.w + 6, b.h + 4); g.globalAlpha = 1; for (let i = 0; i < 3; i++) { const a = Q.t * 5 + i * 2.1; g.fillStyle = '#fff'; g.fillRect(Math.round(x + Math.cos(a) * (b.w / 2 + 4)), Math.round(bot - (b.h >> 1) + Math.sin(a) * (b.h / 2)), 2, 2); } }
@@ -3590,6 +3611,17 @@
     if (coop && Q.players && Q.players.length) { for (const p of Q.players) { if (p.down) drawDown(p, camX, camY); else asP(p, () => drawPlayer1(camX, camY)); } return; }
     drawPlayer1(camX, camY);
   }
+  // the player's animator: Idle (4 frames), Walk (6), Run (6), Push (6, against a wall), Jump (6: crouch, take-off, rise, top, fall, land), Hurt (3, the middle one red)
+  function heroAnim(P, swim) {
+    const RUNV = RUN * 0.72, sp = Math.abs(P.vx);
+    if (P.hurtA > 0) { const f = Math.min(2, Math.floor((1 - P.hurtA / 0.36) * 3)); return { n: 'hero_hurt', f, red: f === 1 }; }
+    if (swim) return { n: 'hero_run6', f: Math.floor(P.anim * (P.vy < -20 ? 14 : 7)) % 6 };
+    if (!P.onGround) { const vy = P.vy, f = P.airT < 0.06 && vy < 0 ? 0 : vy < -140 ? 1 : vy < -40 ? 2 : vy < 80 ? 3 : 4; return { n: 'hero_jump6', f }; }
+    if (P.landA > 0) return { n: 'hero_jump6', f: 5 };
+    if (P.push > 0) return { n: 'hero_push', f: Math.floor(P.anim * 7) % 6 };
+    if (sp > 15) return sp < RUNV || P.slow > 0 ? { n: 'hero_walk', f: Math.floor(P.anim * 9) % 6 } : { n: 'hero_run6', f: Math.floor(P.anim * 12) % 6 };
+    return { n: 'hero_idle4', f: Math.floor(P.anim * 4) % 4 };
+  }
   function drawPlayer1(camX, camY) {
     const P = Q.P;
     if (Q.state === 'dead') return;
@@ -3601,27 +3633,25 @@
     if (!hh && !coop && (save.cos.aura || save.cos.wings)) av = Object.assign({ sw: {} }, av || {}, save.cos.aura ? { aura: '#ffd34e' } : {}, save.cos.wings && !(av && av.wings) ? { wings: 'dragon' } : {});
     const swp = av ? av.sw : {};
     if (av) drawArmorBack(av, x, bot);
-    let spr;
-    if (swim) spr = getSprite('hero_run', swp, Math.floor(P.anim * (P.vy < -20 ? 14 : 7)) % 4);
-    else if (!P.onGround) spr = getSprite(P.vy < 0 ? 'hero_jump' : 'hero_fall', swp, 0);
-    else if (Math.abs(P.vx) > 15) spr = getSprite('hero_run', swp, Math.floor(P.anim * 12) % 4);
-    else spr = getSprite('hero_idle', swp, Math.floor(P.anim * 3) % 2);
-    if (hh && hh.custom) { const fa = Math.floor(P.anim * 12) % 4; spr = swim || (Math.abs(P.vx) > 15 && P.onGround) ? mikuSprite('run', fa) : (!P.onGround ? mikuSprite('air', 0) : mikuSprite('idle', Math.floor(P.anim * 3) % 2)); }
+    let spr; const an = heroAnim(P, swim), am = (HERO_META[an.n] || [])[an.f] || { bx: 0, by: 0 };
+    spr = getSprite(an.n, swp, an.f); if (an.red) spr = redOf(spr);
+    const ax = x + am.bx * P.face, ab = bot + am.by;   // where the head and hands are in this frame (hats, weapons, lantern follow)
+    if (hh && hh.custom) { const fa = Math.floor(P.anim * 12) % 4; spr = swim || (Math.abs(P.vx) > 15 && P.onGround) ? mikuSprite('run', fa) : (!P.onGround ? mikuSprite('air', 0) : mikuSprite('idle', Math.floor(P.anim * 3) % 2)); if (an.red) spr = redOf(spr); }
     const bob = 0;
     if (P.trail) for (const tr of P.trail) { g.globalCompositeOperation = 'lighter'; drawSpr(g, spr, Math.round(tr.x + P.w / 2 - camX), Math.round(tr.y + P.h - camY), tr.f < 0, true, 1, 1, tr.t / 0.22 * 0.45); g.globalCompositeOperation = 'source-over'; }
     if (P.dash > 0) g.globalAlpha = 0.75;
     drawSpr(g, spr, x, bot + bob, P.face < 0);
     g.globalAlpha = 1;
-    if (!(hh && hh.custom)) drawEmoteFace(x, bot + bob, P.face < 0, 1, P.emo, P.anim); drawEmoBubble(x - 8, bot - 24, P.emo);
+    if (!(hh && hh.custom)) drawEmoteFace(ax, ab + bob, P.face < 0, 1, P.emo, P.anim); drawEmoBubble(ax - 8, ab - 24, P.emo);
     // lantern
-    const lx = x + P.face * 8, ly = bot - 9 + Math.round(Math.sin(P.anim * 7) * (Math.abs(P.vx) > 15 ? 1.5 : 0.6));
+    const lx = ax + P.face * 8, ly = ab - 9 + Math.round(Math.sin(P.anim * 7) * (Math.abs(P.vx) > 15 ? 1.5 : 0.6));
     g.fillStyle = '#1b1626'; g.fillRect(lx - 3, ly - 3, 6, 7); g.fillRect(lx - 1, ly - 5, 2, 2);
     g.fillStyle = '#ffd34e'; g.fillRect(lx - 2, ly - 2, 4, 5); g.fillStyle = '#fff6c0'; g.fillRect(lx - 1, ly - 1, 2, 2);
     const sw = heldSword();
     const hk = P.hold && save.inv.w.indexOf(P.hold) >= 0 ? P.hold : null, hg = hk && GUN_PAINT[hk] ? hk : ((P.gunT > 0 && P.gunId && GUN_PAINT[P.gunId]) ? P.gunId : null);
-    if (hg) drawHeldGun(hg, x, bot, P.face); else if (hk && WPN_PAINT[hk]) drawHeldWpn(hk, x, bot, P.face); else if (sw) drawHeldSword(sw, x, bot);
-    if (av) drawArmorFront(av, x, bot);
-    if (hh && hh.hat) drawHat(hh, x, bot, P.face);
+    if (hg) drawHeldGun(hg, ax, ab, P.face); else if (hk && WPN_PAINT[hk]) drawHeldWpn(hk, ax, ab, P.face); else if (sw) drawHeldSword(sw, ax, ab);
+    if (av) drawArmorFront(av, ax, ab);
+    if (hh && hh.hat) drawHat(hh, ax, ab, P.face);
     if (P.parryT > 0) { const k = P.parryT / 0.24, cx = x + P.face * 6, cy = bot - 8; g.globalCompositeOperation = 'lighter'; g.strokeStyle = 'rgba(159,232,255,' + (0.5 + k * 0.5) + ')'; g.lineWidth = 2; g.beginPath(); g.arc(cx, cy, 9 + (1 - k) * 3, P.face > 0 ? -1.1 : Math.PI - 1.1, P.face > 0 ? 1.1 : Math.PI + 1.1); g.stroke(); g.fillStyle = 'rgba(255,255,255,' + k * 0.5 + ')'; g.fillRect(cx + P.face * 9 - 1, cy - 6, 2, 12); g.globalCompositeOperation = 'source-over'; g.lineWidth = 1; }
     if (P.counterT > 0 && Math.random() < 0.6) emit(P.x + 4 + rr(-6, 6), P.y + rr(0, 14), 1, { col: ['#ffd34e', '#fff'], sp0: 4, sp1: 16, grav: -30, l0: 0.2, l1: 0.4 });
     if (swim) g.restore();
@@ -6056,13 +6086,14 @@
     else if (atk > 0 && o.attack) { im = o.attack; meta = o.m.attack; fi = Math.min(meta.n - 1, Math.floor((1 - atk) * meta.n)); }
     else if (s.mv && o.walk) { im = o.walk; meta = o.m.walk; fi = Math.floor(s.t * SUM_FPS) % meta.n; }
     else { im = o.idle || o.walk; meta = o.idle ? o.m.idle : o.m.walk; sy = 1 + Math.sin(s.t * 2.6) * 0.016; }
-    const n = meta.n, fw = im.width / n, fh = im.height, sc = H / (meta.ch || fh);
+    const n = meta.n, fw = im.width / n, fh = im.height, sc = H / (meta.ch || fh), red = s.hurtT > 0 && s.hurtT < 0.14 && s.hurtT > 0.06;
     const copies = s.kind === 'golems' ? [-24, 24] : s.kind === 'clones' ? [-22, 0, 22] : [0];
     copies.forEach((d, i) => {
       g.save(); g.imageSmoothingEnabled = true; g.globalAlpha = a * (s.kind === 'clones' ? 0.82 : 1);
       g.translate(x + d + f * ox, by + oy); g.rotate(rot * f); g.scale(f * sx, sy);
       const fj = n > 1 && copies.length > 1 && fi === Math.floor(s.t * SUM_FPS) % n ? (fi + i * 3) % n : fi;
       g.drawImage(im, fj * fw, 0, fw, fh, -fw * sc / 2, -fh * sc, fw * sc, fh * sc);
+      if (red) { g.globalAlpha = 0.75 * a; g.filter = 'brightness(0.75) sepia(1) saturate(9) hue-rotate(-45deg)'; g.drawImage(im, fj * fw, 0, fw, fh, -fw * sc / 2, -fh * sc, fw * sc, fh * sc); g.filter = 'none'; }
       g.restore();
     });
     return H;
