@@ -448,3 +448,8 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
   | Tunnels | Scaffold planks with iron braces |
   | Citadel | Gothic stone with red runes |
 
+## Summons follow you; boss fights pull everyone in
+- With no enemy around, summons walk (or fly) a little behind their owner and line up instead of piling on one spot. They catch up when the owner runs ahead, and reappear next to the owner if left very far behind.
+- When a boss fight starts, every summon drops what it was doing (even a fight with normal monsters far away), appears inside the arena and goes for the boss.
+- **Co-op:** the moment one player walks into the boss arena, the fight starts and every teammate is pulled in to fight together, with a message. Players who were down come back with half their hearts. There is no more waiting for everyone to walk in.
+

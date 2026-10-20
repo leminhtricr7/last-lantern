@@ -1361,7 +1361,7 @@
     // sword
     if (P.atk > 0) swordHit();
     // arena trigger
-    if (!Q.arenaSealed && !Q.bossDead && Q.boss && P.x > (L.arena.x0 + 4) * TS && (L.arena.y0 === undefined || P.y > L.arena.y0 * TS) && coopAllIn(L.arena.x0, L.arena.x1, 'boss')) seal();
+    if (!Q.arenaSealed && !Q.bossDead && Q.boss && P.x > (L.arena.x0 + 4) * TS && (L.arena.y0 === undefined || P.y > L.arena.y0 * TS)) { seal(); if (coop && (Q.players || []).length > 1) { Q.msg = cvs('Boss fight! Your teammates are pulled in to fight together!', 'Đánh boss! Đồng đội được kéo vào đánh cùng!'); Q.msgT = 3.5; } }
   }
   function swordRect() {
     const P = Q.P;
@@ -6401,7 +6401,7 @@
     if (Q.arenaSealed) x = arenaClamp(x);
     const sp0 = from ? { x, y: sumProbe(x, from.y - 18, 8) ?? sumSpawnPoint(o, x).y } : sumSpawnPoint(o, x); x = sp0.x;
     const gy = sp0.y, y = fly ? gy - 60 : gy, L = (life || 7) + (ENT_T[ent] || 1) + 1.6;
-    const sm = { evo: !!evo, stage: 1, hp: sumHp(1), hpMax: sumHp(1), inv: 9, kind, life: L, max: L, t: 0, x, y, f: dir, cd: 0.6, n: 0, owner: o, ph: 'enter', pt: 0, ent, ex: x, ey: y, fromPet: !!from };
+    const sm = { slotOff: (G.sums.filter(q => q.owner === o).length % 4) * 18, evo: !!evo, stage: 1, hp: sumHp(1), hpMax: sumHp(1), inv: 9, kind, life: L, max: L, t: 0, x, y, f: dir, cd: 0.6, n: 0, owner: o, ph: 'enter', pt: 0, ent, ex: x, ey: y, fromPet: !!from };
     if (ent === 'swoop') { sm.x = sm.sx0 = x - dir * 220; sm.y = sm.sy0 = y - 120; }
     G.sums.push(sm);
     Snd.play('relic'); if (ent === 'shadow') { addRing(o.x + 4, o.y + o.h, '#5a2a8a', 40, 0.6); } else { G.flash = Math.max(G.flash || 0, 0.12); }
@@ -6468,7 +6468,7 @@
       const onG = fly || sumPhys(s, dt);   // a walker in the air does nothing until it lands
       const go = d2 => { if (fly) { s.x += d2; return true; } return sumStepX(s, d2); };
       if (!onG) { s.ax = s.ay = 0; }
-      else if (!tg) { if (k < 5 && go(s.f * sp * 0.5 * dt)) s.mv = 1; }
+      else if (!tg) sumFollow(s, o, dt, fly);
       else if (ad > ENR) { if (go(s.f * Math.min(sp * dt, ad - ENR))) s.mv = 1; else if (!fly && ad < ENR * 2.2) { s.ph = 'engage'; s.pt = 0; s.eg = eg; s.tg = tg; s.ex0 = s.x; s.ey0 = s.y; } if (fly) s.y += clamp(tg.y - 60 - s.y, -40 * dt, 40 * dt); }
       else { s.ph = 'engage'; s.pt = 0; s.eg = eg; s.tg = tg; s.ex0 = s.x; s.ey0 = s.y; }
       if (Q.arenaSealed) s.x = arenaClamp(s.x);
@@ -6554,16 +6554,28 @@
     if (!out) return;
     emit(s.x, s.y - 20, 18, { col: [(GIANT[s.kind] || BEAST[s.kind]).glow, '#fff'], sp0: 20, sp1: 90 });
     if (SUM_FLY[s.kind]) { s.x = o.x + 4 - o.face * 26; s.y = o.y - 46; } else { const sp = sumSpawnPoint(o, o.x + 4 - o.face * 26); s.x = sp.x; s.y = sp.y; s.vy = 0; }
+    if (Q.arenaSealed && Q.L.arena) s.x = arenaClamp(s.x);
     emit(s.x, s.y - 20, 24, { col: [(GIANT[s.kind] || BEAST[s.kind]).glow, '#fff'], sp0: 20, sp1: 110 }); Snd.play('poof');
   }
   const SUM_SPD = v => clamp(v * 0.6, 38, 70);   // slow and heavy on purpose
+  // with no enemy around a summon walks (or flies) a little behind its owner; too far away and it catches up
+  function sumFollow(s, o, dt, fly) {
+    const tx = o.x + 4 - o.face * (34 + (s.slotOff || 0)), d = tx - s.x, ad = Math.abs(d);
+    if (Math.abs(o.x - s.x) > 420 || Math.abs(o.y - s.y) > 260) { sumRejoin(s, o, true); return; }
+    s.mv = 0; if (ad < 10) { s.f = o.face; return; }
+    s.f = d < 0 ? -1 : 1; const sp = (ad > 120 ? 2.2 : 1) * 60;
+    if (fly) { sumGlide(s, tx, o.y - 42 + Math.sin(s.t * 2) * 4, dt * (ad > 120 ? 2 : 1)); s.f = d < 0 ? -1 : 1; return; }
+    if (sumStepX(s, s.f * Math.min(sp * dt, ad - 8))) s.mv = 1;
+  }
   // fly toward a point at a slow, steady speed
   function sumGlide(s, tx, ty, dt) { const dx = tx - s.x, dy = ty - s.y, d = Math.hypot(dx, dy), st = Math.min(d, 75 * dt); if (d > 0.5) { s.x += dx / d * st; s.y += dy / d * st; } s.mv = d > 6 ? 1 : 0; }
   const SUM_FLY = { phoenix: 1, dragonking: 1, dragonform: 1, skywhale: 1 };   // these fly, every other summon walks on the ground
   // summons never trail behind the hero: they march on the target, or scout ahead of the hero when no monster is around
   function sumWalk(s, o, dt) {
     const w = SUM_WALK[s.kind] || [90, 50], t = sumTarget(s), sp = SUM_SPD(w[0]); s.mv = 0;
-    if (sumPhys(s, dt) && t) { const d = t.x + t.w / 2 - s.x, ad = Math.abs(d); s.f = d < 0 ? -1 : 1; if (ad > w[1] && sumStepX(s, s.f * Math.min(sp * dt, ad - w[1]))) s.mv = 1; }
+    const onG = sumPhys(s, dt);
+    if (onG && t) { const d = t.x + t.w / 2 - s.x, ad = Math.abs(d); s.f = d < 0 ? -1 : 1; if (ad > w[1] && sumStepX(s, s.f * Math.min(sp * dt, ad - w[1]))) s.mv = 1; }
+    else if (onG) sumFollow(s, o, dt, false);
     if (Q.arenaSealed) s.x = arenaClamp(s.x);
   }
   function evolveSummon(s) {
@@ -6707,6 +6719,11 @@
       s.t += dt; s.life -= dt; s.cd -= dt; if (s.atkT > 0) s.atkT -= dt; if (s.inv > 0) s.inv -= dt; if (s.hurtT > 0) s.hurtT -= dt;
       if (s.dying > 0) { if (Math.random() < 0.8) emit(s.x + rr(-24, 24), s.y - rr(0, 70), 1, { col: [(GIANT[s.kind] || BEAST[s.kind]).glow, '#ffffff'], sp0: 6, sp1: 30, grav: -60, l0: 0.5, l1: 1 }); s.dying -= dt; if (s.dying <= 0) s.life = 0; else s.life = Math.max(s.life, 0.5); continue; }
       if (s.hp <= 0 && s.life > 0) { s.dying = s.dieMax = 0.8; s.life = Math.max(s.life, 0.9); emit(s.x, s.y - 30, 24, { col: [(GIANT[s.kind] || BEAST[s.kind]).glow, '#fff'], sp0: 30, sp1: 140 }); Snd.play('poof'); pop(s.x, s.y - 60, sv('Defeated', 'Bị hạ gục'), '#ff7a7a'); continue; }
+      if (Q.arenaSealed && Q.boss && !Q.boss.dead && !s.dying && s.stage === 1) {   // the boss fight has begun: whatever it was doing, it comes to fight the boss
+        const ar = Q.L.arena; if (ar && (s.x < (ar.x0 + 2) * TS || s.x > ar.x1 * TS)) { sumRejoin(s, s.owner || P, true); pop(s.x, s.y - 40, sv('To the boss!', 'Vào đánh boss!'), (GIANT[s.kind] || BEAST[s.kind]).glow); }
+        if (s.ph && s.ph !== 'fight') { s.ph = 'fight'; s.ax = s.ay = s.arot = s.sink = 0; s.asx = s.asy = s.aal = 1; s.look = 0; s.inv = 0.4; }
+        s.tg = Q.boss;
+      }
       if (s.ph && s.ph !== 'fight') { sumIntro(s, s.owner || P, dt); if (s.ph !== 'fight') continue; s.ax = s.ay = s.arot = s.sink = 0; s.asx = s.asy = s.aal = 1; s.look = 0; }
       s.ft = (s.ft || 0) + dt;
       if (s.evo && s.stage === 1 && ((s.hits || 0) >= 10 || s.ft >= (SUM_EVO[s.kind] || 15))) evolveSummon(s);
@@ -6715,8 +6732,8 @@
       sdm = s.stage === 2 ? 1.8 : 1;
       const o = s.owner || P, fly = !!SUM_FLY[s.kind];
       if (s.kind !== 'phoenix') sumRejoin(s, o);
-      if (s.kind === 'phoenix') { const pt = sumTarget(s); if (pt) { s.f = pt.x + pt.w / 2 > s.x ? 1 : -1; sumGlide(s, pt.x + pt.w / 2 + Math.sin(s.t * 1.6) * 70, pt.y - 70 + Math.sin(s.t * 3) * 6, dt); s.mv = 1; } else { s.mv = 0; s.y += Math.sin(s.t * 2) * 6 * dt; } }
-      else if (fly) { const dr = sumTarget(s); if (dr) { const sd0 = dr.x + dr.w / 2 < s.x ? -1 : 1; s.f = sd0; sumGlide(s, dr.x + dr.w / 2 - sd0 * (s.kind === 'skywhale' ? 0 : 130), dr.y - (s.kind === 'skywhale' ? 90 : 50) + Math.sin(s.t * 2) * 6, dt); } else { s.mv = 0; s.y += Math.sin(s.t * 2) * 5 * dt; } }
+      if (s.kind === 'phoenix') { const pt = sumTarget(s); if (pt) { s.f = pt.x + pt.w / 2 > s.x ? 1 : -1; sumGlide(s, pt.x + pt.w / 2 + Math.sin(s.t * 1.6) * 70, pt.y - 70 + Math.sin(s.t * 3) * 6, dt); s.mv = 1; } else sumFollow(s, o, dt, true); }
+      else if (fly) { const dr = sumTarget(s); if (dr) { const sd0 = dr.x + dr.w / 2 < s.x ? -1 : 1; s.f = sd0; sumGlide(s, dr.x + dr.w / 2 - sd0 * (s.kind === 'skywhale' ? 0 : 130), dr.y - (s.kind === 'skywhale' ? 90 : 50) + Math.sin(s.t * 2) * 6, dt); } else sumFollow(s, o, dt, true); }
       else sumWalk(s, o, dt);
       if (s.cd > 0 || s.t < 0.5 || s.life < 0.3 || (!fly && s.grounded === false)) continue;
       const near = r => nearestFoe(s.x, s.y - 30, r), all = r => foes().filter(e => Math.abs(e.x + e.w / 2 - s.x) < r);
