@@ -5022,7 +5022,7 @@
   // where the legs start in each picture (fraction of the height): the part below swings as two legs
   // legs of each picture in native pixels: hip row, the leg columns x0..x1 and where the left leg ends (sp); everything else
   // (Kayn's scythe, Rhaast's pole, Miku's twin tails, Jerry's tail...) stays fixed to the body
-  const FAN_RIG = { kayn: [36, 0, 31, 15], rhaast: [37, 4, 32, 18], tom: [39, 7, 29, 18], jerry: [38, 12, 37, 24], luffy: [37, 7, 25, 16], sonic: [40, 11, 36, 23], kirby: [33, 3, 41, 22], jotaro: [38, 0, 31, 15], dio: [38, 6, 26, 16], miku: [38, 10, 25, 17] };
+  const FAN_RIG = { kayn: [36, 3, 26, 14], rhaast: [36, 11, 36, 23], tom: [39, 7, 29, 18], jerry: [38, 12, 37, 24], luffy: [37, 7, 25, 16], sonic: [40, 11, 36, 23], kirby: [33, 3, 41, 22], jotaro: [38, 0, 31, 15], dio: [38, 6, 26, 16], miku: [38, 10, 25, 17] };
   function fanParts(key, im) {
     const r = FAN_RIG[key] || [Math.round(im.height * 0.8), 0, im.width - 1, Math.round(im.width / 2)], [hy, x0, x1, sp] = r, H = im.height, top = hy - 2;
     const cut = (sx, sy, w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(im, sx, sy, w, h, 0, 0, w, h); return c; };
