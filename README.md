@@ -483,3 +483,9 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 ## Kirby's R is Copy; sharp pickers
 - **Copy (R, 7 s):** breathe in. A small enemy is pulled in and swallowed. A boss or a big enemy is scanned (hold the breath at it for 0.5 s; it only loses a few hit points). You then turn into a fake copy of what you took for **5 seconds**: its picture, stronger hits (x1.7), an own blast (a boss copy releases a shockwave and pink orbs), and anything you touch is hurt. A pink bar above you counts the 5 s down. Breathing in only air still puffs you up to float (and refunds the cooldown). Puff (Bông Gòn) shares this mechanic.
 - The fan heroes in the pickers are drawn with the full-resolution picture through the hi-res queue (sharp like in the game), on a slightly brighter cell.
+
+## Longer, harder maps (maps 3-10)
+- Maps 1 and 2 are unchanged. From map 3 on (`HARD(li)` in src/levels.js) the maps are about 50% longer: Crystal Caverns 580 tiles, Desert 640, Frost 700, Volcano 760, Swamp 650, Tunnels 820, Shadow Citadel 1000 (the Sunken Deep is a vertical dive and keeps its size).
+- More monsters on each stretch (about 1.5-2x per map), more big and elite monsters, a chance of a second trap on long stretches, and more pitch-black zones on the long maps.
+- Monsters on maps 3-10 have 35% more health, bosses x2.2 instead of x1.7, Quoc's first form x1.9 and his later forms x1.25.
+- Checkpoints still come every 38-52 tiles, so a longer map also has more of them (15-27 per map).

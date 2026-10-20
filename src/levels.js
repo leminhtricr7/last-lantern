@@ -26,7 +26,7 @@ const BIOMES = [
     proj: '#a4e86b', traps: ['turret', 'spiketrap'], trapStyle: 'wood'
   },
   { // 3
-    id: 'caves', seed: 33, len: 380, hazard: 'spikes', dark: 0.7, sun: false, particles: 'drips',
+    id: 'caves', seed: 33, len: 580, hazard: 'spikes', dark: 0.7, sun: false, particles: 'drips',
     name: { en: 'Crystal Caverns', vi: 'Hang Pha Lê' }, sub: { en: 'Only your lantern shows the way', vi: 'Chỉ ngọn đèn của bạn soi đường' },
     sky: ['#0b0a1a', '#17143a', '#2a2260', '#3d3380'], far: '#1b1840', mid: '#241f52', style: 'cave', tree: ['#000', '#000'],
     ground: { top: '#6a68b0', topDark: '#3c3a7a', topLight: '#a0a0ee', body: '#2b2a4a', dark: '#1c1b33', light: '#3f3d6a' },
@@ -37,7 +37,7 @@ const BIOMES = [
     proj: '#6ee7f2', traps: ['rockfall']
   },
   { // 4
-    id: 'desert', seed: 44, len: 420, hazard: 'spikes', dark: 0, sun: true, particles: 'sand',
+    id: 'desert', seed: 44, len: 640, hazard: 'spikes', dark: 0, sun: true, particles: 'sand',
     name: { en: 'Sunscorch Desert', vi: 'Sa Mạc Cháy Nắng' }, sub: { en: 'Even a dead sun leaves its heat', vi: 'Mặt trời chết vẫn để lại hơi nóng' },
     sky: ['#3d1c4a', '#a8404a', '#f08a4a', '#ffd08a'], far: '#c86a4a', mid: '#a8503a', style: 'dunes', tree: ['#000', '#000'],
     ground: { top: '#f0c878', topDark: '#c8964a', topLight: '#ffe8a8', body: '#c8964a', dark: '#a07030', light: '#e0b060' },
@@ -48,7 +48,7 @@ const BIOMES = [
     proj: '#ffd34e', traps: ['turret', 'spiketrap'], trapStyle: 'sand'
   },
   { // 5
-    id: 'frost', seed: 55, len: 460, hazard: 'spikes', dark: 0.1, sun: true, particles: 'snow',
+    id: 'frost', seed: 55, len: 700, hazard: 'spikes', dark: 0.1, sun: true, particles: 'snow',
     name: { en: 'Frostbite Peaks', vi: 'Đỉnh Băng Giá' }, sub: { en: 'Slippery ground, sharper teeth', vi: 'Nền trơn trượt, nanh vuốt sắc hơn' },
     sky: ['#1a2b5a', '#3a5a9a', '#7ab0e0', '#d8f0ff'], far: '#6a8ac0', mid: '#9ac0e8', style: 'ice', tree: ['#000', '#000'],
     ground: { top: '#ffffff', topDark: '#b8d8f0', topLight: '#ffffff', body: '#6a8ac0', dark: '#4a6aa0', light: '#9ac0e8' },
@@ -59,7 +59,7 @@ const BIOMES = [
     proj: '#bfeaff', ice: true, traps: ['rockfall', 'spiketrap']
   },
   { // 6
-    id: 'volcano', seed: 66, len: 500, hazard: 'lava', dark: 0.15, sun: false, particles: 'embers',
+    id: 'volcano', seed: 66, len: 760, hazard: 'lava', dark: 0.15, sun: false, particles: 'embers',
     name: { en: 'Ember Volcano', vi: 'Núi Lửa Tro Tàn' }, sub: { en: 'The ground itself wants you gone', vi: 'Chính mặt đất muốn tiễn bạn đi' },
     sky: ['#1a0808', '#4a1010', '#a02a10', '#f06a20'], far: '#4a1a14', mid: '#2e0f0c', style: 'volcano', tree: ['#000', '#000'],
     ground: { top: '#5a5a66', topDark: '#33333d', topLight: '#80808f', body: '#2e2a30', dark: '#1c181c', light: '#4a3f44' },
@@ -70,7 +70,7 @@ const BIOMES = [
     proj: '#ff9a2a', movers: true, traps: ['jets', 'rockfall', 'saw'], trapStyle: 'dark'
   },
   { // 7
-    id: 'citadel', seed: 77, len: 720, hazard: 'spikes', dark: 0.5, sun: false, stars: true, particles: 'motes',
+    id: 'citadel', seed: 77, len: 1000, hazard: 'spikes', dark: 0.5, sun: false, stars: true, particles: 'motes',
     name: { en: 'Shadow Citadel', vi: 'Thành Trì Bóng Tối' }, sub: { en: 'The Eclipse waits at the top', vi: 'Nhật Thực đang đợi trên đỉnh' },
     sky: ['#06040f', '#150a2a', '#2a1450', '#4a2a7a'], far: '#1a1030', mid: '#0e0820', style: 'citadel', tree: ['#000', '#000'],
     ground: { top: '#7a6aae', topDark: '#3a2f66', topLight: '#a89add', body: '#2a2248', dark: '#1a1430', light: '#463a78' },
@@ -81,7 +81,7 @@ const BIOMES = [
     proj: '#d58bff', movers: true, traps: ['saw', 'turret', 'spiketrap'], trapStyle: 'dark'
   },
   { // 8 (play order 7)
-    id: 'swamp', seed: 88, len: 430, hazard: 'spikes', dark: 0.35, sun: false, particles: 'spores',
+    id: 'swamp', seed: 88, len: 650, hazard: 'spikes', dark: 0.35, sun: false, particles: 'spores',
     name: { en: 'Glowcap Swamp', vi: 'Đầm Lầy Nấm Phát Quang' }, sub: { en: 'Everything here glows, and everything here bites', vi: 'Mọi thứ ở đây đều phát sáng, và đều biết cắn' },
     sky: ['#06120e', '#0f2a20', '#1f4a34', '#3f6a3a'], far: '#14301f', mid: '#0b1f16', style: 'swamp', tree: ['#0c2018', '#1d4a35'],
     ground: { top: '#4a7a3a', topDark: '#2a4a22', topLight: '#7ab04a', body: '#3a2e22', dark: '#241c14', light: '#54442e' },
@@ -103,7 +103,7 @@ const BIOMES = [
     proj: '#6ee7f2', traps: ['rockfall', 'saw'], trapStyle: 'dark'
   },
   { // 10 (play order 9)
-    id: 'tunnels', seed: 111, len: 580, deep: 34, arenaW: 72, lake: true, zoom: 0.55, hazard: 'spikes', dark: 0.62, sun: false, particles: 'drips',
+    id: 'tunnels', seed: 111, len: 820, deep: 34, arenaW: 72, lake: true, zoom: 0.55, hazard: 'spikes', dark: 0.62, sun: false, particles: 'drips',
     name: { en: 'Deepdig Tunnels', vi: 'Đường Hầm Sâu' }, sub: { en: 'The ground has teeth, and it is hungry', vi: 'Mặt đất có răng, và nó đang đói' },
     sky: ['#0a0806', '#1a140e', '#2a2016', '#3a2c1e'], far: '#1e1610', mid: '#140e0a', style: 'tunnel', tree: ['#000', '#000'],
     ground: { top: '#8a6a4a', topDark: '#5a4430', topLight: '#b08a60', body: '#3a2a1c', dark: '#241a10', light: '#52402c' },
@@ -118,6 +118,7 @@ const BIOMES = [
 const LORDER = [0, 1, 2, 3, 4, 5, 7, 8, 9, 6];
 const LPOS = li => Math.max(0, LORDER.indexOf(li));
 const LDIFF = li => [0, 1, 2, 3, 4, 5, 6, 5.25, 5.5, 5.75][li] || 0;   // how hard a map is (the Citadel stays the hardest)
+const HARD = li => li >= 2;   // maps 3-10 are the long, hard ones (maps 1 and 2 stay gentle)
 
 const BOSS_MUSIC = { root: 48, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 150, wave: 'square', prog: [0, 1, 3, 1], seed: 77, density: 0.7 };
 const DEVIL_MUSIC = { root: 38, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 68, wave: 'sawtooth', prog: [0, 1, 0, -2], seed: 66, density: 0.3 };
@@ -246,8 +247,8 @@ function genLevel(li) {
   }
   function variant() {
     const r = rnd();
-    if (li >= 3 && r < 0.05 + 0.025 * lv) return 'elite';
-    if (li >= 1 && r < 0.12 + 0.03 * lv) return 'big';
+    if (li >= 3 && r < 0.05 + 0.025 * lv + (HARD(li) ? 0.025 : 0)) return 'elite';
+    if (li >= 1 && r < 0.12 + 0.03 * lv + (HARD(li) ? 0.06 : 0)) return 'big';
     if (r > 0.84) return 'small';
     return null;
   }
@@ -263,14 +264,14 @@ function genLevel(li) {
     for (let i = 0; i < n; i++) col(x + i, gy);
     for (let i = 0; i < n; i++) if (rnd() < 0.32) L.decor.push({ x: (x + i) * TS + R(0, 8), y: gy * TS, k: R(0, B.decor.length - 1) });
     if (!o.safe && n >= 5) {
-      const cnt = rnd() < 0.78 + d * 0.2 ? (li === 6 ? 1 : 0) + 1 + (d > 0.45 && rnd() < 0.6 ? 1 : 0) + (d > 0.8 && rnd() < 0.5 ? 1 : 0) + (n >= 9 && rnd() < 0.7 ? 1 : 0) + (li >= 2 && rnd() < 0.35 ? 1 : 0) : 0;
+      const cnt = rnd() < 0.78 + d * 0.2 ? (li === 6 ? 1 : 0) + 1 + (d > 0.45 && rnd() < 0.6 ? 1 : 0) + (d > 0.8 && rnd() < 0.5 ? 1 : 0) + (n >= 9 && rnd() < 0.7 ? 1 : 0) + (li >= 2 && rnd() < 0.55 ? 1 : 0) + (li >= 4 && rnd() < 0.35 ? 1 : 0) : 0;
       for (let c = 0; c < cnt; c++) addEnemy(x + R(2, n - 2), gy);
     }
     if (o.cp) { L.checkpoints.push({ x: (x + 2) * TS + 8, y: gy * TS, id: L.id++ }); }
     if (o.heart) spawn('heart', x + (n >> 1), gy - 2);
     if (rnd() < 0.6 && n >= 5) coinsLine(x + R(1, n - 4), gy - 2, R(3, 4));
     if (rnd() < 0.13 && n >= 5) spawn('pk', x + R(1, n - 2), gy, { what: pickWhat() });
-    if (!o.safe && n >= 8 && B.traps && rnd() < 0.3 + d * 0.3 + (li === 6 ? 0.25 : 0)) placeTrap(B.traps[R(0, B.traps.length - 1)], x, n);
+    if (!o.safe && n >= 8 && B.traps && rnd() < 0.3 + d * 0.3 + (li === 6 ? 0.25 : 0)) placeTrap(B.traps[R(0, B.traps.length - 1)], x, n) || (HARD(li) && n >= 12 && rnd() < 0.3 && placeTrap(B.traps[R(0, B.traps.length - 1)], x + 6, n - 6));
     x += n;
   }
   function pickWhat() { const r = rnd(); return r < 0.45 ? 'dagger' : (r < 0.75 ? 'bomb' : 'flask'); }
@@ -611,7 +612,7 @@ function genLevel(li) {
   gy = 10; flat(4, { safe: true }); // return to arena height (visual step handled by stairs guard)
   // make sure arena ground is continuous: previous ground may differ -> already flat() uses gy.
   // ---- dark zones: every map has pitch-black stretches full of creepy things ----
-  { const zn = li >= 2 ? 3 : 2, groundRow = tx => { for (let y = 3; y < H - 2; y++) if (grid[y][tx] === '#' || grid[y][tx] === 'I') return y; return 10; };
+  { const zn = li >= 2 ? Math.max(3, Math.round(B.len / 180)) : 2, groundRow = tx => { for (let y = 3; y < H - 2; y++) if (grid[y][tx] === '#' || grid[y][tx] === 'I') return y; return 10; };
     for (let i = 0; i < zn; i++) {
       const cx = Math.floor(B.len * (0.2 + 0.58 * (i + 0.5) / zn)), z = { x0: cx - 20, x1: cx + 20, a: Math.max(0.82, B.dark + 0.2) };
       L.dark.push(z);
