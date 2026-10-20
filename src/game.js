@@ -1090,7 +1090,8 @@
       if (w.gone > 0) continue;
       const x = Math.round(w.x - camX), y = Math.round(w.y - camY);
       if (x < -20 || x > VW + 20) continue;
-      drawSpr(g, watcherSprite(), x, y, false, false, 1, 1);
+      const vis = clamp((Q.darkCur - 0.12) / 0.4, 0, 1); if (vis <= 0.02) continue;   // the watchers only show up in the dark, never as black cut-outs in daylight
+      g.globalAlpha = vis; drawSpr(g, watcherSprite(), x, y, false, false, 1, 1); g.globalAlpha = 1;
     }
     for (const d of Q.L.creep) {
       if (d.x < camX - 20 || d.x > camX + VW + 20) continue;
