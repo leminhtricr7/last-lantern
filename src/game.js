@@ -118,26 +118,24 @@
   const LN = o => o[save.lang];
 
   const STORY = [
-    { en: 'Long ago, the Sun watched over the land of Aurelia. No night was ever truly dark, and every village kept a little lantern lit in its honour.', vi: 'Ngày xửa ngày xưa, Mặt Trời dõi theo vùng đất Aurelia. Không đêm nào thật sự tối, và mỗi ngôi làng đều thắp một chiếc đèn nhỏ để tạ ơn.' },
-    { en: 'But beneath the world, in a throne of cinders, something ancient was starving. Quoc the Devil, lord of the Eclipse, hated the light.', vi: 'Nhưng dưới lòng đất, trên ngai vàng bằng tro nguội, có một thứ cổ xưa đang đói khát. Quoc Ác Quỷ, chúa tể Nhật Thực, căm ghét ánh sáng.' },
-    { en: 'On the longest night he rose, and swallowed the Sun in one bite. It cracked like glass and fell as seven burning fragments.', vi: 'Vào đêm dài nhất, hắn trỗi dậy và nuốt chửng Mặt Trời. Nó vỡ như thủy tinh và rơi xuống thành bảy mảnh cháy rực.' },
-    { en: 'The lanterns of Aurelia went out, one by one. Cold crept in. Monsters crawled from the dark, and Quoc\'s minions took anyone who sang of the light.', vi: 'Những chiếc đèn của Aurelia tắt dần, từng chiếc một. Giá lạnh tràn vào. Quái vật bò ra từ bóng tối, và thuộc hạ của Quoc bắt đi bất cứ ai còn hát về ánh sáng.' },
-    { en: 'In a quiet village, a boy named Ember kept his grandmother\'s lantern. It flickered. It nearly died. But it never went out.', vi: 'Ở một ngôi làng yên ắng, cậu bé Ember giữ chiếc đèn của bà. Nó chập chờn. Nó suýt tắt. Nhưng nó chưa bao giờ tắt hẳn.' },
-    { en: 'Lila, the village girl, pressed a rusty sword into his hands. "It is not much," she said. "But a small flame and a stubborn heart have beaten bigger darkness."', vi: 'Lila, cô gái trong làng, đặt một thanh kiếm gỉ vào tay cậu. "Không nhiều đâu," cô nói. "Nhưng một ngọn lửa nhỏ và một trái tim bướng bỉnh từng thắng bóng tối lớn hơn."' },
-    { en: 'You are Ember, the last Lanternbearer. Cross meadow, forest, cavern, desert, peak and fire. Gather the seven fragments. Relight the Sun.', vi: 'Bạn là Ember, người mang đèn cuối cùng. Băng qua đồng cỏ, rừng sâu, hang động, sa mạc, đỉnh băng và núi lửa. Gom bảy mảnh vỡ. Thắp lại Mặt Trời.' }
+    { en: 'Long ago, the world had no Sun. The light of Aurelia came from ten Lantern Towers, joined across the sky by a river of light.', vi: 'Ngày xưa, thế giới không có Mặt Trời. Ánh sáng của Aurelia đến từ mười Tháp Đèn, nối với nhau trên trời bằng một dòng sông ánh sáng.' },
+    { en: 'Every hundred years the towers grow tired, and a Lanternbearer carries the Last Lantern from tower to tower to light them again.', vi: 'Cứ trăm năm, các tháp lại mỏi mệt, và một Người Giữ Đèn mang Đèn Cuối Cùng đi từ tháp này sang tháp khác để thắp chúng lại.' },
+    { en: 'A hundred years ago, the Lanternbearer was a young man named Quoc. He lit nine towers. At the tenth, the dark swallowed him.', vi: 'Trăm năm trước, Người Giữ Đèn là một chàng trai tên Quốc. Anh thắp được chín tháp. Đến tháp thứ mười, bóng tối nuốt chửng anh.' },
+    { en: 'He came back as the King of the Eclipse. On the night of the hundred-year festival he turned the moon black, and every tower went out.', vi: 'Anh trở lại thành Vua Nhật Thực. Vào đêm lễ hội trăm năm, anh biến mặt trăng thành màu đen, và mọi tháp đèn đều tắt.' },
+    { en: 'His servant Shorty Phong carried off Princess Lyra, whose song is the only voice that can relight a tower.', vi: 'Tay sai của anh, Shorty Phong, bắt đi Công chúa Lyra, người có giọng hát duy nhất thắp lại được Tháp Đèn.' },
+    { en: 'Then the old lantern fell from its stone, rolled through the dark square, and stopped at the feet of an ordinary child. And it lit itself.', vi: 'Rồi cây đèn cổ rơi khỏi bệ đá, lăn qua quảng trường tối om và dừng lại dưới chân một đứa trẻ bình thường. Và nó tự bừng sáng.' },
+    { en: 'You are the new Lanternbearer. Free Lyra. Relight the ten towers. And find out what happened to the one who came before you.', vi: 'Bạn là Người Giữ Đèn mới. Hãy giải cứu Lyra. Thắp lại mười Tháp Đèn. Và tìm hiểu chuyện gì đã xảy ra với người đi trước bạn.' }
   ];
+
   // short story beats shown once, the first time you enter each map
   let storyLevel = 0;
   const MAP_STORY = {
     0: [
-      { en: 'VERDANT MEADOW. Ember walks out of the village at dawn that is not a dawn. The sky is the colour of old ash.', vi: 'ĐỒNG CỎ XANH. Ember bước ra khỏi làng vào một buổi bình minh không còn là bình minh. Bầu trời mang màu tro cũ.' },
-      { en: 'The meadow was once the happiest place in Aurelia. Children raced kites here. Now the grass lies flat and the kites hang torn in the branches.', vi: 'Đồng cỏ từng là nơi vui nhất Aurelia. Bọn trẻ thả diều ở đây. Giờ cỏ rạp xuống và những chiếc diều rách treo trên cành cây.' },
-      { en: 'Ember grips the rusty sword Lila gave him. His lantern shakes in his other hand. He is afraid, and he walks on anyway.', vi: 'Ember siết thanh kiếm gỉ Lila trao. Chiếc đèn rung trong tay còn lại. Cậu sợ, nhưng vẫn bước tiếp.' },
-      { en: 'Slimes ooze across the path. Bees buzz with a cold, angry hum. Quoc\'s shadow has soured everything that once was sweet.', vi: 'Slime trườn qua lối đi. Ong vo ve bằng tiếng ù lạnh lẽo, giận dữ. Bóng của Quoc đã làm chua mọi thứ từng ngọt ngào.' },
-      { en: 'Then, from far away, a voice. A girl, singing. Her song is thin and trembling, but it is the first warm sound Ember has heard in three nights.', vi: 'Rồi từ xa vọng lại một giọng hát. Một cô gái. Tiếng hát mỏng manh, run rẩy, nhưng là âm thanh ấm áp đầu tiên Ember nghe được sau ba đêm.' },
-      { en: 'Lila\'s words come back to him: \"A small flame beats a big darkness, if it keeps burning.\" He lifts the lantern higher.', vi: 'Lời Lila vang lại: \"Ngọn lửa nhỏ thắng bóng tối lớn, nếu nó cứ cháy.\" Cậu giơ chiếc đèn lên cao hơn.' },
-      { en: 'Above the meadow, a shape with great ash-grey wings circles slowly. Ignarok the Ashwing is hunting for the last flame in Aurelia.', vi: 'Trên đồng cỏ, một bóng đen với đôi cánh xám tro khổng lồ lượn vòng chậm rãi. Ignarok Cánh Tro đang săn ngọn lửa cuối cùng của Aurelia.' },
-      { en: 'Find the singer. Survive the Ashwing. Take the first fragment of the Sun. Your journey begins now, Ember.', vi: 'Hãy tìm người hát. Sống sót trước Cánh Tro. Lấy mảnh Mặt Trời đầu tiên. Hành trình của bạn bắt đầu từ bây giờ, Ember.' }
+      { en: 'VERDANT MEADOW. Morning comes, pale and cold. The black moon still hangs in the sky, and the First Tower stands dark at the far end of the meadow.', vi: 'ĐỒNG CỎ XANH. Trời sáng, nhưng nhợt nhạt và lạnh lẽo. Mặt trăng đen vẫn treo lơ lửng trên trời, và Tháp Đèn Thứ Nhất đứng tối om ở cuối đồng cỏ.' },
+      { en: 'The village hides behind closed doors. Only the child with the old lantern walks out into the dark grass.', vi: 'Cả làng trốn sau những cánh cửa đóng chặt. Chỉ có đứa trẻ cầm cây đèn cổ bước ra bãi cỏ tối.' },
+      { en: 'Somewhere ahead, Shorty Phong carried Princess Lyra away in an iron cage. Her song still drifts over the hills.', vi: 'Đâu đó phía trước, Shorty Phong đã chở Công chúa Lyra đi trong một chiếc lồng sắt. Tiếng hát của cô vẫn vọng qua những ngọn đồi.' },
+      { en: 'Above the meadow, Ignarok the Ashwing circles. Quoc has promised him a throne of ash for the last flame in Aurelia.', vi: 'Trên đồng cỏ, Ignarok Cánh Tro lượn vòng. Quốc đã hứa ban cho nó một ngai vàng bằng tro nếu nó dập được ngọn lửa cuối cùng của Aurelia.' },
+      { en: 'Free Lyra. Relight the First Tower. Your journey as the Lanternbearer begins now.', vi: 'Hãy giải cứu Lyra. Thắp lại Tháp Đèn Thứ Nhất. Hành trình Người Giữ Đèn của bạn bắt đầu từ đây.' }
     ],
     1: [
       { en: 'WHISPERING FOREST. Here the trees listen. Old mechanisms of the Lanternbearers still sleep among the roots.', vi: 'RỪNG THÌ THẦM. Ở đây cây cối biết lắng nghe. Những cơ quan cổ của các Người Mang Đèn vẫn ngủ yên giữa rễ cây.' },
@@ -189,8 +187,8 @@
   };
   const DLG = {
     0: { lila: [
-      { en: 'Ember! The Sun fell silent three nights ago. Every lantern in the village went out.', vi: 'Ember! Mặt Trời đã tắt lịm ba đêm trước. Mọi chiếc đèn trong làng đều vụt tắt.' },
-      { en: 'Yours is the last flame in Aurelia. Follow the road east - the fragments fell that way.', vi: 'Đèn của bạn là ngọn lửa cuối cùng ở Aurelia. Hãy đi về phía đông - các mảnh mặt trời rơi hướng đó.' },
+      { en: 'Every tower went out at once last night. Yours is the only flame left in Aurelia.', vi: 'Đêm qua mọi Tháp Đèn tắt cùng một lúc. Đèn của bạn là ngọn lửa duy nhất còn lại ở Aurelia.' },
+      { en: 'The First Tower is at the far end of the meadow. Follow the road east - Lyra went that way too.', vi: 'Tháp Đèn Thứ Nhất ở cuối đồng cỏ. Cứ đi về phía đông - Lyra cũng bị đưa đi hướng đó.' },
       { en: 'Slimes hate light... and they are hungry. Swing your sword - press J!', vi: 'Slime ghét ánh sáng... mà chúng lại đói. Vung kiếm đi - nhấn J!' }
     ] },
     1: { bram: [
@@ -234,7 +232,7 @@
     wizard: { spr: 'npc_wizard', name: { en: 'Old Merl', vi: 'Pháp sư Merl' } },
     fairy: { spr: 'npc_fairy', name: { en: 'Pip the Fairy', vi: 'Tiên Pip' } }
   });
-  NPCS.lila.generic = [{ en: 'Be safe, Ember.', vi: 'Giữ gìn nhé, Ember.' }];
+  NPCS.lila.generic = [{ en: 'Be safe out there. Bring Lyra home.', vi: 'Giữ gìn nhé. Đưa Lyra về nhà nha.' }];
   NPCS.bram.generic = [{ en: 'Stay sharp out there.', vi: 'Luôn cảnh giác nhé.' }];
   NPCS.gob.generic = [{ en: 'Gob has goods! Buy, buy!', vi: 'Gob có hàng ngon! Mua đi mua đi!' }];
   NPCS.angel.generic = [{ en: 'The light is with you.', vi: 'Ánh sáng ở bên bạn.' }];
@@ -245,7 +243,7 @@
     0: { fairy: [
       { en: 'Hi hi! I am Pip! Pick up daggers, bombs and fire flasks on your way - press L to throw, Q to switch.', vi: 'Hi hi! Tớ là Pip! Nhặt dao găm, bom và bình lửa trên đường đi - nhấn L để ném, Q để đổi loại.' },
       { en: 'See a lever? Hit it with your sword and the iron gate opens. Cracked walls crumble to bombs!', vi: 'Thấy cần gạt không? Chém vào nó là cổng sắt mở. Tường nứt thì dùng bom phá nhé!' },
-      { en: 'Keys, torches, rune plates... I will help where I can. Good luck, Ember!', vi: 'Chìa khóa, đuốc, bàn đá ký hiệu... tớ sẽ giúp khi có thể. Chúc may mắn, Ember!' }
+      { en: 'Keys, torches, rune plates... I will help where I can. Good luck, Lanternbearer!', vi: 'Chìa khóa, đuốc, bàn đá ký hiệu... tớ sẽ giúp khi có thể. Chúc may mắn, Người Giữ Đèn!' }
     ] },
     1: { wizard: [
       { en: 'Ah, a lantern-bearer. The old mechanisms of this forest still work, if one knows how to wake them.', vi: 'À, người mang đèn. Cơ quan cổ trong khu rừng này vẫn hoạt động, nếu biết cách đánh thức chúng.' },
@@ -315,16 +313,17 @@
   const RESCUE = [
     { en: 'Mr Shorty Phong\'s great beetle is finished, and you climbed all the way up here! You are very brave.', vi: 'Con bọ khổng lồ của Mr Shorty Phong đã gục, và bạn còn leo tận lên đây! Bạn dũng cảm quá.' },
     { en: 'You... you came for me? The cage is open! Oh, thank the light!', vi: 'Bạn... bạn đến cứu mình sao? Lồng mở rồi! Ôi, tạ ơn ánh sáng!' },
-    { en: 'I am Lyra, Princess of the Singing Meadow. When the Sun shattered, Quoc\'s minions locked me up to silence my song.', vi: 'Mình là Lyra, công chúa của Đồng Cỏ Hát Ca. Khi Mặt Trời vỡ, thuộc hạ của Quoc nhốt mình lại để dập tắt bài hát.' },
-    { en: 'My song is the only thing that makes the leek-blade shine. It is a royal treasure, and it has waited for a Lanternbearer.', vi: 'Bài hát của mình là thứ duy nhất làm cây kiếm hành phát sáng. Nó là bảo vật hoàng gia, và đã chờ một Người Mang Đèn.' },
-    { en: 'Please take it! Hold it high and it will sing with your flame. It is stronger than your rusty sword, and it will grow brighter with every fragment you find.', vi: 'Xin hãy nhận lấy! Giơ cao lên và nó sẽ hát cùng ngọn lửa của bạn. Nó mạnh hơn thanh kiếm gỉ, và sẽ sáng hơn sau mỗi mảnh vỡ bạn tìm được.' },
-    { en: 'Take my Leek Armor too, it will stun anyone who dares to hit you. And my Flying Leek will carry you through the sky and heal you a little. Ride it!', vi: 'Nhận luôn Giáp Hành Lá của mình nữa, nó làm choáng kẻ nào dám đánh bạn. Và Cây Hành Bay sẽ chở bạn bay trên trời, còn hồi máu cho bạn chút ít. Cưỡi nó nhé!' },
-    { en: 'I will not forget this, Ember. Whenever you are tired, listen... I will sing for you. La la laaa~ ♪', vi: 'Mình sẽ không quên ơn này, Ember. Mỗi khi mệt mỏi, hãy lắng nghe... mình sẽ hát cho bạn. La la laaa~ ♪' }
+    { en: 'I am Lyra. My song is the one voice that can wake a tower... that is why Quoc had me locked away.', vi: 'Mình là Lyra. Tiếng hát của mình là giọng duy nhất đánh thức được Tháp Đèn... vì thế Quốc mới nhốt mình lại.' },
+    { en: 'And that lantern... it chose you? Then you are the new Lanternbearer!', vi: 'Còn cây đèn kia... nó chọn bạn sao? Vậy bạn chính là Người Giữ Đèn mới!' },
+    { en: 'Please take my Leek Blade. It is a royal treasure, and it sings with the lantern\'s flame. It is stronger than an old sword.', vi: 'Xin hãy nhận Kiếm Hành Lá của mình. Nó là bảo vật hoàng gia và hát cùng ngọn lửa của cây đèn. Nó mạnh hơn thanh kiếm cũ nhiều.' },
+    { en: 'Take my Leek Armor too, it stuns anyone who dares to hit you. And my Flying Leek will carry you through the sky and heal you a little. Ride it!', vi: 'Nhận luôn Giáp Hành Lá của mình nữa, nó làm choáng kẻ nào dám đánh bạn. Và Cây Hành Bay sẽ chở bạn bay trên trời, còn hồi máu cho bạn chút ít. Cưỡi nó nhé!' },
+    { en: 'I am coming with you. At every tower I will sing, and you will light it. La la laaa~ ♪', vi: 'Mình sẽ đi cùng bạn. Đến mỗi tháp, mình sẽ hát, còn bạn sẽ thắp sáng nó. La la laaa~ ♪' }
   ];
+
   const TRIAL = {
     0: { intro: [
-      { en: 'Hehehe... so THIS is the famous lantern-boy? Mr Shorty Phong welcomes you!', vi: 'Hê hê hê... vậy ĐÂY là cậu bé cầm đèn nổi tiếng? Mr Shorty Phong chào đón cậu!' },
-      { en: 'My master Quoc wants you stopped. So let us play with my little trial.', vi: 'Chủ nhân Quoc muốn cậu dừng lại. Vậy hãy chơi thử thách nhỏ của ta nào.' },
+      { en: 'Hehehe... so THIS is the nobody the old lantern picked? Mr Shorty Phong welcomes you!', vi: 'Hê hê hê... vậy ĐÂY là đứa vô danh mà cây đèn cổ chọn à? Mr Shorty Phong chào đón nhóc!' },
+      { en: 'My master Quoc wants every light asleep, yours too. So let us play my little trial.', vi: 'Thầy Quốc của ta muốn mọi ánh sáng ngủ yên, kể cả của nhóc. Vậy chơi thử thách nhỏ của ta nào.' },
       { en: 'No exit until every monster is dead AND the torches burn in the right order. Tee-hee!', vi: 'Không có lối ra cho tới khi quái chết hết VÀ đuốc cháy đúng thứ tự. Hí hí!' }
     ], outro: [
       { en: 'WHAT?! You beat my pets?! Impossible!', vi: 'CÁI GÌ?! Cậu đánh bại thú cưng của ta sao?! Không thể nào!' },
@@ -813,12 +812,12 @@
   BOSS.forEach((c, i) => { NPCS['boss' + i] = { spr: 'boss:' + i, name: c.name }; });
   const BOSS_LINES = {
     0: { pre: [
-        { en: 'BLORP! You squashed my children! I am the KING of this meadow!', vi: 'BLORP! Ngươi dám đè bẹp con của ta! Ta là VUA của đồng cỏ này!' },
-        { w: 'ember', en: 'Give back the fragment of the Sun. It does not belong to you.', vi: 'Trả mảnh Mặt Trời lại đây. Nó không thuộc về ngươi.' },
-        { en: 'This shiny thing? It tastes like sunshine. MINE! BLOOORP!', vi: 'Cái thứ lấp lánh này à? Nó có vị như nắng. CỦA TA! BLOOORP!' }
+        { en: 'BLORP! You squashed my children! I am the KING of this meadow, and this TOWER is my bed!', vi: 'BLORP! Ngươi dám đè bẹp con của ta! Ta là VUA của đồng cỏ này, và cái THÁP này là giường của ta!' },
+        { w: 'ember', en: 'Get off the tower. Its flame belongs to everyone.', vi: 'Tránh khỏi ngọn tháp. Ngọn lửa của nó là của mọi người.' },
+        { en: 'The dark is so cozy! Quoc said I can sleep on the cold flame forever. BLOOORP!', vi: 'Bóng tối êm ái lắm! Quốc nói ta được ngủ trên ngọn lửa lạnh mãi mãi. BLOOORP!' }
       ], post: [
-        { en: 'Blorp... so... warm...', vi: 'Blorp... ấm... quá...' },
-        { w: 'narr', en: 'The first fragment glows in Ember\'s hands. Far away, in a castle of ash, a dark laugh suddenly stops.', vi: 'Mảnh vỡ đầu tiên rực sáng trong tay Ember. Ở nơi xa, trong tòa lâu đài tro tàn, một tràng cười đen tối bỗng im bặt.' }
+        { en: 'Blorp... the light... so... warm...', vi: 'Blorp... ánh sáng... ấm... quá...' },
+        { w: 'narr', en: 'The lantern flares, and its flame leaps up into the First Tower. The tower blazes, and a thread of light runs across the sky towards the forest. Inside the black moon, a dark laugh stops.', vi: 'Cây đèn bừng lên, ngọn lửa của nó vọt lên Tháp Đèn Thứ Nhất. Ngọn tháp rực cháy, và một sợi ánh sáng chạy ngang bầu trời về phía khu rừng. Bên trong mặt trăng đen, một tràng cười bỗng im bặt.' }
       ] },
     1: { pre: [
         { en: 'Little moth... drawn to its own light. My webs have waited for you.', vi: 'Con thiêu thân bé nhỏ... bị chính ánh sáng của mình dẫn lối. Tơ của ta đã chờ ngươi từ lâu.' },
@@ -862,9 +861,18 @@
         { w: 'narr', en: 'The Eclipse cracks like old glass. The seventh fragment falls, warm and bright, into Ember\'s hands.', vi: 'Nhật Thực nứt vỡ như tấm kính cũ. Mảnh thứ bảy rơi xuống, ấm áp và rực sáng, vào tay Ember.' }
       ] }
   };
+  const MAP1_OPEN = [   // plays as map 1 begins, right after the opening film
+    { w: 'narr', en: 'VERDANT MEADOW. Morning comes, pale and cold. The black moon still hangs in the sky, and the First Tower stands dark at the far end of the meadow.', vi: 'ĐỒNG CỎ XANH. Trời sáng, nhưng nhợt nhạt và lạnh lẽo. Mặt trăng đen vẫn treo lơ lửng trên trời, và Tháp Đèn Thứ Nhất đứng tối om ở cuối đồng cỏ.' },
+    { w: 'ember', en: 'The lantern is warm... like it is breathing.', vi: 'Cây đèn ấm quá... như nó đang thở vậy.' },
+    { w: 'lila', en: 'Wait! You are really going alone? Everyone in the village is hiding behind their doors.', vi: 'Đợi đã! Bạn đi một mình thật à? Cả làng đang trốn sau cửa hết rồi.' },
+    { w: 'lila', en: 'I saw it: Shorty Phong, the little man in the tall hat, carried Lyra across the meadow in an iron cage.', vi: 'Mình thấy tận mắt: Shorty Phong, gã thấp bé đội mũ cao, chở Lyra qua đồng cỏ trong một chiếc lồng sắt.' },
+    { w: 'ember', en: 'Then I will bring her back. And light the tower too.', vi: 'Vậy mình sẽ đưa cô ấy về. Và thắp lại ngọn tháp nữa.' },
+    { w: 'lila', en: 'Take my grandpa\'s old sword. A lantern alone cannot fight slimes. Press J to swing!', vi: 'Cầm thanh kiếm cũ của ông mình đi. Chỉ có cây đèn thì không đánh nổi slime đâu. Nhấn J để chém!' },
+    { w: 'narr', en: 'Far away, a thin song drifts over the hills. Lyra is still singing. The Lanternbearer\'s journey begins.', vi: 'Từ xa, một tiếng hát mỏng manh vọng qua những ngọn đồi. Lyra vẫn đang hát. Hành trình của Người Giữ Đèn bắt đầu.' }
+  ];
   const MID_STORY = {
-    0: [{ w: 'ember', en: 'These slimes are acting strange... like something is pulling their strings.', vi: 'Lũ slime này lạ quá... như có ai đó đang giật dây chúng.' },
-        { w: 'narr', en: 'Far away, a girl\'s song drifts over the hills. Ember walks a little faster.', vi: 'Ở nơi xa, tiếng hát của một cô gái vọng qua những ngọn đồi. Ember bước nhanh hơn một chút.' }],
+    0: [{ w: 'ember', en: 'The slimes keep backing away from the lantern... they are afraid of it.', vi: 'Lũ slime cứ lùi lại khi thấy cây đèn... chúng sợ nó.' },
+        { w: 'narr', en: 'Lyra\'s song grows clearer. On the hill ahead, the cold shape of the First Tower grows taller with every step.', vi: 'Tiếng hát của Lyra rõ dần. Trên ngọn đồi phía trước, bóng lạnh lẽo của Tháp Đèn Thứ Nhất cao dần theo từng bước chân.' }],
     1: [{ w: 'ember', en: 'The forest is too quiet. Even the owls have stopped hooting.', vi: 'Khu rừng yên ắng quá. Đến cả lũ cú cũng thôi kêu.' },
         { w: 'lyra', en: '(Lyra squeezes his hand) It is all right. I am here. Sing with me if you are scared.', vi: '(Lyra nắm chặt tay cậu) Không sao đâu. Có mình ở đây. Nếu sợ thì hát cùng mình nhé.' }],
     2: [{ w: 'ember', en: 'So dark... my lantern feels heavier down here.', vi: 'Tối quá... chiếc đèn như nặng hơn khi xuống tới đây.' },
@@ -2396,6 +2404,7 @@
   }
   function startScripted(who, lines, after) {
     if (coop && coop.role === 'host') { lines = teamLines(lines, who); if (who === 'ember' && lines[0]) who = lines[0].w; }
+    else if (!coop && myHero() !== 'ember') { const me = 'h_' + myHero(); lines = lines.map(l => l.w === 'ember' ? Object.assign({}, l, { w: me }) : l); if (who === 'ember') who = me; }
     Q.talk = { it: { who }, npc: NPCS[who], lines, i: 0, t: 0, after, cine: true }; Q.state = 'talk'; Snd.blip(who); Q.P.vx = 0;
   }
   function giveGift(gf, show) {
@@ -3450,6 +3459,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   }
 
   function updatePlay(dt) {
+    if (opIntro && Q && Q.li === 0 && Q.state === 'play' && !coop) { opIntro = false; startScripted('narr', MAP1_OPEN, null); }
     Q.stateT += dt;
     const st = Q.state;
     if (st === 'intro') { if (Q.stateT > 2.6 || act.okP) Q.state = 'play'; updateCam(dt); updateWeather(dt); return; }
@@ -7298,42 +7308,48 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (gl) { g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x + f * 14, bot - 9, 0, x + f * 14, bot - 9, 22); gr.addColorStop(0, hexA(gl, 0.28)); gr.addColorStop(1, hexA(gl, 0)); g.fillStyle = gr; g.fillRect(x + f * 14 - 22, bot - 31, 44, 44); g.globalCompositeOperation = 'source-over'; }
     g.save(); g.translate(x + f * 3, bot - 9); g.scale(f, 1); g.rotate(ang); g.drawImage(sp.c, -6 - rec, -Math.round(sp.h * 0.55)); g.restore();
   }
-  // ===================== OPENING CINEMATIC (about one minute): a peaceful night, the storm, Quoc, the shattered Sun, the chosen hero, the run and the first boss =====================
-  const OP_END = 62;   // seconds until the "tap to play" card
-  let op = null;
+  // ===================== OPENING FILM (60 s): the ten Lantern Towers, the festival, the Eclipse, Lyra taken, the lantern chooses the child, the road =====================
+  const OP_END = 60;   // seconds until the "press Enter" card
+  let op = null, opIntro = false;   // opIntro: the map-1 dialogue plays right after the film
   const ez = x => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
   const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
-  // captions: [from, to, speaker (n = narrator, q = Quoc, e = Ember), english, vietnamese]
+  // captions: [from, to, speaker (n = narrator, q = Quoc, l = Lyra, e = the player's hero), english, vietnamese]
   const OPC = [
-    [2.0, 6.6, 'n', 'Aurelia, a kingdom where the light never went out. Tonight, like every night, is calm and peaceful...', 'Aurelia, vương quốc nơi ánh sáng chưa từng tắt. Đêm nay, như mọi đêm, thật yên bình...'],
-    [7.0, 12.4, 'n', 'Children laugh in the streets, lanterns glow in every window, and everyone is sure that tomorrow the Sun will rise again.', 'Trẻ con cười đùa khắp phố, đèn lồng sáng trên mọi cửa sổ, và ai cũng tin ngày mai Mặt Trời sẽ lại mọc.'],
-    [14.6, 17.2, 'n', 'But then... the sky went dark.', 'Nhưng rồi... bầu trời bỗng tối sầm.'],
-    [18.0, 22.6, 'q', 'Little humans... I am QUOC, the Demon King of Shadows!', 'Hỡi loài người bé nhỏ... Ta là QUOC, Quỷ Vương của Bóng Tối!'],
-    [23.0, 26.6, 'q', 'Your precious Sun... I will CRUSH it in my hand!', 'Mặt Trời quý giá của các ngươi... ta sẽ BÓP NÁT nó trong tay!'],
-    [28.3, 32.0, 'q', 'FROM TONIGHT, THIS WORLD BELONGS TO THE DARK!!!', 'TỪ ĐÊM NAY, THẾ GIỚI NÀY THUỘC VỀ BÓNG TỐI!!!'],
-    [33.8, 38.0, 'n', 'In the darkness, one last lantern lit itself... and it chose a boy named Ember.', 'Trong bóng tối, chỉ còn một ngọn đèn cuối cùng tự thắp sáng... và nó chọn một cậu bé tên Ember.'],
-    [38.4, 42.0, 'n', 'Ember takes the old sword. His mission: find the seven pieces of the Sun and defeat the Demon King.', 'Ember nhận lấy thanh kiếm cũ. Sứ mệnh của cậu: tìm bảy mảnh Mặt Trời và đánh bại Quỷ Vương.'],
-    [43.0, 47.6, 'n', 'Through meadows, forests, deserts and ice, he runs, leaps and fights on...', 'Qua đồng cỏ, rừng sâu, sa mạc và băng giá, cậu chạy, nhảy và chiến đấu không ngừng...'],
-    [52.6, 57.5, 'n', 'Each piece of the Sun is guarded by a monster. The first is the Magma Titan!', 'Mỗi mảnh Mặt Trời đều có một quái vật canh giữ. Kẻ đầu tiên: Titan Dung Nham!'],
-    [63.0, 67.0, 'q', 'A tiny lantern... dares to challenge ME?', 'Một ngọn đèn bé nhỏ... mà dám thách thức TA sao?'],
-    [67.4, 72.0, 'e', 'I will light the Sun again. Even if I am the last flame.', 'Tôi sẽ thắp sáng lại Mặt Trời. Dù tôi là ngọn lửa cuối cùng.']
+    [1.0, 4.8, 'n', 'Long ago, the world had no Sun. The light of Aurelia came from ten Lantern Towers.', 'Ngày xưa, thế giới không có Mặt Trời. Ánh sáng của Aurelia đến từ mười Tháp Đèn.'],
+    [5.2, 9.6, 'n', 'Every hundred years, a Lanternbearer carries the Last Lantern and lights all ten again.', 'Cứ trăm năm, một Người Giữ Đèn mang Đèn Cuối Cùng đi thắp lại cả mười tháp.'],
+    [10.8, 14.8, 'n', 'Tonight is the hundred-year Lantern Festival. The whole meadow village waits for the new Lanternbearer...', 'Đêm nay là Lễ Thắp Đèn trăm năm. Cả làng Đồng Cỏ chờ Người Giữ Đèn mới xuất hiện...'],
+    [15.2, 19.8, 'n', '...and one ordinary child simply stares up at the old lantern on its stone.', '...còn một đứa trẻ bình thường chỉ lặng lẽ ngước nhìn cây đèn cổ trên bệ đá.'],
+    [20.8, 24.6, 'n', 'But that night the moon turned black. One by one the towers went out, from the farthest to the nearest...', 'Nhưng đêm ấy, mặt trăng hóa đen. Từng Tháp Đèn tắt lịm, từ xa đến gần...'],
+    [25.0, 28.4, 'q', 'I am QUOC, King of the Eclipse. I was a Lanternbearer once... the one you all waited for.', 'Ta là QUỐC, Vua Nhật Thực. Ta từng là Người Giữ Đèn... người các ngươi chờ đợi.'],
+    [28.6, 31.8, 'q', 'Light is only a burden. Let the world SLEEP.', 'Ánh sáng chỉ là gánh nặng. Hãy để thế giới NGỦ YÊN.'],
+    [32.6, 36.0, 'n', 'Princess Lyra, the only voice that can relight a tower, is dragged away by chains of shadow.', 'Công chúa Lyra, giọng hát duy nhất thắp lại được Tháp Đèn, bị xiềng bóng tối kéo đi.'],
+    [36.3, 39.2, 'q', 'No one sings anymore. Sleep, Aurelia...', 'Không ai được hát nữa. Ngủ đi, Aurelia...'],
+    [39.4, 41.8, 'l', 'Do not let the light go out...!', 'Đừng để ánh sáng tắt...!'],
+    [42.8, 46.4, 'n', 'In the dark, the old lantern trembles... falls from its stone and rolls to the child\'s feet.', 'Trong bóng tối, cây đèn cổ rung lên... rơi khỏi bệ đá và lăn đến chân đứa trẻ.'],
+    [47.6, 51.4, 'n', 'It lights itself. The lantern has chosen: the only one who is not afraid of the dark.', 'Nó tự bừng sáng. Đèn đã chọn: người duy nhất không sợ bóng tối.'],
+    [52.2, 55.4, 'e', 'Then I will light them again. All ten.', 'Vậy mình sẽ thắp lại. Cả mười tháp.'],
+    [55.8, 59.0, 'e', 'The first tower is at the end of the meadow. Hold on, Lyra!', 'Tháp đầu tiên ở cuối Đồng Cỏ. Chờ mình nhé, Lyra!']
   ];
-  function startOpening() { op = { t: 0, fired: {}, typed: {}, mx: 0 }; Snd.music('title', TITLE_MUSIC); }
+  const opOutT = i => 22 + (9 - i) * 0.72;   // when tower i goes out (the far right one first)
+  function startOpening() { op = { t: 0, fired: {}, typed: {} }; Snd.music('title', TITLE_MUSIC); }
   function updateOpening(dt) {
     if (!op) startOpening(); if (op.hold) return; op.t += dt; const t = op.t;
-    const fire = (k, at, fn) => { if (t >= at && !op.fired[k]) { op.fired[k] = 1; if (!op.skipped || k === 'm5') fn(); } };
-    fire('th1', 14.2, () => Snd.play('thunder')); fire('th2', 15.2, () => Snd.play('thunder')); fire('th3', 16.3, () => Snd.play('thunder')); fire('m2', 17.0, () => Snd.music('devil', DEVIL_MUSIC));
-    fire('r1', 18.0, () => Snd.devilRoar(0.8)); fire('crush', 27.0, () => { Snd.play('explode'); Snd.play('thunder'); }); fire('r2', 28.4, () => Snd.devilRoar(1.2));
-    fire('m3', 33.4, () => Snd.music('title', TITLE_MUSIC)); fire('lit', 34.6, () => Snd.play('relic')); fire('take', 38.0, () => Snd.play('relic'));
-    fire('m4', 42.0, () => Snd.music('boss', BOSS_MUSIC));
-    for (const [k, at, s] of [['a1', 43.1, 'slash'], ['a2', 45.5, 'jump'], ['a3', 47.4, 'djump'], ['a4', 49.7, 'dash'], ['a5', 51.6, 'whoosh'], ['b1', 53.3, 'boom'], ['b2', 55.3, 'boom'], ['b3', 56.1, 'dash'], ['b4', 57.0, 'slash'], ['b5', 57.4, 'slash'], ['b6', 57.8, 'slash'], ['b7', 59.2, 'relic'], ['b8', 60.0, 'explode']]) fire(k, at, () => Snd.play(s));
-    fire('m5', 62.0, () => Snd.music('title', TITLE_MUSIC));
-    // typewriter voice for Quoc / Ember lines
-    for (let i = 0; i < OPC.length && !op.skipped; i++) { const c = OPC[i]; if (t >= c[0] && t < c[1] && (c[2] === 'q' || c[2] === 'e')) { const n = Math.floor((t - c[0]) * 32), last = op.typed[i] || 0; if (n > last && n % 2 === 0) Snd.blip(c[2] === 'q' ? 'quoc' : 'ember'); op.typed[i] = n; } }
+    const fire = (k, at, fn) => { if (t >= at && !op.fired[k]) { op.fired[k] = 1; if (!op.skipped || k === 'end') fn(); } };
+    fire('c1', 1.0, () => Snd.play('chime')); fire('c2', 12.0, () => Snd.play('chime'));
+    fire('th1', 20.6, () => Snd.play('thunder')); fire('m2', 21.4, () => Snd.music('devil', DEVIL_MUSIC));
+    for (let i = 0; i < 10; i++) fire('out' + i, opOutT(i), () => Snd.play('whoosh'));
+    fire('r1', 25.0, () => Snd.devilRoar(0.8)); fire('th2', 26.0, () => Snd.play('thunder')); fire('r2', 28.6, () => Snd.devilRoar(1.2)); fire('th3', 29.2, () => Snd.play('thunder'));
+    fire('ch1', 33.2, () => Snd.play('clang')); fire('ch2', 35.0, () => Snd.play('clang')); fire('ch3', 37.4, () => Snd.play('clang'));
+    fire('shk', 42.2, () => Snd.play('rumble')); fire('fall', 43.9, () => Snd.play('clang')); fire('roll', 44.4, () => Snd.play('hit'));
+    fire('m3', 46.6, () => Snd.music('title', TITLE_MUSIC)); fire('lit', 47.4, () => { Snd.play('relic'); Snd.play('explode'); }); fire('take', 49.4, () => Snd.play('chime'));
+    fire('run', 52.4, () => Snd.play('dash'));
+    fire('end', OP_END, () => Snd.music('title', TITLE_MUSIC));
+    // typewriter voices for Quoc, Lyra and the hero
+    for (let i = 0; i < OPC.length && !op.skipped; i++) { const c = OPC[i]; if (t >= c[0] && t < c[1] && c[2] !== 'n') { const n = Math.floor((t - c[0]) * 32), last = op.typed[i] || 0; if (n > last && n % 2 === 0) Snd.blip(c[2] === 'q' ? 'quoc' : (c[2] === 'l' ? 'lyra' : 'ember')); op.typed[i] = n; } }
     if (act.okP || act.atkP || act.backP) {
       if (t < 1.2 && !act.backP) return;
       if (t < OP_END) { op.t = OP_END; op.skipped = true; Snd.play('select'); }
-      else if (t > OP_END + 0.6) { Snd.play('ok'); save.seen = { 0: 1 }; writeSave(); startLevelFade(0); }
+      else if (t > OP_END + 0.6) { Snd.play('ok'); save.seen = { 0: 1 }; writeSave(); opIntro = true; startLevelFade(0); }
     }
     if (act.backP && t < OP_END) { op.t = OP_END; op.skipped = true; }
   }
@@ -7379,161 +7395,217 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   function opSlash(x, y, dir, k, big) { if (k <= 0 || k >= 1) return; const R = (big ? 38 : 22), a0 = -1.6 * dir, sweep = 3.1 * ez(Math.min(1, k * 1.6)); g.save(); g.translate(x, y); g.scale(dir, 1); g.globalCompositeOperation = 'lighter'; for (let w = 0; w < 3; w++) { g.strokeStyle = w === 0 ? 'rgba(255,230,160,' + (0.9 * (1 - k)) + ')' : 'rgba(255,170,60,' + (0.4 * (1 - k)) + ')'; g.lineWidth = w === 0 ? 2 : 5 - w; g.beginPath(); g.arc(0, 0, R + w * 2, -1.6, -1.6 + sweep); g.stroke(); } g.restore(); g.globalCompositeOperation = 'source-over'; }
   function opBars() { g.fillStyle = '#000'; g.fillRect(0, 0, VW, 16); g.fillRect(0, VH - 22, VW, 22); }
   function opLightning(t, t0, seed) { const age = t - t0; if (age < 0 || age > 0.5) return; const r = mulberry32(seed), bx = 60 + r() * 260; g.globalAlpha = 1 - age * 2; g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); let px = bx, py = -10; g.moveTo(px, py); for (let i = 0; i < 9; i++) { px += (r() - 0.5) * 36; py += 26; g.lineTo(px, py); } g.stroke(); g.strokeStyle = 'rgba(160,200,255,.6)'; g.lineWidth = 6; g.stroke(); g.globalAlpha = 0.5 * (1 - age * 2); g.fillStyle = '#dfe8ff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+  // ---------- the new film's pieces: a wide panorama of the land with ten towers, the sky, the moon, a tower, the town, the stone, the lantern, the hero ----------
+  function opPano() {
+    if (UIC.opp) return UIC.opp;
+    const PW = Math.round(VW * 2.4), [c, x] = mkCanvas(PW, VH), q = mulberry32(1717), T = [];
+    const ridge = (base, amp, col, rim, sd, f) => { const r = mulberry32(sd), p = [r() * 6, r() * 6, r() * 6], ys = []; for (let px = 0; px < PW; px++) { const y = Math.round(base + Math.sin(px * 0.011 * f + p[0]) * amp + Math.sin(px * 0.037 * f + p[1]) * amp * 0.4 + Math.sin(px * 0.11 + p[2]) * 1.5); ys.push(y); x.fillStyle = col; x.fillRect(px, y, 1, VH - y); x.fillStyle = rim; x.fillRect(px, y, 1, 1); } return ys; };
+    ridge(VH * 0.6, 16, '#141a3e', '#2e3a78', 3, 1);
+    const mid = ridge(VH * 0.71, 12, '#0e1230', '#26306a', 5, 1.3);
+    for (let i = 0; i < 10; i++) { const tx = Math.round(PW * (0.06 + i * 0.098)); T.push({ x: tx, by: mid[clamp(tx, 0, PW - 1)] + 2, h: 30 + Math.round(q() * 18) }); }
+    const near = ridge(VH * 0.85, 6, '#080a1e', '#1a2050', 9, 0.8);
+    for (let i = 0; i < 80; i++) { const px = (q() * PW) | 0, y = near[px], hg = 5 + ((q() * 9) | 0); x.fillStyle = '#060818'; for (let k = 0; k < hg; k++) { const hw = Math.round((1 - k / hg) * 3); x.fillRect(px - hw, y - k, hw * 2 + 1, 1); } }
+    // the meadow village on the near ridge, at the left edge (where the story starts)
+    for (let i = 0; i < 7; i++) { const hx = 8 + i * 15, y = near[hx + 6] - 9, w = 12; x.fillStyle = '#0a0a20'; x.fillRect(hx, y, w, 10); for (let k = 0; k < 6; k++) x.fillRect(hx + 6 - (6 - k), y - k, (6 - k) * 2, 1); x.fillStyle = '#ffd070'; x.fillRect(hx + 4, y + 4, 2, 2); }
+    return (UIC.opp = { c, T, PW });
+  }
+  function opSky(ecl) {   // 0 = a calm blue night, 1 = the red-black Eclipse
+    const gr = g.createLinearGradient(0, 0, 0, VH);
+    gr.addColorStop(0, lerpColor('#040820', '#0a0208', ecl)); gr.addColorStop(0.5, lerpColor('#14205a', '#2a0820', ecl)); gr.addColorStop(1, lerpColor('#3a3470', '#5a1424', ecl));
+    g.fillStyle = gr; g.fillRect(0, 0, VW, VH);
+  }
+  function opMoon(x, y, ecl, t) {   // the black disc slides over the moon; a red corona burns round it
+    x = Math.round(x); y = Math.round(y);
+    g.globalCompositeOperation = 'lighter'; const mg = g.createRadialGradient(x, y, 8, x, y, 60); mg.addColorStop(0, ecl > 0.8 ? 'rgba(255,60,50,' + (0.45 + Math.sin(t * 4) * 0.1) * ecl + ')' : 'rgba(220,230,255,' + 0.35 * (1 - ecl) + ')'); mg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = mg; g.fillRect(x - 60, y - 60, 120, 120); g.globalCompositeOperation = 'source-over';
+    disc(g, x, y, 15, ecl > 0.8 ? '#ff5a3a' : '#e8e4c8'); disc(g, x, y, 14, '#f4f0d8');
+    if (ecl > 0) { g.globalAlpha = Math.min(1, ecl * 4); disc(g, x + Math.round((1 - ecl) * 34), y - Math.round((1 - ecl) * 6), 14, '#05020a'); g.globalAlpha = 1; }
+  }
+  function opTower(x, by, h, lit, t, i) {
+    x = Math.round(x); by = Math.round(by);
+    g.fillStyle = '#0a0818'; for (let y = 0; y < h; y++) { const w = Math.round(4 - (y / h) * 1.6); g.fillRect(x - w, by - y, w * 2 + 1, 1); }
+    g.fillStyle = '#05040e'; g.fillRect(x - 5, by - h - 1, 11, 2); g.fillRect(x - 3, by - h - 9, 1, 8); g.fillRect(x + 3, by - h - 9, 1, 8); g.fillRect(x - 4, by - h - 11, 9, 2); g.fillRect(x, by - h - 15, 1, 4);
+    for (let k = 1; k <= 3; k++) { g.fillStyle = lit > 0.3 ? '#ffd070' : '#1c1830'; g.fillRect(x, by - Math.round(h * k / 4), 1, 2); }
+    const fy = by - h - 5;
+    if (lit > 0) {
+      g.globalCompositeOperation = 'lighter'; const r = 10 + 16 * lit + Math.sin(t * 6 + i) * 1.5, gr = g.createRadialGradient(x, fy, 0, x, fy, r * 2); gr.addColorStop(0, 'rgba(255,210,120,' + 0.75 * lit + ')'); gr.addColorStop(0.4, 'rgba(255,150,60,' + 0.25 * lit + ')'); gr.addColorStop(1, 'rgba(255,120,40,0)'); g.fillStyle = gr; g.fillRect(x - r * 2, fy - r * 2, r * 4, r * 4); g.globalCompositeOperation = 'source-over';
+      g.globalAlpha = lit; g.fillStyle = '#ffd34e'; g.fillRect(x - 2, fy - 2, 5, 5); g.fillStyle = '#fff6c0'; g.fillRect(x - 1, fy - 3 - (Math.floor(t * 8 + i) % 2), 3, 4); g.globalAlpha = 1;
+    }
+    if (lit < 1) { for (let k = 0; k < 4; k++) { const u = (t * 0.4 + k / 4 + i * 0.13) % 1; g.globalAlpha = (1 - lit) * (1 - u) * 0.35; g.fillStyle = '#6a6488'; g.fillRect(Math.round(x + Math.sin(u * 5 + i) * 3 * u), Math.round(fy - u * 22), 2 + Math.round(u * 2), 2); } g.globalAlpha = 1; }
+  }
+  // the land seen from far away: sky, moon, ridges, the river of light between the towers and the towers themselves
+  function opLand(t, camX, ecl, litOf, O) {
+    opSky(ecl);
+    for (const s of O.stars) { g.globalAlpha = (0.3 + 0.7 * Math.abs(Math.sin(t * s.v + s.p))) * (1 - ecl * 0.8) * 0.8; g.fillStyle = '#fff'; g.fillRect(s.x, Math.round(s.y * 0.5), 1, 1); } g.globalAlpha = 1;
+    opMoon(VW * 0.74, 38, ecl, t);
+    const P2 = opPano(); g.drawImage(P2.c, -Math.round(camX), 0);
+    for (let i = 0; i < 9; i++) {
+      const a = P2.T[i], b = P2.T[i + 1], k = Math.min(litOf(i), litOf(i + 1)); if (k <= 0) continue;
+      const ax = a.x - camX, bx = b.x - camX; if (Math.max(ax, bx) < -40 || Math.min(ax, bx) > VW + 40) continue;
+      const ay = a.by - a.h - 6, by2 = b.by - b.h - 6, mx = (ax + bx) / 2, my = Math.min(ay, by2) - 34;
+      g.globalCompositeOperation = 'lighter'; g.strokeStyle = 'rgba(255,200,110,' + 0.35 * k + ')'; g.lineWidth = 2; g.beginPath(); g.moveTo(ax, ay); g.quadraticCurveTo(mx, my, bx, by2); g.stroke();
+      g.strokeStyle = 'rgba(255,240,200,' + 0.5 * k + ')'; g.lineWidth = 0.8; g.stroke(); g.lineWidth = 1;
+      for (let d = 0; d < 5; d++) { const s = (t * 0.35 + d / 5) % 1, px = (1 - s) * (1 - s) * ax + 2 * (1 - s) * s * mx + s * s * bx, py = (1 - s) * (1 - s) * ay + 2 * (1 - s) * s * my + s * s * by2; g.fillStyle = 'rgba(255,240,190,' + k + ')'; g.fillRect(Math.round(px) - 1, Math.round(py) - 1, 2, 2); }
+      g.globalCompositeOperation = 'source-over';
+    }
+    for (let i = 0; i < 10; i++) { const T2 = P2.T[i], sx = T2.x - camX; if (sx < -30 || sx > VW + 30) continue; opTower(sx, T2.by, T2.h, litOf(i), t, i); }
+  }
+  // the festival town (lit = how much of its warm light is left, people = the villagers are out)
+  function opTown(t, camY, lit, people, O) {
+    g.drawImage(O.world, 0, -Math.round(camY));
+    for (const s of O.stars) { g.globalAlpha = (0.3 + 0.7 * Math.abs(Math.sin(t * s.v + s.p))) * lit; g.fillStyle = '#fff'; g.fillRect(s.x, s.y - Math.round(camY), 1, 1); } g.globalAlpha = 1;
+    g.globalCompositeOperation = 'lighter';
+    for (const w of O.glows) { const wy = w.y - camY; if (wy < -20 || wy > VH + 20) continue; const r = w.big ? 22 : 9, fl = 0.85 + Math.sin(t * 7 + w.x) * 0.15; const gr = g.createRadialGradient(w.x, wy, 0, w.x, wy, r); gr.addColorStop(0, 'rgba(255,200,100,' + 0.4 * lit * fl + ')'); gr.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = gr; g.fillRect(w.x - r, wy - r, r * 2, r * 2); }
+    for (const b of O.bulbs) { const wy = b.y - camY; if (wy < -4 || wy > VH + 4) continue; g.globalAlpha = (0.5 + 0.5 * Math.sin(t * 4 + b.x)) * lit; g.fillStyle = b.col; g.fillRect(Math.round(b.x) - 2, Math.round(wy) - 2, 5, 5); } g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+    for (let i = 0; i < 7; i++) { const u = ((t * 0.25 + i / 7) % 1); g.globalAlpha = (1 - u) * 0.18; g.fillStyle = '#9aa0c8'; g.fillRect(Math.round(40 + i * 52 + Math.sin(u * 6 + i) * 4), Math.round(380 - camY - u * 40), 4, 3); } g.globalAlpha = 1;
+    for (const f of O.flies) { const fx = f.x + Math.sin(t * 0.8 + f.p) * f.r, fy = f.y - camY + Math.cos(t * 1.1 + f.p) * 5; if (fy < 0 || fy > VH) continue; g.globalAlpha = (0.4 + 0.6 * Math.max(0, Math.sin(t * 2 + f.p))) * lit; g.fillStyle = '#ffe066'; g.fillRect(Math.round(fx), Math.round(fy), 2, 2); } g.globalAlpha = 1;
+    const by = 480 - camY;
+    if (people && by < VH + 30) {
+      O.kids.forEach((k, i) => { const px = k.x + Math.sin(t * k.v + k.p) * k.r * 0.6, vx = Math.cos(t * k.v + k.p); drawSpr(g, getSprite('hero_run', k.sw, Math.floor(t * 11 + i) % 4), Math.round(px), Math.round(by + 1), vx < 0, false, 0.78, 0.78); });
+      drawSpr(g, npcSpr('npc_lila'), 112, Math.round(by + 1), false); drawSpr(g, npcSpr('npc_bram'), 130, Math.round(by + 1), true); drawSpr(g, npcSpr('npc_gob'), 232, Math.round(by + 1), true);
+    }
+    return by;
+  }
+  function opStone(x, by, sc) {   // the stone the old lantern rests on
+    g.save(); g.translate(Math.round(x), Math.round(by)); g.scale(sc, sc);
+    g.fillStyle = '#2a2640'; g.fillRect(-9, -4, 18, 4); g.fillStyle = '#3a3654'; g.fillRect(-6, -14, 12, 10); g.fillStyle = '#4a4668'; g.fillRect(-8, -17, 16, 3);
+    g.fillStyle = '#5e5a80'; g.fillRect(-8, -17, 16, 1); g.fillRect(-6, -14, 1, 10); g.fillStyle = '#1e1a30'; g.fillRect(5, -14, 1, 10);
+    g.fillStyle = '#c89a1c'; g.fillRect(-2, -10, 4, 1); g.fillRect(-1, -11, 2, 3);   // a carved lantern sign
+    g.restore();
+  }
+  function opLantern(x, y, sc, glow, rot) {   // y = the middle of the lantern; glow 0 = cold, 1 = burning
+    g.save(); g.translate(Math.round(x), Math.round(y)); if (rot) g.rotate(rot); g.scale(sc, sc);
+    g.fillStyle = '#2a1a10'; g.fillRect(-1, -7, 3, 1); g.fillRect(-3, -6, 7, 2); g.fillStyle = '#c89a1c'; g.fillRect(-3, -5, 7, 1);
+    g.fillStyle = '#2a1a10'; g.fillRect(-3, -4, 1, 7); g.fillRect(3, -4, 1, 7);
+    g.fillStyle = lerpColor('#3a2a22', '#ffd34e', glow); g.fillRect(-2, -4, 5, 7); g.fillStyle = lerpColor('#4a3a30', '#fff6c0', glow); g.fillRect(-1, -3, 3, 4);
+    if (glow > 0.5) { g.fillStyle = '#ffffff'; g.fillRect(0, -2, 1, 2); }
+    g.fillStyle = '#c89a1c'; g.fillRect(-3, 3, 7, 1); g.fillStyle = '#2a1a10'; g.fillRect(-2, 4, 5, 1);
+    g.restore();
+    if (glow > 0) { g.globalCompositeOperation = 'lighter'; const r = 14 * sc * (0.5 + glow), gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(255,200,100,' + 0.55 * glow + ')'); gr.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); g.globalCompositeOperation = 'source-over'; }
+  }
+  function opHero(x, bot, sc, flip, run, t) {   // the hero the player picked
+    const h = HERO[myHero()] || HERO.ember, n = run ? 4 : 2, fr = Math.floor(t * (run ? 14 : 2.5)) % n;
+    g.save(); g.translate(Math.round(x), Math.round(bot)); g.scale(sc, sc);
+    if (h.custom) { const sp = custSpr(h, run ? 'run' : 'idle', fr), k = h.custom === 'fan' ? 16 / (sp.h || 16) : 1; g.imageSmoothingEnabled = h.custom === 'fan'; drawSpr(g, sp, 0, run ? -Math.abs(Math.round(Math.sin(t * 14))) : 0, flip, false, k, k); g.imageSmoothingEnabled = false; }
+    else { drawSpr(g, getSprite(run ? 'hero_run' : 'hero_idle', h.sw, fr), 0, 0, flip); if (h.hat) drawHat(h, 0, 0, flip ? -1 : 1); }
+    g.restore();
+  }
   function drawOpening() {
     if (!op) startOpening(); const t = op.t, O = openArt(); let shake = 0;
     g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH);
-    const person = (spr, x, y, flip, sc) => drawSpr(g, spr, Math.round(x), Math.round(y), flip, false, sc || 1, sc || 1);
-    if (t < 33) {
-      // ---------- the town, the storm and the Demon King ----------
-      const camY = t < 3 ? 0 : (t < 12 ? 304 * ez((t - 3) / 9) : (t < 15 ? 304 : 304 - 264 * ez((t - 15) / 2.2)));
-      const storm = ez(seg(t, 13.6, 16.5)), black = ez(seg(t, 30.4, 32.6));
-      if (t < 18.6) {
-        g.drawImage(O.world, 0, -Math.round(camY));
-        for (const s of O.stars) { g.globalAlpha = (0.3 + 0.7 * Math.abs(Math.sin(t * s.v + s.p))) * (1 - storm); g.fillStyle = '#fff'; g.fillRect(s.x, s.y - Math.round(camY), 1, 1); } g.globalAlpha = 1;
-        { const my = 86 - camY; g.globalCompositeOperation = 'lighter'; const mg = g.createRadialGradient(262, my, 10, 262, my, 110); mg.addColorStop(0, 'rgba(220,230,255,' + 0.38 * (1 - storm) + ')'); mg.addColorStop(1, 'rgba(120,140,255,0)'); g.fillStyle = mg; g.fillRect(150, my - 110, 220, 220); g.globalCompositeOperation = 'source-over'; }
-        // warm glows of windows, lanterns and festival bulbs (they gutter out when the storm arrives)
-        g.globalCompositeOperation = 'lighter'; const lit = 1 - ez(seg(t, 14.0, 16.6));
-        for (const w of O.glows) { const wy = w.y - camY; if (wy < -20 || wy > VH + 20) continue; const r = w.big ? 22 : 9, fl = 0.85 + Math.sin(t * 7 + w.x) * 0.15; const gr = g.createRadialGradient(w.x, wy, 0, w.x, wy, r); gr.addColorStop(0, 'rgba(255,200,100,' + 0.4 * lit * fl + ')'); gr.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = gr; g.fillRect(w.x - r, wy - r, r * 2, r * 2); }
-        for (const b of O.bulbs) { const wy = b.y - camY; if (wy < -4 || wy > VH + 4) continue; g.globalAlpha = (0.5 + 0.5 * Math.sin(t * 4 + b.x)) * lit; g.fillStyle = b.col; g.fillRect(Math.round(b.x) - 2, Math.round(wy) - 2, 5, 5); } g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
-        // chimney smoke and fireflies
-        for (let i = 0; i < 7; i++) { const u = ((t * 0.25 + i / 7) % 1); g.globalAlpha = (1 - u) * 0.18; g.fillStyle = '#9aa0c8'; const sx = 40 + i * 52, sy = 380 - camY - u * 40; g.fillRect(Math.round(sx + Math.sin(u * 6 + i) * 4), Math.round(sy), 4, 3); } g.globalAlpha = 1;
-        for (const f of O.flies) { const fx = f.x + Math.sin(t * 0.8 + f.p) * f.r, fy = f.y - camY + Math.cos(t * 1.1 + f.p) * 5; if (fy < 0 || fy > VH) continue; g.globalAlpha = 0.4 + 0.6 * Math.max(0, Math.sin(t * 2 + f.p)); g.fillStyle = '#ffe066'; g.fillRect(Math.round(fx), Math.round(fy), 2, 2); } g.globalAlpha = 1;
-        // the people: kids chase each other, neighbours chat, until the sky goes dark
-        const frozen = t >= 14.2, by = 480 - camY;
-        if (by < VH + 30) {
-          O.kids.forEach((k, i) => { const px = k.x + Math.sin(t * k.v + k.p) * k.r, vx = Math.cos(t * k.v + k.p), fr = frozen ? 0 : Math.floor(t * 11 + i) % 4; person(frozen ? getSprite('hero_idle', k.sw, 0) : getSprite('hero_run', k.sw, fr), px, by + 1, frozen ? false : vx < 0, 0.78); if (frozen) { g.fillStyle = '#fff'; g.fillRect(Math.round(px) - 1, Math.round(by - 24), 2, 2); } else if (Math.sin(t * 3 + i) > 0.92) { g.fillStyle = '#ffe9a8'; g.fillRect(Math.round(px) + 4, Math.round(by - 20), 3, 3); } });
-          person(npcSpr('npc_lila'), 112, by + 1, false); person(npcSpr('npc_bram'), 130, by + 1, true); person(npcSpr('npc_gob'), 232, by + 1, true);
-          if (!frozen) { if (Math.sin(t * 5) > 0) { g.fillStyle = '#fff'; g.fillRect(118, Math.round(by - 24), 8, 5); g.fillStyle = '#14121f'; g.fillRect(120, Math.round(by - 22), 1, 1); g.fillRect(122, Math.round(by - 22), 1, 1); g.fillRect(124, Math.round(by - 22), 1, 1); } }
-          else { for (const x of [112, 130, 232]) { g.fillStyle = '#fff'; g.fillRect(x - 1, Math.round(by - 28), 2, 3); g.fillRect(x - 1, Math.round(by - 24), 2, 1); } }
-        }
-        // the storm rolls in
-        if (storm > 0) { g.globalAlpha = 0.82 * storm; g.fillStyle = '#10062a'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
-        if (t > 14.0) { g.strokeStyle = 'rgba(180,200,255,.5)'; g.lineWidth = 1; const n = Math.round(60 * storm); for (let i = 0; i < n; i++) { const rx = (i * 53 + t * 260) % (VW + 40) - 20, ry = (i * 97 + t * 400) % (VH + 20) - 10; g.beginPath(); g.moveTo(rx, ry); g.lineTo(rx - 4, ry + 9); g.stroke(); } }
-        // dark red storm clouds drift over everything
-        if (storm > 0) for (let i = 0; i < 12; i++) { const cx = ((i * 71 + t * (6 + i)) % (VW + 160)) - 80, cy = 14 + (i % 4) * 16 - Math.max(0, camY - 40) * 0.2; g.globalAlpha = 0.5 * storm; g.fillStyle = i % 2 ? '#2a0a3a' : '#3a0a22'; g.fillRect(Math.round(cx), Math.round(cy), 90, 12); g.fillRect(Math.round(cx + 14), Math.round(cy - 8), 60, 10); } g.globalAlpha = 1;
+    const P2 = opPano(), far = P2.PW - VW;
+    if (t < 10.4) {
+      // ---------- 1. ten towers and the river of light ----------
+      opLand(t, far * 0.75 * ez(t / 10.4), 0, () => 1, O);
+      if (t < 1.6) { g.globalAlpha = 1 - ez(t / 1.6); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+      if (t > 9.6) { g.globalAlpha = ez((t - 9.6) / 0.8); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+    } else if (t < 20.5) {
+      // ---------- 2. the Lantern Festival: the town, the stone, the child ----------
+      const camY = t < 11.2 ? 0 : 304 * ez((t - 11.2) / 5);
+      const by = opTown(t, camY, 1, true, O);
+      if (by < VH + 30) {
+        opStone(300, by + 1, 1); opLantern(300, by - 22 + Math.sin(t * 2) * 0.6, 1, 0.55 + Math.sin(t * 3) * 0.1, 0);
+        opHero(276, by + 1, 1, false, false, t);
+        if (t > 16.5) { const k = ez(seg(t, 16.5, 18)); g.globalAlpha = k * (0.6 + Math.sin(t * 5) * 0.3); g.fillStyle = '#fff6c0'; g.fillRect(279, Math.round(by - 24), 1, 3); g.fillRect(278, Math.round(by - 23), 3, 1); g.globalAlpha = 1; }
       }
-      if (t >= 14) { opLightning(t, 14.2, 3); opLightning(t, 15.2, 11); opLightning(t, 16.3, 29); }
-      if (t >= 16.6) {
-        // Quoc's face fills the storm
-        const k = ez(seg(t, 16.8, 19.4)), roar = t > 28.2, zoom = 1.15 + 0.2 * seg(t, 17, 32) + (roar ? 0.12 : 0), qi = typeof QUOC_IMG !== 'undefined' && (roar ? QUOC_IMG.portrait_roar : QUOC_IMG.portrait_smirk);
-        g.globalAlpha = clamp((t - 16.6) / 1.6, 0, 1); g.fillStyle = '#12041c'; g.fillRect(0, 0, VW, VH);
-        for (let i = 0; i < 14; i++) { const cx = ((i * 83 + t * (10 + i * 2)) % (VW + 200)) - 100, cy = 20 + (i % 5) * 38; g.globalAlpha = 0.35 * clamp((t - 16.6) / 1.6, 0, 1); g.fillStyle = i % 3 ? '#3a0a30' : '#220a40'; g.fillRect(Math.round(cx), Math.round(cy), 130, 20); g.fillRect(Math.round(cx + 20), Math.round(cy - 10), 80, 14); } g.globalAlpha = 1;
-        { const sx = roar ? Math.round(Math.sin(t * 60) * 2) : 0, sy = roar ? Math.round(Math.cos(t * 55) * 2) : 0; shake = roar ? 1 : 0;
-          g.globalAlpha = k; if (qi) { const w = qi.w * zoom * 1.25, h = qi.h * zoom * 1.25; g.drawImage(qi.c, Math.round(VW / 2 - w / 2) + sx, Math.round(VH / 2 - h / 2 + 8) + sy, Math.round(w), Math.round(h)); } else { const sp = npcSpr('npc_quoc'); g.drawImage(sp.c, Math.round(VW / 2 - sp.w * 4) + sx, Math.round(VH / 2 - sp.h * 4) + sy, sp.w * 8, sp.h * 8); }
-          g.globalAlpha = 1; g.globalCompositeOperation = 'lighter'; const eg = g.createRadialGradient(VW / 2, VH / 2 - 10, 0, VW / 2, VH / 2 - 10, 150); eg.addColorStop(0, 'rgba(255,40,60,' + 0.28 * k * (0.7 + Math.sin(t * 5) * 0.3) + ')'); eg.addColorStop(1, 'rgba(255,40,60,0)'); g.fillStyle = eg; g.fillRect(0, 0, VW, VH); g.globalCompositeOperation = 'source-over'; }
-        // the Sun, crushed in his fist
-        if (t > 23.2 && t < 31) { const gt = t - 23.2, r = 4 + 16 * ez(seg(t, 23.4, 26.9)) + Math.sin(t * 14) * 1.2, cx = VW / 2 + 58, cy = 150;
-          if (t < 27) { g.globalCompositeOperation = 'lighter'; const sg = g.createRadialGradient(cx, cy, 0, cx, cy, r * 3.2); sg.addColorStop(0, 'rgba(255,230,140,.95)'); sg.addColorStop(0.4, 'rgba(255,170,60,.45)'); sg.addColorStop(1, 'rgba(255,120,30,0)'); g.fillStyle = sg; g.fillRect(cx - r * 3.2, cy - r * 3.2, r * 6.4, r * 6.4); g.globalCompositeOperation = 'source-over'; disc(g, Math.round(cx), Math.round(cy), Math.round(r), '#ffe9a8'); disc(g, Math.round(cx), Math.round(cy), Math.round(r * 0.7), '#fff6d0'); }
-          else { const sa = t - 27; g.globalAlpha = Math.max(0, 0.9 - sa * 2.4); g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; for (let i = 0; i < 7; i++) { const a = i / 7 * 6.2832 + 0.4, d = 160 * ez(Math.min(1, sa / 2.2)), px = cx + Math.cos(a) * d, py = cy + Math.sin(a) * d * 0.7; g.globalAlpha = clamp(1 - (sa - 1.6) / 1.6, 0, 1); g.globalCompositeOperation = 'lighter'; const sg = g.createRadialGradient(px, py, 0, px, py, 22); sg.addColorStop(0, 'rgba(255,220,120,.9)'); sg.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = sg; g.fillRect(px - 22, py - 22, 44, 44); g.globalCompositeOperation = 'source-over'; g.fillStyle = '#ffe9a8'; g.fillRect(Math.round(px) - 3, Math.round(py) - 5, 6, 10); g.fillRect(Math.round(px) - 5, Math.round(py) - 3, 10, 6); g.fillStyle = '#fff'; g.fillRect(Math.round(px) - 1, Math.round(py) - 2, 3, 4); } g.globalAlpha = 1; } }
-        opLightning(t, 20.6, 41); opLightning(t, 24.4, 53); opLightning(t, 28.2, 67); opLightning(t, 29.6, 71);
+      if (t < 11.0) { g.globalAlpha = 1 - ez((t - 10.4) / 0.6); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+      if (t > 19.8) { g.globalAlpha = ez((t - 19.8) / 0.7); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+    } else if (t < 32.2) {
+      // ---------- 3. the Eclipse: the towers die from the farthest to the nearest, Quoc in the black moon ----------
+      const ecl = ez(seg(t, 20.6, 23)), camX = far * (1 - ez(seg(t, 21.2, 29.4)));
+      opLand(t, camX, ecl, i => 1 - ez(seg(t, opOutT(i), opOutT(i) + 0.5)), O);
+      for (let i = 0; i < 10; i++) { const T2 = P2.T[i], ot = opOutT(i); opBurst(T2.x - camX, T2.by - T2.h - 5, ot, t, 10, i, 30, 0.8, ['#6a6488', '#ffd070', '#3a3454'], -20); }
+      g.globalAlpha = 0.35 * ecl; g.fillStyle = '#10062a'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1;
+      if (t > 24.4) {   // Quoc's face inside the black moon
+        const k = ez(seg(t, 24.4, 26)), roar = t > 28.4, qi = typeof QUOC_IMG !== 'undefined' && (roar ? QUOC_IMG.portrait_roar : QUOC_IMG.portrait_smirk), mx = VW * 0.74, my = 38;
+        g.globalAlpha = k * 0.85; if (qi) { const sc = 70 / qi.h, w = qi.w * sc, hh = qi.h * sc, sx = roar ? Math.round(Math.sin(t * 60) * 1.5) : 0; g.drawImage(qi.c, Math.round(mx - w / 2) + sx, Math.round(my - hh / 2 + 10), Math.round(w), Math.round(hh)); } g.globalAlpha = 1;
+        g.globalCompositeOperation = 'lighter'; const eg = g.createRadialGradient(mx, my, 0, mx, my, 90); eg.addColorStop(0, 'rgba(255,40,60,' + 0.25 * k + ')'); eg.addColorStop(1, 'rgba(255,40,60,0)'); g.fillStyle = eg; g.fillRect(mx - 90, my - 90, 180, 180); g.globalCompositeOperation = 'source-over'; if (roar) shake = 1;
       }
-      if (black > 0) { g.globalAlpha = black; g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
-      if (t < 3) { g.globalAlpha = 1 - ez(t / 2.4); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+      opLightning(t, 20.6, 3); opLightning(t, 26.0, 41); opLightning(t, 29.2, 67);
+      if (t > 31.5) { g.globalAlpha = ez((t - 31.5) / 0.7); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
     } else if (t < 42.2) {
-      // ---------- the last lantern chooses Ember ----------
-      const lt = t - 33.4, camY = 304, zoom = 1 + 0.18 * ez(lt / 8);
-      g.save(); g.translate(VW / 2, VH / 2); g.scale(zoom, zoom); g.translate(-VW / 2 - 24 * ez(lt / 8), -VH / 2); g.drawImage(O.world, 0, -camY); g.restore();
-      g.fillStyle = 'rgba(2,3,10,.93)'; g.fillRect(0, 0, VW, VH);
-      const lantY = 70 + (t > 34.6 ? 0 : 0), arrive = ez(seg(t, 35.0, 37.0)), lx = VW / 2 + 10, hx = 230, hy = 178, glowK = ez(seg(t, 34.0, 35.2)), fx = lx + (hx + 8 - lx) * arrive, fy = lantY + (hy - 36 - lantY) * arrive + Math.sin(t * 3) * 3 * (1 - arrive);
-      g.globalCompositeOperation = 'lighter'; const lg3 = g.createRadialGradient(fx, fy, 0, fx, fy, 60 + 90 * arrive); lg3.addColorStop(0, 'rgba(255,200,110,' + 0.8 * glowK + ')'); lg3.addColorStop(0.5, 'rgba(255,150,60,' + 0.3 * glowK + ')'); lg3.addColorStop(1, 'rgba(255,120,40,0)'); g.fillStyle = lg3; g.fillRect(0, 0, VW, VH); g.globalCompositeOperation = 'source-over';
-      person(npcSpr('npc_lila'), 156, 180, false, 1.5); person(getSprite('hero_idle', {}, Math.floor(t * 2.5) % 2), hx, hy + 2, true, 2);
-      if (glowK > 0) { g.save(); g.translate(Math.round(fx), Math.round(fy)); g.scale(3 - arrive * 0.8, 3 - arrive * 0.8); g.translate(-Math.round(fx), -Math.round(fy)); lanternIc(Math.round(fx), Math.round(fy), glowK); g.restore(); }
-      // Lila hands over the old sword
-      { const sw = swordSprite('iron'), u = ez(seg(t, 38.0, 39.6)), sx = 172 + (hx - 20 - 172) * u, sy = 160 - 6 * Math.sin(u * 3.14); if (t > 37.2 && t < 42.2) { g.save(); g.translate(sx, sy); g.rotate(-0.8 + u * 0.5); g.drawImage(sw.c, -2, -sw.h / 2); g.restore(); } }
-      opBurst(fx, fy, 35.0, t, 14, 3, 40, 1.2, ['#ffe9a8', '#ffd34e'], -20); opBurst(hx, hy - 20, 37.0, t, 22, 5, 70, 1.4, ['#fff6c0', '#ffd34e', '#ff9a2a'], -10);
-      if (t < 34.2) { g.globalAlpha = 1 - ez((t - 33.4) / 0.8); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
-    } else if (t < 62) {
-      const rt = t - 42.2;
-      if (rt < 10.0) {
-        // ---------- the run: five quick cuts across the lands ----------
-        const CUT = [[0, 0, 2.0], [1, 2.0, 4.2], [3, 4.2, 6.4], [4, 6.4, 8.4], [5, 8.4, 10.0]];
-        const cu = CUT.find(c => rt >= c[1] && rt < c[2]) || CUT[4], lt = rt - cu[1], dur = cu[2] - cu[1], speed = 150, camX = lt * speed + cu[0] * 400;
-        const gy = drawBgOnly(cu[0], camX, t), ts = tiles(cu[0]), sx0 = 96, ox = at => sx0 + (at - lt) * speed;
-        let hyj = 0, pose = 'run', sc = 1.9, dashT = -1;
-        const arc = (a, b, h) => (lt > a && lt < b) ? Math.sin((lt - a) / (b - a) * Math.PI) * h : 0;
-        if (cu[0] === 0) { if (lt > 1.15 && lt < 1.55) pose = 'slash'; if (lt < 1.2) { const x = ox(1.2); drawSpr(g, getSprite('slime', {}, Math.floor(lt * 5) % 2), Math.round(x), gy + 2, true, false, 1.7, 1.7); } else { opBurst(sx0 + 22, gy - 12, 1.2, lt, 18, 2, 60, 0.7, ['#a4e86b', '#5fcf5a', '#fff']); } opSlash(sx0 + 12, gy - 16, 1, (lt - 1.15) / 0.35, false); }
-        else if (cu[0] === 1) { hyj = arc(0.8, 1.55, 36); if (hyj > 0) pose = 'jump'; const sp = Math.min(1, lt / 1.0), x = ox(1.2); g.strokeStyle = 'rgba(220,230,220,.6)'; g.lineWidth = 1; g.beginPath(); g.moveTo(Math.round(x), 0); g.lineTo(Math.round(x), Math.round(gy - 60 + 62 * sp)); g.stroke(); drawSpr(g, getSprite('spider', {}, Math.floor(lt * 6) % 2), Math.round(x), Math.round(gy - 58 + 60 * sp), false, false, 1.7, 1.7); if (lt > 1.6) opBurst(sx0 - 20, gy - 4, 1.6, lt, 8, 7, 40, 0.5, ['#cfd6e6', '#8a8aa0']); }
-        else if (cu[0] === 3) { hyj = arc(0.9, 1.9, 40); if (hyj > 0) pose = 'jump'; const x = ox(1.3); for (let i = 0; i < 5; i++) g.drawImage(ts.spike, Math.round(x - 40 + i * 16), gy - 14); if (lt > 1.35 && lt < 1.65) { g.strokeStyle = 'rgba(160,240,255,' + (1 - (lt - 1.35) / 0.3) + ')'; g.lineWidth = 1; g.beginPath(); g.arc(sx0, gy - 40, 6 + (lt - 1.35) * 60, 0, 6.28); g.stroke(); } }
-        else if (cu[0] === 4) { dashT = lt > 1.0 && lt < 1.7 ? (lt - 1.0) / 0.7 : -1; for (let i = 0; i < 4; i++) { const x = VW + 30 - (lt - 0.1 * i) * 330 + i * 70; if (lt > 0.1 * i && Math.abs(x - sx0) > 4 || lt < 1.0) { g.fillStyle = '#bfefff'; g.fillRect(Math.round(x), Math.round(gy - 22 - (i % 2) * 14), 14, 3); g.fillStyle = '#fff'; g.fillRect(Math.round(x), Math.round(gy - 21 - (i % 2) * 14), 6, 1); } } }
-        else { hyj = arc(1.0, 1.9, 34); if (hyj > 0) pose = 'jump'; const gx = ox(1.45); g.fillStyle = '#ff5a1a'; g.fillRect(Math.round(gx - 34), gy, 68, VH - gy); g.fillStyle = '#ffd34e'; g.fillRect(Math.round(gx - 34), gy, 68, 2); for (let i = 0; i < 4; i++) { const fx = VW - ((lt * 0.8 + i * 0.35) % 1.4) * 280, fy = 30 + i * 18 + Math.sin(lt * 6 + i) * 6; disc(g, Math.round(fx), Math.round(fy), 4, '#ff7a2a'); disc(g, Math.round(fx), Math.round(fy), 2, '#ffe9a8'); } }
-        const hy = gy + 2 - Math.round(hyj), flip = false;
-        if (dashT >= 0) for (let i = 4; i >= 1; i--) { g.globalAlpha = 0.18 * (5 - i); drawSpr(g, getSprite('hero_run', {}, Math.floor((lt + i * 0.03) * 12) % 4), sx0 - i * 14, hy, flip, false, sc, sc); } g.globalAlpha = 1;
-        drawSpr(g, pose === 'jump' ? getSprite('hero_jump', {}, 0) : getSprite('hero_run', {}, Math.floor(lt * 14) % 4), sx0, hy, flip, false, sc, sc);
-        { g.globalCompositeOperation = 'lighter'; const gl = g.createRadialGradient(sx0 + 16, hy - 20, 0, sx0 + 16, hy - 20, 40); gl.addColorStop(0, 'rgba(255,190,90,.35)'); gl.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = gl; g.fillRect(sx0 - 24, hy - 60, 80, 80); g.globalCompositeOperation = 'source-over'; }
-        g.strokeStyle = 'rgba(255,255,255,.18)'; g.lineWidth = 1; for (let i = 0; i < 9; i++) { const yy = 24 + i * 15 + (lt * 90 + i * 17) % 11, xx = (VW - ((lt * 520 + i * 91) % (VW + 60))); g.beginPath(); g.moveTo(xx, yy); g.lineTo(xx + 26, yy); g.stroke(); }
-        if (lt < 0.1) { g.globalAlpha = 0.9 * (1 - lt / 0.1); g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
-        if (rt < 0.7) { g.globalAlpha = 1 - rt / 0.7; g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
-      } else {
-        // ---------- the first boss: the Magma Titan ----------
-        const bt = rt - 10.0, gy = drawBgOnly(5, 40 + bt * 5, t), bs = bossSprite(5), rise = ez(bt / 1.1), bsc = 2.7, bx = 300, hx0 = 96;
-        let hhx = hx0, hyj = 0, pose = 'idle', bflash = 0, hit = 0;
-        const arc = (a, b, h) => (bt > a && bt < b) ? Math.sin((bt - a) / (b - a) * Math.PI) * h : 0;
-        if (bt < 1.0) shake = 1.5 * (1 - bt);
-        const bossY = gy + 8 + (1 - rise) * 120;
-        // the molten arena
-        g.fillStyle = 'rgba(255,90,20,.12)'; g.fillRect(0, gy - 30, VW, 40);
-        // titan's attacks: ground slam, then a flame breath
-        const wave = bt > 1.7 && bt < 2.9 ? (bt - 1.7) / 1.2 : -1, breathT = bt > 3.1 && bt < 4.0 ? (bt - 3.1) / 0.9 : -1;
-        if (wave >= 0) { const wx = bx - 40 - wave * 240; g.fillStyle = '#ff7a2a'; g.fillRect(Math.round(wx), gy - 14, 12, 14); g.fillStyle = '#ffe9a8'; g.fillRect(Math.round(wx) + 3, gy - 10, 6, 10); if (wave < 0.1) shake = 2; }
-        if (breathT >= 0) { for (let i = 0; i < 14; i++) { const u = (breathT * 1.4 + i / 14) % 1, fx = bx - 50 - u * 190, fy = gy - 34 + Math.sin(i * 2 + bt * 14) * 6 + u * 20; g.globalAlpha = 1 - u * 0.7; disc(g, Math.round(fx), Math.round(fy), 5 - Math.round(u * 3), i % 2 ? '#ff7a2a' : '#ffd34e'); } g.globalAlpha = 1; }
-        // the hero: jumps the wave, dashes under the flames, then charges and fights
-        hyj = arc(1.9, 2.8, 30); if (hyj > 0) pose = 'jump';
-        const dash = bt > 3.2 && bt < 3.9; if (bt > 4.0 && bt < 5.9) hhx = hx0 + 140 * ez((bt - 4.0) / 0.5) ; if (bt >= 5.9) hhx = hx0 + 140;
-        const combo = bt > 4.6 && bt < 6.2 ? Math.floor((bt - 4.6) / 0.27) : -1; if (combo >= 0) { pose = 'slash'; hit = ((bt - 4.6) % 0.27) / 0.27; bflash = hit < 0.3 ? 1 : 0; }
-        const charge = ez(seg(bt, 6.2, 7.6)), megaT = bt - 7.6;
-        // the boss drawn (shake when hit, redden when enraged, split on the final cut)
-        const bshake = (bflash ? Math.round(Math.sin(bt * 90) * 2) : 0);
-        const dead = bt > 8.4;
-        if (!dead) { g.save(); if (bt > 6.0) { g.globalAlpha = 1; } drawSpr(g, bs, Math.round(bx + bshake), Math.round(bossY), true, bflash > 0, bsc, bsc); g.restore(); if (bt > 6.0) { g.globalCompositeOperation = 'lighter'; g.fillStyle = 'rgba(255,60,20,.25)'; g.fillRect(bx - 80, gy - 150, 160, 160); g.globalCompositeOperation = 'source-over'; } }
-        else { const sp = (bt - 8.4); const half = (dir) => { g.save(); g.beginPath(); g.moveTo(bx - 90, gy - 150); g.lineTo(bx + 90, gy - 150); g.lineTo(bx + 90, gy + 20); g.lineTo(bx - 90, gy + 20); g.clip(); g.restore(); };
-          g.globalAlpha = clamp(1 - sp / 0.45, 0, 1); drawSpr(g, bs, Math.round(bx + sp * 24), Math.round(bossY - sp * 10), true, true, bsc, bsc); g.globalAlpha = 1; opBurst(bx, gy - 60, 8.4, bt, 60, 9, 150, 1.4, ['#ff7a2a', '#ffd34e', '#fff', '#ff3a1a'], 140); if (sp < 0.5) { g.globalCompositeOperation = 'lighter'; const eg = g.createRadialGradient(bx, gy - 60, 0, bx, gy - 60, 40 + sp * 300); eg.addColorStop(0, 'rgba(255,230,160,' + (0.9 - sp) + ')'); eg.addColorStop(1, 'rgba(255,100,30,0)'); g.fillStyle = eg; g.fillRect(0, 0, VW, VH); g.globalCompositeOperation = 'source-over'; shake = 2; } }
-        // health bar
-        const hp = bt < 4.6 ? 1 : (bt < 6.2 ? 1 - 0.6 * (bt - 4.6) / 1.6 : (bt < 8.4 ? 0.4 : 0)); g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(70, 22, 244, 8); g.fillStyle = '#3a0a0a'; g.fillRect(72, 24, 240, 4); g.fillStyle = '#e0453a'; g.fillRect(72, 24, Math.round(240 * hp), 4); txt(sv('MAGMA TITAN', 'TITAN DUNG NHAM'), VW / 2, 20, { al: 'center', size: 6, bold: true, col: '#ffd0a0' });
-        // the hero
-        const hyy = gy + 2 - Math.round(hyj), run = bt > 4.0 && bt < 4.5;
-        if (dash) for (let i = 4; i >= 1; i--) { g.globalAlpha = 0.17 * (5 - i); drawSpr(g, getSprite('hero_run', {}, 0), hhx - i * 16, hyy, false, false, 1.9, 1.9); } g.globalAlpha = 1;
-        if (megaT > 0 && megaT < 0.8) { const u = ez(megaT / 0.5), mx = hhx + (bx - 60 - hhx) * u, my = gy - 8 - Math.sin(u * 3.14) * 60; for (let i = 4; i >= 1; i--) { g.globalAlpha = 0.16 * (5 - i); drawSpr(g, getSprite('hero_jump', {}, 0), mx - i * 12, my + 2, false, false, 1.9, 1.9); } g.globalAlpha = 1; drawSpr(g, getSprite('hero_jump', {}, 0), mx, my + 2, false, false, 1.9, 1.9);
-          if (megaT > 0.45) { g.fillStyle = '#fff'; g.save(); g.translate(bx, gy - 70); g.rotate(-0.7); g.fillRect(-120, -1, 240, 3); g.globalCompositeOperation = 'lighter'; g.fillStyle = 'rgba(255,220,140,.6)'; g.fillRect(-120, -4, 240, 9); g.restore(); g.globalCompositeOperation = 'source-over'; } }
-        else if (!dead || megaT > 0.8) drawSpr(g, pose === 'jump' ? getSprite('hero_jump', {}, 0) : (pose === 'slash' || dash || run ? getSprite('hero_run', {}, Math.floor(bt * 14) % 4) : getSprite('hero_idle', {}, Math.floor(t * 2.5) % 2)), hhx + (dead ? 70 : 0), hyy, false, false, 1.9, 1.9);
-        if (combo >= 0) { opSlash(hhx + 14, gy - 18, 1, hit, false); if (hit < 0.35) opBurst(bx - 70, gy - 30 - (combo % 3) * 10, bt - hit * 0.27, bt, 12, combo, 80, 0.4, ['#fff', '#ffd34e', '#ff7a2a']); }
-        // charging the final blow: the lantern flares and the world holds its breath
-        if (bt > 6.2 && bt < 7.8) { g.globalCompositeOperation = 'lighter'; const cg = g.createRadialGradient(hhx + 12, gy - 24, 0, hhx + 12, gy - 24, 20 + charge * 90); cg.addColorStop(0, 'rgba(255,240,180,' + 0.75 * charge + ')'); cg.addColorStop(1, 'rgba(255,180,60,0)'); g.fillStyle = cg; g.fillRect(0, 0, VW, VH); g.globalCompositeOperation = 'source-over'; g.fillStyle = 'rgba(0,0,0,' + 0.35 * charge + ')'; g.fillRect(0, 0, VW, 36); g.fillRect(0, VH - 60, VW, 60); }
-        if (megaT > 0.35 && megaT < 0.6) { g.globalAlpha = 0.95; g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
-        // the golden shard flies to the hero, and the light returns
-        if (bt > 8.9) { const u = ez(seg(bt, 8.9, 9.7)), sx = bx + (hhx + 80 - bx) * u, sy = gy - 90 + (gy - 40 - (gy - 90)) * u - Math.sin(u * 3.14) * 40; g.globalCompositeOperation = 'lighter'; const sg = g.createRadialGradient(sx, sy, 0, sx, sy, 22); sg.addColorStop(0, 'rgba(255,230,140,.95)'); sg.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = sg; g.fillRect(sx - 22, sy - 22, 44, 44); g.globalCompositeOperation = 'source-over'; g.fillStyle = '#ffe9a8'; g.fillRect(Math.round(sx) - 2, Math.round(sy) - 4, 5, 8); g.fillStyle = '#fff'; g.fillRect(Math.round(sx), Math.round(sy) - 2, 1, 4); }
-        if (bt > 9.6) { g.globalAlpha = ez(seg(bt, 9.6, 10.0)); g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+      // ---------- 4. Lyra dragged away by chains of shadow ----------
+      const by = opTown(t, 304, 0.15, false, O);
+      g.globalAlpha = 0.68; g.fillStyle = '#0a0418'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1;
+      const px = VW / 2, py = 12;   // the shadow portal
+      for (let r = 4; r >= 0; r--) { g.globalAlpha = 0.5 + r * 0.1; g.fillStyle = r % 2 ? '#2a0a2a' : '#05020a'; g.beginPath(); g.ellipse(px, py, 60 - r * 9 + Math.sin(t * 3 + r) * 2, 14 - r * 2, 0, 0, 7); g.fill(); } g.globalAlpha = 1;
+      g.strokeStyle = 'rgba(255,60,80,.6)'; g.beginPath(); g.ellipse(px, py, 60, 14, 0, 0, 7); g.stroke();
+      const lift = ez(seg(t, 34.4, 41)), lx = px + Math.sin(t * 2) * 4 * lift, ly = by + 1 - (by - 30) * lift;
+      for (let k = -1; k <= 1; k++) {   // three chains from the portal to Lyra
+        const ax = px + k * 34, ay = py + 6; g.strokeStyle = '#14101e'; g.lineWidth = 2; g.beginPath(); g.moveTo(ax, ay);
+        for (let s = 1; s <= 8; s++) { const u = s / 8; g.lineTo(ax + (lx + k * 3 - ax) * u + Math.sin(t * 6 + s + k) * 2 * (1 - u), ay + (ly - 18 - ay) * u); } g.stroke();
+        g.strokeStyle = 'rgba(160,80,200,.6)'; g.lineWidth = 1; g.stroke();
       }
+      drawSpr(g, npcSpr('npc_lyra'), Math.round(lx), Math.round(ly), false, false, 2, 2);
+      for (let i = 0; i < 6; i++) { const u = ((t * 0.5 + i / 6) % 1); if (t < 34.4) continue; g.globalAlpha = 1 - u; g.fillStyle = i % 2 ? '#ff9fd0' : '#6ee7f2'; const nx = lx + Math.sin(i * 2.3 + t) * 16, ny = ly - 20 + u * (by - ly + 10); g.fillRect(Math.round(nx), Math.round(ny), 2, 3); g.fillRect(Math.round(nx) + 2, Math.round(ny) - 2, 1, 4); } g.globalAlpha = 1;   // her song falls like notes
+      drawSpr(g, npcSpr('npc_shorty'), 84, Math.round(by + 1 - Math.abs(Math.sin(t * 6)) * 3), false, false, 1.4, 1.4);   // Shorty Phong laughs
+      const hx = 316 - 40 * ez(seg(t, 38.5, 40.5)); opHero(hx, by + 1, 1.4, true, t > 38.5 && t < 40.5, t);
+      if (t > 38.2) { g.fillStyle = '#ffffff'; g.fillRect(Math.round(hx) - 1, Math.round(by - 34), 2, 4); g.fillRect(Math.round(hx) - 1, Math.round(by - 29), 2, 1); }
+      if (t < 32.8) { g.globalAlpha = 1 - ez((t - 32.2) / 0.6); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+      if (t > 41.5) { g.globalAlpha = ez((t - 41.5) / 0.7); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+    } else if (t < 52) {
+      // ---------- 5. the lantern falls, rolls to the child's feet and chooses them ----------
+      g.save(); g.translate(VW / 2, VH / 2); g.scale(2, 2); g.translate(-300, -(480 - 304) + 10); g.drawImage(O.world, 0, -304); g.restore();
+      g.globalAlpha = 0.86; g.fillStyle = '#030208'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1;
+      const gy = 176, sx0 = 150, hx = 282, top = gy - 36;
+      opStone(sx0, gy, 2.4);
+      let lx = sx0, ly = top - 10, rot = 0, glow = 0.25;
+      if (t < 43.6) { const k = seg(t, 42.2, 43.6); lx += Math.round(Math.sin(t * 40) * 2 * k); rot = Math.sin(t * 30) * 0.1 * k; }
+      else if (t < 44.3) { const k = seg(t, 43.6, 44.3); lx = sx0 + 16 * k; ly = top - 10 + (gy - 12 - (top - 10)) * k * k; rot = k * 1.2; }
+      else if (t < 46.3) { const k = ez(seg(t, 44.3, 46.3)); lx = sx0 + 16 + (hx - 26 - sx0 - 16) * k; ly = gy - 12; rot = 1.2 + k * 9.4; glow = 0.25 - 0.15 * k; }
+      else if (t < 47.4) { lx = hx - 26; ly = gy - 12; rot = 10.6; glow = 0.1 + (Math.sin(t * 9) > 0.7 ? 0.15 : 0); }
+      else { const k = ez(seg(t, 48.4, 49.4)); lx = hx - 26 + 14 * k; ly = gy - 12 - 30 * k - Math.sin(k * 3.14) * 14; rot = 10.6 * (1 - k); glow = Math.min(1, 0.2 + seg(t, 47.4, 48.2) * 0.8); }
+      if (t >= 47.4) {   // the flare: the light pushes the dark back
+        const k = ez(seg(t, 47.4, 48.8)); g.globalCompositeOperation = 'lighter'; const lg = g.createRadialGradient(lx, ly, 0, lx, ly, 30 + 160 * k); lg.addColorStop(0, 'rgba(255,210,120,' + 0.8 * k + ')'); lg.addColorStop(0.5, 'rgba(255,150,60,' + 0.3 * k + ')'); lg.addColorStop(1, 'rgba(255,120,40,0)'); g.fillStyle = lg; g.fillRect(0, 0, VW, VH); g.globalCompositeOperation = 'source-over';
+        opBurst(lx, ly, 47.4, t, 40, 5, 120, 1.6, ['#fff6c0', '#ffd34e', '#ff9a2a', '#ffffff'], -10);
+      }
+      opHero(hx, gy, 2.5, true, false, t);
+      opLantern(lx, ly, 2.4, glow, rot);
+      if (t > 47.4 && t < 47.75) { g.globalAlpha = 0.9 * (1 - (t - 47.4) / 0.35); g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+      if (t < 42.8) { g.globalAlpha = 1 - ez((t - 42.2) / 0.6); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+      if (t > 51.4) { g.globalAlpha = ez((t - 51.4) / 0.6); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+    } else if (t < OP_END) {
+      // ---------- 6. the road: the child runs into the dark meadow, the first tower cold on the hill ----------
+      const rt = t - 52, gy = 150, ts = tiles(0);
+      opSky(0.55); for (const s2 of O.stars) { g.globalAlpha = 0.25 + 0.5 * Math.abs(Math.sin(t * s2.v + s2.p)); g.fillStyle = '#fff'; g.fillRect(s2.x, Math.round(s2.y * 0.5), 1, 1); } g.globalAlpha = 1;
+      opMoon(VW * 0.82, 30, 1, t);
+      g.drawImage(P2.c, -Math.round(40 + rt * 40), -24);
+      for (let x = -((rt * 120) % TS) - TS; x < VW + TS; x += TS) { g.drawImage(ts.top[0], Math.round(x), gy); for (let y = gy + TS; y < VH; y += TS) g.drawImage(ts.body[1], Math.round(x), y); }
+      g.globalAlpha = 0.6; g.fillStyle = '#05061a'; g.fillRect(0, gy, VW, VH - gy); g.globalAlpha = 1;
+      const tx = VW - 64 - rt * 4; g.fillStyle = '#060818'; g.beginPath(); g.ellipse(tx, gy + 4, 70, 30, 0, Math.PI, 0); g.fill(); opTower(tx, gy - 24, 52, 0, t, 0);
+      const hx = 110, hb = gy + 2;
+      opHero(hx, hb, 1.9, false, true, t);
+      opLantern(hx + 12, hb - 20 + Math.sin(t * 14) * 1, 1.3, 1, Math.sin(t * 7) * 0.2);
+      g.globalCompositeOperation = 'lighter'; const lg = g.createRadialGradient(hx + 8, hb - 18, 0, hx + 8, hb - 18, 70); lg.addColorStop(0, 'rgba(255,190,90,.35)'); lg.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = lg; g.fillRect(hx - 62, hb - 88, 140, 140); g.globalCompositeOperation = 'source-over';
+      g.strokeStyle = 'rgba(255,255,255,.12)'; for (let i = 0; i < 7; i++) { const yy = 30 + i * 17 + (rt * 90 + i * 17) % 11, xx = VW - ((rt * 420 + i * 91) % (VW + 60)); g.beginPath(); g.moveTo(xx, yy); g.lineTo(xx + 22, yy); g.stroke(); }
+      if (rt < 0.6) { g.globalAlpha = 1 - rt / 0.6; g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
+      if (t > 59.2) { g.globalAlpha = ez((t - 59.2) / 0.8); g.fillStyle = '#000'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
     }
-    if (t >= 62) {
-      // ---------- the end card ----------
-      const et = t - 62, k = ez(et / 1.2);
-      const sg = g.createLinearGradient(0, 0, 0, VH); sg.addColorStop(0, '#0a0418'); sg.addColorStop(0.55, '#3a1050'); sg.addColorStop(0.85, '#a03a50'); sg.addColorStop(1, '#ff9a4a'); g.fillStyle = sg; g.fillRect(0, 0, VW, VH);
-      g.globalCompositeOperation = 'lighter'; const cg = g.createRadialGradient(VW / 2, 56, 8, VW / 2, 56, 130); cg.addColorStop(0, 'rgba(255,170,70,.5)'); cg.addColorStop(1, 'rgba(255,100,40,0)'); g.fillStyle = cg; g.fillRect(0, 0, VW, 150); g.globalCompositeOperation = 'source-over';
-      disc(g, VW / 2, 56, 26, '#ffcf80'); disc(g, VW / 2 + 3, 58, 25, '#0a0414');
+    if (t >= OP_END) {
+      // ---------- the title card ----------
+      const et = t - OP_END, k = ez(et / 1.2);
+      const sg = g.createLinearGradient(0, 0, 0, VH); sg.addColorStop(0, '#0a0418'); sg.addColorStop(0.55, '#2a0e40'); sg.addColorStop(0.85, '#5a1c40'); sg.addColorStop(1, '#a04a3a'); g.fillStyle = sg; g.fillRect(0, 0, VW, VH);
+      opMoon(VW / 2, 84, 1, t);
       for (let px = 0; px < VW; px++) { const y = Math.round(150 + Math.sin(px * 0.02) * 10 + Math.sin(px * 0.06) * 4); g.fillStyle = '#12081e'; g.fillRect(px, y, 1, VH - y); }
-      g.fillStyle = '#0a0414'; g.fillRect(262, 108, 30, 50); g.fillRect(256, 98, 10, 60); g.fillRect(288, 102, 10, 56); for (let i = 0; i < 12; i++) { const hw = Math.round((1 - i / 12) * 5); g.fillRect(261 - hw, 98 - i, hw * 2, 1); }
-      g.fillStyle = '#ff3a3a'; for (const [dx, dy] of [[270, 118], [276, 126]]) g.fillRect(dx, dy, 2, 3);
-      const flick = 0.7 + Math.sin(t * 9) * 0.1; g.fillStyle = '#05020c'; g.fillRect(0, 168, VW, VH - 168);
-      g.globalCompositeOperation = 'lighter'; const hg = g.createRadialGradient(110, 168, 0, 110, 168, 70); hg.addColorStop(0, 'rgba(255,190,90,' + 0.5 * flick + ')'); hg.addColorStop(1, 'rgba(255,150,60,0)'); g.fillStyle = hg; g.fillRect(30, 100, 160, 100); g.globalCompositeOperation = 'source-over';
-      person(getSprite('hero_idle', {}, Math.floor(t * 2.5) % 2), 110, 172, false, 2);
-      g.globalAlpha = 0.5 + 0.5 * Math.abs(Math.sin(t * 2)); g.fillStyle = '#ff2a3a'; g.fillRect(200, 36, 12, 3); g.fillRect(236, 36, 12, 3); g.globalAlpha = 1;
+      for (let i = 0; i < 10; i++) opTower(30 + i * ((VW - 60) / 9), 152 + Math.round(Math.sin((30 + i * 36) * 0.02) * 6), 18 + (i % 3) * 6, i === 0 ? 0.25 + 0.15 * Math.sin(t * 3) : 0, t, i);
+      g.fillStyle = '#05020c'; g.fillRect(0, 168, VW, VH - 168);
+      g.globalCompositeOperation = 'lighter'; const hg = g.createRadialGradient(110, 160, 0, 110, 160, 70); hg.addColorStop(0, 'rgba(255,190,90,' + 0.5 * (0.7 + Math.sin(t * 9) * 0.1) + ')'); hg.addColorStop(1, 'rgba(255,150,60,0)'); g.fillStyle = hg; g.fillRect(30, 90, 160, 100); g.globalCompositeOperation = 'source-over';
+      opHero(110, 172, 2, false, false, t); opLantern(124, 152, 1.4, 1, 0);
       txt('LAST LANTERN', VW / 2, 30 + (1 - k) * -8, { al: 'center', size: 24, bold: true, col: '#ffd34e', grad: ['#fffbe0', '#ffd34e', '#e08a1a'], ol: '#2a0a10', glow: 'rgba(255,160,50,.9)', ls: 2, sh: false, alpha: k });
-      txt(sv('THE LIGHT IS NOT YET GONE', 'ÁNH SÁNG VẪN CHƯA TẮT'), VW / 2, 50, { al: 'center', size: 7, bold: true, col: '#ffe9b8', ls: 2, ol: '#1a0814', sh: false, alpha: k });
+      txt(sv('TEN TOWERS ARE WAITING', 'MƯỜI THÁP ĐÈN ĐANG CHỜ'), VW / 2, 50, { al: 'center', size: 7, bold: true, col: '#ffe9b8', ls: 2, ol: '#1a0814', sh: false, alpha: k });
       if (et > 1.0) { g.fillStyle = 'rgba(8,3,18,.7)'; g.fillRect(VW / 2 - 130, 186, 260, 22); g.fillStyle = 'rgba(255,200,100,.5)'; g.fillRect(VW / 2 - 130, 186, 260, 1); g.fillRect(VW / 2 - 130, 207, 260, 1);
         txt(sv('TAP THE SCREEN OR PRESS ENTER TO PLAY', 'CHẠM VÀO MÀN HÌNH HOẶC NHẤN ENTER ĐỂ CHƠI'), VW / 2, 197, { al: 'center', size: 7.5, bold: true, col: '#ffffff', glow: 'rgba(255,170,70,' + (0.4 + 0.5 * Math.abs(Math.sin(t * 3))) + ')', alpha: 0.55 + 0.45 * Math.abs(Math.sin(t * 3)) }); }
       if (et < 0.8) { g.globalAlpha = 1 - et / 0.8; g.fillStyle = '#fff'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1; }
     }
-    if (shake) { /* the picture shakes by redrawing: cheap trick on the whole buffer */ const sx = Math.round((Math.random() - 0.5) * 4 * shake), sy = Math.round((Math.random() - 0.5) * 4 * shake); g.drawImage(buf, sx, sy); }
-    if (t < 62) opBars();
-    // vignette
-    if (t < 62) { g.drawImage(titleArt().vig, 0, 0); }
+    if (shake) { const sx = Math.round((Math.random() - 0.5) * 4 * shake), sy = Math.round((Math.random() - 0.5) * 4 * shake); g.drawImage(buf, sx, sy); }
+    if (t < OP_END) { opBars(); g.drawImage(titleArt().vig, 0, 0); }
     // captions
-    if (t < OP_END + 12) for (let i = 0; i < OPC.length; i++) {
-      const c = OPC[i]; if (t < c[0] || t > c[1] + 0.5) continue; if (t >= 62 && c[0] < 62) continue;
-      const line = sv(c[3], c[4]), n = Math.floor((t - c[0]) * (c[2] === 'n' ? 26 : 32)), a = Math.min(1, (c[1] + 0.5 - t) / 0.5), who = c[2] === 'q' ? 'QUOC' : (c[2] === 'e' ? 'EMBER' : null), col = c[2] === 'q' ? '#ff7a7a' : (c[2] === 'e' ? '#ffd34e' : '#e8eaf5');
-      const wl = wrapText(line.slice(0, n), 78), yb = t >= 62 ? 150 : VH - 17;
-      if (t >= 62) { g.fillStyle = 'rgba(8,3,18,.6)'; g.fillRect(VW / 2 - 140, 134, 280, 30); }
-      (t >= 62 ? [wl.slice(0, 2)] : [wl]).forEach(ls => ls.forEach((l, j) => txt((j === 0 && who ? who + ': ' : '') + l, VW / 2, yb + j * 8 - (ls.length - 1) * 4, { al: 'center', size: c[2] === 'q' ? 7.5 : 7, bold: c[2] !== 'n', col, alpha: a })));
+    const hn = LN((HERO[myHero()] || HERO.ember).name).toUpperCase();
+    if (t < OP_END) for (let i = 0; i < OPC.length; i++) {
+      const c = OPC[i]; if (t < c[0] || t > c[1] + 0.5) continue;
+      const line = sv(c[3], c[4]), n = Math.floor((t - c[0]) * (c[2] === 'n' ? 26 : 32)), a = Math.min(1, (c[1] + 0.5 - t) / 0.5);
+      const who = c[2] === 'q' ? sv('QUOC', 'QUỐC') : (c[2] === 'l' ? 'LYRA' : (c[2] === 'e' ? hn : null)), col = c[2] === 'q' ? '#ff7a7a' : (c[2] === 'l' ? '#6ee7f2' : (c[2] === 'e' ? '#ffd34e' : '#e8eaf5'));
+      const wl = wrapText(line.slice(0, n), 78), yb = VH - 17;
+      wl.forEach((l, j) => txt((j === 0 && who ? who + ': ' : '') + l, VW / 2, yb + j * 8 - (wl.length - 1) * 4, { al: 'center', size: c[2] === 'q' ? 7.5 : 7, bold: c[2] !== 'n', col, alpha: a }));
     }
     if (t < OP_END - 1) txt(sv('ENTER: skip', 'ENTER: bỏ qua'), VW - 6, VH - 6, { al: 'right', size: 5, col: '#6a6a8a' });
   }
@@ -8055,5 +8127,5 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       seal(); if (n > 0) { applyForm(Q.boss, n); Q.boss.st = 'intro'; Q.boss.timer = 0; Q.boss.invul = 0; } if (n >= 3) spawnAllies();
     }, 400); }
   { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
-  if (location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, opSeek: (v, play) => { if (!op) startOpening(); op.t = v; op.hold = !play; }, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();
