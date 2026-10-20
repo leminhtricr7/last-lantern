@@ -4954,7 +4954,7 @@
         }
         Snd.play('slash'); break;
       }
-      case 'gag': {
+      case 'gag': { P.armT = P.armDur = 0.4; P.armSpin = false;
         const r = Math.floor(Math.random() * 3), t = nearestFoe(cx, cy, 220);
         if (r === 0) { shootG({ x: cx + f * 6, y: cy - 4, vx: f * 130, vy: -170, g: 420, life: 1.1, dmg: d + 2, expl: 34, shape: 'orb', col: '#14121f', trail: '#ffd34e', sz: 4, f, skill: true }); pop(cx, cy - 26, sv('BOMB!', 'BOM!'), '#ff7a2a'); Snd.play('whoosh'); }
         else if (r === 1) { shootG({ x: cx + f * 6, y: cy, vx: f * 230, vy: -40, g: 120, life: 0.9, dmg: d, stun: 2, pierceN: 3, shape: 'orb', col: '#3a3a46', trail: '#8a8a9a', sz: 5, f, skill: true }); pop(cx, cy - 26, sv('FRYING PAN!', 'CHẢO!'), '#cfd6e6'); Snd.play('clang'); }
@@ -4963,6 +4963,7 @@
       }
       case 'kaynR': {
         if (P.form === 'rhaast') {   // a wide scythe sweep, then back to Shadow
+          P.armT = P.armDur = 0.5; P.armSpin = true;
           const r = 74; addRing(cx, cy, '#ff3a3a', r, 0.4); Q.shake = Math.max(Q.shake, 0.5); Snd.play('slash'); Snd.play('boom');
           for (let i = 0; i < 18; i++) { const a = -Math.PI / 2 + (i / 17) * Math.PI, xx = cx + f * Math.cos(a) * r * 0.9, yy = cy + Math.sin(a) * r * 0.6; emit(xx, yy, 2, { col: ['#ff3a3a', '#14121f', '#fff'], sp0: 10, sp1: 50 }); }
           for (const e of foes()) { const dx = e.x + e.w / 2 - cx; if (Math.sign(dx) !== f && Math.abs(dx) > 8) continue; if (Math.hypot(dx, e.y + e.h / 2 - cy) < r + e.w / 2) { dmgFoe(e, d * 3, true); healP(P, 1); } }
@@ -4971,6 +4972,7 @@
           P.form = 'rhaast'; P.dk = 0; P.rhN = 0; P.hdmg = HERO.kayn.dmg + 2; addRing(cx, cy, '#ff3a3a', 110, 0.7); emit(cx, cy, 50, { col: ['#ff3a3a', '#14121f', '#fff'], sp0: 30, sp1: 180 }); Q.shake = Math.max(Q.shake, 0.7); Snd.play('relic'); Snd.play('explode');
           Q.msg = sv('RHAAST! Harder hits that heal you.', 'RHAAST! Đánh mạnh hơn và hồi máu khi đánh.'); Q.msgT = 3; P.skCd = 1;
         } else {   // dash through enemies
+          P.armT = P.armDur = 0.35; P.armDir = 1; P.armSpin = false;
           const x0 = P.x, hit = new Set(); P.inv = Math.max(P.inv, 0.45);
           for (let k = 0; k < 11; k++) { moveX(P, f * 9); (P.trail = P.trail || []).push({ x: P.x, y: P.y, f, t: 0.22 }); if (P.trail.length > 9) P.trail.shift(); emit(P.x + 4, P.y + 7, 2, { col: ['#a15be0', '#14121f'], sp0: 5, sp1: 30, l0: 0.2, l1: 0.4 }); }
           const box = { x: Math.min(x0, P.x) - 4, y: P.y - 6, w: Math.abs(P.x - x0) + 16, h: P.h + 12 };
@@ -4979,20 +4981,20 @@
         }
         break;
       }
-      case 'jerrydash': {   // a quick slip; enemies next to him get dragged along and knocked out
+      case 'jerrydash': { P.armT = P.armDur = 0.3;   // a quick slip; enemies next to him get dragged along and knocked out
         const x0 = P.x, grab = foes().filter(e => !e.isBoss && Math.abs(e.x + e.w / 2 - (P.x + 4)) < 44 && Math.abs(e.y + e.h / 2 - (P.y + 7)) < 30); P.inv = Math.max(P.inv, 0.5);
         for (let k = 0; k < 15; k++) { moveX(P, f * 9); (P.trail = P.trail || []).push({ x: P.x, y: P.y, f, t: 0.22 }); if (P.trail.length > 9) P.trail.shift(); }
         for (const e of grab) { e.x = P.x + 4 - f * (14 + Math.random() * 10) - e.w / 2; e.stunT = Math.max(e.stunT || 0, 1.4); dmgFoe(e, d, true); emit(e.x + e.w / 2, e.y + e.h / 2, 8, { col: ['#f0a050', '#fff'], sp0: 20, sp1: 70 }); }
         Snd.play('dash'); if (grab.length) pop(cx, cy - 26, sv('Got you!', 'Kéo theo!'), '#f0a050'); break;
       }
-      case 'concert': P.concT = 3; P.concTick = 0; Snd.play('relic'); pop(cx, cy - 26, sv('LIVE CONCERT!', 'BUỔI HÒA NHẠC!'), '#39c5bb'); break;
+      case 'concert': P.armT = P.armDur = 0.6; P.armSpin = false; P.concT = 3; P.concTick = 0; Snd.play('relic'); pop(cx, cy - 26, sv('LIVE CONCERT!', 'BUỔI HÒA NHẠC!'), '#39c5bb'); break;
       case 'ora': P.oraT = 1.5; P.oraTick = 0; Snd.play('whoosh'); pop(cx, cy - 26, 'ORA ORA ORA!', '#8a7aff'); break;
-      case 'theworld': {
+      case 'theworld': { P.armT = P.armDur = 0.6; P.armDir = 1; P.armSpin = false;
         const G = Q.G; G.tsT = 3.5; G.tsOwner = P; G.tsTick = 0; G.tsKn = []; Q.shake = Math.max(Q.shake, 0.4); Snd.play('chime'); if (Snd.cineHit) Snd.cineHit('drop');
         Q.msg = sv('THE WORLD! Time has stopped.', 'THE WORLD! Thời gian đã ngừng lại.'); Q.msgT = 2.5; break;
       }
       case 'gatling': P.gatT = 1.2; P.gatTick = 0; Snd.play('whoosh'); pop(cx, cy - 26, sv('PUNCH PUNCH PUNCH!', 'ĐẤM ĐẤM ĐẤM!'), '#ff7a5a'); break;
-      case 'spindash': P.mom = 1; P.spinT = 0.7; P.vx = f * RUN * 2; Snd.play('dash'); for (let i = 0; i < 12; i++) emit(cx - f * 6, P.y + P.h, 1, { col: ['#ffffff', '#d0a070'], sp0: 10, sp1: 50, vx: -f * 80, vy: -20 }); break;
+      case 'spindash': P.armT = P.armDur = 0.4; P.mom = 1; P.spinT = 0.7; P.vx = f * RUN * 2; Snd.play('dash'); for (let i = 0; i < 12; i++) emit(cx - f * 6, P.y + P.h, 1, { col: ['#ffffff', '#d0a070'], sp0: 10, sp1: 50, vx: -f * 80, vy: -20 }); break;
       case 'inhale':
         if (P.copy) { shootG({ x: cx + f * 8, y: cy, vx: f * 280, vy: 0, life: 0.9, dmg: d * 2 + 2, pierceN: 5, shape: 'orb', col: '#ffd34e', trail: '#ffffff', sz: 6, f, skill: true }); pop(cx, cy - 22, sv('Spit!', 'Nhả!'), '#ffd34e'); P.copy = null; Snd.play('relic'); }
         else { P.inhT = 0.9; P.inhGot = false; Snd.play('whoosh'); }
@@ -5023,11 +5025,34 @@
   // legs of each picture in native pixels: hip row, the leg columns x0..x1 and where the left leg ends (sp); everything else
   // (Kayn's scythe, Rhaast's pole, Miku's twin tails, Jerry's tail...) stays fixed to the body
   const FAN_RIG = { kayn: [36, 3, 26, 14], rhaast: [36, 11, 36, 23], tom: [39, 7, 29, 18], jerry: [38, 12, 37, 24], luffy: [37, 7, 25, 16], sonic: [40, 11, 36, 23], kirby: [33, 3, 41, 22], jotaro: [38, 0, 31, 15], dio: [38, 6, 26, 16], miku: [38, 10, 25, 17] };
+  const FAN_ARM = {
+    kayn: { r: [27, 2, 38, 46], p: [28, 26], sw: 'slash' }, rhaast: { r: [0, 2, 8, 46], p: [7, 27], sw: 'slash' },
+    tom: { r: [28, 24, 37, 38], p: [29, 26], sw: 'swipe' }, luffy: { r: [25, 19, 40, 29], p: [25, 24], sw: 'stretch' },
+    sonic: { r: [30, 28, 39, 39], p: [31, 30], sw: 'jab' }, jotaro: { r: [26, 18, 39, 26], p: [27, 21], sw: 'punch' },
+    dio: { r: [26, 3, 37, 22], p: [27, 20], sw: 'chop' }, miku: { r: [26, 22, 30, 34], p: [28, 23], sw: 'wave' }
+  };
   function fanParts(key, im) {
     const r = FAN_RIG[key] || [Math.round(im.height * 0.8), 0, im.width - 1, Math.round(im.width / 2)], [hy, x0, x1, sp] = r, H = im.height, top = hy - 2;
     const cut = (sx, sy, w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(im, sx, sy, w, h, 0, 0, w, h); return c; };
     const body = document.createElement('canvas'); body.width = im.width; body.height = H; const bx = body.getContext('2d'); bx.drawImage(im, 0, 0); bx.clearRect(x0, hy, x1 - x0 + 1, H - hy);
-    return { body, L: cut(x0, top, sp - x0 + 1, H - top), R: cut(sp + 1, top, x1 - sp, H - top), lx: x0, rx: sp + 1, top };
+    const A = FAN_ARM[key]; let arm = null;
+    if (A) { const [ax0, ay0, ax1, ay1] = A.r; arm = { c: cut(ax0, ay0, ax1 - ax0 + 1, ay1 - ay0 + 1), x: ax0, y: ay0, px: A.p[0], py: A.p[1], sw: A.sw, len: ax1 - ax0 + 1 }; bx.clearRect(ax0, ay0, ax1 - ax0 + 1, ay1 - ay0 + 1); }
+    return { body, L: cut(x0, top, sp - x0 + 1, H - top), R: cut(sp + 1, top, x1 - sp, H - top), lx: x0, rx: sp + 1, top, arm };
+  }
+  const swingProf = (k, a0, a1) => k < 0.2 ? a0 * ez(k / 0.2) : (k < 0.55 ? a0 + (a1 - a0) * ez((k - 0.2) / 0.35) : a1 * (1 - ez((k - 0.55) / 0.45)));
+  function armPose(P, arm, moving, run) {
+    const o = { ang: 0, sx: 1, dx: 0 }, k = P.armT > 0 ? 1 - P.armT / (P.armDur || 0.32) : -1, d = P.armDir || 1;
+    if (moving) o.ang = Math.sin(P.anim * (run ? 14 : 9)) * 0.14; else o.ang = Math.sin(P.anim * 2.6) * 0.04;   // the arm swings with the steps
+    if (arm.sw === 'stretch' && (P.punch || P.gatT > 0)) { const ext = P.punch ? (P.punch.ext || 0) : 20 + Math.random() * 60; o.sx = 1 + ext * 2 / arm.len; o.ang = P.punch ? -(P.punch.dy || 0) / 90 : (Math.random() - 0.5) * 0.4; return o; }
+    if (arm.sw === 'punch' && P.oraT > 0) { o.sx = 1 + Math.abs(Math.sin(P.anim * 40)) * 0.9; o.ang = (Math.random() - 0.5) * 0.4; return o; }
+    if (k < 0) return o;
+    if (P.armSpin) { o.ang = Math.PI * 2 * ez(k); return o; }
+    if (arm.sw === 'slash') o.ang = d > 0 ? swingProf(k, -0.8, 1.7) : swingProf(k, 1.5, -1.0);   // scythe: down, then up on the next swing
+    else if (arm.sw === 'swipe') o.ang = swingProf(k, -1.2, 1.1);
+    else if (arm.sw === 'chop') o.ang = swingProf(k, -0.4, 1.9);
+    else if (arm.sw === 'wave') o.ang = swingProf(k, 0.3, -2.3);
+    else { const s1 = Math.sin(Math.min(1, k * 1.6) * Math.PI); o.sx = 1 + 0.75 * s1; o.ang = -0.08 * s1; }   // punch / jab: the arm shoots out from the shoulder
+    return o;
   }
   // the hero in play: the drawing at full screen resolution, animated like a puppet (body + left leg + right leg)
   function drawFanHero(P, h, x, bot) {
@@ -5048,12 +5073,18 @@
     if (P.landA > 0) { const k = P.landA / 0.12; sy *= 1 - 0.14 * k; sx *= 1 + 0.12 * k; bodyY += 1.5 * k; }
     if (h.mech === 'inhale' && P.inhT > 0) sx *= 1.12;
     if (h.mech === 'toon') { if (P.landA > 0) { sx *= 1.2; sy *= 0.8; } else if (!onG) { sy *= P.vy < 0 ? 1.15 : 1.05; sx *= 2 - sy; } }
+    let spin = 0; const ak = P.armT > 0 ? 1 - P.armT / (P.armDur || 0.32) : -1;
+    if (key === 'sonic' && ak >= 0) spin = Math.PI * 2 * ez(ak) * f;   // Sonic's attack is a spin
+    if (key === 'kirby' && ak >= 0) { const q = Math.sin(ak * Math.PI); sx *= 1 + 0.25 * q; sy *= 1 - 0.15 * q; }   // Kirby puffs
+    if (key === 'jerry' && ak >= 0) { const q = Math.sin(Math.min(1, ak * 1.5) * Math.PI); R.x += 6 * q; R.y -= 4 * q; lean -= 0.1 * q; }   // Jerry kicks
+    const ap = pp.arm ? armPose(P, pp.arm, moving, run) : null;
+    const drawArm = () => { if (!ap) return; const a = pp.arm; g.save(); g.translate(-W / 2 + a.px + bodyX, -H + a.py + bodyY); g.rotate(ap.ang); g.translate(ap.dx, 0); g.scale(ap.sx, 1); hiImg(a.c, 0, 0, a.c.width, a.c.height, a.x - a.px, a.y - a.py, a.c.width, a.c.height); g.restore(); };
     const parts = () => {
       const back = moving && Math.sin(P.anim * (run ? 14 : 9)) > 0 ? 'R' : 'L';   // the leg in front is drawn last
       const leg = side => { const A = side === 'L' ? L : R, c = side === 'L' ? pp.L : pp.R, lx = side === 'L' ? pp.lx : pp.rx; hiImg(c, 0, 0, c.width, c.height, -W / 2 + lx + A.x, -H + pp.top + A.y, c.width, c.height); };
-      leg(back); hiImg(pp.body, 0, 0, W, H, -W / 2 + bodyX, -H + bodyY, W, H); leg(back === 'L' ? 'R' : 'L');
+      leg(back); hiImg(pp.body, 0, 0, W, H, -W / 2 + bodyX, -H + bodyY, W, H); leg(back === 'L' ? 'R' : 'L'); drawArm();
     };
-    g.save(); g.translate(x, bot); g.rotate(lean * f); g.scale(f * FAN_SC * sx, FAN_SC * sy); g.imageSmoothingEnabled = true;
+    g.save(); g.translate(x, bot); if (spin) { g.translate(0, -H * FAN_SC / 2); g.rotate(spin); g.translate(0, H * FAN_SC / 2); } g.rotate(lean * f); g.scale(f * FAN_SC * sx, FAN_SC * sy); g.imageSmoothingEnabled = true;
     if (P.dash > 0) g.globalAlpha = 0.75;
     parts();
     if (P.hurtA > 0 && Math.floor((1 - P.hurtA / 0.36) * 3) === 1) { g.globalAlpha = 0.8; g.filter = 'brightness(0.7) sepia(1) saturate(9) hue-rotate(-45deg)'; parts(); g.filter = 'none'; }
@@ -5124,7 +5155,7 @@
   function heroAttack(P) {
     const mk = mechOf(P), it0 = eqIt(0), gun = it0 && it0.type === 'gun', f = P.face;
     if (isFan(P) && P.hero !== 'luffy' && P.hero !== 'kirby') {
-      if (P.atkCd > 0) return true; const key = P.hero === 'kayn' && P.form === 'rhaast' ? 'rhaast' : P.hero, A = FAN_ATK[key] || FAN_ATK.tom; P.atkCd = A.cd;
+      if (P.atkCd > 0) return true; P.armT = P.armDur = 0.32; P.armDir = -(P.armDir || -1); P.armSpin = false; const key = P.hero === 'kayn' && P.form === 'rhaast' ? 'rhaast' : P.hero, A = FAN_ATK[key] || FAN_ATK.tom; P.atkCd = A.cd;
       fanSwing(P, FAN_ATK[key] ? key : 'tom');
       if (mk === 'stand') { P.standT = 0.32; P.standHit = new Set(); P.standD = baseDmg(); }
       if (mk === 'idol') shootG({ x: P.x + 4 + f * 6, y: P.y + 4, vx: f * 160, vy: -30, home: true, life: 1.3, dmg: Math.max(1, baseDmg()), shape: 'orb', col: Math.random() < 0.5 ? '#39c5bb' : '#ff8fbf', trail: '#ffffff', sz: 3, f });
@@ -5137,7 +5168,7 @@
     if (mk === 'inhale' && !gun) {
       const x = P.x + 4 + f * 6, y = P.y + 6, d = 2 + baseDmg() + (P.hdmg || 0);
       if (P.flutter && !P.onGround) { P.flutter = false; shootG({ x, y, vx: f * 220, vy: 0, life: 0.35, dmg: d, shape: 'wind', col: '#e4fff4', sz: 6, f, skill: true }); Snd.play('whoosh'); return true; }
-      const c = P.copy; if (!c) { if (!isFan(P)) return false; if (P.atkCd > 0) return true; P.atkCd = 0.3; shootG({ x, y, vx: f * 230, vy: 0, life: 0.28, dmg: d, shape: 'wind', col: '#ffd0e4', sz: 6, f, skill: false }); P.fsw = { t: 0.22, fx: 'spin', col: '#ff9fd0', r: 14, f }; Snd.play('whoosh'); return true; }
+      const c = P.copy; if (!c) { if (!isFan(P)) return false; if (P.atkCd > 0) return true; P.atkCd = 0.3; P.armT = P.armDur = 0.3; shootG({ x, y, vx: f * 230, vy: 0, life: 0.28, dmg: d, shape: 'wind', col: '#ffd0e4', sz: 6, f, skill: false }); P.fsw = { t: 0.22, fx: 'spin', col: '#ff9fd0', r: 14, f }; Snd.play('whoosh'); return true; }
       if (c === 'fire') { for (let k = -2; k <= 2; k++) shootG({ x, y, vx: f * 170 + rr(-20, 20), vy: k * 22, life: 0.35, dmg: d, burn: 2, shape: 'fire', col: '#ff7a2a', trail: '#ffd34e', sz: 3, f }); Snd.play('flame'); }
       else if (c === 'spark') { nova(P.x + 4, P.y + 7, 38, d + 1); Snd.play('zap'); emit(P.x + 4, P.y + 7, 16, { col: ['#ffe44e', '#ffffff'], sp0: 30, sp1: 120 }); }
       else if (c === 'web') { shootG({ x, y, vx: f * 240, vy: 0, life: 0.9, dmg: d, slowE: 4, shape: 'orb', col: '#e8e8f0', sz: 4, f }); Snd.play('whoosh'); }
@@ -5162,6 +5193,7 @@
   function heroMech(P, dt, dir) {
     const id = P.hero, mk = mechOf(P); if (!id) return;
     if (P.fsw && P.fsw.t > 0) P.fsw.t -= dt;
+    if (P.armT > 0) P.armT -= dt;
     { const hf = HERO[id]; if (hf && hf.custom === 'fan') fanMoveFx(P, hf); }
     if (mk === 'idol' && P.concT > 0) {   // the concert: 6 beats of sound around the singer
       P.concT -= dt; P.concTick = (P.concTick || 0) - dt;
@@ -5304,7 +5336,7 @@
     }
     if (mk === 'jerry' && Q.G.mtraps) for (const tr of Q.G.mtraps) { const tx = Math.round(tr.x - cx0), ty = Math.round(tr.y - cy0); g.fillStyle = '#8a5a34'; g.fillRect(tx - 5, ty - 2, 10, 2); g.fillStyle = '#cfd6e6'; g.fillRect(tx - 4, ty - 4, 8, 1); g.fillRect(tx - 4, ty - 4, 1, 2); g.fillRect(tx + 3, ty - 4, 1, 2); g.fillStyle = '#ffd34e'; g.fillRect(tx - 1, ty - 3, 2, 1); }
     if (id === 'liem') { for (let i = 0; i < 6; i++) { g.fillStyle = i < (P.ess || 0) ? (P.form === 'bru' ? '#ff4a3a' : '#3ad6ff') : 'rgba(255,255,255,.2)'; g.fillRect(x - 9 + i * 3, bot - 28, 2, 2); } if (P.form) drawAura(x, bot - 8, 16, P.form === 'bru' ? '#ff4a3a' : '#3ad6ff', 0.35); }
-    if (mk === 'stretch') {
+    if (mk === 'stretch' && !isFan(P)) {
       const sx0 = x + P.face * 3, sy0 = bot - 9, arm = (ex, ey, w) => { g.strokeStyle = '#14121f'; g.lineWidth = w + 2; g.beginPath(); g.moveTo(sx0, sy0); g.lineTo(ex, ey); g.stroke(); g.strokeStyle = '#ffd8b0'; g.lineWidth = w; g.beginPath(); g.moveTo(sx0, sy0); g.lineTo(ex, ey); g.stroke(); g.lineWidth = 1; disc(g, Math.round(ex), Math.round(ey), 3, '#14121f'); disc(g, Math.round(ex), Math.round(ey), 2, '#ffd8b0'); };
       const pu = P.punch; if (pu && pu.ext > 2) arm(x + pu.dir * (3 + pu.ext), sy0 + (pu.dy || 0) * pu.ext / pu.reach, pu.ext > 50 ? 1.5 : 2.5);
       if (P.gatT > 0) for (let i = 0; i < 6; i++) arm(x + P.face * (10 + Math.random() * 58), bot - 14 + rr(-7, 7), 1.5);
@@ -5530,7 +5562,7 @@
     return out;
   }
   function packPlayer(p) {
-    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
+    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, armT: p.armT, armDur: p.armDur, armDir: p.armDir, armSpin: p.armSpin, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
   }
   function coopSnapshot() {
     if (Q.talk && !Q.talk.id) { Q.talk.id = ++coop.tkN; Q.talk.doneList = Q.talk.doneList || []; }

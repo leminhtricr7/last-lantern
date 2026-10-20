@@ -337,6 +337,22 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
   - Basic attack: a sound wave plus a homing music note.
   - Passive: every 4th hit heals the team ("Encore!").
   - R, **Live Concert**: 6 beats of sound that hit enemies around her, stage lights and notes, and a team heal at the end.
+- **Arm / weapon animator** (`FAN_ARM`): the arm, with the scythe or fist, is cut out of each picture and swings around the shoulder or hand.
+
+  | Hero | Basic attack | Skill |
+  |---|---|---|
+  | Kayn | Scythe slashes down then up (alternating) | |
+  | Rhaast | Scythe slashes down then up | The sweep spins the scythe a full circle |
+  | Tom | Swipes | |
+  | Dio | Chops down from his raised arm | |
+  | Miku | Raises her arm | Concert |
+  | Jotaro | Arm shoots out | Ora Ora: rapid punches |
+  | Sonic | Arm shoots out, then spins | |
+  | Luffy | The arm stretches far out | Gatling: rapid punches |
+  | Kirby | Puffs up | |
+  | Jerry | Kicks | |
+
+  While walking the arm swings with the steps.
 - **Movement animator:** each picture is split into body, left leg and right leg (`FAN_RIG` sets the hip line).
   - Walking and running swing and lift the legs in turn while the body bobs and leans forward, more when running.
   - Jumping tucks the legs; pushing a wall leans in with short steps; landing squashes; when hit the hero recoils and turns red.
