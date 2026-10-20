@@ -547,7 +547,7 @@
     act.sumP = any(pressed, ['Digit0']) || gpP('r3');   // touch star / gamepad R3: the first charged skill
     act.sk1P = any(pressed, ['Digit1', 'Numpad1']); act.sk2P = any(pressed, ['Digit2', 'Numpad2']); act.sk3P = any(pressed, ['Digit3', 'Numpad3']); act.sk4P = any(pressed, ['Digit4', 'Numpad4']);
     act.parryP = any(pressed, ['KeyF']) || gpP('l3');
-    act.muteP = pressed.KeyM; act.fullP = pressed.KeyF || pressed.F11;
+    act.muteP = pressed.KeyM; act.fullP = pressed.F11;   // F is the guard; fullscreen is F11 (or the title menu)
     gpPrev = gb;
   }
   function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.atk2P = act.throwP = act.swapP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = act.skillP = act.shopP = act.sumP = act.parryP = act.wswapP = act.sk1P = act.sk2P = act.sk3P = act.sk4P = false; }
