@@ -36,8 +36,6 @@ const HEROES = [
   { id: 'yuki', name: H2('Yuki', 'Tuyết Hồ'), cls: 'mage', sw: { a: '#ffffff', A: '#cfe8ff', q: '#6a8ab0', b: '#9fe8ff', r: '#ff9a4a', f: '#ffffff', o: '#cfe8ff' }, hat: 'fox', hatCol: '#ffffff', hp: 0, spd: 0.1, dmg: 0, sk: { k: 'freeze', cd: 12, col: '#cfe8ff', d: 4, n: H2('Snow Fox Blizzard', 'Bão Tuyết Hồ Ly') } },
   { id: 'drake', name: H2('Drake', 'Kỵ Sĩ Rồng'), cls: 'war', sw: { a: '#ff9a6a', A: '#a02a2a', q: '#3a0e0e', b: '#14121f', r: '#ffd34e', f: '#ff6a3a', o: '#a02a2a' }, hat: 'helm', hatCol: '#a02a2a', wings: 'dragon', hp: 1, spd: 0, dmg: 1, sk: { k: 'meteor', cd: 11, col: '#ff4a2a', r: 56, d: 12, n: H2('Dragon Dive', 'Rồng Bổ Nhào') } },
   { id: 'seraph', name: H2('Seraph', 'Thiên Sứ'), cls: 'sup', sw: { a: '#ffffff', A: '#e8e0c0', q: '#a09060', b: '#ffffff', r: '#ffe08a', f: '#ffffff', o: '#ffe08a' }, hat: 'halo', hatCol: '#fff6c0', wings: 'angel', hp: 1, spd: 0, dmg: -1, sk: { k: 'bless', cd: 14, col: '#fff6c0', r: 160, d: 2, n: H2('Holy Light', 'Ánh Sáng Thánh') } },
-  // TEST BUILD ONLY: a Hatsune Miku-style singer (Miku (c) Crypton Future Media, Piapro license, non-commercial). Before selling, change id/name/colours below to the original 'Mira Song' (deep green hair) - see README.
-  { id: 'miku', name: H2('Miku', 'Miku'), cls: 'sup', sw: { a: '#e8fbfb', A: '#39c5bb', q: '#1a6a70', b: '#2a2e40', r: '#39c5bb', f: '#7ef0e6', o: '#39c5bb', y: '#ffffff' }, custom: 'miku', hp: 0, spd: 0.08, dmg: 0, sk: { k: 'volley', cd: 8, col: '#7ef0e6', d: 2, n8: 7, n: H2('Concert Burst', 'Buổi Hòa Nhạc') } },
   // former secret heroes: free for everyone now
   { id: 'slimeking', name: H2('Little Slime King', 'Vua Slime Con'), cls: 'tank', sw: { a: '#a4e86b', A: '#5fcf5a', q: '#2b8a3e', b: '#9be564', r: '#ffd34e', f: '#a4e86b', o: '#5fcf5a', y: '#14121f' }, hat: 'crown', hatCol: '#ffd34e', hp: 3, spd: -0.05, dmg: 0, sk: { k: 'quake', cd: 8, col: '#9be564', r: 130, d: 8, n: H2('Royal Bounce', 'Cú Nảy Hoàng Gia') } },
   { id: 'devilkid', name: H2('Little Devil', 'Quỷ Vương Nhí'), cls: 'mage', sw: { a: '#c070ff', A: '#7a1a2a', q: '#2a0e18', b: '#14121f', r: '#e0453a', f: '#c07bff', o: '#7a1a2a', y: '#ff3a3a' }, hat: 'horns', hatCol: '#14121f', cape: '#2a0e18', aura: '#a15be0', hp: 0, spd: 0.05, dmg: 1, sk: { k: 'hole', cd: 11, col: '#a15be0', r: 96, n: H2('Tiny Eclipse', 'Nhật Thực Tí Hon') } },
@@ -52,22 +50,24 @@ const HEROES = [
   { id: 'thoi', name: H2('Chrono', 'Thời Vương'), cls: 'mage', sw: { a: '#fff0c0', A: '#c89a1c', q: '#3a2a10', b: '#2a1a4a', r: '#a98bff', f: '#ffe08a', o: '#c89a1c' }, hat: 'chrono', hatCol: '#ffd34e', mech: 'timestop', hp: 0, spd: 0, dmg: 0, sk: { k: 'timestop', cd: 18, col: '#a98bff', d: 2, n: H2('Time Stop', 'Ngưng Đọng Thời Gian') } }
 ];
 // ===== TEST BUILD ONLY: fan heroes drawn by the team (Kayn (c) Riot Games, Tom & Jerry (c) Warner Bros., Luffy (c) Eiichiro Oda / Shueisha,
-// Sonic (c) SEGA, Kirby (c) Nintendo / HAL, Jotaro & Dio (c) Hirohiko Araki). Set FAN_HEROES = false before selling the game:
+// Sonic (c) SEGA, Kirby (c) Nintendo / HAL, Jotaro & Dio (c) Hirohiko Araki, Miku (c) Crypton Future Media). Set FAN_HEROES = false before selling the game:
 // they disappear from the hero list and the original heroes above (same mechanics) stay.
 const FAN_HEROES = true;
 const FAN = [
-  { id: 'kayn', fan: 'kayn', name: H2('Kayn', 'Kayn'), cls: 'sin', custom: 'fan', mech: 'kayn', sw: {}, hp: 0, spd: 0.1, dmg: 1, sk: { k: 'kaynR', cd: 3, col: '#a15be0', d: 5, n: H2('Shadow Step / Rhaast', 'Lướt Bóng / Biến Rhaast') } },
-  { id: 'tom', fan: 'tom', name: H2('Tom', 'Tom'), cls: 'war', custom: 'fan', mech: 'toon', sw: {}, hp: 1, spd: 0.05, dmg: 0, sk: { k: 'gag', cd: 5, col: '#ffd34e', d: 5, n: H2('Gag Bag', 'Túi Trò Hề') } },
-  { id: 'jerry', fan: 'jerry', name: H2('Jerry', 'Jerry'), cls: 'sin', custom: 'fan', mech: 'jerry', sw: {}, hp: -1, spd: 0.2, dmg: 0, sk: { k: 'jerrydash', cd: 5, col: '#f0a050', d: 4, n: H2('Slip Away', 'Chạy Lách') } },
-  { id: 'luffy', fan: 'luffy', name: H2('Luffy', 'Luffy'), cls: 'war', custom: 'fan', mech: 'stretch', sw: {}, hp: 1, spd: 0, dmg: 0, sk: { k: 'gatling', cd: 7, col: '#ff7a5a', d: 2, n: H2('Gatling', 'Mưa Đấm Gatling') } },
-  { id: 'sonic', fan: 'sonic', name: H2('Sonic', 'Sonic'), cls: 'sin', custom: 'fan', mech: 'momentum', sw: { A: '#2a5ad0', q: '#14287a', a: '#ffffff' }, hp: 0, spd: 0, dmg: 0, sk: { k: 'spindash', cd: 3, col: '#4a8bf0', d: 3, n: H2('Spin Dash', 'Spin Dash') } },
-  { id: 'kirby', fan: 'kirby', name: H2('Kirby', 'Kirby'), cls: 'sup', custom: 'fan', mech: 'inhale', sw: {}, hp: 1, spd: 0, dmg: 0, sk: { k: 'inhale', cd: 1.2, col: '#ff9fd0', d: 3, n: H2('Inhale', 'Hút & Sao Chép') } },
-  { id: 'jotaro', fan: 'jotaro', name: H2('Jotaro', 'Jotaro'), cls: 'war', custom: 'fan', mech: 'stand', sw: {}, hp: 1, spd: 0, dmg: 1, sk: { k: 'ora', cd: 8, col: '#8a7aff', d: 2, n: H2('Ora Ora', 'Ora Ora') } },
-  { id: 'dio', fan: 'dio', name: H2('Dio', 'Dio'), cls: 'mage', custom: 'fan', mech: 'world', sw: {}, hp: 0, spd: 0.05, dmg: 0, sk: { k: 'theworld', cd: 18, col: '#ffd34e', d: 2, n: H2('The World', 'The World') } }
+  { id: 'kayn', fan: 'kayn', name: H2('Kayn', 'Kayn'), cls: 'sin', custom: 'fan', mech: 'kayn', sw: {}, hp: 2, spd: 0.1, dmg: 1, sk: { k: 'kaynR', cd: 3, col: '#a15be0', d: 5, n: H2('Shadow Step / Rhaast', 'Lướt Bóng / Biến Rhaast') } },
+  { id: 'tom', fan: 'tom', name: H2('Tom', 'Tom'), cls: 'war', custom: 'fan', mech: 'toon', sw: {}, hp: 2, spd: 0.05, dmg: 0, sk: { k: 'gag', cd: 5, col: '#ffd34e', d: 5, n: H2('Gag Bag', 'Túi Trò Hề') } },
+  { id: 'jerry', fan: 'jerry', name: H2('Jerry', 'Jerry'), cls: 'sin', custom: 'fan', mech: 'jerry', sw: {}, hp: 2, spd: 0.2, dmg: 0, sk: { k: 'jerrydash', cd: 5, col: '#f0a050', d: 4, n: H2('Slip Away', 'Chạy Lách') } },
+  { id: 'luffy', fan: 'luffy', name: H2('Luffy', 'Luffy'), cls: 'war', custom: 'fan', mech: 'stretch', sw: {}, hp: 2, spd: 0, dmg: 0, sk: { k: 'gatling', cd: 7, col: '#ff7a5a', d: 2, n: H2('Gatling', 'Mưa Đấm Gatling') } },
+  { id: 'sonic', fan: 'sonic', name: H2('Sonic', 'Sonic'), cls: 'sin', custom: 'fan', mech: 'momentum', sw: { A: '#2a5ad0', q: '#14287a', a: '#ffffff' }, hp: 2, spd: 0, dmg: 0, sk: { k: 'spindash', cd: 3, col: '#4a8bf0', d: 3, n: H2('Spin Dash', 'Spin Dash') } },
+  { id: 'kirby', fan: 'kirby', name: H2('Kirby', 'Kirby'), cls: 'sup', custom: 'fan', mech: 'inhale', sw: {}, hp: 2, spd: 0, dmg: 0, sk: { k: 'inhale', cd: 1.2, col: '#ff9fd0', d: 3, n: H2('Inhale', 'Hút & Sao Chép') } },
+  { id: 'jotaro', fan: 'jotaro', name: H2('Jotaro', 'Jotaro'), cls: 'war', custom: 'fan', mech: 'stand', sw: {}, hp: 2, spd: 0, dmg: 1, sk: { k: 'ora', cd: 8, col: '#8a7aff', d: 2, n: H2('Ora Ora', 'Ora Ora') } },
+  { id: 'dio', fan: 'dio', name: H2('Dio', 'Dio'), cls: 'mage', custom: 'fan', mech: 'world', sw: {}, hp: 2, spd: 0.05, dmg: 0, sk: { k: 'theworld', cd: 18, col: '#ffd34e', d: 2, n: H2('The World', 'The World') } },
+  { id: 'miku', fan: 'miku', name: H2('Miku', 'Miku'), cls: 'sup', custom: 'fan', mech: 'idol', sw: { a: '#e8fbfb', A: '#39c5bb', q: '#1a6a70', b: '#2a2e40', r: '#39c5bb', f: '#7ef0e6', o: '#39c5bb', y: '#ffffff' }, hp: 2, spd: 0.08, dmg: 0, sk: { k: 'concert', cd: 12, col: '#39c5bb', d: 3, n: H2('Live Concert', 'Buổi Hòa Nhạc') } }
 ];
 if (FAN_HEROES) HEROES.push(...FAN);
 const HERO = {}; HEROES.forEach(h => { HERO[h.id] = h; });
 const SKILL_DESC = {
+  concert: H2('Every attack sends a sound wave and a homing music note; every 4th hit heals the team. Skill: a live concert, 6 beats that blast enemies around you and heal the team.', 'Mỗi đòn đánh phát sóng âm và một nốt nhạc tự tìm mục tiêu; cứ 4 đòn trúng thì hồi máu cả đội. Kỹ năng: buổi hòa nhạc, 6 nhịp nổ sóng âm quanh bạn và hồi máu cả đội.'),
   kaynR: H2('Shadow: hits fill the Darkin bar; R dashes through enemies, and with a full bar R turns you into Rhaast. Rhaast: harder hits that heal you; R is a wide scythe sweep, then you return to Shadow.', 'Shadow: đánh trúng nạp thanh Darkin; R lướt xuyên kẻ địch, thanh đầy thì R biến thành Rhaast. Rhaast: đánh mạnh hơn, hồi máu khi đánh; R chém hái quét rộng rồi quay lại dạng Shadow.'),
   jerrydash: H2('Tiny and hard to hit; sets snap traps behind him by himself. Skill: a quick slip that drags nearby enemies along.', 'Nhỏ, khó trúng, tự đặt bẫy kẹp sau chỗ đứng. Kỹ năng: chạy lách nhanh, quái gần bị kéo theo.'),
   ora: H2('Star Platinum punches along with every attack. Skill: Ora Ora, a storm of punches in front of you.', 'Star Platinum đấm kèm mỗi đòn đánh. Kỹ năng: Ora Ora, đấm dồn dập trước mặt.'),

@@ -332,6 +332,24 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - The real flyers (Phoenix, Dragons, Sky Whale) still fly.
 
 ## Fan heroes (TEST BUILD ONLY)
+- All of them start with **5 hearts**.
+- **Miku** joins the fan team, drawn in the same style by `tools/make_miku.py`.
+  - Basic attack: a sound wave plus a homing music note.
+  - Passive: every 4th hit heals the team ("Encore!").
+  - R, **Live Concert**: 6 beats of sound that hit enemies around her, stage lights and notes, and a team heal at the end.
+- **Movement animator:** each picture is split into body, left leg and right leg (`FAN_RIG` sets the hip line).
+  - Walking and running swing and lift the legs in turn while the body bobs and leans forward, more when running.
+  - Jumping tucks the legs; pushing a wall leans in with short steps; landing squashes; when hit the hero recoils and turns red.
+- **Movement effects:** footstep dust, take-off and landing dust, a speed trail in the hero's colours, and afterimages for Sonic, Kayn and Jerry at full speed. Each hero also has its own particles:
+
+  | Hero | Particles |
+  |---|---|
+  | Kayn / Rhaast | Shadow or ember wisps |
+  | Dio | Gold sparkles |
+  | Jotaro | Stand aura |
+  | Kirby | Stars when fluttering |
+  | Miku | Floating ♪ ♫ notes |
+  | Sonic | Sparks |
 - They fight with their own moves: no sword, gun or armor (equipped ones are ignored while you play them), but a pet works. J and H use the basic attack, which has its own reach, speed and effect:
 
   | Hero | Basic attack |

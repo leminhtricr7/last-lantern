@@ -4985,6 +4985,7 @@
         for (const e of grab) { e.x = P.x + 4 - f * (14 + Math.random() * 10) - e.w / 2; e.stunT = Math.max(e.stunT || 0, 1.4); dmgFoe(e, d, true); emit(e.x + e.w / 2, e.y + e.h / 2, 8, { col: ['#f0a050', '#fff'], sp0: 20, sp1: 70 }); }
         Snd.play('dash'); if (grab.length) pop(cx, cy - 26, sv('Got you!', 'Kéo theo!'), '#f0a050'); break;
       }
+      case 'concert': P.concT = 3; P.concTick = 0; Snd.play('relic'); pop(cx, cy - 26, sv('LIVE CONCERT!', 'BUỔI HÒA NHẠC!'), '#39c5bb'); break;
       case 'ora': P.oraT = 1.5; P.oraTick = 0; Snd.play('whoosh'); pop(cx, cy - 26, 'ORA ORA ORA!', '#8a7aff'); break;
       case 'theworld': {
         const G = Q.G; G.tsT = 3.5; G.tsOwner = P; G.tsTick = 0; G.tsKn = []; Q.shake = Math.max(Q.shake, 0.4); Snd.play('chime'); if (Snd.cineHit) Snd.cineHit('drop');
@@ -5006,7 +5007,7 @@
   // ===================== heroes with their own mechanics =====================
   // the team's drawings (assets/fanheroes): a half-size sprite for menus and films, the full picture for the hero in play
   const FAN_IMG = {}, FAN_SC = 0.5;
-  ['kayn', 'rhaast', 'tom', 'jerry', 'luffy', 'sonic', 'kirby', 'jotaro', 'dio'].forEach(k => {
+  ['kayn', 'rhaast', 'tom', 'jerry', 'luffy', 'sonic', 'kirby', 'jotaro', 'dio', 'miku'].forEach(k => {
     const im = new Image(); im.onload = () => {
       const w = Math.round(im.width * FAN_SC), h = Math.round(im.height * FAN_SC), mk = flip => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; if (flip) { x.translate(w, 0); x.scale(-1, 1); } x.drawImage(im, 0, 0, w, h); return c; };
       const c = mk(false), f = mk(true); FAN_IMG[k] = { im, spr: { c, f, cw: c, fw: f, w, h } };
@@ -5018,19 +5019,59 @@
     if (h.custom === 'puff') return puffSprite(k, f, h.sw); return mikuSprite(k === 'big' || k === 'inhale' ? 'idle' : k, f);
   }
   // the hero in play: the drawing at full screen resolution, moved by the shared animator (idle breath, walk, run, jump, hurt red)
+  // where the legs start in each picture (fraction of the height): the part below swings as two legs
+  const FAN_RIG = { kayn: 0.74, rhaast: 0.76, tom: 0.84, jerry: 0.86, luffy: 0.8, sonic: 0.84, kirby: 0.8, jotaro: 0.8, dio: 0.8, miku: 0.8 };
+  // the hero in play: the drawing at full screen resolution, animated like a puppet (body + left leg + right leg)
   function drawFanHero(P, h, x, bot) {
-    const o = FAN_IMG[fanKey(h, P)]; if (!o) return false; const im = o.im;
-    const sp = Math.abs(P.vx), st = P.hurtA > 0 ? 'hurt' : (!P.onGround ? 'jump' : (P.push > 0 ? 'push' : (sp > 15 ? (sp > RUN * 0.72 ? 'run' : 'walk') : 'idle')));
-    const A = animPose(st, P.anim, P.face, st === 'hurt' ? 1 - P.hurtA / 0.36 : P.vy);
-    let sx = A.sx, sy = A.sy; if (P.landA > 0) { sx *= 1.15; sy *= 0.85; }
-    if (h.mech === 'inhale') { if (P.flutter && !P.onGround) { sx *= 1.25; sy *= 1.2; } if (P.inhT > 0) sx *= 1.12; }
-    if (h.mech === 'toon') { if (P.landA > 0) { sx *= 1.3; sy *= 0.7; } else if (!P.onGround) { sy *= P.vy < 0 ? 1.18 : 1.06; sx *= 2 - sy; } }
-    g.save(); g.translate(x + A.ox, bot + A.oy); g.rotate(A.rot); g.scale((P.face < 0 ? -1 : 1) * FAN_SC * sx, FAN_SC * sy); g.imageSmoothingEnabled = true;
+    const key = fanKey(h, P), o = FAN_IMG[key]; if (!o) return false; const im = o.im, W = im.width, H = im.height, hy = Math.round(H * (FAN_RIG[key] || 0.8)), half = Math.round(W / 2);
+    const sp = Math.abs(P.vx), onG = P.onGround, moving = onG && sp > 15, run = sp > RUN * 0.72, f = P.face < 0 ? -1 : 1;
+    let bodyY = 0, bodyX = 0, lean = 0, sx = 1, sy = 1; const L = { x: 0, y: 0 }, R = { x: 0, y: 0 };
+    if (P.hurtA > 0) { const k = 1 - P.hurtA / 0.36; lean = -0.18 * Math.sin(k * Math.PI); bodyX = -2 * Math.sin(k * Math.PI); }
+    else if (!onG) {   // in the air: legs tucked on the way up, dangling on the way down
+      const up = P.vy < 0; L.x = 2; L.y = up ? -4 : -1; R.x = -1; R.y = up ? -3 : 0; lean = up ? -0.06 : 0.06; sy = up ? 1.06 : 1; sx = 2 - sy;
+      if (h.mech === 'inhale' && P.flutter) { sx = 1.22; sy = 1.18; }
+    } else if (P.push > 0) {   // pushing a wall: leaning in, short steps
+      const ph = P.anim * 7; L.x = Math.sin(ph) * 2 - 2; L.y = -Math.max(0, Math.sin(ph)) * 2; R.x = -Math.sin(ph) * 2 - 3; R.y = -Math.max(0, -Math.sin(ph)) * 2; lean = 0.24; bodyX = 2;
+    } else if (moving) {   // walking / running strides: legs swing and lift, the body bobs twice per cycle and leans forward
+      const ph = P.anim * (run ? 14 : 9), amp = run ? 3.6 : 2.3;
+      L.x = Math.sin(ph) * amp; L.y = -Math.max(0, Math.sin(ph)) * amp; R.x = -Math.sin(ph) * amp; R.y = -Math.max(0, -Math.sin(ph)) * amp;
+      bodyY = -Math.abs(Math.cos(ph)) * (run ? 2 : 1.2); lean = run ? 0.13 : 0.05; if (run) { sx = 1.03; sy = 0.98; }
+    } else { bodyY = -Math.max(0, Math.sin(P.anim * 2.6)) * 0.8; sy = 1 + Math.sin(P.anim * 2.6) * 0.012; }   // idle: breathing
+    if (P.landA > 0) { const k = P.landA / 0.12; sy *= 1 - 0.14 * k; sx *= 1 + 0.12 * k; bodyY += 1.5 * k; }
+    if (h.mech === 'inhale' && P.inhT > 0) sx *= 1.12;
+    if (h.mech === 'toon') { if (P.landA > 0) { sx *= 1.2; sy *= 0.8; } else if (!onG) { sy *= P.vy < 0 ? 1.15 : 1.05; sx *= 2 - sy; } }
+    const parts = () => {
+      const back = moving && Math.sin(P.anim * (run ? 14 : 9)) > 0 ? 'R' : 'L';   // the leg in front is drawn last
+      const leg = side => { const A = side === 'L' ? L : R, x0 = side === 'L' ? 0 : half, w = side === 'L' ? half : W - half; hiImg(im, x0, hy, w, H - hy, -W / 2 + x0 + A.x, -H + hy + A.y, w, H - hy); };
+      leg(back); hiImg(im, 0, 0, W, hy + 2, -W / 2 + bodyX, -H + bodyY, W, hy + 2); leg(back === 'L' ? 'R' : 'L');
+    };
+    g.save(); g.translate(x, bot); g.rotate(lean * f); g.scale(f * FAN_SC * sx, FAN_SC * sy); g.imageSmoothingEnabled = true;
     if (P.dash > 0) g.globalAlpha = 0.75;
-    hiImg(im, 0, 0, im.width, im.height, -im.width / 2, -im.height, im.width, im.height);
-    if (A.red) { g.globalAlpha = 0.8; g.filter = 'brightness(0.7) sepia(1) saturate(9) hue-rotate(-45deg)'; hiImg(im, 0, 0, im.width, im.height, -im.width / 2, -im.height, im.width, im.height); g.filter = 'none'; }
+    parts();
+    if (P.hurtA > 0 && Math.floor((1 - P.hurtA / 0.36) * 3) === 1) { g.globalAlpha = 0.8; g.filter = 'brightness(0.7) sepia(1) saturate(9) hue-rotate(-45deg)'; parts(); g.filter = 'none'; }
     g.restore(); g.globalAlpha = 1;
     return true;
+  }
+  // movement effects: footstep dust, take-off and landing dust, speed trails and afterimages, each hero's own particles
+  const FAN_TRAIL = { kayn: ['#5a2a8a', '#a15be0'], rhaast: ['#ff3a3a', '#5a0a10'], sonic: ['#4a8bf0', '#ffffff'], dio: ['#ffd34e', '#fff6c0'], jotaro: ['#8a7aff', '#c8b8ff'], miku: ['#39c5bb', '#8ff5ea'], kirby: ['#ff9fd0', '#ffffff'], tom: ['#cfd6e6', '#ffffff'], jerry: ['#f0a050', '#ffffff'], luffy: ['#ffd34e', '#e0453a'] };
+  function fanMoveFx(P, h) {
+    const key = fanKey(h, P), sp = Math.abs(P.vx), run = sp > RUN * 0.72, col = FAN_TRAIL[key] || ['#ffffff', '#cfd6e6'], fx = P.x + 4, fy = P.y + P.h, f = P.face;
+    if (P.onGround && sp > 15) {
+      const n = Math.floor(P.anim * (run ? 14 : 9) / Math.PI);
+      if (n !== P._stepN) { P._stepN = n; emit(fx - f * 3, fy, run ? 4 : 2, { col: ['#cfd6e6', '#a89880'], sp0: 6, sp1: 24, vy: -18, vx: -f * 20, grav: 60, l0: 0.2, l1: 0.4 }); }
+      if (run && Math.random() < 0.5) emit(fx - f * 6, P.y + rr(2, P.h - 2), 1, { col, sp0: 0, sp1: 6, vx: -f * 70, grav: 0, l0: 0.15, l1: 0.3 });
+      if (run && (key === 'sonic' || key === 'kayn' || key === 'rhaast' || key === 'jerry')) { (P.trail = P.trail || []).push({ x: P.x, y: P.y, f, t: 0.16 }); if (P.trail.length > 5) P.trail.shift(); }
+    }
+    if (P._wasG && !P.onGround && P.vy < -100) emit(fx, fy, 8, { col: ['#cfd6e6', col[0]], sp0: 15, sp1: 50, vy: 10, grav: 40, l0: 0.2, l1: 0.4 });
+    if (P._wasG === false && P.onGround) for (let i = -3; i <= 3; i++) emit(fx + i * 3, fy, 1, { col: ['#cfd6e6', '#a89880'], sp0: 10, sp1: 30, vx: i * 18, vy: -20, grav: 80, l0: 0.2, l1: 0.4 });
+    P._wasG = P.onGround;
+    const R = Math.random();
+    if ((key === 'kayn' || key === 'rhaast') && R < 0.18) emit(fx + rr(-6, 6), P.y + rr(0, P.h), 1, { col, sp0: 2, sp1: 8, grav: -40, l0: 0.4, l1: 0.8 });
+    if (key === 'dio' && R < 0.1) emit(fx + rr(-8, 8), P.y + rr(-4, P.h), 1, { col: ['#ffd34e', '#ffffff'], sp0: 1, sp1: 6, grav: -10, l0: 0.3, l1: 0.6 });
+    if (key === 'jotaro' && R < 0.06) emit(fx + rr(-6, 6), P.y + rr(0, P.h), 1, { col: ['#8a7aff', '#c8b8ff'], sp0: 2, sp1: 8, grav: -30, l0: 0.3, l1: 0.6 });
+    if (key === 'kirby' && P.flutter && !P.onGround && R < 0.3) emit(fx + rr(-6, 6), fy, 1, { col: ['#ffe08a', '#ffffff', '#ff9fd0'], sp0: 5, sp1: 20, vy: 20, l0: 0.3, l1: 0.6 });
+    if (key === 'miku' && R < (sp > 15 ? 0.05 : 0.015)) pop(fx + rr(-8, 8), P.y - 6, R < 0.01 ? '♫' : '♪', R < 0.008 ? '#ff8fbf' : '#39c5bb');
+    if (key === 'sonic' && run && R < 0.25) emit(fx - f * 4, fy - 1, 1, { col: ['#ffe44e', '#ffffff'], sp0: 4, sp1: 20, vx: -f * 40, vy: -20, grav: 120, l0: 0.15, l1: 0.3 });
   }
   // Puff copies what it swallows
   const COPY = { imp: 'fire', wisp: 'spark', ghost: 'spark', shroom: 'spark', spider: 'web', scorpion: 'web', bat: 'wing', beetle: 'stone', knight: 'stone', snowman: 'stone', zombie: 'stone' };
@@ -5040,7 +5081,7 @@
     kayn: { r: 34, h: 22, cd: 0.38, col: '#a15be0', fx: 'scythe', d: 1 }, rhaast: { r: 42, h: 28, cd: 0.42, col: '#ff3a3a', fx: 'scythe', d: 2 },
     tom: { r: 24, h: 16, cd: 0.32, col: '#ffcf8a', fx: 'claw', d: 0 }, jerry: { r: 18, h: 12, cd: 0.2, col: '#f0a050', fx: 'kick', d: -1 },
     sonic: { r: 30, h: 14, cd: 0.3, col: '#4a8bf0', fx: 'spin', d: 0, lunge: 22 }, jotaro: { r: 26, h: 16, cd: 0.3, col: '#8a7aff', fx: 'punch', d: 1 },
-    dio: { r: 24, h: 16, cd: 0.3, col: '#ffd34e', fx: 'chop', d: 0 }
+    dio: { r: 24, h: 16, cd: 0.3, col: '#ffd34e', fx: 'chop', d: 0 }, miku: { r: 30, h: 18, cd: 0.3, col: '#39c5bb', fx: 'wave', d: 0 }
   };
   function fanSwing(P, key) {
     const A = FAN_ATK[key], f = P.face, cx = P.x + 4, cy = P.y + 7, down = !P.onGround && act.down;
@@ -5067,6 +5108,7 @@
     else if (w.fx === 'claw') { g.strokeStyle = hexA(w.col, a); g.lineWidth = 1.5; for (let i = -1; i <= 1; i++) { g.beginPath(); g.moveTo(x + f * 8, cy - 8 + i * 4); g.lineTo(x + f * (8 + 14 * Math.min(1, k * 2)), cy + 4 + i * 4); g.stroke(); } }
     else if (w.fx === 'kick') { g.strokeStyle = hexA(w.col, a); g.lineWidth = 2; g.beginPath(); g.arc(x + f * 6, bot - 4, 8, f > 0 ? -0.6 : Math.PI - 0.6, f > 0 ? 0.9 : Math.PI + 0.9, f < 0); g.stroke(); }
     else if (w.fx === 'spin') { g.strokeStyle = hexA(w.col, a); g.lineWidth = 2; g.beginPath(); g.arc(x, cy, 9 + k * 4, 0, Math.PI * 2); g.stroke(); g.strokeStyle = hexA('#ffffff', a * 0.6); g.beginPath(); g.moveTo(x - f * 4, cy); g.lineTo(x - f * 24, cy); g.stroke(); }
+    else if (w.fx === 'wave') { for (let i = 0; i < 3; i++) { g.strokeStyle = hexA(i === 1 ? '#ff8fbf' : w.col, a * (1 - i * 0.25)); g.lineWidth = 1.5; g.beginPath(); g.arc(x + f * 4, cy, 6 + i * 6 + k * 10, f > 0 ? -0.8 : Math.PI - 0.8, f > 0 ? 0.8 : Math.PI + 0.8); g.stroke(); } }
     else if (w.fx === 'punch') { const fx = x + f * (8 + 14 * Math.min(1, k * 2.5)); g.fillStyle = hexA(w.col, a); g.fillRect(Math.round(fx) - 3, cy - 3, 6, 6); g.fillStyle = hexA('#ffffff', a); g.fillRect(Math.round(fx + f * 4) - 4, cy, 9, 1); g.fillRect(Math.round(fx + f * 4), cy - 4, 1, 9); }
     else { g.strokeStyle = hexA(w.col, a); g.lineWidth = 2; g.beginPath(); g.moveTo(x + f * 6, cy - 10); g.lineTo(x + f * (6 + 18 * Math.min(1, k * 2)), cy + 6); g.stroke(); }
     g.restore(); g.lineWidth = 1;
@@ -5077,6 +5119,7 @@
       if (P.atkCd > 0) return true; const key = P.hero === 'kayn' && P.form === 'rhaast' ? 'rhaast' : P.hero, A = FAN_ATK[key] || FAN_ATK.tom; P.atkCd = A.cd;
       fanSwing(P, FAN_ATK[key] ? key : 'tom');
       if (mk === 'stand') { P.standT = 0.32; P.standHit = new Set(); P.standD = baseDmg(); }
+      if (mk === 'idol') shootG({ x: P.x + 4 + f * 6, y: P.y + 4, vx: f * 160, vy: -30, home: true, life: 1.3, dmg: Math.max(1, baseDmg()), shape: 'orb', col: Math.random() < 0.5 ? '#39c5bb' : '#ff8fbf', trail: '#ffffff', sz: 3, f });
       if (mk === 'world') shootG({ x: P.x + 4 + f * 6, y: P.y + 6, vx: f * 360, vy: 0, life: 0.7, dmg: baseDmg() + 1, shape: 'bolt', col: '#e8e8f0', trail: '#ffd34e', sz: 2, f });
       return true;
     }
@@ -5101,6 +5144,7 @@
   // a sword hit landed: Kayn's Darkin bar, Rhaast's healing, Tom's frying pans
   function heroOnHit(P, e) {
     const mk = mechOf(P);
+    if (mk === 'idol') { P.combo = (P.combo || 0) + 1; if (P.combo % 4 === 0) { for (const p of teamNear(P.x + 4, P.y + 7, 120)) healP(p, 1); pop(P.x + 4, P.y - 18, sv('♪ Encore! Healed', '♪ Encore! Hồi máu'), '#39c5bb'); } }
     if (mk === 'kayn') {
       if (P.form === 'rhaast') { P.rhN = (P.rhN || 0) + 1; if (P.rhN % 3 === 0) healP(P, 1); }
       else if ((P.dk || 0) < 100) { P.dk = Math.min(100, (P.dk || 0) + 12); if (P.dk >= 100 && isMe(P)) { pop(P.x + 4, P.y - 20, sv('DARKIN READY: press R!', 'DARKIN ĐẦY: bấm R!'), '#ff3a3a'); Snd.play('relic'); } }
@@ -5110,6 +5154,14 @@
   function heroMech(P, dt, dir) {
     const id = P.hero, mk = mechOf(P); if (!id) return;
     if (P.fsw && P.fsw.t > 0) P.fsw.t -= dt;
+    { const hf = HERO[id]; if (hf && hf.custom === 'fan') fanMoveFx(P, hf); }
+    if (mk === 'idol' && P.concT > 0) {   // the concert: 6 beats of sound around the singer
+      P.concT -= dt; P.concTick = (P.concTick || 0) - dt;
+      if (P.concTick <= 0) { P.concTick = 0.5; const cx = P.x + 4, cy = P.y + 7, d = Math.max(1, Math.round((3 + baseDmg()) * 0.8)); addRing(cx, cy, ['#39c5bb', '#ff8fbf', '#ffe08a'][Math.floor(P.concT * 2) % 3], 80, 0.4); Snd.play('chime'); Q.shake = Math.max(Q.shake, 0.15);
+        for (const e of foes()) if (Math.hypot(e.x + e.w / 2 - cx, e.y + e.h / 2 - cy) < 80 + e.w / 2) { dmgFoe(e, d, true, true); chargeHit(); emit(e.x + e.w / 2, e.y + e.h / 2, 8, { col: ['#39c5bb', '#ffffff'], sp0: 20, sp1: 80 }); }
+        for (let i = 0; i < 3; i++) pop(cx + rr(-30, 30), cy - rr(10, 30), Math.random() < 0.5 ? '♪' : '♫', ['#39c5bb', '#ff8fbf', '#ffe08a'][i]); }
+      if (P.concT <= 0) for (const p of teamNear(P.x + 4, P.y + 7, 140)) healP(p, 1);
+    }
     if (mk === 'stand' && P.standT > 0) {   // Star Platinum's punch lands a moment after the hero's swing
       P.standT -= dt; const f = P.face, box = { x: f > 0 ? P.x + 8 : P.x - 44, y: P.y - 8, w: 44, h: P.h + 14 };
       if (P.standT < 0.2) for (const e of foes()) if (!P.standHit.has(e) && ov(box, e)) { P.standHit.add(e); dmgFoe(e, P.standD, false); chargeHit(); emit(e.x + e.w / 2, e.y + e.h / 2, 10, { col: ['#8a7aff', '#fff'], sp0: 20, sp1: 90 }); Snd.play('hit'); }
@@ -5235,6 +5287,7 @@
   function heroMechOver(P, x, bot, hh) {
     const id = P.hero, mk = mechOf(P), cx0 = Math.round(Q.cam.x), cy0 = Math.round(Q.cam.y);
     drawFanSwing(P, x, bot);
+    if (mk === 'idol' && P.concT > 0) { g.save(); g.globalCompositeOperation = 'lighter'; ['#39c5bb', '#ff8fbf', '#ffe08a'].forEach((c, i) => { const a = Math.sin(Q.t * 3 + i * 2) * 0.35, sx = x + (i - 1) * 40; const gr = g.createLinearGradient(sx, 0, x, bot); gr.addColorStop(0, hexA(c, 0.28)); gr.addColorStop(1, hexA(c, 0)); g.fillStyle = gr; g.beginPath(); g.moveTo(sx - 4, 0); g.lineTo(sx + 4, 0); g.lineTo(x + a * 30 + 14, bot); g.lineTo(x + a * 30 - 14, bot); g.fill(); }); g.restore(); }
     if (mk === 'kayn') { const w = 16; g.fillStyle = '#14121f'; g.fillRect(x - w / 2 - 1, bot - 30, w + 2, 3); g.fillStyle = P.form === 'rhaast' ? '#ff3a3a' : '#a15be0'; g.fillRect(x - w / 2, bot - 29, Math.round(w * (P.form === 'rhaast' ? 1 : (P.dk || 0) / 100)), 1); if (P.form === 'rhaast' || (P.dk || 0) >= 100) drawAura(x, bot - 10, 16, '#ff3a3a', 0.3 + Math.sin(Q.t * 6) * 0.1); }
     if (mk === 'stand' && (P.standT > 0 || P.oraT > 0)) {   // the Stand: a tall spirit that steps out in front of the hero
       const f = P.face, sx = x + f * 10, sb = bot - 2 + Math.sin(Q.t * 4), spr = getSprite('hero_idle4', STAND_SW, 0);
@@ -5469,7 +5522,7 @@
     return out;
   }
   function packPlayer(p) {
-    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
+    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
   }
   function coopSnapshot() {
     if (Q.talk && !Q.talk.id) { Q.talk.id = ++coop.tkN; Q.talk.doneList = Q.talk.doneList || []; }
