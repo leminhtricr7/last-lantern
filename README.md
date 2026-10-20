@@ -262,3 +262,52 @@ Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future 
 
 - **Monsters, bosses, pets, NPCs and summons** use a shared stepped animator, `animPose`, with the same states: idle, walk, run, push (shield block), jump and hurt. It runs at about 10 fps like pixel art and includes the red hurt frame. Each enemy type's own poses (charge, dive, dig...) are layered on top. `redOf(sprite)` makes the red version of any sprite.
 
+## Skills 1-4 (replaces T)
+- Landing hits charges everything you wear: sword hits, thrown daggers and your own shots all count. Shown as four badges at the bottom centre. When one fills up, a message says which key to press. Keys: **1** weapon slot 1, **2** weapon slot 2, **3** armor, **4** pet. On touch screens use the ★ button; on a gamepad, R3 uses the first ready one.
+
+  | Item | Skill |
+  |---|---|
+  | Divine items (`st.summon`) | Summon their god |
+  | Pets with a form | Transform for 3 s into the Ancient form |
+  | Other swords | Blade Wave |
+  | Other guns | Bullet Storm |
+  | Other armor | Divine Shield |
+  | Other pets | Healing Bond |
+  | Other weapons | Shockwave |
+
+- Charge needed: summons and forms 22 hits, armor 16, pet 14, weapons 12.
+
+## How summons arrive and move
+1. **Entrance**, different for each god:
+   - Rising from the hero's shadow (Shadow Clone, Nine-Tails)
+   - A smoke burst (Shogun)
+   - A meteor crash (Titan, Golems, Frost Giant)
+   - A lightning strike (Storm God, Kirin, Valkyrie)
+   - A pillar of light (Moon Goddess, Angel, Sun Emperor, Aegis)
+   - A water geyser (Sea Goddess) or growing roots (Treant)
+   - Swooping in from the sky (the flyers)
+2. **The 3-step rule:** a 0.5 s freeze then a head turn to lock the target (glowing eyes), a wind-up, then the character's own gait:
+   - heavy stomps that shake the ground
+   - a hunched stalk that weaves and drags sparks
+   - a gentle glide
+   - a swagger
+   - a gallop
+   - soaring for the flyers
+3. **No attacks while walking in.** Close to the target, each one opens with its own move:
+   - leap and slam
+   - teleport into the sky and cast
+   - sink into the shadows and burst out behind the target
+   - a lightning-fast dash
+   - climb and dive
+4. **Evolution:** after the opening strike, each kind evolves after its own time (14-18 s) or 10 hits.
+5. **Bosses fight back:** they take 40% less damage from summons, and every 3.6 s they sweep away the summons crowding them.
+
+## Picture quality
+- The canvas now matches the screen's real pixel density (retina / 4K), so every game pixel is a sharp block.
+- The artist's summon art is drawn at full screen resolution instead of being shrunk into the pixel buffer.
+- Rarity effects:
+  - Rare+ sparkles on held weapons, armor and pets
+  - Epic+ glow, and a Legendary+ halo ring at the feet
+  - Divine shifts through every colour
+  - A shimmer sweep across item icons in the bag and shop
+
