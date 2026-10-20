@@ -229,3 +229,21 @@ Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future 
 ## Dash and parry
 - Dash (K / C / Shift, gamepad B or RT, touch »): available from the first map, one air dash per jump, brief invulnerability and afterimages.
 - Parry (F, gamepad L3, touch ◆): a 0.24 s guard. A hit inside it does no damage, stuns the attacker (bosses 0.8 s), reflects projectiles as homing light shots, and makes the next sword hit a double-damage counter.
+
+## Intro and outro films (60 s each)
+- **Intro** plays when the game starts (any `?query` in the URL skips it for testing). The first screen asks for a key press so the browser lets the sound play. It can be replayed from the title menu ("Intro film"), and Enter, Esc or the SKIP button skips it. Its four scenes:
+  1. Despair (0-15 s): a slow pan over the fallen kingdom with wind, ash and distant lightning.
+  2. A glimmer of light (15-30 s): an extreme close-up as the hero steps onto a rock with the cloak in the wind. The camera tilts up to the eyes and the hand on the sword.
+  3. The summoning (30-45 s): the boss charges, the hero dashes through it, then parries and knocks its axe away. A pillar of light and cracking ground bring down the Golden Dragon in a low-angle shot.
+  4. The charge (45-60 s): hero and dragon rush the boss, a desaturated freeze frame, fade to black, a bass drop, then the logo builds up from sparkling pixels.
+- **Outro** plays after the ending story and leads into the credits. Its three scenes:
+  1. The last boss dissolves into rising pixels, the clouds part and god rays fall.
+  2. The Ancient summons dim their aura, bow, and fly back to the sky as light.
+  3. The hero puts the sword away and walks into the sunset, then "Thank you for playing" and the credits.
+- **Technique:**
+  - Parallax scrolling: sky, clouds, far ruins, mid ruins, ground and foreground move at different speeds.
+  - Depth of field: the far and near layers are pre-blurred.
+  - Volumetric god rays, dynamic shadows that stretch away from the light, and glow auras on the summons.
+  - Time-based particles: ash, embers and star dust.
+  - Post-processing on every frame: bloom (bright pass, blur, additive), colour grade (soft-light), vignette, film grain and 2.35:1-style letterbox bars.
+- **Score:** a separate film score (`Snd.cine`) with a sad piano, a building taiko and strings, an epic part with brass and choir, and a calm part with bells. One-shot hits come from `Snd.cineHit` (parry ring, roar, bass drop). Code: `tools/cine_block.js`, added by `tools/patch_cine.py`.

@@ -254,6 +254,7 @@ const Snd = (() => {
   // ---------- music: chiptune EDM (4-on-the-floor, sidechain pump, build + drop) ----------
   function music(key, def) {
     if (!def) return;
+    if (cin) cine(null, 0.8);   // a game track ends the film score
     if (key === curKey) return;
     cur = { key, def }; curKey = key;
     if (!ac) return;
@@ -339,6 +340,63 @@ const Snd = (() => {
     }
   }
   function stop() { if (timer) clearInterval(timer); timer = null; curKey = ''; cur = null; }
+  // ---------- cinematic score (intro / outro films): pads, piano, strings, taiko and brass instead of the EDM engine ----------
+  let cin = null;
+  const CINE = {   // chords as MIDI notes; bpm; layers
+    sad: { bpm: 66, ch: [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]], pad: 0.05, piano: 0.5 },
+    build: { bpm: 84, ch: [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]], pad: 0.06, piano: 0.35, str: 1, taiko: 1 },
+    epic: { bpm: 96, ch: [[57, 60, 64], [53, 57, 60], [55, 59, 62], [52, 56, 59]], pad: 0.07, str: 1, taiko: 2, brass: 1, choir: 1 },
+    calm: { bpm: 70, ch: [[48, 52, 55], [55, 59, 62], [57, 60, 64], [53, 57, 60]], pad: 0.05, bell: 1 }
+  };
+  function cineBus() {
+    const g = ac.createGain(); g.gain.value = 0; g.connect(master);
+    const dl = ac.createDelay(1), fb = ac.createGain(), wet = ac.createGain(), lp = ac.createBiquadFilter();   // a little room (feedback delay)
+    dl.delayTime.value = 0.23; fb.gain.value = 0.38; wet.gain.value = 0.3; lp.type = 'lowpass'; lp.frequency.value = 2400;
+    const inp = ac.createGain(); inp.connect(g); inp.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(wet); wet.connect(g);
+    return { g, inp };
+  }
+  function padNote(f, t, dur, v, type, dest, att) {
+    const o = ac.createOscillator(), o2 = ac.createOscillator(), gg = ac.createGain(), lp = ac.createBiquadFilter();
+    o.type = o2.type = type || 'triangle'; o.frequency.value = f; o2.frequency.value = f * 1.004; lp.type = 'lowpass'; lp.frequency.value = type === 'sawtooth' ? 1300 : 2600;
+    const a = att || 0.6; gg.gain.setValueAtTime(0.0001, t); gg.gain.linearRampToValueAtTime(v, t + a); gg.gain.setValueAtTime(v, t + Math.max(a, dur - 0.5)); gg.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.6);
+    o.connect(lp); o2.connect(lp); lp.connect(gg); gg.connect(dest); o.start(t); o2.start(t); o.stop(t + dur + 0.7); o2.stop(t + dur + 0.7);
+  }
+  function taiko(t, v, dest) { const o = ac.createOscillator(), gg = ac.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(92, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.35); gg.gain.setValueAtTime(v, t); gg.gain.exponentialRampToValueAtTime(0.001, t + 0.6); o.connect(gg); gg.connect(dest); o.start(t); o.stop(t + 0.65); noise(0.08, v * 0.25, 400, t, dest); }
+  function cineStep() {
+    if (!ac || !cin) return; const d = CINE[cin.mode];
+    while (cin.next < ac.currentTime + 0.3) {
+      const t = cin.next, st = cin.step, spb = 60 / d.bpm / 2, bar = Math.floor(st / 8), s = st % 8, ch = d.ch[bar % d.ch.length], D = cin.inp;
+      if (s === 0) { for (const n of ch) padNote(mtof(n - 12), t, spb * 8, d.pad, 'triangle', D); padNote(mtof(ch[0] - 24), t, spb * 8, d.pad * 1.3, 'sine', D); }
+      if (d.choir && s === 0) for (const n of ch) padNote(mtof(n), t, spb * 8, 0.025, 'sine', D, 0.3);
+      if (d.piano && (s === 0 || s === 3 || s === 5 || (s === 6 && bar % 2))) { const n = ch[(s + bar) % 3] + (s === 5 ? 12 : 0); tone(mtof(n), 1.6, 'sine', 0.09 * d.piano, 0, t, D); tone(mtof(n) * 2, 0.6, 'sine', 0.02 * d.piano, 0, t, D); }
+      if (d.str) { const n = ch[0] - 12; tone(mtof(n), spb * 0.9, 'sawtooth', 0.05, 0, t, D); if (d.str && s % 2) tone(mtof(n + 12), spb * 0.8, 'sawtooth', 0.03, 0, t, D); }
+      if (d.taiko && (s === 0 || (d.taiko > 1 && s === 4) || (bar % 2 === 1 && (s === 6 || s === 7)))) taiko(t, s === 0 ? 0.55 : 0.35, D);
+      if (d.brass && (s === 0 || s === 4)) for (const n of ch) padNote(mtof(n), t, spb * 3.6, 0.04, 'sawtooth', D, 0.08);
+      if (d.brass && s === 0) noise(1.2, 0.12, 5000, t, D);
+      if (d.bell && (s === 0 || s === 4 || (s === 6 && bar % 2 === 0))) { const n = ch[(bar + s) % 3] + 12; tone(mtof(n), 2.4, 'sine', 0.06, 0, t, D); tone(mtof(n) * 2.01, 1.2, 'sine', 0.018, 0, t, D); }
+      cin.next += spb; cin.step++;
+    }
+  }
+  // cine('sad' | 'build' | 'epic' | 'calm') switches the film score; cine(null) fades it out (silence)
+  function cine(mode, fadeS) {
+    if (!ac) init(); if (!ac) return;
+    if (cin && cin.mode === mode) return;
+    const f = fadeS === undefined ? 1.2 : fadeS, now = ac.currentTime;
+    if (cin) { const o = cin; clearInterval(o.timer); o.g.gain.cancelScheduledValues(now); o.g.gain.setValueAtTime(o.g.gain.value, now); o.g.gain.linearRampToValueAtTime(0, now + Math.max(0.05, f)); setTimeout(() => { try { o.g.disconnect(); } catch (e) { } }, f * 1000 + 3000); cin = null; }
+    if (!mode) return;
+    stop(); const b = cineBus(); b.g.gain.linearRampToValueAtTime(0.9, now + Math.max(0.05, f));
+    cin = { mode, g: b.g, inp: b.inp, step: 0, next: now + 0.05, timer: setInterval(cineStep, 50) }; cineStep();
+  }
+  // one-shot film hits: taiko, the parry ring, the bass drop
+  function cineHit(k) {
+    if (!ac) return; const t = ac.currentTime;
+    if (k === 'taiko') taiko(t, 0.8, sfxG);
+    if (k === 'parry') { tone(1800, 0.9, 'triangle', 0.18, -200, t); tone(2700, 0.6, 'sine', 0.1, 0, t); tone(950, 1.2, 'square', 0.05, -100, t); noise(0.15, 0.4, 3000, t, sfxG); }
+    if (k === 'drop') { tone(80, 2.6, 'sine', 0.95, -50, t); tone(40, 3, 'sine', 0.7, -10, t); noise(0.6, 0.3, 60, t, sfxG); }
+    if (k === 'roar') { tone(110, 1.4, 'sawtooth', 0.25, -60, t); tone(73, 1.6, 'sawtooth', 0.22, -30, t); noise(1.2, 0.25, 300, t, sfxG); }
+    if (k === 'rise') { tone(220, 2.4, 'sawtooth', 0.06, 660, t); noise(2.4, 0.08, 2000, t, sfxG); }
+    if (k === 'shimmer') for (let i = 0; i < 8; i++) tone(1200 + i * 220, 0.5, 'sine', 0.04, 0, t + i * 0.07);
+  }
   function sched() {
     if (!ac || !cur) return;
     const spb = 60 / cur.bpm / 4;
@@ -392,5 +450,5 @@ const Snd = (() => {
     // ---- riser in the last two bars of the build ----
     if (sec === 7 && s === 0) { const o = ac.createOscillator(), gn = ac.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(2400, t + spb * 16); gn.gain.setValueAtTime(0.02, t); gn.gain.linearRampToValueAtTime(0.12, t + spb * 16); o.connect(gn); gn.connect(leadBus); o.start(t); o.stop(t + spb * 16 + 0.05); }
   }
-  return { init, play, creature, monster, ambience, ambVol, step: foot, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, setVol, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
+  return { init, play, creature, monster, ambience, ambVol, step: foot, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, cine, cineHit, setVol, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
 })();
