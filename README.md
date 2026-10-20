@@ -466,3 +466,9 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - **Deepdig Tunnels:** an epic sinkhole. Behind the player are glowing mining tunnels with lanterns, ladders and rails climbing the far wall, giant cavern walls with strata and scaffolding, lava seeping out, and ledges over a pit that glows hotter toward its bottom.
 - The boss arenas of maps 8 and 9 already lock the camera.
 
+
+## Guard (F), Flash and R for every hero
+- **F (guard):** the hero braces with a bracing arm and raises a shield in their own colours (a cross, a lit edge, a glow and a guard arc). The catch window is the first 0.24 s, the pose lasts 0.5 s, and the shield flashes white when it catches a blow (hit-stop, shockwave rings and sparks in the hero's colours).
+- **Flash (dash):** each hero has a colour pair and a perk (`HERO_FX` / `DASH_PERK` in src/heroes.js): fire (ignites), frost (chills), thunder (stuns), shadow (extra invulnerability), gale (farther, blows enemies away), blink (instant teleport, faster recharge), holy (shield every 9 s), quake (landing shockwave), magnet (pulls coins), mirror (destroys enemy shots), double (two air dashes), blade (slices), time (slows). The perk is shown on the hero select screen.
+- **R:** every hero has an own effect style (24 styles: pillar of light, notes, runes, cross slashes, bats, leaves, frost, flames, thunder bolts, spiral, spikes, quake rings, stars, petals, hearts, beams, souls, sunburst, sparks, bubbles, waves, holy cross, burst, clock) in two own colours, a coloured screen tint and a glow around the caster. Short-cooldown skills get a smaller version.
+- `tools/patch_heroflash.py` applied this.
