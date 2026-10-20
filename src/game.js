@@ -1317,6 +1317,7 @@
     if (P.riding) { P.x += P.riding.dx; P.y += P.riding.dy; }
     { const blk = moveX(P, P.vx * dt); P.push = blk && dir !== 0 && P.onGround ? 0.14 : Math.max(0, (P.push || 0) - dt); }
     heroMech(P, dt, dir);
+    stallWatch(P, dt, dir);
     if (P.hurtA > 0) P.hurtA -= dt; if (P.landA > 0) P.landA -= dt; P.airT = P.onGround ? 0 : (P.airT || 0) + dt;
     const wasAir = !P.onGround, impact = P.vy;
     P.riding = null;
@@ -5194,6 +5195,20 @@
       return true;
     }
     return false;
+  }
+  // watchdog: holding left / right on the ground with nothing in front but not moving = a stuck player. It logs the state
+  // (console: "STALL") and frees the player: resets the body size, snaps the feet to the floor and clears sticky states.
+  function stallWatch(P, dt, dir) {
+    const blocked = (() => { const tx = Math.floor((dir > 0 ? P.x + P.w + 1 : P.x - 1) / TS); for (let ty = Math.floor(P.y / TS); ty <= Math.floor((P.y + P.h - 0.01) / TS); ty++) if (solid(tx, ty)) return true; return false; })();
+    const idle = dir !== 0 && P.onGround && Math.abs(P.vx) < 1 && !blocked && !(P.dash > 0) && !(P.parryT > 0) && !(P.hurtA > 0) && !(Q.freeze > 0) && !(P.stunT > 0) && Q.state === 'play';
+    P.stallT = idle ? (P.stallT || 0) + dt : 0;
+    if (P.stallT > 0.4) {
+      P.stallT = 0; P.stallN = (P.stallN || 0) + 1;
+      try { console.warn('STALL', JSON.stringify({ hero: P.hero, x: P.x, y: P.y, w: P.w, h: P.h, vx: P.vx, vy: P.vy, ball: P.ball, slow: P.slow, rev: P.rev, push: P.push, form: P.form, map: Q.li, n: P.stallN })); } catch (e) { }
+      if (P.ball) { P.ball = false; P.y -= 6; } P.h = 14; P.w = 8; P.slow = 0; P.rev = 0; P.stoneT = 0; P.spinT = 0; P.mom = 0;
+      const ty = Math.floor((P.y + P.h) / TS); if (solid(Math.floor((P.x + P.w / 2) / TS), ty)) P.y = ty * TS - P.h; else P.y -= 1;   // feet to the floor line
+      P.vy = 0; P.inv = Math.max(P.inv, 0.2);
+    }
   }
   function mechOf(P) { const h = P && P.hero && HERO[P.hero]; return h ? h.mech || null : null; }
   // a sword hit landed: Kayn's Darkin bar, Rhaast's healing, Tom's frying pans
