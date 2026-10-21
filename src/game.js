@@ -7128,7 +7128,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const G = Q.G; G.sumCd = G.sumCd || {}; const ids = summonItems(); let any = false;
     const sl = Q.P.slot || 0, ck = id => id + ':' + sl;
     for (const id of ids) { if ((G.sumCd[ck(id)] || 0) > 0) continue; G.sumCd[ck(id)] = 60; spawnSummon(ITEM[id].st.summon, 30, Q.P, true); any = true; }
-    if (!any) { Q.msg = ids.length ? sv('Summon resting: ', 'Triệu hồi đang hồi: ') + Math.ceil(Math.min.apply(null, ids.map(id => G.sumCd[id + ':' + sl] || 0))) + 's' : sv('Equip a Divine sword or armor to summon (T).', 'Trang bị kiếm hoặc giáp Thần cấp để triệu hồi (T).'); Q.msgT = 2; Snd.play('select'); }
+    if (!any) { Q.msg = ids.length ? sv('Summon resting: ', 'Triệu hồi đang hồi: ') + Math.ceil(Math.min.apply(null, ids.map(id => G.sumCd[id + ':' + sl] || 0))) + 's' : sv('Equip a Divine sword or armor to summon (keys 1-3).', 'Trang bị kiếm hoặc giáp Thần cấp để triệu hồi (phím 1-3).'); Q.msgT = 2; Snd.play('select'); }
   }
   function updateSummons(dt) {
     const G = Q.G, P = Q.P; if (!G.sums) G.sums = []; G.sumCd = G.sumCd || {};
