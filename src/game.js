@@ -99,7 +99,7 @@
     ab3: { en: 'NEW: Dash — press K / Shift (you are invincible while dashing)', vi: 'MỚI: Lướt — nhấn K / Shift (bất tử khi lướt)' },
     ctl: { en: 'Double jump: press jump again in the air.   All buttons: Esc > Controls', vi: 'Nhảy đôi: nhấn nhảy lần nữa trên không.   Xem mọi nút: Esc > Hướng dẫn nút' },
     thanks: { en: 'Thank you for playing!', vi: 'Cảm ơn bạn đã chơi!' },
-    talk: { en: 'E / Enter: Talk', vi: 'E / Enter: Nói chuyện' },
+    talk: { en: 'E: Talk', vi: 'E: Nói chuyện' },
     free: { en: 'E: Free her', vi: 'E: Giải cứu' }, guards: { en: 'Defeat the guards first!', vi: 'Hạ hết lính canh trước đã!' },
     leekT: { en: 'LEEK BLADE OBTAINED!', vi: 'NHẬN ĐƯỢC KIẾM HÀNH LÁ!' }, leekD: { en: 'A glowing leek that sings with the light. +1 damage and longer reach.', vi: 'Cây hành phát sáng hát cùng ánh sáng. +1 sát thương và tầm đánh xa hơn.' },
     wave: { en: 'Wave', vi: 'Đợt' }, trialWin: { en: 'TRIAL SURVIVED!', vi: 'VƯỢT QUA THỬ THÁCH!' }, gift: { en: 'Quan hands you some supplies!', vi: 'Quan đưa bạn ít đồ tiếp tế!' },
@@ -532,24 +532,24 @@
     const gpP = n => gb[n] && !gpPrev[n];
     act.left = keys.ArrowLeft || keys.KeyA || gb.l; act.right = keys.ArrowRight || keys.KeyD || gb.r;
     act.up = keys.ArrowUp || keys.KeyW || gb.u; act.down = keys.ArrowDown || keys.KeyS || gb.d;
-    act.jump = any(keys, ['Space', 'ArrowUp', 'KeyW', 'KeyZ']) || gb.a;
-    act.jumpP = any(pressed, ['Space', 'ArrowUp', 'KeyW', 'KeyZ']) || gpP('a');
+    act.jump = any(keys, ['Space', 'KeyZ']) || gb.a;   // (Up / W are only "up": climb, aim, swim)
+    act.jumpP = any(pressed, ['Space', 'KeyZ']) || gpP('a');
     act.atkH = !!(keys.KeyJ || keys.KeyX || gb.x || mouseHeld); act.atk2H = false;
     act.atkP = any(pressed, ['KeyJ', 'KeyX']) || gpP('x');
     act.atk2P = false; act.wswapP = any(pressed, ['KeyT']) || gpP('lt');
-    act.throwP = any(pressed, ['KeyL']) || gpP('y'); act.swapP = any(pressed, ['KeyQ']) || gpP('lb');
-    act.dashP = any(pressed, ['KeyK', 'KeyC', 'ShiftLeft', 'ShiftRight']) || gpP('b') || gpP('rt');
-    act.pauseP = pressed.Escape || pressed.KeyP || gpP('start');
+    act.throwP = any(pressed, ['KeyL']) || gpP('rt'); act.swapP = any(pressed, ['KeyQ']) || gpP('l3');
+    act.dashP = any(pressed, ['KeyK', 'KeyC', 'ShiftLeft', 'ShiftRight']) || gpP('b');
+    act.pauseP = pressed.Escape || gpP('start');
     act.okP = any(pressed, ['Enter', 'Space', 'KeyZ', 'KeyJ']) || gpP('a');
     act.backP = pressed.Escape || gpP('b');
     act.leftP = any(pressed, ['ArrowLeft', 'KeyA']) || gpP('l'); act.rightP = any(pressed, ['ArrowRight', 'KeyD']) || gpP('r');
     act.upP = any(pressed, ['ArrowUp', 'KeyW']) || gpP('u'); act.downP = any(pressed, ['ArrowDown', 'KeyS']) || gpP('d');
-    act.talkP = pressed.KeyE || pressed.Enter || gpP('rb');
+    act.talkP = pressed.KeyE || gpP('y');
     act.skillP = any(pressed, ['KeyR']) || gpP('rb');
-    act.shopP = any(pressed, ['KeyB', 'KeyI']) || gpP('back');
-    act.sumP = any(pressed, ['Digit0']) || gpP('r3');   // touch star / gamepad R3: the first charged skill
+    act.shopP = any(pressed, ['KeyB']) || gpP('back');
+    act.sumP = pressed.TouchSum || gpP('r3');   // touch star / gamepad R3: the first charged skill
     act.sk1P = any(pressed, ['Digit1', 'Numpad1']); act.sk2P = any(pressed, ['Digit2', 'Numpad2']); act.sk3P = any(pressed, ['Digit3', 'Numpad3']); act.sk4P = any(pressed, ['Digit4', 'Numpad4']);
-    act.parryP = any(pressed, ['KeyF']) || gpP('l3');
+    act.parryP = any(pressed, ['KeyF']) || gpP('lb');
     act.muteP = pressed.KeyM; act.fullP = pressed.F11;   // F is the guard; fullscreen is F11 (or the title menu)
     gpPrev = gb;
   }
@@ -566,7 +566,7 @@
       { k: 'ArrowLeft', x: s * 0.8, y: h - s * 0.9, r, l: '◀' }, { k: 'ArrowRight', x: s * 2.0, y: h - s * 0.9, r, l: '▶' },
       { k: 'Space', x: w - s * 0.8, y: h - s * 0.9, r: r * 1.15, l: '▲' }, { k: 'KeyJ', x: w - s * 2.1, y: h - s * 0.75, r, l: 'X' },
       { k: 'KeyK', x: w - s * 1.5, y: h - s * 1.9, r: r * 0.85, l: '»' }, { k: 'Escape', x: w - s * 0.5, y: s * 0.5, r: r * 0.7, l: 'II' },
-      { k: 'KeyL', x: w - s * 2.9, y: h - s * 1.5, r: r * 0.8, l: '●' }, { k: 'KeyT', x: w - s * 2.3, y: h - s * 2.7, r: r * 0.85, l: '⇆' }, { k: 'KeyQ', x: w - s * 3.3, y: h - s * 0.5, r: r * 0.6, l: '⇄' }, { k: 'KeyF', x: w - s * 3.5, y: h - s * 2.4, r: r * 0.8, l: '◆' }, { k: 'Digit0', x: w - s * 2.3, y: h - s * 2.9, r: r * 0.75, l: '★' }
+      { k: 'KeyL', x: w - s * 2.9, y: h - s * 1.5, r: r * 0.8, l: '●' }, { k: 'KeyT', x: w - s * 2.3, y: h - s * 2.7, r: r * 0.85, l: '⇆' }, { k: 'KeyQ', x: w - s * 3.3, y: h - s * 0.5, r: r * 0.6, l: '⇄' }, { k: 'KeyF', x: w - s * 3.5, y: h - s * 2.4, r: r * 0.8, l: '◆' }, { k: 'TouchSum', x: w - s * 2.3, y: h - s * 2.9, r: r * 0.75, l: '★' }
     ];
     if (scene === 'play' && Q && (Q.nearNpc || Q.nearPz) && Q.state === 'play') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '...' });
     if (scene === 'shop') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '→' });
@@ -1479,7 +1479,7 @@
         if (P.vx < target) P.vx = Math.min(target, P.vx + a); else if (P.vx > target) P.vx = Math.max(target, P.vx - a);
       } else { P.vx *= (1 - 0.8 * dt); }
       // swimming: every jump press is a stroke upwards, the water slows the fall
-      if (wetP(P)) { if (act.jumpP && P.dash <= 0) { P.vy = Math.min(P.vy, -150 - (hasRelic(8) ? 30 : 0)); P.jumps = 1; P.jumpBuf = 0; Snd.play('jump'); emit(P.x + 4, P.y + 2, 4, { col: ['#bfeaff', '#fff'], sp0: 5, sp1: 25, vy: -30, grav: -40, l0: 0.4, l1: 0.8 }); } else P.jumpBuf = 0; }
+      if (wetP(P)) { if ((act.jumpP || act.upP) && P.dash <= 0) { P.vy = Math.min(P.vy, -150 - (hasRelic(8) ? 30 : 0)); P.jumps = 1; P.jumpBuf = 0; Snd.play('jump'); emit(P.x + 4, P.y + 2, 4, { col: ['#bfeaff', '#fff'], sp0: 5, sp1: 25, vy: -30, grav: -40, l0: 0.4, l1: 0.8 }); } else P.jumpBuf = 0; }
       // jump
       if (P.jumpBuf > 0) {
         if (act.down && P.onGround && ch(Math.floor((P.x + 4) / TS), Math.floor((P.y + P.h + 1) / TS)) === '=') { P.drop = 0.22; P.jumpBuf = 0; P.y += 2; }
@@ -4852,21 +4852,21 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   const CTRL = [
     ['g', 'MOVE', 'DI CHUYỂN', '#8ad8ff'],
     ['Walk left / right', 'Đi trái / phải', 'A D  /  ← →', ['Left stick / D-pad', 'Cần trái / D-pad']],
-    ['Jump (press again in the air: double jump)', 'Nhảy (nhấn thêm trên không: nhảy đôi)', 'Space / W / ↑ / Z', 'A'],
-    ['Dash (nothing can hit you mid-dash)', 'Lướt (không bị đánh trúng khi lướt)', 'K / Shift / C', 'B / RT'],
-    ['Up / down: climb vines, aim, drop through thin floors', 'Lên / xuống: leo dây, ngắm, xuống ván mỏng', 'W S  /  ↑ ↓', ['Left stick', 'Cần trái']],
+    ['Jump (press again in the air: double jump)', 'Nhảy (nhấn thêm trên không: nhảy đôi)', 'Space / Z', 'A'],
+    ['Dash (nothing can hit you mid-dash)', 'Lướt (không bị đánh trúng khi lướt)', 'K / Shift / C', 'B'],
+    ['Up / down: climb vines, aim, swim, drop down', 'Lên/xuống: leo dây, ngắm, bơi, xuống ván mỏng', 'W S  /  ↑ ↓', ['Left stick', 'Cần trái']],
     ['g', 'FIGHT', 'CHIẾN ĐẤU', '#ff9a7a'],
     ['Attack (hold to keep firing a gun)', 'Đánh (giữ để bắn súng liên tục)', ['J / X / left click', 'J / X / chuột trái'], 'X'],
-    ['Guard (block a hit)', 'Đỡ đòn', 'F', ['L3 (press left stick)', 'L3 (bấm cần trái)']],
+    ['Guard (block a hit)', 'Đỡ đòn', 'F', 'LB'],
     ['Hero skill', 'Chiêu anh hùng', 'R', 'RB'],
-    ['Charged skills (slots 1-4)', 'Chiêu tích lũy (ô 1-4)', ['1 2 3 4   (0: first ready one)', '1 2 3 4   (0: chiêu sẵn đầu tiên)'], ['R3 (first ready one)', 'R3 (chiêu sẵn đầu)']],
-    ['Throw an item', 'Ném đồ', ['L / right click', 'L / chuột phải'], 'Y'],
-    ['Next throwing item', 'Đổi đồ ném', ['Q / mouse wheel', 'Q / lăn chuột'], 'LB'],
+    ['Charged skills (slots 1-4)', 'Chiêu tích lũy (ô 1-4)', '1 2 3 4', ['R3 (first ready one)', 'R3 (chiêu sẵn đầu)']],
+    ['Throw an item', 'Ném đồ', ['L / right click', 'L / chuột phải'], 'RT'],
+    ['Next throwing item', 'Đổi đồ ném', ['Q / mouse wheel', 'Q / lăn chuột'], ['L3 (press left stick)', 'L3 (bấm cần trái)']],
     ['Swap weapon', 'Đổi vũ khí', ['T / middle click', 'T / chuột giữa'], 'LT'],
     ['g', 'OTHER', 'KHÁC', '#c8a0ff'],
-    ['Talk / use (people, levers, signs)', 'Nói chuyện / dùng (người, cần gạt, bảng)', 'E / Enter', 'RB'],
-    ['Shop & bag', 'Cửa hàng & túi đồ', 'B / I', 'Back'],
-    ['Pause menu', 'Tạm dừng', 'Esc / P', 'Start'],
+    ['Talk / use (people, levers, signs)', 'Nói chuyện / dùng (người, cần gạt, bảng)', 'E', 'Y'],
+    ['Shop & bag', 'Cửa hàng & túi đồ', 'B', 'Back'],
+    ['Pause menu', 'Tạm dừng', 'Esc', 'Start'],
     ['Sound on / off  ·  fullscreen', 'Tắt / bật tiếng  ·  toàn màn hình', 'M  ·  F11', '-'],
     ['Menus: choose / go back', 'Menu: chọn / quay lại', 'Enter Space Z J  /  Esc', 'A / B']
   ];

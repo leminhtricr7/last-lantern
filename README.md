@@ -16,17 +16,26 @@ Add `?debug` to the URL to expose `window.LL` (used by `tools/bot.js`, an autopl
 
 ## Controls
 
+Two keyboard layouts: **WASD + Space / J / K / L** (or the mouse), or **arrows + Z / X / C**. Both share Q E R F T, 1-4, B, Esc.
+The in-game guide (title menu or pause menu > Controls) shows the same list.
+
 | Action | Keyboard | Gamepad |
 |---|---|---|
-| Move | A / D / arrows | D-pad / left stick |
-| Jump (double jump from level 2) | Space / W / Z | A |
-| Attack (↓ + attack in air = pogo bounce) | J / X | X / RB |
-| Dash (from level 4) | K / C / Shift | B / RT |
-| Throw item (dagger / bomb / fire flask) | L | Y |
-| Switch throwable | Q | LB |
-| Talk / use lever, torch, tablet | E / Enter | RB |
-| Pause | Esc / P | Start |
-| Mouse (laptop) | Left click: attack / pick menu items / talk to NPC / use lever. Right click: throw. Wheel: switch throwable | |
+| Move | A / D or ← / → | D-pad / left stick |
+| Up / down (climb vines, aim, swim, drop through thin floors) | W / S or ↑ / ↓ | left stick |
+| Jump (press again in the air: double jump) | Space / Z | A |
+| Attack (↓ + attack in the air = pogo bounce) | J / X / left click | X |
+| Dash | K / Shift / C | B |
+| Guard | F | LB |
+| Hero skill | R | RB |
+| Charged skills (slots 1-4) | 1 / 2 / 3 / 4 | R3 (first ready one) |
+| Throw item | L / right click | RT |
+| Next throwing item | Q / mouse wheel | L3 |
+| Swap weapon | T / middle click | LT |
+| Talk / use lever, torch, tablet | E | Y |
+| Shop & bag | B | Back |
+| Pause | Esc | Start |
+| Menus: choose / go back | Enter, Space, Z, J / Esc | A / B |
 | Mute / Fullscreen | M / F11 | |
 
 ## Content
@@ -133,7 +142,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - Internally the new lands are BIOMES 7-9 and the Citadel stays BIOMES 6; `LORDER` in `src/levels.js` is the play order and `LDIFF` keeps the Citadel the hardest.
 - New side characters: Old Croak the frog sage, Granny Moss the witch, Nami the mermaid, Captain Redbeard, Old Tu the fisherman, Bay the miner, Grandpa Mole, Lirio the bard - and **Mira the Gem Trader** on every map.
 - **Star Gems**: 4 hidden in every map (usually up high). Trade them with Mira (or the "Star Gems" tab of the shop) for supply crates, gold, permanent +1 heart / +1 damage, a golden glow, dragon wings and 4 secret co-op heroes.
-- Press **B** (or I / gamepad Back) during a level to open the shop and bag without leaving the level.
+- Press **B** (gamepad Back) during a level to open the shop and bag without leaving the level.
 - In co-op, hearts and gold are shared by the whole team; everything else belongs to whoever grabs it first.
 
 ## Scenery, secrets and saving
@@ -145,7 +154,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 
 ## Divine tier, summons and the deep bosses
 - **Divine tier (16-20)**: 10 swords, 5 armors, 5 pets and 5 special weapons above Mythic.
-  - Divine swords and armors: press **T** (gamepad right-stick click) to summon a giant for 7 seconds - Stone Titan, Storm God, Sea Goddess, Phoenix, Moon Goddess, Golden Dragon Emperor, Frost Giant, Sun Emperor, Shadow Shogun, Ancient Treant, Golden Guardian, Valkyrie, Shadow Copies, Archangel, Stone Golems. Each rests 60 s (shown top right).
+  - Divine swords and armors: a charged skill: land 22 hits, then press the item's slot key (**1** or **2** for a weapon, **3** for the armor; gamepad R3) to summon a giant for up to 30 seconds - Stone Titan, Storm God, Sea Goddess, Phoenix, Moon Goddess, Golden Dragon Emperor, Frost Giant, Sun Emperor, Shadow Shogun, Ancient Treant, Golden Guardian, Valkyrie, Shadow Copies, Archangel, Stone Golems.
   - Divine pets (Little Wyrmling, Baby Kirin, Pebble Golem, Star Whale, Kitsune Kit) fight and gather gold, and every 60 s transform for 7 s (Great Dragon, Thunder Kirin, Stone Titan, Sky Whale, Nine-Tailed Fox).
   - Divine weapons: Glacier Bow (rain of ice arrows over the screen), Reaper's Scythe (boomerang that stuns and poisons), Meteor Staff (one colossal meteor), Sun Chakram (bounces through 8 enemies), Singularity Cannon (huge black hole then a blast).
 - The Spore Queen, the Kraken and Gravemaw use the artist's designs (`assets/ref/new_bosses.webp`, cut by `tools/cut_bosses.py`), move like living creatures and have their own horror voices.
@@ -235,8 +244,8 @@ Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future 
 - Summon art: the artist's design sheets live in art/summon_sheets; `tools/extract_summons.py` (rembg, birefnet-general-lite) cuts them into idle/walk/attack/hurt/death strips plus the Ancient final form, and `tools/clean_summons.py` removes captions/labels. The game reads assets/summons/manifest.json; kinds without art keep the built-in pixel giants.
 
 ## Dash and parry
-- Dash (K / C / Shift, gamepad B or RT, touch »): available from the first map, one air dash per jump, brief invulnerability and afterimages.
-- Parry (F, gamepad L3, touch ◆): a 0.24 s guard. A hit inside it does no damage, stuns the attacker (bosses 0.8 s), reflects projectiles as homing light shots, and makes the next sword hit a double-damage counter.
+- Dash (K / C / Shift, gamepad B, touch »): available from the first map, one air dash per jump, brief invulnerability and afterimages.
+- Parry (F, gamepad LB, touch ◆): a 0.24 s guard. A hit inside it does no damage, stuns the attacker (bosses 0.8 s), reflects projectiles as homing light shots, and makes the next sword hit a double-damage counter.
 
 ## Intro and outro films (60 s each)
 - **Intro** plays when the game starts (any `?query` in the URL skips it for testing). The first screen asks for a key press so the browser lets the sound play. It can be replayed from the title menu ("Intro film"), and Enter, Esc or the SKIP button skips it. Its four scenes:
