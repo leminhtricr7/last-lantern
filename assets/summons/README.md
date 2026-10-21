@@ -9,5 +9,5 @@ Each file is ONE horizontal strip of square frames: frame size = image height,
 number of frames = width / height. Transparent background, character facing RIGHT,
 feet at the bottom edge, centered horizontally in each frame.
 
-Kinds: titan, stormgod, seagoddess, moongoddess, frostgiant, sunemperor, shogun, treant,
+Kinds (internal keys; the names shown in the game are in src/game.js GIANT / BEAST): titan, stormgod, seagoddess, moongoddess, frostgiant, sunemperor, shogun, treant,
 aegis, valkyrie, angel, golems, phoenix, dragonking, dragonform, thunderkirin, skywhale, ninetail, clones

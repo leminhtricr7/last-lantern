@@ -6727,26 +6727,26 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     g.fillStyle = '#ff3a2a'; g.fillRect(Math.round(hx) - 4, 66 + Math.round(Math.sin(Q.t * 2) * 26), 2, 2); g.fillStyle = '#ffd34e'; g.fillRect(Math.round(hx) - 2, 58 + Math.round(Math.sin(Q.t * 2) * 26), 6, 2);
     g.globalAlpha = 1;
   }
-  // ===================== DIVINE SUMMONS (swords, armors, pet forms): giants and beasts that fight for 7 seconds =====================
+  // ===================== DIVINE SUMMONS (swords, armors, pet forms): giants and beasts that fight beside you =====================
   const GIANT = {
-    titan: { skin: '#8a7a5a', robe: '#5a4a34', trim: '#7ed957', eye: '#a4ffc0', head: 'crown', weapon: 'hammer', wcol: '#a8a8b8', beard: '#6a5a44', name: { en: 'Stone Titan', vi: 'Titan Đá' }, glow: '#c8a070' },
-    stormgod: { skin: '#cfe8ff', robe: '#3a4a9a', trim: '#ffd34e', eye: '#ffffff', head: 'horns', weapon: 'staff', wcol: '#ffe44e', beard: '#ffffff', name: { en: 'Storm God', vi: 'Thần Bão' }, glow: '#9fe8ff' },
-    seagoddess: { skin: '#a4e8f0', robe: '#1a6a8a', trim: '#ff9fd0', eye: '#ffffff', head: 'crown', weapon: 'trident', wcol: '#ffd34e', name: { en: 'Sea Goddess', vi: 'Nữ Thần Biển' }, glow: '#6ee7f2' },
-    moongoddess: { skin: '#f0e8ff', robe: '#4a3a8a', trim: '#cfc0ff', eye: '#a98bff', head: 'halo', weapon: 'bow', wcol: '#e8e0ff', wings: '#cfc0ff', name: { en: 'Moon Goddess', vi: 'Nữ Thần Mặt Trăng' }, glow: '#cfc0ff' },
-    frostgiant: { skin: '#9fe0f8', robe: '#2a5a9a', trim: '#ffffff', eye: '#ffffff', head: 'horns', weapon: 'hammer', wcol: '#bfefff', beard: '#ffffff', name: { en: 'Frost Giant', vi: 'Người Khổng Lồ Băng' }, glow: '#9fe8ff' },
-    sunemperor: { skin: '#ffd8a0', robe: '#c0302a', trim: '#ffd34e', eye: '#ffffff', head: 'sun', weapon: 'staff', wcol: '#ffe08a', name: { en: 'Sun Emperor', vi: 'Hoàng Đế Mặt Trời' }, glow: '#ffe08a' },
-    shogun: { skin: '#3a3a4a', robe: '#14121f', trim: '#c0302a', eye: '#ff3a5a', head: 'kabuto', weapon: 'katana', wcol: '#e8e8f0', name: { en: 'Shadow Shogun', vi: 'Tướng Quân Bóng Tối' }, glow: '#ff3a5a' },
-    treant: { skin: '#6a4a2a', robe: '#4a3420', trim: '#7ed957', eye: '#d8ff6a', head: 'leaves', weapon: 'none', name: { en: 'Ancient Treant', vi: 'Cây Cổ Thụ' }, glow: '#a4ffc0' },
-    aegis: { skin: '#ffe8b0', robe: '#c89a1c', trim: '#ffffff', eye: '#4a8bf0', head: 'helm', weapon: 'shield', wcol: '#ffd34e', name: { en: 'Golden Guardian', vi: 'Thần Hộ Vệ Vàng' }, glow: '#ffe08a' },
-    valkyrie: { skin: '#ffe0c8', robe: '#a0a8c8', trim: '#ffd34e', eye: '#6ec8ff', head: 'helm', weapon: 'spear', wcol: '#cfe8ff', wings: '#ffffff', name: { en: 'Valkyrie', vi: 'Valkyrie' }, glow: '#cfe8ff' },
-    angel: { skin: '#fff0e0', robe: '#ffffff', trim: '#ffd34e', eye: '#ffd34e', head: 'halo', weapon: 'sword', wcol: '#fff6c0', wings: '#ffffff', name: { en: 'Archangel', vi: 'Tổng Lãnh Thiên Thần' }, glow: '#fff6c0' },
-    golems: { skin: '#8a8a9a', robe: '#5a5a6a', trim: '#7ed957', eye: '#a4ffc0', head: 'none', weapon: 'none', name: { en: 'Stone Golems', vi: 'Người Đá' }, glow: '#a8a8b8', small: true }
+    titan: { skin: '#8a7a5a', robe: '#5a4a34', trim: '#7ed957', eye: '#a4ffc0', head: 'crown', weapon: 'hammer', wcol: '#a8a8b8', beard: '#6a5a44', name: { en: 'Earthvein Colossus', vi: 'Khổng Lồ Mạch Đất' }, glow: '#c8a070' },
+    stormgod: { skin: '#cfe8ff', robe: '#3a4a9a', trim: '#ffd34e', eye: '#ffffff', head: 'horns', weapon: 'staff', wcol: '#ffe44e', beard: '#ffffff', name: { en: 'Thunderpeal Lord', vi: 'Chúa Sấm Rền' }, glow: '#9fe8ff' },
+    seagoddess: { skin: '#a4e8f0', robe: '#1a6a8a', trim: '#ff9fd0', eye: '#ffffff', head: 'crown', weapon: 'trident', wcol: '#ffd34e', name: { en: 'Tidecrest Maiden', vi: 'Nàng Triều Dâng' }, glow: '#6ee7f2' },
+    moongoddess: { skin: '#f0e8ff', robe: '#4a3a8a', trim: '#cfc0ff', eye: '#a98bff', head: 'halo', weapon: 'bow', wcol: '#e8e0ff', wings: '#cfc0ff', name: { en: 'Paleglow Lady', vi: 'Nàng Trăng Bạc' }, glow: '#cfc0ff' },
+    frostgiant: { skin: '#9fe0f8', robe: '#2a5a9a', trim: '#ffffff', eye: '#ffffff', head: 'horns', weapon: 'hammer', wcol: '#bfefff', beard: '#ffffff', name: { en: 'Glacierfang Giant', vi: 'Khổng Lồ Băng Hà' }, glow: '#9fe8ff' },
+    sunemperor: { skin: '#ffd8a0', robe: '#c0302a', trim: '#ffd34e', eye: '#ffffff', head: 'sun', weapon: 'staff', wcol: '#ffe08a', name: { en: 'Emperor of the Old Sun', vi: 'Hoàng Đế Mặt Trời Xưa' }, glow: '#ffe08a' },
+    shogun: { skin: '#3a3a4a', robe: '#14121f', trim: '#c0302a', eye: '#ff3a5a', head: 'kabuto', weapon: 'katana', wcol: '#e8e8f0', name: { en: 'Unshadowed General', vi: 'Tướng Quân Vô Ảnh' }, glow: '#ff3a5a' },
+    treant: { skin: '#6a4a2a', robe: '#4a3420', trim: '#7ed957', eye: '#d8ff6a', head: 'leaves', weapon: 'none', name: { en: 'Old Rootheart', vi: 'Ông Cây Rễ Cổ' }, glow: '#a4ffc0' },
+    aegis: { skin: '#ffe8b0', robe: '#c89a1c', trim: '#ffffff', eye: '#4a8bf0', head: 'helm', weapon: 'shield', wcol: '#ffd34e', name: { en: 'Dawnward Warden', vi: 'Hộ Vệ Rạng Đông' }, glow: '#ffe08a' },
+    valkyrie: { skin: '#ffe0c8', robe: '#a0a8c8', trim: '#ffd34e', eye: '#6ec8ff', head: 'helm', weapon: 'spear', wcol: '#cfe8ff', wings: '#ffffff', name: { en: 'Starspear Maiden', vi: 'Chiến Nữ Giáo Sao' }, glow: '#cfe8ff' },
+    angel: { skin: '#fff0e0', robe: '#ffffff', trim: '#ffd34e', eye: '#ffd34e', head: 'halo', weapon: 'sword', wcol: '#fff6c0', wings: '#ffffff', name: { en: 'Aureole Herald', vi: 'Sứ Giả Hào Quang' }, glow: '#fff6c0' },
+    golems: { skin: '#8a8a9a', robe: '#5a5a6a', trim: '#7ed957', eye: '#a4ffc0', head: 'none', weapon: 'none', name: { en: 'Gateguard Twins', vi: 'Cặp Đá Canh Cổng' }, glow: '#a8a8b8', small: true }
   };
   const BEAST = {
-    phoenix: { name: { en: 'Great Phoenix', vi: 'Phượng Hoàng' }, glow: '#ff9a2a' }, dragonking: { name: { en: 'Golden Dragon Emperor', vi: 'Hoàng Đế Rồng Vàng' }, glow: '#ffd34e' },
-    dragonform: { name: { en: 'Great Dragon', vi: 'Rồng Lớn' }, glow: '#ff7a2a' }, thunderkirin: { name: { en: 'Thunder Kirin', vi: 'Kỳ Lân Sấm' }, glow: '#9fe8ff' },
-    skywhale: { name: { en: 'Sky Whale', vi: 'Cá Voi Trời' }, glow: '#cfe8ff' }, ninetail: { name: { en: 'Nine-Tailed Fox', vi: 'Cửu Vĩ Hồ' }, glow: '#ff9a4a' },
-    clones: { name: { en: 'Shadow Copies', vi: 'Bản Sao Bóng Tối' }, glow: '#a15be0' }
+    phoenix: { name: { en: 'Relit Phoenix', vi: 'Phượng Hoàng Hồi Sinh' }, glow: '#ff9a2a' }, dragonking: { name: { en: 'Elder Goldscale', vi: 'Rồng Vàng Cổ Đại' }, glow: '#ffd34e' },
+    dragonform: { name: { en: 'Coalheart Drake', vi: 'Rồng Lửa Than Hồng' }, glow: '#ff7a2a' }, thunderkirin: { name: { en: 'Boltmane Qilin', vi: 'Kỳ Lân Tia Chớp' }, glow: '#9fe8ff' },
+    skywhale: { name: { en: 'Lightwhale', vi: 'Cá Voi Ánh Sáng' }, glow: '#cfe8ff' }, ninetail: { name: { en: 'Azure Vixen', vi: 'Hồ Ly Lửa Xanh' }, glow: '#ff9a4a' },
+    clones: { name: { en: 'Shadow Trio', vi: 'Ba Bóng Vọng' }, glow: '#a15be0' }
   };
   const sumName = k => LN((GIANT[k] || BEAST[k]).name);
   function giantPaint(P, o, part) {
@@ -6827,7 +6827,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   const GAIT_SP = { heavy: 26, stalk: 30, glide: 38, swagger: 30, gallop: 64, soar: 52 };
   const SUM_ENG = { titan: 'leap', golems: 'leap', frostgiant: 'leap', treant: 'leap', valkyrie: 'leap', stormgod: 'tele', moongoddess: 'tele', angel: 'tele', sunemperor: 'tele', seagoddess: 'tele', clones: 'shadow', ninetail: 'shadow', shogun: 'shadow', thunderkirin: 'dash', aegis: 'dash', phoenix: 'dive', dragonking: 'dive', dragonform: 'dive', skywhale: 'dive' };
   const SUM_EVO = { clones: 14, ninetail: 14, shogun: 15, titan: 18, golems: 16, frostgiant: 18, treant: 18, stormgod: 15, thunderkirin: 14, valkyrie: 15, moongoddess: 16, angel: 16, sunemperor: 18, aegis: 16, seagoddess: 16, phoenix: 15, dragonking: 17, dragonform: 15, skywhale: 16 };
-  function spawnSummon(kind, life, owner, evo, from) {
+  function spawnSummon(kind, life, owner, evo, from, label) {
     const o = owner || Q.P, G = Q.G; if (!G.sums) G.sums = [];
     const B = Q.boss, tg = B && Q.arenaSealed && !B.dead && !B.hide ? B : nearestFoe(o.x + 4, o.y, 600), dir = tg ? (tg.x + tg.w / 2 < o.x + 4 ? -1 : 1) : o.face;
     const ent = SUM_ENT[kind] || 'beam', fly = !!SUM_FLY[kind], glow = (GIANT[kind] || BEAST[kind]).glow;
@@ -6840,7 +6840,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (ent === 'swoop') { sm.x = sm.sx0 = x - dir * 220; sm.y = sm.sy0 = y - 120; }
     G.sums.push(sm);
     Snd.play('relic'); if (ent === 'shadow') { addRing(o.x + 4, o.y + o.h, '#5a2a8a', 40, 0.6); } else { G.flash = Math.max(G.flash || 0, 0.12); }
-    pop(o.x + 4, o.y - 26, sumName(kind) + '!', glow);
+    pop(o.x + 4, o.y - 26, (label ? LN(label) : sumName(kind)) + '!', glow);
   }
   function sumIntro(s, o, dt) {
     s.pt += dt; const k = s.pt, H = SUM_H[s.kind] || 50, glow = (GIANT[s.kind] || BEAST[s.kind]).glow, tg = sumTarget(s), fly = !!SUM_FLY[s.kind];
@@ -7051,7 +7051,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   function skNeed(it) { return it.st.summon || it.st.form ? 22 : it.type === 'armor' ? 16 : it.type === 'pet' ? 14 : 12; }
   function skName(it) {
     if (it.st.summon) return sv('Summon ', 'Triệu hồi ') + sumName(it.st.summon);
-    if (it.st.form) return sv('Transform: ', 'Biến hình: ') + sumName(it.st.form);
+    if (it.st.form) return sv('Transform: ', 'Biến hình: ') + (it.st.formName ? LN(it.st.formName) : sumName(it.st.form));
     return LN({ sword: { en: 'Blade Wave', vi: 'Kiếm Khí' }, gun: { en: 'Bullet Storm', vi: 'Bão Đạn' }, armor: { en: 'Divine Shield', vi: 'Khiên Thần' }, pet: { en: 'Healing Bond', vi: 'Hồi Máu Đồng Hành' } }[it.type] || { en: 'Shockwave', vi: 'Sóng Chấn' });
   }
   const isMe = P => !coop || P === Q.me;
@@ -7074,7 +7074,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     P.chg[i] = 0; const x = P.x + 4, y = P.y + 7, f = P.face, col = RARITY_COL[it.rar] || '#ffd34e', st = it.st;
     pop(x, P.y - 22, skName(it) + '!', col); addRing(x, y, col, 70, 0.5); Q.shake = Math.max(Q.shake, 0.3);
     if (st.summon) { spawnSummon(st.summon, 30, P, true); return; }
-    if (st.form) { petMorph(P, st.form); return; }
+    if (st.form) { petMorph(P, st.form, st.formName); return; }
     const d = baseDmg() + (st.dmg || 0) + 2;
     if (it.type === 'sword') { Snd.play('slash'); for (let k = -1; k <= 1; k++) shootG({ x: x + f * 8, y: y + k * 7, vx: f * 300, vy: k * 18, life: 0.9, dmg: d * 2, thru: true, pierceN: 99, shape: 'wind', col, sz: 10, f, skill: true }); }
     else if (it.type === 'gun') { Snd.play('explode'); for (let k = 0; k < 11; k++) { const a = (k - 5) * 0.07; shootG({ x: x + f * 8, y, vx: Math.cos(a) * f * 380, vy: Math.sin(a) * 380, life: 0.8, dmg: d, pierceN: 2, shape: 'bolt', col, sz: 3, f, skill: true }); } }
@@ -7124,8 +7124,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }
   }
   // ===== the pet's transformation: 3 seconds of light, then its Ancient form steps out =====
-  function petMorph(P, kind) {
-    const G = Q.G; G.morph = { t: 0, dur: 3, kind, owner: P }; Snd.play('relic'); Snd.cineHit && Snd.cineHit('rise');
+  function petMorph(P, kind, label) {
+    const G = Q.G; G.morph = { t: 0, dur: 3, kind, owner: P, label }; Snd.play('relic'); Snd.cineHit && Snd.cineHit('rise');
     Q.msg = sv('Your pet is transforming...', 'Pet của bạn đang biến hình...'); Q.msgT = 3;
   }
   function updateMorph(dt) {
@@ -7133,7 +7133,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (Math.random() < 0.9) { const a = m.t * 9 + Math.random() * 6, r = 26 * (1 - k) + 6; emit(x + Math.cos(a) * r, y + Math.sin(a) * r * 0.6, 1, { col: [(GIANT[m.kind] || BEAST[m.kind]).glow, '#ffffff', '#ffd34e'], sp0: 4, sp1: 18, grav: -30, l0: 0.3, l1: 0.6 }); }
     if (Math.floor(m.t * 2) !== Math.floor((m.t - dt) * 2)) { addRing(x, y, (GIANT[m.kind] || BEAST[m.kind]).glow, 30 + k * 50, 0.4); Snd.play('chime'); }
     Q.shake = Math.max(Q.shake, 0.05 + k * 0.2);
-    if (m.t >= m.dur) { G.morph = null; G.flash = Math.max(G.flash || 0, 0.35); Snd.play('explode'); addRing(x, y, '#ffffff', 120, 0.5); emit(x, y, 50, { col: [(GIANT[m.kind] || BEAST[m.kind]).glow, '#fff', '#ffd34e'], sp0: 40, sp1: 200 }); spawnSummon(m.kind, 30, m.owner, true, { x, y: pt ? pt.y : m.owner.y + m.owner.h }); }
+    if (m.t >= m.dur) { G.morph = null; G.flash = Math.max(G.flash || 0, 0.35); Snd.play('explode'); addRing(x, y, '#ffffff', 120, 0.5); emit(x, y, 50, { col: [(GIANT[m.kind] || BEAST[m.kind]).glow, '#fff', '#ffd34e'], sp0: 40, sp1: 200 }); spawnSummon(m.kind, 30, m.owner, true, { x, y: pt ? pt.y : m.owner.y + m.owner.h }, m.label); }
   }
   function summonItems() { return [save.inv.w[0], save.inv.w[1], save.inv.armor].filter(id => id && ITEM[id] && ITEM[id].st.summon); }
   function castSummons() {
@@ -7444,8 +7444,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         break; }
       case 'dragonbreath': {
         Snd.play('flame'); for (let i = 0; i < 6; i++) shot({ dmg: wd(4), shape: 'fire', burn: 4, life: 0.6, sz: 4, col: i % 2 ? '#ff7a2a' : '#ffb02a', trail: '#ffd34e', thru: true, pierceN: 3 }, rr(-0.28, 0.28), rr(200, 290));
-        if (nth(5)) { pops(sv('GREAT DRAGON', 'RỒNG LỚN'), '#ff7a2a'); spawnSummon('dragonform', 5, P); }
-        if (nth(14)) { pops(sv('DRAGON EMPEROR', 'HOÀNG ĐẾ RỒNG'), '#ffd34e'); spawnSummon('dragonking', 6, P); }
+        if (nth(5)) { pops(sumName('dragonform').toUpperCase(), '#ff7a2a'); spawnSummon('dragonform', 5, P); }
+        if (nth(14)) { pops(sumName('dragonking').toUpperCase(), '#ffd34e'); spawnSummon('dragonking', 6, P); }
         break; }
       case 'omega': {
         Snd.play('laser'); shot({ dmg: wd(10), shape: 'beam', col: '#d58bff', trail: '#ff4af0', sz: 5, life: 0.55, thru: true, pierceN: 99 }, rr(-0.012, 0.012), 820);
@@ -7455,8 +7455,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         break; }
       case 'celestial': {
         Snd.play('laser'); for (const da of [-0.12, 0, 0.12]) shot({ dmg: wd(6), shape: 'orb', home: true, col: '#fff6c0', trail: '#ffd34e', sz: 3, life: 1.6 }, da, 260);
-        if (nth(6)) { pops(sv('ARCHANGEL', 'THIÊN THẦN'), '#fff6c0'); spawnSummon('angel', 5, P); }
-        if (nth(15)) { pops(sv('SUN EMPEROR', 'HOÀNG ĐẾ MẶT TRỜI'), '#ffe08a'); spawnSummon('sunemperor', 4, P); }
+        if (nth(6)) { pops(sumName('angel').toUpperCase(), '#fff6c0'); spawnSummon('angel', 5, P); }
+        if (nth(15)) { pops(sumName('sunemperor').toUpperCase(), '#ffe08a'); spawnSummon('sunemperor', 4, P); }
         if (nth(20)) { pops(sv('DIVINE JUDGMENT!', 'PHÁN XÉT THIÊN THẦN!'), '#ffffff'); Snd.play('thunder'); G.flash = Math.max(G.flash || 0, 0.35); Q.shake = Math.max(Q.shake, 0.6); for (const e of foes()) if (e.x > Q.cam.x - 20 && e.x < Q.cam.x + VW + 20 && e.y > Q.cam.y - 20 && e.y < Q.cam.y + VH + 20) { const cx = e.x + e.w / 2; zap(cx, Q.cam.y - 6, cx, e.y + e.h / 2); dmgFoe(e, wd(16), true, true); } healAll(2); }
         break; }
     }
