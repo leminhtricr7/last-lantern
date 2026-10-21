@@ -616,3 +616,8 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
 - Loudness: each id plays through its own gain bus. `BAL` (roars) and `KG` (skills per role, footsteps) were measured
   with `Snd.meter` so every roar peaks near -14 dBFS on the effects bus (Quoc's last form a little louder), skills near
   -24 and footsteps near -30. `tools/soundtest.html` (dev only) plays every voice, skill, step and theme and re-measures.
+- Footsteps by surface (phase 5, D): `surfUnder(P)` in game.js reads the tile under the hero: the map's ground
+  (`GROUND_SURF`: grass, mud, sand, snow, stone, dirt), its floating ledges (`LEDGE_SURF`: wood, stone or ice), ice
+  tiles, a moving platform (metal) or water, and plays `Snd.surf(kind)`. `nearSounds` adds a torch crackle when you pass
+  a torch, bubbling when lava is close, and a gust of wind when you stand high up outdoors. Co-op guests play their own
+  footsteps and nearby sounds locally.

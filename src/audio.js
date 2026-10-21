@@ -345,6 +345,28 @@ const Snd = (() => {
     }
   }
   function stop() { if (timer) clearInterval(timer); timer = null; curKey = ''; cur = null; }
+  // phase 5 (D): footsteps by the surface under your feet, at the same level as the per-map steps above
+  const SURF = {
+    grass(r) { noise(0.06, 0.07 + r * 0.03, 1100, 0, sfxG); tone(110 + r * 30, 0.05, 'sine', 0.05, -30); },
+    dirt(r) { noise(0.07, 0.075, 600, 0, sfxG); tone(90 + r * 20, 0.05, 'sine', 0.055, -25); },
+    mud(r) { noise(0.09, 0.07, 450, 0, sfxG); tone(130 + r * 30, 0.07, 'sine', 0.05, -50); if (r < 0.3) tone(300 + r * 300, 0.05, 'sine', 0.02, 300); },
+    stone(r) { tone(280 + r * 90, 0.035, 'square', 0.04, -80); noise(0.05, 0.06, 2400, 0, sfxG); },
+    wood(r) { tone(190 + r * 30, 0.06, 'triangle', 0.08, -60); tone(380 + r * 40, 0.03, 'square', 0.02, -100); noise(0.03, 0.04, 1500, 0, sfxG); },
+    metal(r) { tone(620 + r * 80, 0.07, 'square', 0.02, -150); tone(1240 + r * 100, 0.12, 'sine', 0.025); noise(0.03, 0.045, 3000, 0, sfxG); },
+    sand(r) { noise(0.1, 0.055 + r * 0.01, 650, 0, sfxG); },
+    snow() { noise(0.08, 0.1, 1800, 0, sfxG); noise(0.05, 0.06, 3600, ac.currentTime + 0.03, sfxG); },
+    ice(r) { tone(1600 + r * 400, 0.03, 'sine', 0.03, -600); noise(0.04, 0.05, 3500, 0, sfxG); tone(220, 0.03, 'square', 0.025, -60); },
+    water(r) { noise(0.12, 0.075, 700, 0, sfxG); tone(300 + r * 100, 0.08, 'sine', 0.035, 250); }
+  };
+  function surf(kind) { if (!ac) return; const f = SURF[kind]; if (f) f(Math.random()); }
+  // small sounds near things in the world (played on the ambience bus): a torch, bubbling lava, wind up high
+  function near(kind) {
+    if (!ac || !ambG) return; const t = ac.currentTime;
+    if (kind === 'torch') { for (let i = 0; i < 3; i++) noise(0.03, 0.03 + Math.random() * 0.02, 2600, t + Math.random() * 0.3, ambG); noise(0.4, 0.02, 500, t, ambG); }
+    else if (kind === 'lava') { tone(120 + Math.random() * 80, 0.14, 'sine', 0.05, -60, t, ambG); noise(0.2, 0.04, 200, t + 0.05, ambG); }
+    else if (kind === 'wind') { const s2 = ac.createBufferSource(); s2.buffer = noiseBuf; const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 2; bp.frequency.setValueAtTime(300, t); bp.frequency.linearRampToValueAtTime(700, t + 1.2); bp.frequency.linearRampToValueAtTime(350, t + 2.4);
+      const g2 = ac.createGain(); g2.gain.setValueAtTime(0.0001, t); g2.gain.exponentialRampToValueAtTime(0.07, t + 1); g2.gain.exponentialRampToValueAtTime(0.001, t + 2.5); s2.connect(bp); bp.connect(g2); g2.connect(ambG); s2.start(t, Math.random() * 0.4); s2.stop(t + 2.6); }
+  }
   // ---------- cinematic score (intro / outro films): pads, piano, strings, taiko and brass instead of the EDM engine ----------
   let cin = null;
   const CINE = {   // chords as MIDI notes; bpm; layers
@@ -760,5 +782,5 @@ const Snd = (() => {
     });
   }
   function setBal(id, g, role) { if (role) (KG[id] = KG[id] || {})[role] = g; else BAL[id] = g; for (const k in busC) if (k === id || k.indexOf(id + ':') === 0) busC[k].gain.value = busGain(k); }
-  return { init, play, boss, bossSkill, bossStep, dragon, summon, meter, setBal, BAL, KG, creature, monster, ambience, ambVol, step: foot, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, cine, cineHit, setVol, setMusicVol, setSfxVol, setMuted, get mVol() { return mVol; }, get sVol() { return sVol; }, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
+  return { init, play, surf, near, boss, bossSkill, bossStep, dragon, summon, meter, setBal, BAL, KG, creature, monster, ambience, ambVol, step: foot, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, cine, cineHit, setVol, setMusicVol, setSfxVol, setMuted, get mVol() { return mVol; }, get sVol() { return sVol; }, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
 })();

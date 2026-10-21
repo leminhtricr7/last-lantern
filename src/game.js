@@ -1553,7 +1553,7 @@
     } else P.safeT = 0;
     // footsteps that sound like the ground, and a splash when you dive in
     P.stepT = (P.stepT || 0) - dt;
-    if (P.onGround && Math.abs(P.vx) > 45 && P.stepT <= 0 && !P.isGhostP) { P.stepT = 0.27; if (!wetP(P)) Snd.step(Q.B.id); }
+    if (P.onGround && Math.abs(P.vx) > 45 && P.stepT <= 0 && !P.isGhostP) { P.stepT = 0.27; Snd.surf(surfUnder(P)); }
     { const w = wetP(P); if (P.wasWet === false && w) { Snd.play('splash'); emit(P.x + 4, P.y + 6, 14, { col: ['#bfeaff', '#fff'], sp0: 30, sp1: 110, vy: -60 }); } P.wasWet = w; }
     // run dust
     if (P.onGround && Math.abs(P.vx) > 60 && Math.random() < 0.15) emit(P.x + 4, P.y + P.h, 1, { col: '#cfd6e6', sp0: 3, sp1: 10, vy: -8, grav: 20, l0: 0.2, l1: 0.35 });
@@ -2511,6 +2511,26 @@
     Q.projs = Q.projs.filter(p => !p.dead);
   }
 
+  // phase 5 (D): what the hero is standing on decides the footstep: the map's ground, its floating ledges, ice, a moving
+  // platform, or water
+  const GROUND_SURF = { meadow: 'grass', forest: 'grass', caves: 'stone', desert: 'sand', frost: 'snow', volcano: 'stone', citadel: 'stone', swamp: 'mud', ocean: 'sand', tunnels: 'dirt' };
+  const LEDGE_SURF = { meadow: 'wood', forest: 'wood', caves: 'stone', desert: 'wood', frost: 'ice', volcano: 'stone', citadel: 'stone', swamp: 'wood', ocean: 'stone', tunnels: 'wood' };
+  function surfUnder(P) {
+    if (wetP(P)) return 'water';
+    if (P.riding) return 'metal';
+    const by = Math.floor((P.y + P.h + 1) / TS), c = ch(Math.floor((P.x + P.w / 2) / TS), by), id = Q.B.id;
+    if (c === 'I') return 'ice';
+    if (c === '=') return LEDGE_SURF[id] || 'wood';
+    return GROUND_SURF[id] || 'grass';
+  }
+  // phase 5 (D): small sounds near things: a torch, bubbling lava, wind when you stand high up outdoors
+  function nearSounds(dt) {
+    const P = Q.me || Q.P; if (!P || Q.state !== 'play') return; Q.nearT = (Q.nearT || 0) - dt; if (Q.nearT > 0) return; Q.nearT = 0.45;
+    const B = Q.B, px = P.x + P.w / 2, py = P.y + P.h / 2;
+    for (const d of Q.L.decor) if (Math.abs(d.x - px) < 34 && Math.abs(d.y - py) < 30 && B.decor[d.k][0] === 'torch') { Snd.near('torch'); break; }
+    if (B.hazard === 'lava' && Math.random() < 0.5) { const tx = Math.floor(px / TS), ty = Math.floor(py / TS); search: for (let dx = -3; dx <= 3; dx++) for (let dy = 0; dy <= 4; dy++) if (ch(tx + dx, ty + dy) === '~') { Snd.near('lava'); break search; } }
+    if ((B.sun || B.id === 'swamp') && !B.water && py < 3.5 * TS && Math.random() < 0.12) Snd.near('wind');
+  }
   // ----- NPC dialogue & shop -----
   function startTalk(it) {
     const d = (DLG[Q.li] || {})[it.who] || NPCS[it.who].generic || [{ en: '...', vi: '...' }];
@@ -3617,7 +3637,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (Q.shake > 0) Q.shake -= dt;
     if (Q.msgT > 0) Q.msgT -= dt;
     if (Q.wishT > 0) Q.wishT -= dt;
-    updatePlats(dt); updateCrumble(dt);
+    updatePlats(dt); updateCrumble(dt); nearSounds(dt);
     if (st === 'bossintro' && !(Q.boss && Q.boss.st === 'intro')) Q.state = 'play'; // never get stuck in the intro
     if (st === 'bossintro') { asP(coop ? bossTgt(dt) : Q.P, () => updateBoss(dt)); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
     if (!Q.P.down) updatePlayer(dt);
@@ -6154,6 +6174,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (edge || key !== coop.lastIn || (coop.inT -= 1 / 60) <= 0) { coop.lastIn = key; coop.inT = 0.25; NET.send(m); }
   }
   function coopClientTick(dt) {
+    { const P = Q && Q.me; if (P && Q.state === 'play') { P.stepT = (P.stepT || 0) - dt; if (P.onGround && Math.abs(P.vx) > 45 && P.stepT <= 0) { P.stepT = 0.27; Snd.surf(surfUnder(P)); } nearSounds(dt); } }   // a guest hears its own footsteps and nearby sounds
     if (!Q) return;
     coop.since += dt; Q.t += dt; sceneT += dt;
     if (coop.since < 0.15) {
