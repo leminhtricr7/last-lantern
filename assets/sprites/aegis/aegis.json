@@ -1,0 +1,78 @@
+{
+ "name": "aegis",
+ "cell": [
+  78,
+  82
+ ],
+ "anchor": [
+  29,
+  79
+ ],
+ "facing": "right",
+ "palette": [
+  "#140c02",
+  "#7a5a10",
+  "#b88a1c",
+  "#e0b840",
+  "#fff0a0",
+  "#1a3a8a",
+  "#2a5ac8",
+  "#4a8bf0",
+  "#9ac0ff",
+  "#c8a070",
+  "#ffe8b0",
+  "#a8a8b8",
+  "#ffffff",
+  "#ffe08a"
+ ],
+ "notes": "Dawnward Warden: gold plate, a blue cape and plume, a tall shield with a sun boss.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "aegis_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "aegis_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "aegis_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "aegis_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "aegis_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "aegis_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "aegis_spawn.png"
+  }
+ },
+ "body": [
+  48,
+  58
+ ],
+ "flyer": false
+}

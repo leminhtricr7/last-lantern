@@ -1,0 +1,86 @@
+{
+ "name": "stormgod_evo",
+ "cell": [
+  195,
+  183
+ ],
+ "anchor": [
+  44,
+  180
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a0c1e",
+  "#2a2a6a",
+  "#3a4a9a",
+  "#5a70c8",
+  "#8aa8ee",
+  "#8aa0c8",
+  "#cfe8ff",
+  "#a87a14",
+  "#ffd34e",
+  "#9fe8ff",
+  "#ffffff",
+  "#8a6a14",
+  "#c8a030",
+  "#fff0a0",
+  "#a8b8d8",
+  "#f0f6ff"
+ ],
+ "notes": "Thunderpeal Lord: storm robes, white hair and beard, golden horns, a staff that throws lightning. Final form.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "stormgod_evo_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "stormgod_evo_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "stormgod_evo_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "stormgod_evo_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "stormgod_evo_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "stormgod_evo_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "stormgod_evo_spawn.png"
+  },
+  "evolve": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "stormgod_evo_evolve.png"
+  }
+ },
+ "body": [
+  60,
+  110
+ ],
+ "flyer": false
+}

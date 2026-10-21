@@ -1,0 +1,45 @@
+{
+ "name": "pet_kitsune",
+ "cell": [
+  28,
+  21
+ ],
+ "anchor": [
+  15,
+  17
+ ],
+ "facing": "right",
+ "palette": [
+  "#08101e",
+  "#3a5a9a",
+  "#6a90d0",
+  "#a8c8f0",
+  "#e8f4ff",
+  "#c8d8f0",
+  "#ffffff",
+  "#3ab0ff",
+  "#bff0ff",
+  "#ffd34e",
+  "#1a5ad8"
+ ],
+ "notes": "Azure Kit (pet).",
+ "states": {
+  "idle": {
+   "frames": 4,
+   "fps": 6,
+   "loop": true,
+   "file": "pet_kitsune_idle.png"
+  },
+  "walk": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "pet_kitsune_walk.png"
+  }
+ },
+ "body": [
+  22,
+  16
+ ],
+ "flyer": false
+}

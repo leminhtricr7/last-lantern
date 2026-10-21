@@ -1,0 +1,80 @@
+{
+ "name": "dragonking",
+ "cell": [
+  106,
+  80
+ ],
+ "anchor": [
+  52,
+  41
+ ],
+ "facing": "right",
+ "palette": [
+  "#1e1404",
+  "#8a6a14",
+  "#c8a030",
+  "#ffd34e",
+  "#fff0a0",
+  "#c8b890",
+  "#e8dcc0",
+  "#fff6e0",
+  "#ffffff",
+  "#0e4a5a",
+  "#1a7a8a",
+  "#2aa0b8",
+  "#6ad8e8",
+  "#a89878",
+  "#ff3a2a",
+  "#fff6c0"
+ ],
+ "notes": "Elder Goldscale: a golden dragon with teal wings and long pale whiskers.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "dragonking_idle.png"
+  },
+  "walk": {
+   "frames": 6,
+   "fps": 12,
+   "loop": true,
+   "file": "dragonking_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "dragonking_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "dragonking_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "dragonking_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "dragonking_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "dragonking_spawn.png"
+  }
+ },
+ "body": [
+  69,
+  48
+ ],
+ "flyer": true
+}

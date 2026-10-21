@@ -1,0 +1,83 @@
+{
+ "name": "dragonform",
+ "cell": [
+  103,
+  78
+ ],
+ "anchor": [
+  51,
+  40
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a0604",
+  "#1a1412",
+  "#2e2622",
+  "#4a3e38",
+  "#6a5a50",
+  "#8a2a0a",
+  "#c84a12",
+  "#ff7a2a",
+  "#ffc070",
+  "#140e0c",
+  "#2a1e1a",
+  "#4a3028",
+  "#7a4a30",
+  "#c8b8a8",
+  "#ffd34e",
+  "#ffffff",
+  "#ff4a0a",
+  "#ff9a2a",
+  "#ffe08a"
+ ],
+ "notes": "Coalheart Drake: a charcoal dragon with lava glowing through cracks in its hide.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "dragonform_idle.png"
+  },
+  "walk": {
+   "frames": 6,
+   "fps": 12,
+   "loop": true,
+   "file": "dragonform_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "dragonform_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "dragonform_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "dragonform_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "dragonform_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "dragonform_spawn.png"
+  }
+ },
+ "body": [
+  68,
+  46
+ ],
+ "flyer": true
+}

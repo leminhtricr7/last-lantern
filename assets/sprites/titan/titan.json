@@ -1,0 +1,80 @@
+{
+ "name": "titan",
+ "cell": [
+  145,
+  136
+ ],
+ "anchor": [
+  45,
+  133
+ ],
+ "facing": "right",
+ "palette": [
+  "#140e08",
+  "#4a3a2a",
+  "#7a6248",
+  "#a88a64",
+  "#d0b488",
+  "#2e5a1e",
+  "#4a8a2a",
+  "#7ed957",
+  "#bff08a",
+  "#8a6a1a",
+  "#e0b040",
+  "#e0ffb0",
+  "#3e3e4a",
+  "#6a6a7a",
+  "#9a9aaa",
+  "#d0d0dc"
+ ],
+ "notes": "Earthvein Colossus: a giant of brown rock with glowing green veins, a gold crown and a stone maul.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "titan_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "titan_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "titan_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "titan_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "titan_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "titan_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "titan_spawn.png"
+  }
+ },
+ "body": [
+  58,
+  70
+ ],
+ "flyer": false
+}

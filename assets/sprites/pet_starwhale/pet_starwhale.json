@@ -1,0 +1,44 @@
+{
+ "name": "pet_starwhale",
+ "cell": [
+  26,
+  19
+ ],
+ "anchor": [
+  16,
+  9
+ ],
+ "facing": "right",
+ "palette": [
+  "#060a1e",
+  "#141e5a",
+  "#24349a",
+  "#3a50c8",
+  "#6a84e8",
+  "#a8c0f0",
+  "#e8f4ff",
+  "#ffe08a",
+  "#ffffff",
+  "#cfe8ff"
+ ],
+ "notes": "Starfin Calf (pet). Flyer.",
+ "states": {
+  "idle": {
+   "frames": 4,
+   "fps": 6,
+   "loop": true,
+   "file": "pet_starwhale_idle.png"
+  },
+  "walk": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "pet_starwhale_walk.png"
+  }
+ },
+ "body": [
+  22,
+  11
+ ],
+ "flyer": true
+}

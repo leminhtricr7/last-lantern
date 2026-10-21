@@ -1,0 +1,86 @@
+{
+ "name": "shogun_evo",
+ "cell": [
+  132,
+  141
+ ],
+ "anchor": [
+  39,
+  134
+ ],
+ "facing": "right",
+ "palette": [
+  "#06040a",
+  "#14121f",
+  "#2a2638",
+  "#4a4460",
+  "#7a7490",
+  "#3a0a10",
+  "#6a1420",
+  "#a02030",
+  "#d04050",
+  "#8a1420",
+  "#e03a4a",
+  "#ff3a5a",
+  "#ffd0d8",
+  "#5a5a6a",
+  "#a8a8b8",
+  "#e8e8f0"
+ ],
+ "notes": "Unshadowed General: lacquered black armour with red cords, a crescent-crested helmet, a mask that glows, a long blade. Final form.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "shogun_evo_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "shogun_evo_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "shogun_evo_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "shogun_evo_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "shogun_evo_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "shogun_evo_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "shogun_evo_spawn.png"
+  },
+  "evolve": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "shogun_evo_evolve.png"
+  }
+ },
+ "body": [
+  38,
+  87
+ ],
+ "flyer": false
+}

@@ -1,0 +1,74 @@
+{
+ "name": "golems",
+ "cell": [
+  70,
+  68
+ ],
+ "anchor": [
+  29,
+  65
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a0a10",
+  "#3a3a4a",
+  "#5a5a6a",
+  "#8a8a9a",
+  "#b8b8c8",
+  "#2a4a1e",
+  "#3a6a2a",
+  "#7ed957",
+  "#bff08a",
+  "#e0ffb0"
+ ],
+ "notes": "Gateguard Twins: two squat guardians of grey stone with green rune-light; they punch and slam.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "golems_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "golems_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "golems_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "golems_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "golems_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "golems_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "golems_spawn.png"
+  }
+ },
+ "body": [
+  34,
+  42
+ ],
+ "flyer": false
+}

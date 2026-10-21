@@ -1,0 +1,80 @@
+{
+ "name": "frostgiant",
+ "cell": [
+  152,
+  146
+ ],
+ "anchor": [
+  45,
+  143
+ ],
+ "facing": "right",
+ "palette": [
+  "#060c1a",
+  "#2a4a7a",
+  "#3a6aa8",
+  "#6a9ad8",
+  "#a8d0f8",
+  "#1a2a5a",
+  "#2a3a7a",
+  "#3a5aa0",
+  "#5a7ac0",
+  "#5aa0c8",
+  "#9fe0f8",
+  "#a8c8e0",
+  "#ffffff",
+  "#9fe8ff",
+  "#5a8ab0",
+  "#8ac0e0"
+ ],
+ "notes": "Glacierfang Giant: ice-blue skin, a white beard, a fur kilt, horns and a hammer of ice.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "frostgiant_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "frostgiant_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "frostgiant_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "frostgiant_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "frostgiant_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "frostgiant_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "frostgiant_spawn.png"
+  }
+ },
+ "body": [
+  61,
+  78
+ ],
+ "flyer": false
+}

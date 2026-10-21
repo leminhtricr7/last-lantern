@@ -1,0 +1,79 @@
+{
+ "name": "angel",
+ "cell": [
+  108,
+  100
+ ],
+ "anchor": [
+  44,
+  97
+ ],
+ "facing": "right",
+ "palette": [
+  "#1a140a",
+  "#c8b890",
+  "#e8dcc0",
+  "#fff6e0",
+  "#ffffff",
+  "#d8b898",
+  "#fff0e0",
+  "#b07a10",
+  "#ffd34e",
+  "#fff6c0",
+  "#c8a030",
+  "#c8a050",
+  "#ffe8a0",
+  "#b8b0a0",
+  "#e8e4d8"
+ ],
+ "notes": "Aureole Herald: white robes with gold trim, a halo, great white wings and a sword of light.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "angel_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "angel_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "angel_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "angel_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "angel_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "angel_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "angel_spawn.png"
+  }
+ },
+ "body": [
+  54,
+  65
+ ],
+ "flyer": false
+}

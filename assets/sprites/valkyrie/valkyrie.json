@@ -1,0 +1,80 @@
+{
+ "name": "valkyrie",
+ "cell": [
+  118,
+  83
+ ],
+ "anchor": [
+  41,
+  80
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a0c18",
+  "#5a6280",
+  "#8a92b0",
+  "#b8c0d8",
+  "#eef2ff",
+  "#3a4a7a",
+  "#5a6aa0",
+  "#8a9ac8",
+  "#c0ccec",
+  "#c8a088",
+  "#ffe0c8",
+  "#a87a14",
+  "#ffd34e",
+  "#6ec8ff",
+  "#ffffff",
+  "#6a7ab0"
+ ],
+ "notes": "Starspear Maiden: silver mail, a winged helm, golden braids, white wings and a starlit spear.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "valkyrie_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "valkyrie_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "valkyrie_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "valkyrie_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "valkyrie_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "valkyrie_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "valkyrie_spawn.png"
+  }
+ },
+ "body": [
+  54,
+  60
+ ],
+ "flyer": false
+}

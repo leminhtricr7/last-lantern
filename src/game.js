@@ -2761,6 +2761,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   const eqHas = k => save.inv.w.some(id => ITEM[id] && ITEM[id].st[k]);
   const wd = d => d + Math.floor((baseDmg() - 1) / 2);
   const isBig = e => !!(e.isBoss || e.v === 'elite' || (e.sc || 1) > 1.2 || (e.maxhp || 0) >= 6);
+  const PET_SHEET = { wyrmling: 1, kirin: 1, pebblegolem: 1, starwhale: 1, kitsune: 1 };   // pets with a phase 3B sheet (assets/sprites/pet_<id>)
   const FLY_PET = { leekpet: 1, wyrmling: 1, starwhale: 1, kitsune: 0, birdie: 1, fairy: 1, owl: 1, bat: 1, wisp: 1, bdragon: 1, ghostie: 1, pchick: 1 };
   const hexA = (h, a) => { const n = parseInt(h.substr(1), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; };
   function heldSword() {
@@ -3084,7 +3085,9 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (pt && !(G.petForm > 0)) { const sp = petSprite(pt.id), fly = FLY_PET[pt.id], hop = fly ? 0 : (Math.abs(P.vx) > 20 ? -Math.abs(Math.sin(pt.t * 14)) * 2 : 0), off = pt.lunge > 0 ? pt.tdir * 5 : 0; const pvx = (pt.x - (pt.lx === undefined ? pt.x : pt.lx)) * 60; pt.lx = pt.x; const mo = G.morph, PA = animPose(fly ? 'idle' : (Math.abs(pvx) > 90 ? 'run' : Math.abs(pvx) > 8 ? 'walk' : 'idle'), pt.t, pt.f < 0 ? -1 : 1, 0);
       if (mo) { const k = mo.t / mo.dur, gw = 1 + k * 0.9 + Math.sin(mo.t * 30) * 0.08 * k; PA.sx *= gw; PA.sy *= gw; PA.rot += Math.sin(mo.t * 12) * 0.2 * k; drawAura(Math.round(pt.x - camX), Math.round(pt.y - camY - 8), 18 + k * 30, (GIANT[mo.kind] || BEAST[mo.kind]).glow, 0.4 + k * 0.4); }
       { const pit = ITEM[pt.id]; if (pit && pit.rar >= 3 && !mo) rarFx(pit.rar, pt.x - camX, pt.y - camY - 6, 5); }
-      drawSprT(g, sp, Math.round(pt.x - camX + off + PA.ox), Math.round(pt.y - camY + (fly ? hop : 0) + PA.oy), pt.f < 0, !!mo && Math.floor(mo.t * (6 + mo.t * 6)) % 2 === 0, PA.sx, PA.sy, PA.rot, pt.id === 'ghostie' ? 0.75 : 1); }
+      let psp = sp, pdx = 0, pdy = 0;
+      if (PET_SHEET[pt.id] && typeof loadSheet === 'function') { const PS = loadSheet('pet_' + pt.id); if (PS.ready) { const q = PS.st[Math.abs(pvx) > 8 ? 'walk' : 'idle'] || PS.st.idle; psp = q.fr[Math.floor(pt.t * q.fps) % q.fr.length]; pdx = (psp.w / 2 - psp.ax) * (pt.f < 0 ? -1 : 1); pdy = PS.m.flyer ? psp.h - psp.ay - 8 : psp.h - 1 - psp.ay; } }   // phase 3B pixel-art pets
+      drawSprT(g, psp, Math.round(pt.x - camX + off + PA.ox + pdx), Math.round(pt.y - camY + (fly ? hop : 0) + PA.oy + pdy), pt.f < 0, !!mo && Math.floor(mo.t * (6 + mo.t * 6)) % 2 === 0, PA.sx, PA.sy, PA.rot, pt.id === 'ghostie' ? 0.75 : 1); }
     if (G.god) {
       const gd = G.god, gs = godSprite(), x = Math.round(gd.x - camX), y = Math.round(gd.y - camY), a = Math.min(1, gd.life / 0.8, gd.t / 0.4);
       g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x, y + 10, 0, x, y + 10, 46); gr.addColorStop(0, 'rgba(255,230,90,' + 0.4 * a + ')'); gr.addColorStop(1, 'rgba(255,230,90,0)'); g.fillStyle = gr; g.fillRect(x - 46, y - 40, 92, 100); g.globalCompositeOperation = 'source-over';
@@ -6822,7 +6825,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   const BEAST = {
     phoenix: { name: { en: 'Relit Phoenix', vi: 'Phượng Hoàng Hồi Sinh' }, glow: '#ff9a2a' }, dragonking: { name: { en: 'Elder Goldscale', vi: 'Rồng Vàng Cổ Đại' }, glow: '#ffd34e' },
     dragonform: { name: { en: 'Coalheart Drake', vi: 'Rồng Lửa Than Hồng' }, glow: '#ff7a2a' }, thunderkirin: { name: { en: 'Boltmane Qilin', vi: 'Kỳ Lân Tia Chớp' }, glow: '#9fe8ff' },
-    skywhale: { name: { en: 'Lightwhale', vi: 'Cá Voi Ánh Sáng' }, glow: '#cfe8ff' }, ninetail: { name: { en: 'Azure Vixen', vi: 'Hồ Ly Lửa Xanh' }, glow: '#ff9a4a' },
+    skywhale: { name: { en: 'Lightwhale', vi: 'Cá Voi Ánh Sáng' }, glow: '#cfe8ff' }, ninetail: { name: { en: 'Azure Vixen', vi: 'Hồ Ly Lửa Xanh' }, glow: '#6ec8ff' },
     clones: { name: { en: 'Shadow Trio', vi: 'Ba Bóng Vọng' }, glow: '#a15be0' }
   };
   const sumName = k => LN((GIANT[k] || BEAST[k]).name);
@@ -7091,6 +7094,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (Q.arenaSealed) s.x = arenaClamp(s.x);
   }
   function evolveSummon(s) {
+    s.evoAt = s.t;   // the evolve animation plays from here (drawing only)
     s.stage = 2; s.life = 30; s.max = 30; s.hpMax = s.hp = sumHp(2); s.inv = 99; s.atkT = 0.5; s.cd = 0.3; s.mv = 0; s.ultT = 1.1; s.ultN = 3;
     const info = GIANT[s.kind] || BEAST[s.kind], x = s.x, y = s.y;
     Snd.play('relic'); Snd.play('boom'); Q.shake = Math.max(Q.shake, 0.6); Q.G.flash = Math.max(Q.G.flash || 0, 0.3);
@@ -7315,7 +7319,37 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }
     HIQ.length = 0;
   }
+  // phase 3B pixel-art sheets (assets/sprites/<kind> and <kind>_evo): drawn 1:1 on the game's own pixels
+  function sumSheetName(s) { return s.fromPet && s.kind === 'titan' ? 'cobble' : s.kind; }
+  function drawSumSheet(s, x, y, a) {
+    if (typeof loadSheet !== 'function') return 0;
+    const n = sumSheetName(s), S1 = loadSheet(n), S2 = loadSheet(n + '_evo'), S = s.stage === 2 && S2.ready ? S2 : S1;
+    if (!S.ready) return 0;
+    const m = S.m, st = S.st, at = (k, u) => { const q = st[k]; return q ? q.fr[Math.max(0, Math.min(q.fr.length - 1, Math.floor(u * q.fr.length)))] : null; };
+    const loop = k => { const q = st[k]; return q ? q.fr[Math.floor(s.t * q.fps) % q.fr.length] : null; };
+    let fr = null;
+    if (s.dying > 0) fr = at('death', 1 - s.dying / (s.dieMax || 0.8));
+    else if (s.stage === 2 && s.evoAt !== undefined && s.t - s.evoAt < 0.66 && st.evolve) fr = at('evolve', (s.t - s.evoAt) / 0.66);
+    else if (s.ph === 'enter') fr = at('spawn', clamp(s.pt / ((ENT_T[s.ent] || 1) * 0.9), 0, 1));
+    else if (s.hurtT > 0) fr = at('hurt', 1 - s.hurtT / 0.2);
+    else if (s.atkT > 0) fr = at('attack', 1 - clamp(s.atkT / 0.35, 0, 1));
+    else if (s.stage === 2 && s.ultT > 0) fr = at('tele', 1 - clamp(s.ultT / 1.1, 0, 1));
+    else if (s.mv) fr = loop('walk');
+    else fr = loop('idle');
+    if (!fr) fr = loop('idle'); if (!fr) return 0;
+    const fly = !!m.flyer, flip = s.f < 0, bob = fly ? Math.round(Math.sin(s.t * 3) * 2) : 0;
+    const copies = s.kind === 'golems' ? [-24, 24] : s.kind === 'clones' ? [-22, 0, 22] : [0];
+    const AX = Math.round(s.ax || 0), AY = Math.round(s.ay || 0), AA = s.aal === undefined ? 1 : s.aal, SK = Math.round(s.sink || 0);
+    if (SK > 0) { g.save(); g.beginPath(); g.rect(x - 400, y - 800, 800, 800); g.clip(); }
+    copies.forEach((d, i) => {
+      const f2 = copies.length > 1 && i ? (st.idle && fr === loop('idle') ? st.idle.fr[(Math.floor(s.t * st.idle.fps) + i * 2) % st.idle.fr.length] : fr) : fr;
+      drawSheetFrame(f2, x + d + AX, y + AY + SK + bob, flip, false, a * AA * (s.kind === 'clones' ? 0.85 : 1));
+    });
+    if (SK > 0) g.restore();
+    return (m.body && m.body[1]) || SUM_H[s.kind] || 50;
+  }
   function drawSumArt(s, x, y, a) {
+    { const h = drawSumSheet(s, x, y, a); if (h) return h; }
     const o = sumArt(s.kind); if (!o || o.none || !(o.idle || o.walk)) return 0;
     const H = (SUM_H[s.kind] || 100) * (s.stage === 2 ? 1.35 : 1), f = s.f < 0 ? -1 : 1;
     const fly = s.kind === 'phoenix' || s.kind === 'dragonking' || s.kind === 'dragonform';
@@ -8929,5 +8963,5 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }, 400); }
   }
   { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
-  if (!RELEASE && location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, bossSprite: li => bossSprite(li), formSprite: k => formSprite(k), npcSpr: k => npcSpr(k), pump: (n, ms) => { let t = Math.max(performance.now(), frame.last || 0); for (let i = 0; i < n; i++) { t += ms || 16; step(t); } }, mfGo: (li, v, hold) => { startMapFilm(li); mf.t = v || 0; mf.hold = !!hold; }, mfT: v => { mf.t = v; }, opSeek: (v, play) => { if (!op) startOpening(); op.t = v; op.hold = !play; }, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (!RELEASE && location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, spawnSummon: (k, o) => spawnSummon(k, 30, Q.P, true, o), evolveSummon: s => evolveSummon(s), bossSprite: li => bossSprite(li), formSprite: k => formSprite(k), npcSpr: k => npcSpr(k), pump: (n, ms) => { let t = Math.max(performance.now(), frame.last || 0); for (let i = 0; i < n; i++) { t += ms || 16; step(t); } }, mfGo: (li, v, hold) => { startMapFilm(li); mf.t = v || 0; mf.hold = !!hold; }, mfT: v => { mf.t = v; }, opSeek: (v, play) => { if (!op) startOpening(); op.t = v; op.hold = !play; }, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();

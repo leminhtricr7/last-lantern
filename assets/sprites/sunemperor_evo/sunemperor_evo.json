@@ -1,0 +1,86 @@
+{
+ "name": "sunemperor_evo",
+ "cell": [
+  161,
+  173
+ ],
+ "anchor": [
+  42,
+  170
+ ],
+ "facing": "right",
+ "palette": [
+  "#1e0a04",
+  "#6a1a14",
+  "#a02a20",
+  "#d04a2a",
+  "#f08a4a",
+  "#c88a5a",
+  "#ffd8a0",
+  "#b07a10",
+  "#ffd34e",
+  "#ffe08a",
+  "#ffffff",
+  "#8a6a14",
+  "#c8a030",
+  "#fff0a0",
+  "#4a0e0a",
+  "#8a2018"
+ ],
+ "notes": "Emperor of the Old Sun: crimson robes, a crown of sun rays, a sceptre holding a little sun. Final form.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "sunemperor_evo_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "sunemperor_evo_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "sunemperor_evo_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "sunemperor_evo_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "sunemperor_evo_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "sunemperor_evo_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "sunemperor_evo_spawn.png"
+  },
+  "evolve": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "sunemperor_evo_evolve.png"
+  }
+ },
+ "body": [
+  57,
+  104
+ ],
+ "flyer": false
+}

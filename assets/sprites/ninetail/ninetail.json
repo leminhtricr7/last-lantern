@@ -1,0 +1,75 @@
+{
+ "name": "ninetail",
+ "cell": [
+  113,
+  78
+ ],
+ "anchor": [
+  48,
+  74
+ ],
+ "facing": "right",
+ "palette": [
+  "#08101e",
+  "#3a5a9a",
+  "#6a90d0",
+  "#a8c8f0",
+  "#e8f4ff",
+  "#c8d8f0",
+  "#ffffff",
+  "#3ab0ff",
+  "#bff0ff",
+  "#ffd34e",
+  "#1a5ad8"
+ ],
+ "notes": "Azure Vixen: a pale-blue fox with three tails (nine in its final form) that burn with blue foxfire.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "ninetail_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "ninetail_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "ninetail_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "ninetail_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "ninetail_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "ninetail_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "ninetail_spawn.png"
+  }
+ },
+ "body": [
+  67,
+  54
+ ],
+ "flyer": false
+}

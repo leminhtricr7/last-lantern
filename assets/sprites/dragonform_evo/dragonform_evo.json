@@ -1,0 +1,89 @@
+{
+ "name": "dragonform_evo",
+ "cell": [
+  135,
+  101
+ ],
+ "anchor": [
+  67,
+  51
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a0604",
+  "#1a1412",
+  "#2e2622",
+  "#4a3e38",
+  "#6a5a50",
+  "#8a2a0a",
+  "#c84a12",
+  "#ff7a2a",
+  "#ffc070",
+  "#140e0c",
+  "#2a1e1a",
+  "#4a3028",
+  "#7a4a30",
+  "#c8b8a8",
+  "#ffd34e",
+  "#ffffff",
+  "#ff4a0a",
+  "#ff9a2a",
+  "#ffe08a"
+ ],
+ "notes": "Coalheart Drake: a charcoal dragon with lava glowing through cracks in its hide. Final form.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "dragonform_evo_idle.png"
+  },
+  "walk": {
+   "frames": 6,
+   "fps": 12,
+   "loop": true,
+   "file": "dragonform_evo_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "dragonform_evo_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "dragonform_evo_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "dragonform_evo_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "dragonform_evo_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "dragonform_evo_spawn.png"
+  },
+  "evolve": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "dragonform_evo_evolve.png"
+  }
+ },
+ "body": [
+  90,
+  61
+ ],
+ "flyer": true
+}

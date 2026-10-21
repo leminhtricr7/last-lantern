@@ -1,0 +1,74 @@
+{
+ "name": "skywhale",
+ "cell": [
+  134,
+  72
+ ],
+ "anchor": [
+  64,
+  43
+ ],
+ "facing": "right",
+ "palette": [
+  "#060a1e",
+  "#141e5a",
+  "#24349a",
+  "#3a50c8",
+  "#6a84e8",
+  "#a8c0f0",
+  "#e8f4ff",
+  "#ffe08a",
+  "#ffffff",
+  "#cfe8ff"
+ ],
+ "notes": "Lightwhale: a deep-blue whale swimming through the air, belly pale, constellations glowing on its back. Flyer.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "skywhale_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "skywhale_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "skywhale_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "skywhale_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "skywhale_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "skywhale_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "skywhale_spawn.png"
+  }
+ },
+ "body": [
+  82,
+  38
+ ],
+ "flyer": true
+}

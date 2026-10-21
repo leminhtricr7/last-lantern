@@ -1,0 +1,80 @@
+{
+ "name": "moongoddess",
+ "cell": [
+  127,
+  92
+ ],
+ "anchor": [
+  48,
+  89
+ ],
+ "facing": "right",
+ "palette": [
+  "#0c0a1e",
+  "#2a2458",
+  "#4a3a8a",
+  "#7a6ac0",
+  "#b0a4e8",
+  "#b8b0d8",
+  "#f0e8ff",
+  "#8a84b0",
+  "#e8e0ff",
+  "#a98bff",
+  "#ffffff",
+  "#6a6490",
+  "#a8a0c8",
+  "#b8b0e0",
+  "#f4f0ff",
+  "#6a6290"
+ ],
+ "notes": "Paleglow Lady: silver hair, violet gown, moth-pale wings, a halo and a bow of moonlight.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "moongoddess_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "moongoddess_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "moongoddess_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "moongoddess_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "moongoddess_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "moongoddess_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "moongoddess_spawn.png"
+  }
+ },
+ "body": [
+  74,
+  71
+ ],
+ "flyer": false
+}

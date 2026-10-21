@@ -1,0 +1,74 @@
+{
+ "name": "cobble",
+ "cell": [
+  109,
+  102
+ ],
+ "anchor": [
+  45,
+  99
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a0c10",
+  "#3a4048",
+  "#5e6670",
+  "#8a929c",
+  "#bcc4cc",
+  "#2a4a5a",
+  "#3a6a7a",
+  "#6ec8d8",
+  "#c0f0f8",
+  "#e0fcff"
+ ],
+ "notes": "Cobble Colossus: the Cobblekin pet grown huge, a heap of round grey river stones with cyan light between them; it punches.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "cobble_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "cobble_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "cobble_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "cobble_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "cobble_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "cobble_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "cobble_spawn.png"
+  }
+ },
+ "body": [
+  53,
+  66
+ ],
+ "flyer": false
+}

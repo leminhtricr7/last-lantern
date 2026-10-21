@@ -21,6 +21,8 @@ def head(f, x, y, s, C, open_):
     for i in range(3): f.px(x + (3 + i * 3.5) * s, y + 1.5 * s, C['horn'][1]); f.px(x + (3 + i * 3.5) * s, y + 2 * s + o, C['horn'][1])   # teeth
     f.flat([('rect', x + 1 * s, y - 4 * s, max(2, 3 * s), max(1, 2 * s))], C['eye']); f.px(x + 2 * s, y - 4 * s, '#ffffff')
     f.px(x + 12 * s, y - 2 * s, C['out'])   # nostril
+    if C.get('whisk'):   # long whiskers trailing back from the snout (summon dragons only)
+        for k in (0, 1): f.line([(x + 12 * s, y - 1 * s + k * 2 * s), (x + 4 * s, y + (5 + k * 3) * s), (x - 6 * s, y + (8 + k * 4) * s), (x - 12 * s, y + (6 + k * 6) * s)], C['whisk'], only_on_body=False)
 
 def wing(f, S, a, span, C, near):
     """a: 90 = raised, 0 = level (pointing back), negative = down. Four fingers fan out from the wrist towards the
@@ -64,6 +66,8 @@ def dragon(form, p, flash=False):
         for i in range(3): f.px(ft[0] + (i - 1) * 2 * s, ft[1] + 2 * s, C['horn'][1])
     # body
     f.part([('ell', cx, cy, 20 * s, 12 * s)], C['body'], band=0.6)
+    if C.get('cracks'):   # glowing seams of lava in a charcoal hide (summon dragons only)
+        for i in range(4): f.line([(cx - 14 * s + i * 8 * s, cy - 8 * s), (cx - 11 * s + i * 8 * s, cy - 2 * s), (cx - 14 * s + i * 8 * s, cy + 4 * s)], C['cracks'])
     f.part([('ell', cx + 3 * s, cy + 6 * s, 15 * s, 5 * s)], C['belly'], band=0.9)
     for i in range(5): f.line([(cx - 9 * s + i * 5 * s, cy + 3 * s), (cx - 8 * s + i * 5 * s, cy + 10 * s)], C['belly'][0])
     for i in range(7): f.part([('poly', [(cx - 18 * s + i * 6 * s, cy - 9 * s), (cx - 15 * s + i * 6 * s, cy - 16 * s - (i % 2) * 2 * s), (cx - 12 * s + i * 6 * s, cy - 10 * s)])], [C['wing'][1], C['wing'][2], C['wing'][3], C['wing'][3]])   # back spikes

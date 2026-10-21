@@ -1,0 +1,80 @@
+{
+ "name": "seagoddess",
+ "cell": [
+  118,
+  91
+ ],
+ "anchor": [
+  30,
+  88
+ ],
+ "facing": "right",
+ "palette": [
+  "#061418",
+  "#0e4a5a",
+  "#1a6a8a",
+  "#2aa0b8",
+  "#6ad8e8",
+  "#5ab8c8",
+  "#a4e8f0",
+  "#b07a10",
+  "#ffd34e",
+  "#6ee7f2",
+  "#ffffff",
+  "#8a6a14",
+  "#c8a030",
+  "#fff0a0",
+  "#1a7a8a",
+  "#4ac8d8"
+ ],
+ "notes": "Tidecrest Maiden: sea-green skin, a gown of waves, coral crown, a golden trident.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "seagoddess_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "seagoddess_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "seagoddess_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "seagoddess_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "seagoddess_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "seagoddess_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "seagoddess_spawn.png"
+  }
+ },
+ "body": [
+  38,
+  69
+ ],
+ "flyer": false
+}

@@ -592,3 +592,10 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   hitbox. Three were tuned by hand: the coiled Venom Wyrm (60×70), Oktavor (110×140) and Mr Shorty Phong (24×60).
 - Dragons: Ignar (map 1) and Ignarok's three forms (map 6) draw from `assets/sprites/ignar`, `ignarok1-3`
   (`tools/pixel/dragon.py`): hover, fly, wind-up, breath, dive (the body still tilts), perch, hurt, death, stage change.
+- Summons and pets (last 3B group): every summon has two sheets, `assets/sprites/<kind>` and `<kind>_evo` (the final
+  form, ~1.35x bigger, more ornate, with an 8-frame `evolve` flicker). States: idle, walk, tele (the final form's charge),
+  attack, hurt (white flash), death (dissolves into light), spawn (builds up from the ground). `drawSumSheet` in game.js
+  draws them 1:1 on the game's pixels and falls back to the old art if a sheet is missing. Humanoids come from
+  `tools/pixel/summons.py` (one rig, a spec per summon: build, armour, head, weapon, wings, cape); beasts, dragons, the
+  whale, the phoenix's final form, the Shadow Trio, the Cobble Colossus (`cobble`, used when the Cobblekin pet grows) and
+  the five small pets (`pet_<id>`, idle + walk) from `tools/pixel/beasts.py`. Previews in `docs/sprites_3B/`.

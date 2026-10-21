@@ -1,0 +1,81 @@
+{
+ "name": "phoenix_evo",
+ "cell": [
+  75,
+  94
+ ],
+ "anchor": [
+  48,
+  53
+ ],
+ "facing": "right",
+ "palette": [
+  "#2a0a0a",
+  "#5a0e0c",
+  "#8a1a12",
+  "#d8381a",
+  "#ff7a1a",
+  "#ffc23a",
+  "#ffe86a",
+  "#fff6d0",
+  "#3e3842",
+  "#6a6270",
+  "#a8a0aa"
+ ],
+ "notes": "Relit Phoenix, final form: bigger wings, a hotter crest, more embers.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "phoenix_evo_idle.png"
+  },
+  "walk": {
+   "frames": 6,
+   "fps": 12,
+   "loop": true,
+   "file": "phoenix_evo_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "phoenix_evo_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "phoenix_evo_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "phoenix_evo_hurt.png"
+  },
+  "death": {
+   "frames": 8,
+   "fps": 10,
+   "loop": false,
+   "file": "phoenix_evo_death.png"
+  },
+  "spawn": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "phoenix_evo_spawn.png"
+  },
+  "evolve": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "phoenix_evo_evolve.png"
+  }
+ },
+ "body": [
+  51,
+  42
+ ],
+ "flyer": true
+}

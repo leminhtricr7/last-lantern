@@ -1,0 +1,76 @@
+{
+ "name": "clones",
+ "cell": [
+  47,
+  55
+ ],
+ "anchor": [
+  15,
+  52
+ ],
+ "facing": "right",
+ "palette": [
+  "#06020c",
+  "#140a24",
+  "#2a1640",
+  "#46286a",
+  "#6a4a98",
+  "#2a0a3a",
+  "#4a1a6a",
+  "#7a3ab0",
+  "#a86ae0",
+  "#c07bff",
+  "#ffffff",
+  "#e8d8ff"
+ ],
+ "notes": "Shadow Trio: three hooded swordsmen made of violet shadow, eyes like coals of light (the game draws three copies).",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "clones_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "clones_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "clones_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "clones_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "clones_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "clones_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "clones_spawn.png"
+  }
+ },
+ "body": [
+  18,
+  28
+ ],
+ "flyer": false
+}

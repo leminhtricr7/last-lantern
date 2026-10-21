@@ -1,0 +1,80 @@
+{
+ "name": "stormgod",
+ "cell": [
+  144,
+  127
+ ],
+ "anchor": [
+  33,
+  124
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a0c1e",
+  "#2a2a6a",
+  "#3a4a9a",
+  "#5a70c8",
+  "#8aa8ee",
+  "#8aa0c8",
+  "#cfe8ff",
+  "#a87a14",
+  "#ffd34e",
+  "#9fe8ff",
+  "#ffffff",
+  "#8a6a14",
+  "#c8a030",
+  "#fff0a0",
+  "#a8b8d8",
+  "#f0f6ff"
+ ],
+ "notes": "Thunderpeal Lord: storm robes, white hair and beard, golden horns, a staff that throws lightning.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "stormgod_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "stormgod_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "stormgod_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "stormgod_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "stormgod_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "stormgod_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "stormgod_spawn.png"
+  }
+ },
+ "body": [
+  45,
+  78
+ ],
+ "flyer": false
+}

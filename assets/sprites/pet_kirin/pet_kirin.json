@@ -1,0 +1,46 @@
+{
+ "name": "pet_kirin",
+ "cell": [
+  28,
+  23
+ ],
+ "anchor": [
+  14,
+  19
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a0e1a",
+  "#1a4a8a",
+  "#2a7ac8",
+  "#4ac0f0",
+  "#9fe8ff",
+  "#c8a030",
+  "#ffe08a",
+  "#ffffff",
+  "#8a6a14",
+  "#ffd34e",
+  "#2a2a3a",
+  "#5a5a6a"
+ ],
+ "notes": "Qilin Foal (pet).",
+ "states": {
+  "idle": {
+   "frames": 4,
+   "fps": 6,
+   "loop": true,
+   "file": "pet_kirin_idle.png"
+  },
+  "walk": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "pet_kirin_walk.png"
+  }
+ },
+ "body": [
+  22,
+  17
+ ],
+ "flyer": false
+}

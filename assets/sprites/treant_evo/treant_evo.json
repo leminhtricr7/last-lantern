@@ -1,0 +1,81 @@
+{
+ "name": "treant_evo",
+ "cell": [
+  146,
+  152
+ ],
+ "anchor": [
+  59,
+  149
+ ],
+ "facing": "right",
+ "palette": [
+  "#0e0a04",
+  "#3a2814",
+  "#5a3e20",
+  "#7e5a30",
+  "#a88050",
+  "#1e4a1a",
+  "#2e6a24",
+  "#4e9a34",
+  "#8ad84e",
+  "#d8ff6a",
+  "#ffffff"
+ ],
+ "notes": "Old Rootheart: a walking oak with a leaf crown, a mossy beard and sap that glows; slams with both branch arms. Final form.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "treant_evo_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "treant_evo_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "treant_evo_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "treant_evo_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "treant_evo_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "treant_evo_death.png"
+  },
+  "spawn": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "treant_evo_spawn.png"
+  },
+  "evolve": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "treant_evo_evolve.png"
+  }
+ },
+ "body": [
+  70,
+  127
+ ],
+ "flyer": false
+}
