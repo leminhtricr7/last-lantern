@@ -339,8 +339,9 @@ function genOcean(B, li) {
   L.arena = { x0: 3, x1: W - 3, gy: GY, y0: ARY0, rects: [[12, 96, 31, 98]] };
   L.spawns.push({ id: L.id++, type: 'boss', x: (W - 24) * TS, y: GY * TS });
   L.endX = W * TS;
-  for (let xx = 22; xx <= 27; xx++) set(xx, WY, '=');   // phase 5 (A4): a little wooden pier past the shore's NPCs, to fish from
-  L.fishSpots = [{ id: L.id++, x: 26, y: WY, bx: 30, by: WY }];
+  for (let xx = 22; xx <= 27; xx++) set(xx, WY, '=');   // phase 5 (A4): a little wooden pier past the shore's NPCs, to fish from and to board the boat
+  L.fishSpots = [{ id: L.id++, x: 25, y: WY, bx: 30, by: WY }];
+  L.sea = { surface: WY * TS, moor: 34, minX: 33, maxX: 71, trigX: 52, safeX: 44, band0: WY - 4, band1: 25, pierEnd: 27.5 };   // the boat's mooring and range; the sea beast's trigger and the safe distance (in tiles)
   addBreakables(L, li);
   return L;
 }

@@ -656,10 +656,15 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   No timer, no save and no co-op sync are needed: each player sees the hour of the place they stand in. Gameplay effect:
   up to +0.25 darkness on top of the map's own (lantern light still works), never on top of a dark zone, and none inside the
   boss arena. Caves, Volcano, Tunnels, the Deep and the Citadel have no cycle.
-- Fishing (phase 5, A4): fishing posts on a little wooden pier at the Sunken Deep's shore and beside the swamp's two
-  shallow ponds (`POND_MAPS`, `fishSpots` in levels.js). Stand at a post and press E (gamepad Y, touch use button) to cast,
-  wait 2-6 s for the bite, then press E again while the needle is in the green (`fishStep` in game.js). Moving, jumping,
-  attacking, a hit or a monster within 70 px stops it (a cast is refunded if nothing bit yet); not allowed with monsters
-  within 130 px; 5 casts per post per visit. The world keeps running, so co-op friends are never held up, and the state sits on
-  the player (`P.fish`) so guests see it and can fish too. Catches: coins (42%), an old boot with a coin (10%), ammo (18%),
-  +1 heart (25%), and a rare golden fish (5%): full health, 10 coins, counted in `save.goldFish` for the coming quests.
+- Fishing, the boat and the sea beast (phase 5, A4): fishing posts on a wooden pier at the Sunken Deep's shore and beside the
+  swamp's two ponds. E casts, wait for the bite, E again while the needle is in the green. Every bite is a different fish
+  (`FISH` in game.js): Silver Minnow, Lantern Carp, Spiny Perch, Glowfin, Moon Eel, Golden Fish (and an old boot); the gauge
+  shows how hard it is (rare ones: a faster needle, a narrower green), each gives its own reward, a card with the fish and a
+  NEW n/6 counter appears, and the species you have caught are kept in `save.fishLog`. Moving, a hit or a monster stops
+  fishing; 5 casts per post (or per 10 tiles of sea). The world keeps running and the state is on the player (`P.fish`), so
+  co-op friends are never held up and can fish too.
+  The boat is moored past the pier: E at the pier end boards it, left/right sails (tile 33-71), jump leaves it, E fishes from
+  it; the further out the rarer the fish (tier 0 near, 1 past tile 40, 2 past tile 52). Past tile 52 a huge Reefjaw wakes
+  (warning ripples and a fin, then it leaps and bites): it hunts the boat or a swimmer but never past tile 44, the safe
+  distance, where it loses interest and sinks. It cannot be fought. Three bites wreck the boat and you swim back (the boat is
+  mended at its mooring 25 s later). `updateSea`, `boatStep`, `drawSea`; `Q.boat` / `Q.beast` are synced to co-op guests.

@@ -50,6 +50,7 @@
   while (save.relics.length < 10) save.relics.push(0);
   if (!save.ammo) save.ammo = { dagger: 0, bomb: 0, flask: 0 };
   if (!Array.isArray(save.orbs)) save.orbs = []; if (!save.eggs || typeof save.eggs !== 'object') save.eggs = {};
+  if (!Array.isArray(save.fishLog)) save.fishLog = [];   // phase 5 (A4): the species you have caught
   save.rare = save.rare | 0; if (!save.rareGot || typeof save.rareGot !== 'object') save.rareGot = {};
   save.bonusHP = save.bonusHP | 0; save.bonusDmg = save.bonusDmg | 0; if (!save.cos || typeof save.cos !== 'object') save.cos = {};
   if (!Array.isArray(save.heroUnlock)) save.heroUnlock = [];
@@ -569,7 +570,7 @@
       { k: 'KeyK', x: w - s * 1.5, y: h - s * 1.9, r: r * 0.85, l: '»' }, { k: 'Escape', x: w - s * 0.5, y: s * 0.5, r: r * 0.7, l: 'II' },
       { k: 'KeyL', x: w - s * 2.9, y: h - s * 1.5, r: r * 0.8, l: '●' }, { k: 'KeyT', x: w - s * 2.3, y: h - s * 2.7, r: r * 0.85, l: '⇆' }, { k: 'KeyQ', x: w - s * 3.3, y: h - s * 0.5, r: r * 0.6, l: '⇄' }, { k: 'KeyF', x: w - s * 3.5, y: h - s * 2.4, r: r * 0.8, l: '◆' }, { k: 'TouchSum', x: w - s * 2.3, y: h - s * 2.9, r: r * 0.75, l: '★' }
     ];
-    if (scene === 'play' && Q && (Q.nearNpc || Q.nearPz || Q.nearPost || Q.nearFish || (Q.P && Q.P.fish) || (Q.nearCp && travelBlock() === '')) && Q.state === 'play') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '...' });
+    if (scene === 'play' && Q && (Q.nearNpc || Q.nearPz || Q.nearPost || Q.nearFish || Q.nearBoard || (Q.P && (Q.P.fish || Q.P.boat)) || (Q.nearCp && travelBlock() === '')) && Q.state === 'play') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '...' });
     if (scene === 'shop') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '→' });
     if (scene !== 'play' || (Q && (Q.state === 'pause' || Q.state === 'shop'))) { b.push({ k: 'ArrowUp', x: s * 1.4, y: h - s * 2.0, r, l: '▲' }); b.push({ k: 'ArrowDown', x: s * 1.4, y: h - s * 0.2 - s * 0.0, r: 0.01, l: '' }); b[b.length - 1] = { k: 'ArrowDown', x: s * 2.7, y: h - s * 2.0, r, l: '▼' }; }
     return b;
@@ -647,7 +648,7 @@
         const npc = Q.nearNpc && near(wx, wy, Q.nearNpc.x, Q.nearNpc.y - 14, 16, 20);
         const pz = Q.nearPz && near(wx, wy, Q.nearPz.x, Q.nearPz.y - 10, 16, 20);
         const cpT = Q.nearCp && near(wx, wy, Q.nearCp.x, Q.nearCp.y - 24, 12, 14) && travelBlock() === '', postT = Q.nearPost && near(wx, wy, (Q.nearPost.postX + 0.5) * TS, Q.nearPost.y * TS - 10, 12, 14);
-        const fishT = (Q.nearFish || (Q.P && Q.P.fish)) && near(wx, wy, Q.P.x + 4, Q.P.y + 2, 26, 22);
+        const fishT = (Q.nearFish || Q.nearBoard || (Q.P && (Q.P.fish || Q.P.boat))) && near(wx, wy, Q.P.x + 4, Q.P.y + 2, 26, 22);
         if (npc || pz || cpT || postT || fishT) pressed.KeyE = true; else { faceMouse(gx); pressed.KeyJ = true; }
       } else pressed.Enter = true; // intro, talk, tablet, dead, complete
     }
@@ -1001,7 +1002,7 @@
     P.x = L.start.x; P.y = L.start.y - P.h;
     Q = {
       li, L, P, B: L.B, bg: bgs(li), ts: tiles(li), crum: new Map(), taken: new Set(), cp: null, cpIdx: -1,
-      ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), brokenB: new Set(), brk: [], cpSeen: new Set(), fishLeft: {}, trials: [], trialsDone: new Set(), rings: [], ghosts: [], corpses: [], zones: [], tmpCells: [], dragon: null, dragons: [], dragonsDone: new Set(), tmpCells2: 0, windT: 0, windDir: 1, darkBoost: 0, darkBoostT: 0, nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
+      ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), brokenB: new Set(), brk: [], cpSeen: new Set(), fishLeft: {}, boat: null, beast: null, beastCd: 0, trials: [], trialsDone: new Set(), rings: [], ghosts: [], corpses: [], zones: [], tmpCells: [], dragon: null, dragons: [], dragonsDone: new Set(), tmpCells2: 0, windT: 0, windDir: 1, darkBoost: 0, darkBoostT: 0, nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
       cam: { x: 0, y: 0 }, coinsRun: 0, time: 0, safe: { x: P.x, y: P.y }, menu: 0,
       dj: true, dashAb: li >= 3 || save.cleared.indexOf(2) >= 0,
       arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0, minisDone: new Set(), mainBoss: null, mainArena: null, syFig: null
@@ -1030,6 +1031,7 @@
     Q.minis = (L.minis || []).map(m => Object.assign({}, m, { state: Q.minisDone.has(m.id) ? 'done' : 'idle' })); Q.syFig = null;
     Q.brk = (L.brk || []).filter(b => !Q.brokenB.has(b.id)).map(b => Object.assign({}, b, { hitT: 0 }));   // phase 5: pots and bushes
     for (const r of L.crateRooms || []) resetCrate(r, true);   // phase 5: crates start at their start tile
+    Q.boat = L.sea ? newBoat() : null; Q.beast = null; Q.beastCd = 0;   // phase 5 (A4): the boat and the sea beast
     for (const gd of L.gates) { const open = Q.solved.has(gd.id); if (gd.bridge) { for (const t of gd.bridge) L.grid[t[1]][t[0]] = open ? '=' : ' '; continue; } for (let y = gd.y0; y <= gd.y1; y++) L.grid[y][gd.x] = open ? ' ' : 'G'; }
     for (const w of L.xwalls) for (const t of w.tiles) L.grid[t[1]][t[0]] = Q.brokenX.has(t[0] + ',' + t[1]) ? ' ' : 'X';
     for (const c of L.covers || []) L.grid[c.y][c.x] = Q.brokenX.has(c.x + ',' + c.y) ? ' ' : c.c;   // phase 5: secret-room covers
@@ -1464,7 +1466,8 @@
     if (P.vineCd > 0) P.vineCd -= dt;
     if (vineStep(P, dt)) return;   // hanging on a vine: the vine drives the body
     if (P.fishCool > 0) P.fishCool -= dt;
-    if (P.fish && fishStep(P, dt)) return;   // phase 5 (A4): fishing holds the hero still
+    if (P.boat && boatStep(P, dt)) return;   // phase 5 (A4): aboard the boat, which carries the hero
+    if (P.fish && fishStep(P, dt)) return;   // fishing holds the hero still
     // timers
     if (act.jumpP) P.jumpBuf = 0.12; else P.jumpBuf -= dt;
     if (P.onGround) { P.coyote = 0.09; P.jumps = 0; } else P.coyote -= dt;
@@ -2791,25 +2794,63 @@
     Q.dnT = (Q.dnT || 0) - dt; if (Q.dnT > 0) return; Q.dnT = 0.5;
     const me = Q.me || Q.P, ph = me && dayPhase(me.x); Snd.ambNight(ph ? ph.night : 0);
   }
-  // ===================== phase 5 (A4): fishing at a post (the Sunken Deep's shore, the swamp's two ponds) =====================
-  // Lean on nothing: stand at the post (it shows "E: Fish"), press E to cast, wait for the bite (2-6 s), then press E again while
-  // the needle is in the green. Any move, jump, attack or hit stops it. It is optional, works with one button (keyboard E,
-  // gamepad Y, the touch use button), never freezes the world (so co-op friends are not held up) and is limited to 5 casts per
-  // post per visit. The state lives on the player (`P.fish`), so co-op guests see it and can fish too.
+  // ===================== phase 5 (A4): fishing, the boat and the sea beast =====================
+  // Fishing: stand at a post (the Sunken Deep's pier, the swamp's two ponds) or in the boat and press E to cast, wait for the
+  // bite (2-6 s), then press E again while the needle is in the green. Each bite is a different fish: the gauge shows how
+  // hard it is (a faster needle and a narrower green for the rare ones). Moving, jumping, attacking, a hit or a monster
+  // within 70 px stops it; not allowed with monsters within 130 px; 5 casts per post (or per 10 tiles of sea) per visit.
+  // The world keeps running, so co-op friends are never held up, and the state sits on the player (`P.fish`).
+  // The boat: moored past the pier; E at the pier end boards it, left/right sails, jump leaves it, E fishes. The further out,
+  // the rarer the fish. Far out (past tile 52) a huge Reefjaw wakes: it hunts the boat or a swimmer until they are back
+  // within the safe distance (tile 44), then it sinks away. It is far too big to fight: sail or swim away. Three bites sink
+  // the boat; then you swim back, and the boat is mended at its mooring after 25 s.
   const FISH_CASTS = 5;
-  const fishSpotNear = P => { for (const sp of Q.L.fishSpots || []) if (P.onGround && Math.abs(P.x + P.w / 2 - (sp.x + 0.5) * TS) < 14 && Math.abs(P.y + P.h - sp.y * TS) < 6) return sp; return null; };
-  const needleAt = t => 1 - Math.abs(((t * 1.1) % 2) - 1);
+  // r = rarity (0 junk, 1-4 stars); w = weight of the bite at depth tier [shore/ponds, mid sea, deep sea]; zw = width of the green; sp = needle speed
+  const FISH = [
+    { id: 'minnow', en: 'Silver Minnow', vi: 'Cá Tép Bạc', r: 1, zw: 0.36, sp: 0.95, w: [40, 22, 8], col: ['#cfd8ea', '#8a96b4', '#aab4cc'], rew: { en: 'a few coins', vi: 'ít xu' } },
+    { id: 'carp', en: 'Lantern Carp', vi: 'Cá Chép Đèn', r: 1, zw: 0.32, sp: 1.05, w: [26, 20, 10], col: ['#ffb04a', '#c8641e', '#ff8a2a'], rew: { en: 'coins', vi: 'xu' } },
+    { id: 'perch', en: 'Spiny Perch', vi: 'Cá Rô Gai', r: 2, zw: 0.28, sp: 1.2, w: [14, 18, 14], col: ['#6ac07a', '#2e7a46', '#9ae8a8'], rew: { en: 'ammo', vi: 'đạn' } },
+    { id: 'glowfin', en: 'Glowfin', vi: 'Cá Vây Sáng', r: 2, zw: 0.26, sp: 1.3, w: [8, 16, 16], col: ['#6ee7f2', '#2a8aa8', '#bff8ff'], rew: { en: '+1 heart', vi: '+1 tim' } },
+    { id: 'moon', en: 'Moon Eel', vi: 'Lươn Trăng', r: 3, zw: 0.2, sp: 1.55, w: [0, 6, 22], col: ['#c8b8ff', '#6a4aa8', '#efe8ff'], rew: { en: 'coins, ammo and a heart', vi: 'xu, đạn và 1 tim' } },
+    { id: 'golden', en: 'Golden Fish', vi: 'Cá Vàng', r: 4, zw: 0.17, sp: 1.7, w: [2, 3, 8], col: ['#ffd34e', '#c8901e', '#fff6c0'], rew: { en: 'full health and coins', vi: 'đầy máu và xu' } },
+    { id: 'boot', en: 'Old Boot', vi: 'Ủng Cũ', r: 0, zw: 0.4, sp: 0.9, w: [10, 6, 4], col: ['#6a4a2a', '#3a2a1a', '#8a6a4a'], rew: { en: 'a coin inside', vi: 'một đồng xu bên trong' } }
+  ];
+  const FISH_BY = {}; FISH.forEach(f => { FISH_BY[f.id] = f; });
+  const FISH_TOTAL = FISH.filter(f => f.r > 0).length;
+  function pickFish(tier) { let tot = 0; for (const f of FISH) tot += f.w[tier] || 0; let r = Math.random() * tot; for (const f of FISH) { r -= f.w[tier] || 0; if (r <= 0) return f; } return FISH[0]; }
+  const fishSpr = {};
+  function fishSprite(id) {
+    if (fishSpr[id]) return fishSpr[id];
+    const [a, b, c] = FISH_BY[id].col;
+    const F = {
+      boot: P => { P.rect(2, 1, 5, 7, a); P.rect(2, 7, 11, 3, b); P.rect(7, 6, 6, 2, a); P.rect(2, 1, 5, 1, c); P.px(4, 4, c); P.px(4, 5, c); },
+      moon: P => { P.ell(9, 5, 8, 2, a); P.ell(8, 4, 6, 1, c); P.tri(15, 5, 17, 2, 17, 8, b); P.px(3, 4, '#14101c'); P.px(2, 4, '#fff'); for (let i = 0; i < 5; i++) P.px(4 + i * 2, 6, c); },
+    };
+    const body = P => { P.ell(8, 5, 6, 3, a); P.ell(8, 7, 5, 1, c); P.tri(13, 5, 17, 1, 17, 9, b); P.tri(5, 2, 9, 0, 10, 3, b); P.px(4, 4, '#14101c'); P.px(3, 4, '#fff'); P.line(7, 3, 7, 7, b); };
+    const extra = { carp: P => { P.px(9, 4, '#fff6c0'); P.px(11, 5, '#fff6c0'); }, glowfin: P => { P.px(8, 3, '#fff'); P.px(10, 6, '#fff'); P.px(12, 4, '#fff'); }, perch: P => { for (let i = 0; i < 4; i++) P.px(6 + i * 2, 2, '#14101c'); }, golden: P => { P.px(7, 4, '#fff'); P.px(9, 6, '#fff'); P.px(11, 3, '#fff'); } };
+    return (fishSpr[id] = paint(18, 10, P => { if (F[id]) F[id](P); else { body(P); if (extra[id]) extra[id](P); } }, '#14101c'));
+  }
+  function fishCardOf(P, spec, isNew) { if (!isMe(P)) return; Q.fishCard = { id: spec.id, t: 0, isNew, n: save.fishLog.length }; }
+  const fishSpotNear = P => { for (const sp of Q.L.fishSpots || []) if (P.onGround && !P.boat && Math.abs(P.x + P.w / 2 - (sp.x + 0.5) * TS) < 14 && Math.abs(P.y + P.h - sp.y * TS) < 6) return sp; return null; };
+  const needleAt = (t, sp) => 1 - Math.abs(((t * (sp || 1.1)) % 2) - 1);
+  const boardSpotNear = P => { const sea = Q.L.sea; return !!(sea && Q.boat && P.onGround && !P.boat && !P.fish && Math.abs(P.x + P.w / 2 - sea.pierEnd * TS) < 12 && Math.abs(P.y + P.h - sea.surface) < 6); };
+  function boatSpot(P) {
+    const b = Q.boat, tx = b.x / TS, tier = tx >= Q.L.sea.trigX ? 2 : (tx >= 40 ? 1 : 0), zone = Math.floor(tx / 10);
+    return { id: 'boat' + zone, bx: Math.round(tx + 4 * (P.face || 1)), by: Q.L.sea.surface / TS, tier };
+  }
   function updateFishing() {
-    const me = Q.me || Q.P; Q.nearFish = me && !me.fish && Q.state === 'play' ? fishSpotNear(me) : null;
+    const me = Q.me || Q.P; const ok = me && !me.fish && Q.state === 'play';
+    Q.nearFish = ok ? fishSpotNear(me) : null; Q.nearBoard = ok && boardSpotNear(me);
   }
   function startFish(P, sp) {
     if (P.fish || P.fishCool > 0 || !P.onGround || (coop && coop.role === 'client')) return;
+    if (Q.beast && Q.beast.st !== 'gone' && P.boat) { if (isMe(P)) { Q.msg = sv('Not now, the beast is near!', 'Lúc này không được, quái vật ở gần!'); Q.msgT = 2; } return; }
     if (Q.ents.some(e => !e.dead && !e.hid && Math.abs(e.x - P.x) < 130 && Math.abs(e.y - P.y) < 60)) { if (isMe(P)) { Q.msg = sv('Not with monsters so close!', 'Quái ở gần quá, không câu được!'); Q.msgT = 2; } return; }
     const left = Q.fishLeft[sp.id] === undefined ? FISH_CASTS : Q.fishLeft[sp.id];
     if (left <= 0) { if (isMe(P)) { Q.msg = sv('The fish have stopped biting here.', 'Cá không còn cắn ở đây nữa.'); Q.msgT = 2.5; } Snd.play('select'); return; }
     Q.fishLeft[sp.id] = left - 1;
     P.face = sp.bx * TS + 8 > P.x ? 1 : -1; P.vx = 0;
-    P.fish = { sp: sp.id, ph: 'wait', t: 0, tw: 2 + Math.random() * 4, bx: sp.bx * TS + 8, by: sp.by * TS + 3, bt: 0, ct: 0, zc: 0.3 + Math.random() * 0.4, zw: 0.28, hp0: P.hp };
+    P.fish = { sp: sp.id, ph: 'wait', t: 0, tw: 2 + Math.random() * 4, bx: sp.bx * TS + 8, by: sp.by * TS + 3, bt: 0, ct: 0, zc: 0.5, zw: 0.3, speed: 1.1, tier: sp.tier || 0, fid: null, hp0: P.hp };
     Snd.play('whoosh'); emit(P.fish.bx, P.fish.by, 8, { col: ['#bfeaff', '#fff'], sp0: 15, sp1: 50, vy: -40 });
     if (isMe(P)) { Q.msg = sv('Cast! Wait for the bite... (' + (left - 1) + ' casts left)', 'Thả câu! Chờ cá cắn... (còn ' + (left - 1) + ' lần)'); Q.msgT = 2.5; }
   }
@@ -2823,14 +2864,18 @@
     if (Q.state !== 'play' || !P.onGround || P.down || P.hp < f.hp0) { endFish(P, P.hp < f.hp0 ? sv('Ouch! The line snapped.', 'Ái! Dây câu đứt rồi.') : null, false); return false; }
     if (act.left || act.right || act.jumpP || act.atkP || act.dashP || act.backP) { endFish(P, sv('You reeled in.', 'Bạn thu dây câu về.'), f.ph === 'wait'); return false; }
     if (Q.ents.some(e => !e.dead && !e.hid && Math.abs(e.x - P.x) < 70 && Math.abs(e.y - P.y) < 40)) { endFish(P, sv('Something is coming!', 'Có thứ gì đang tới!'), true); return false; }
-    f.t += dt; P.vx = 0; P.anim += 0;
+    f.t += dt; P.vx = 0;
     if (f.ph === 'wait') {
       if (act.talkP && f.t > 0.35) { endFish(P, sv('Nothing bit yet. Reeled in.', 'Chưa có cá cắn. Thu dây về.'), true); return true; }
-      if (f.t >= f.tw) { f.ph = 'bite'; f.bt = 0; Snd.play('splash'); emit(f.bx, f.by, 12, { col: ['#bfeaff', '#fff'], sp0: 20, sp1: 70, vy: -60 }); if (isMe(P)) { Q.msg = sv('A bite! Press E when the needle is in the green!', 'Cá cắn câu! Nhấn E khi kim nằm trong vùng xanh!'); Q.msgT = 2.6; } }
+      if (f.t >= f.tw) {
+        const spec = pickFish(f.tier); f.fid = spec.id; f.zw = spec.zw; f.speed = spec.sp; f.zc = spec.zw / 2 + 0.08 + Math.random() * (1 - spec.zw - 0.16);
+        f.ph = 'bite'; f.bt = 0; Snd.play('splash'); emit(f.bx, f.by, 12, { col: ['#bfeaff', '#fff'], sp0: 20, sp1: 70, vy: -60 });
+        if (isMe(P)) { Q.msg = sv('A bite! Press E when the needle is in the green!', 'Cá cắn câu! Nhấn E khi kim nằm trong vùng xanh!'); Q.msgT = 2.6; }
+      }
     } else if (f.ph === 'bite') {
       f.bt += dt;
       if (act.talkP) {
-        if (Math.abs(needleAt(f.bt) - f.zc) < f.zw / 2) { f.ph = 'catch'; f.ct = 0; Snd.play('chime'); emit(f.bx, f.by, 14, { col: ['#bfeaff', '#fff', '#ffd34e'], sp0: 30, sp1: 90, vy: -80 }); }
+        if (Math.abs(needleAt(f.bt, f.speed) - f.zc) < f.zw / 2) { f.ph = 'catch'; f.ct = 0; Snd.play('chime'); emit(f.bx, f.by, 14, { col: ['#bfeaff', '#fff', '#ffd34e'], sp0: 30, sp1: 90, vy: -80 }); }
         else { endFish(P, sv('Too early! It got away.', 'Hụt rồi! Cá thoát mất.'), false); return true; }
       } else if (f.bt > 2.6) { endFish(P, sv('It got away...', 'Cá thoát mất...'), false); return true; }
     } else if (f.ph === 'catch') {
@@ -2840,15 +2885,171 @@
     return true;
   }
   function giveCatch(P, f) {
-    const x = P.x + 4 + P.face * 8, y = P.y, r = Math.random(), mine = isMe(P);
+    const spec = FISH_BY[f.fid] || pickFish(f.tier || 0), x = P.x + 4 + P.face * 8, y = P.y, mine = isMe(P);
     const drop = (kind, ex) => Q.items.push(Object.assign({ kind, x, y, id: -1, vy: -rr(80, 140), vx: rr(-25, 25), ph: 0, drop: true }, ex || {}));
-    const say = (en, vi, col) => { if (mine) { Q.msg = sv(en, vi); Q.msgT = 3; } else pop(P.x + 4, P.y - 22, sv(en, vi), col || '#9fe8ff'); };   // you read it in the message bar; your friends see it floating over your head
-    const maxh = P.mhp || maxHP();
-    if (r < 0.42) { const n = 3 + ((Math.random() * 4) | 0); for (let i = 0; i < n; i++) drop('coin'); say('A fat fish! Sold for ' + n + ' coins.', 'Cá to! Bán được ' + n + ' xu.'); }
-    else if (r < 0.52) { drop('coin'); say('An old boot... and a coin inside!', 'Một chiếc ủng cũ... có một đồng xu bên trong!'); }
-    else if (r < 0.70) { const w = ['dagger', 'dagger', 'bomb', 'flask'][(Math.random() * 4) | 0]; drop('pk', { what: w, amt: w === 'dagger' ? 4 : 2, keep: false }); say('A fisherman\'s pouch: ' + (w === 'dagger' ? 'daggers' : (w === 'bomb' ? 'bombs' : 'fire flasks')) + '!', 'Túi của dân chài: ' + (w === 'dagger' ? 'dao găm' : (w === 'bomb' ? 'bom' : 'bình lửa')) + '!'); }
-    else if (r < 0.95) { P.hp = Math.min(maxh, P.hp + 1); emit(P.x + 4, P.y + 4, 10, { col: ['#ff7fb0', '#fff'], sp0: 10, sp1: 40 }); Snd.play('heart'); say('A tasty fish! +1 heart.', 'Cá ngon! +1 tim.', '#ff9fc0'); }
-    else { P.hp = maxh; for (let i = 0; i < 10; i++) drop('coin'); emit(P.x + 4, P.y + 4, 30, { col: ['#ffd34e', '#fff6c0', '#fff'], sp0: 20, sp1: 100 }); Snd.play('relic'); say('A GOLDEN FISH! Full health and a pile of coins!', 'CÁ VÀNG! Hồi đầy máu và một đống xu!', '#ffd34e'); if (mine && !DEMO) { save.goldFish = (save.goldFish | 0) + 1; writeSave(); } }
+    const coins = n => { for (let i = 0; i < n; i++) drop('coin'); };
+    const ammo = n => { const w = ['dagger', 'dagger', 'bomb', 'flask'][(Math.random() * 4) | 0]; drop('pk', { what: w, amt: w === 'dagger' ? n + 2 : n, keep: false }); };
+    const maxh = P.mhp || maxHP(), heal = h => { P.hp = Math.min(maxh, P.hp + h); emit(P.x + 4, P.y + 4, 10, { col: ['#ff7fb0', '#fff'], sp0: 10, sp1: 40 }); Snd.play('heart'); };
+    switch (spec.id) {
+      case 'minnow': coins(2 + ((Math.random() * 3) | 0)); break;
+      case 'carp': coins(4 + ((Math.random() * 4) | 0)); break;
+      case 'perch': ammo(2); break;
+      case 'glowfin': heal(1); break;
+      case 'moon': coins(10); ammo(3); heal(1); break;
+      case 'golden': P.hp = maxh; coins(12); emit(P.x + 4, P.y + 4, 30, { col: ['#ffd34e', '#fff6c0', '#fff'], sp0: 20, sp1: 100 }); Snd.play('relic'); if (mine && !DEMO) { save.goldFish = (save.goldFish | 0) + 1; writeSave(); } break;
+      default: coins(1);
+    }
+    let isNew = false;
+    if (mine && spec.r > 0 && save.fishLog.indexOf(spec.id) < 0) { save.fishLog.push(spec.id); isNew = true; if (!DEMO) writeSave(); }
+    if (mine) { fishCardOf(P, spec, isNew); Q.msg = sv('Caught: ' + spec.en + '!', 'Câu được: ' + spec.vi + '!'); Q.msgT = 3; }
+    else pop(P.x + 4, P.y - 22, sv(spec.en + '!', spec.vi + '!'), '#9fe8ff');
+  }
+  function drawFishCard() {   // a small card with the fish you just caught, top centre of the screen
+    const c = Q.fishCard; if (!c) return; c.t += 1 / 60; if (c.t > 4) { Q.fishCard = null; return; }
+    const spec = FISH_BY[c.id], a = Math.min(1, (4 - c.t) * 2, c.t * 4), sp = fishSprite(c.id), x = Math.round(VW / 2 - 70), y = 22 - Math.round((1 - Math.min(1, c.t * 5)) * 20);
+    g.globalAlpha = a; g.fillStyle = '#14101c'; g.fillRect(x, y, 140, 38); g.fillStyle = spec.r >= 4 ? '#ffd34e' : (spec.r >= 3 ? '#c8b8ff' : '#3a3450'); g.fillRect(x + 1, y + 1, 138, 1); g.fillRect(x + 1, y + 36, 138, 1);
+    g.fillStyle = '#221d2e'; g.fillRect(x + 2, y + 2, 38, 34); g.drawImage(sp.c, x + 4, y + 8, sp.w * 2, sp.h * 2);
+    txt(sv(spec.en, spec.vi), x + 46, y + 6, { size: 7, bold: true, col: '#ffffff' });
+    txt(spec.r > 0 ? '*'.repeat(spec.r) : sv('Junk', 'Đồ bỏ'), x + 46, y + 16, { size: 6, col: spec.r >= 3 ? '#ffd34e' : '#9fe8ff' });
+    txt(sv('You got ', 'Nhận: ') + sv(spec.rew.en, spec.rew.vi), x + 46, y + 25, { size: 5, col: '#cfd6e6' });
+    if (c.isNew) txt(sv('NEW! ', 'MỚI! ') + c.n + '/' + FISH_TOTAL, x + 136, y + 6, { al: 'right', size: 6, bold: true, col: '#9fff9f' });
+    g.globalAlpha = 1;
+  }
+
+  // ---------- the boat ----------
+  const BOAT_SPD = 70, BEAST_SPD = 52;
+  function newBoat() { const sea = Q.L.sea; return { x: sea.moor * TS, y: sea.surface - 4, vx: 0, face: -1, hp: 3, max: 3, rider: -1, wreck: 0, hitT: 0 }; }
+  function boardBoat(P) {
+    const b = Q.boat; if (!b || b.hp <= 0 || b.rider >= 0 || (coop && coop.role === 'client')) { if (isMe(P)) { Q.msg = b && b.hp <= 0 ? sv('The boat is wrecked. It will be mended soon.', 'Thuyền hỏng rồi. Sẽ sớm được sửa.') : sv('Someone is already aboard.', 'Có người đang ở trên thuyền rồi.'); Q.msgT = 2.5; } return; }
+    if (Math.abs(b.x - Q.L.sea.pierEnd * TS) > 9 * TS) { if (isMe(P)) { Q.msg = sv('The boat is too far from the pier.', 'Thuyền ở xa cầu quá.'); Q.msgT = 2.5; } return; }
+    P.boat = true; b.rider = P.slot || 0; P.vx = P.vy = 0; Snd.play('splash'); emit(b.x, b.y, 10, { col: ['#bfeaff', '#fff'], sp0: 15, sp1: 50, vy: -30 });
+    if (isMe(P)) { Q.msg = sv('Aboard! Left/right: sail. E: fish. Jump: leave. Far out something lurks...', 'Lên thuyền! Trái/phải: chèo. E: câu cá. Nhảy: xuống. Ngoài xa có thứ gì đó rình...'); Q.msgT = 5; }
+  }
+  function leaveBoat(P, toPier) {
+    const b = Q.boat; P.boat = false; P.fish = null; if (b) b.rider = -1;
+    if (toPier) { P.x = Q.L.sea.pierEnd * TS - 4; P.y = Q.L.sea.surface - P.h - 1; P.vy = 0; }
+    else { P.y = Q.L.sea.surface - 6; P.vy = -90; P.vx = P.face * 40; Snd.play('splash'); emit(P.x + 4, Q.L.sea.surface, 10, { col: ['#bfeaff', '#fff'], sp0: 20, sp1: 60, vy: -50 }); }
+    P.fishCool = 0.5;
+  }
+  function boatStep(P, dt) {
+    const b = Q.boat, sea = Q.L.sea;
+    if (!b || b.hp <= 0 || !sea) { P.boat = false; P.fish = null; return false; }
+    const wasFish = !!P.fish;
+    P.onGround = true; P.vx = 0; P.vy = 0; P.jumps = 0;
+    if (wasFish && fishStep(P, dt)) { P.x = b.x - P.w / 2; P.y = b.y + Math.sin(Q.t * 1.8 + b.x * 0.02) * 1.2 - P.h; return true; }
+    const dir = (act.right ? 1 : 0) - (act.left ? 1 : 0);
+    if (dir) { b.face = dir; P.face = dir; }
+    b.vx += (dir * BOAT_SPD - b.vx) * Math.min(1, 3 * dt); b.x = clamp(b.x + b.vx * dt, sea.minX * TS, sea.maxX * TS);
+    if (b.x <= sea.minX * TS || b.x >= sea.maxX * TS) b.vx = 0;
+    P.x = b.x - P.w / 2; P.y = b.y + Math.sin(Q.t * 1.8 + b.x * 0.02) * 1.2 - P.h;
+    if (!wasFish && act.jumpP) { leaveBoat(P, b.x < (sea.pierEnd + 8) * TS); return true; }
+    if (Math.abs(b.vx) > 20 && Math.random() < 0.15) emit(b.x - b.face * 24, b.y + 6, 1, { col: ['#bfeaff', '#fff'], sp0: 3, sp1: 14, vy: -8 });
+    return true;
+  }
+  function wreckBoat() {
+    const b = Q.boat; if (!b) return;
+    b.hp = 0; b.wreck = 25; b.hitT = 1; b.rider = -1; Snd.play('explode'); Q.shake = Math.max(Q.shake, 0.5);
+    emit(b.x, b.y, 40, { col: ['#8a5a2a', '#c08a4a', '#5e3b1a', '#bfeaff'], sp0: 40, sp1: 140, vy: -70 });
+    for (const p of Q.players || [Q.P]) if (p.boat) { p.boat = false; p.fish = null; p.y = Q.L.sea.surface - 6; p.vy = 40; p.vx = 0; if (isMe(p)) { Q.msg = sv('The boat is wrecked! Swim back to the pier!', 'Thuyền vỡ rồi! Bơi về cầu tàu đi!'); Q.msgT = 4; } }
+  }
+  // ---------- the sea beast ----------
+  const beastBand = p => p.y + p.h / 2 > Q.L.sea.band0 * TS && p.y < (Q.L.sea.band1 + 1) * TS;
+  function updateSea(dt) {
+    const L = Q.L, sea = L.sea; if (!sea || (coop && coop.role === 'client')) return;
+    const b = Q.boat;
+    if (b) { if (b.hitT > 0) b.hitT -= dt; if (b.hp <= 0) { b.wreck -= dt; if (b.wreck <= 0) { Object.assign(b, newBoat()); Snd.play('chime'); emit(b.x, b.y, 12, { col: ['#ffd34e', '#fff'], sp0: 20, sp1: 60 }); } } }
+    Q.beastCd = Math.max(0, (Q.beastCd || 0) - dt);
+    const alive = (Q.players || [Q.P]).filter(p => !p.down && p.hp > 0), tgts = alive.filter(p => beastBand(p) && p.x >= sea.safeX * TS);
+    let be = Q.beast;
+    if (!be) {
+      if (Q.beastCd <= 0 && alive.some(p => beastBand(p) && p.x >= sea.trigX * TS)) {
+        const far = Math.max.apply(null, alive.map(p => p.x));
+        be = Q.beast = { x: Math.min((sea.maxX + 1) * TS, far + 18 * TS), y: sea.surface, st: 'warn', t: 0, face: -1, cd: 0, hit: 0, lost: 0, shake: 0 };
+        Snd.sting(); Snd.play('thunder'); Q.shake = Math.max(Q.shake, 0.3);
+        Q.msg = sv('Something HUGE stirs beneath the waves! It is far too big to fight: get back toward the pier!', 'Có thứ KHỔNG LỒ đang động dưới sóng! To quá không đánh nổi: hãy quay về phía cầu tàu!'); Q.msgT = 6;
+      }
+      return;
+    }
+    be.t += dt; be.cd = Math.max(0, be.cd - dt);
+    if (be.st === 'warn') { if (Math.random() < 0.4) emit(be.x + rr(-20, 20), be.y, 1, { col: ['#bfeaff', '#fff'], sp0: 5, sp1: 25, vy: -25 }); if (be.t > 2.2) { be.st = 'fin'; be.t = 0; } return; }
+    const tg = tgts.length ? tgts.reduce((a, c) => (Math.abs(c.x - be.x) < Math.abs(a.x - be.x) ? c : a)) : null;
+    if (!tg) { be.lost += dt; if (be.lost > 1.5) { Q.beast = null; Q.beastCd = 14; emit(be.x, be.y, 16, { col: ['#bfeaff', '#fff'], sp0: 20, sp1: 70, vy: -40 }); Q.msg = sv('The beast sinks back into the deep.', 'Quái vật chìm trở lại xuống đáy biển.'); Q.msgT = 3; } return; }
+    be.lost = 0;
+    const dx = tg.x - be.x;
+    if (be.st === 'fin') {
+      be.face = dx < 0 ? -1 : 1; be.x = Math.max((sea.safeX + 2) * TS, Math.min((sea.maxX + 1) * TS, be.x + Math.sign(dx) * Math.min(Math.abs(dx), BEAST_SPD * dt)));
+      if (Math.random() < 0.3) emit(be.x - be.face * 10, be.y + 2, 1, { col: ['#bfeaff', '#fff'], sp0: 3, sp1: 14, vy: -6 });
+      if (Math.abs(dx) < 40 && be.cd <= 0) { be.st = 'tele'; be.t = 0; Snd.play('rumble'); }
+    } else if (be.st === 'tele') {
+      be.shake = Math.sin(be.t * 50) * 1.5; if (Math.random() < 0.5) emit(be.x + rr(-14, 14), be.y, 1, { col: ['#bfeaff', '#fff'], sp0: 5, sp1: 25, vy: -30 });
+      if (be.t > 0.7) { be.st = 'bite'; be.t = 0; be.hit = 0; be.shake = 0; Snd.play('boom'); Q.shake = Math.max(Q.shake, 0.4); emit(be.x, be.y, 30, { col: ['#bfeaff', '#fff'], sp0: 40, sp1: 120, vy: -90 }); }
+    } else if (be.st === 'bite') {
+      if (!be.hit && be.t > 0.15) {
+        be.hit = 1;
+        for (const p of alive) if (Math.abs(p.x + p.w / 2 - be.x) < 48 && beastBand(p)) {   // the jaws reach about 3 tiles
+          if (p.boat && b && b.hp > 0) { b.hp--; b.hitT = 0.7; Snd.play('explode'); emit(b.x, b.y, 20, { col: ['#8a5a2a', '#c08a4a', '#bfeaff'], sp0: 30, sp1: 100, vy: -60 }); if (b.hp <= 0) wreckBoat(); else if (isMe(p)) { Q.msg = sv('The boat is cracking! (' + b.hp + '/' + b.max + ')', 'Thuyền nứt rồi! (' + b.hp + '/' + b.max + ')'); Q.msgT = 2.5; } }
+          else if (!p.boat) { const sx = be.x; if (p === Q.P) hurtPlayer(1, sx); else asP(p, () => hurtPlayer(1, sx)); }
+        }
+      }
+      if (be.t > 0.55) { be.st = 'dive'; be.t = 0; be.cd = 1.2; }
+    } else if (be.st === 'dive') { if (be.t > 1.6) { be.st = 'fin'; be.t = 0; } }
+  }
+  const BEAST_SPR = {};
+  function beastSprite(open) {
+    if (BEAST_SPR[open]) return BEAST_SPR[open];
+    return (BEAST_SPR[open] = paint(56, 40, P => {
+      P.ell(28, 26, 24, 12, '#1f4a5a'); P.ell(28, 23, 22, 9, '#2e7488'); P.ell(26, 20, 16, 5, '#3f94a8');   // the scaled head
+      P.tri(10, 14, 6, 2, 17, 12, '#173844'); P.tri(24, 11, 22, 0, 32, 10, '#173844'); P.tri(38, 12, 40, 1, 46, 14, '#173844');   // brow spikes
+      P.rect(8, 28 + (open ? 0 : 0), 40, 3, '#5a1420');   // the mouth
+      if (open) { P.rect(8, 31, 40, 7, '#1a3a48'); P.rect(10, 31, 36, 4, '#5a1420'); for (let i = 0; i < 8; i++) P.tri(10 + i * 5, 31, 12 + i * 5, 36, 14 + i * 5, 31, '#f4f0e0'); }
+      for (let i = 0; i < 8; i++) P.tri(10 + i * 5, 28, 12 + i * 5, 24, 14 + i * 5, 28, '#f4f0e0');
+      P.ell(17, 17, 4, 4, '#ffd34e'); P.ell(17, 17, 2, 3, '#14101c'); P.px(16, 15, '#fff');   // the eye
+    }, '#0a1820'));
+  }
+  const boatSpr = {};
+  function drawBoatShape(x, y, face, tilt, cracked) {
+    g.save(); g.translate(Math.round(x), Math.round(y)); g.scale(face < 0 ? -1 : 1, 1); g.rotate(tilt);
+    g.fillStyle = '#14101c'; g.fillRect(-27, -3, 54, 4); for (let i = 0; i < 8; i++) g.fillRect(-26 + i * 2, 1 + i, 52 - i * 4, 1);
+    g.fillStyle = '#8a5a2a'; g.fillRect(-26, -2, 52, 3); g.fillStyle = '#c08a4a'; g.fillRect(-26, -2, 52, 1);
+    for (let i = 0; i < 7; i++) { g.fillStyle = i % 2 ? '#7a4e26' : '#6a4220'; g.fillRect(-24 + i * 2, 1 + i, 48 - i * 4, 1); }
+    g.fillStyle = '#5e3b1a'; g.fillRect(-26, 1, 2, 1); g.fillRect(24, 1, 2, 1);
+    g.fillStyle = '#14101c'; g.fillRect(22, -12, 3, 10); g.fillStyle = '#7a5028'; g.fillRect(23, -11, 1, 9);   // the prow post
+    g.fillStyle = '#ffd34e'; g.fillRect(20, -16, 7, 5); g.fillStyle = '#fff6c0'; g.fillRect(22, -15, 3, 3);       // the lantern
+    g.fillStyle = '#4a2e18'; g.fillRect(-20, -5, 8, 2);                                                           // a bench
+    if (cracked) { g.fillStyle = '#14101c'; g.fillRect(-8, -1, 1, 3); g.fillRect(-7, 2, 1, 2); g.fillRect(6, -1, 1, 4); }
+    g.restore();
+  }
+  function drawSea(camX, camY) {
+    const sea = Q.L.sea; if (!sea) return;
+    const b = Q.boat;
+    if (b && b.hp > 0 && b.x > camX - 60 && b.x < camX + VW + 60) {
+      const bob = Math.sin(Q.t * 1.8 + b.x * 0.02) * 1.2, x = b.x - camX, y = b.y + 4 + bob - camY, hurt = b.hp < b.max;
+      drawBoatShape(x, y, b.face, (b.hp === 1 ? 0.06 : 0) + b.vx * 0.0004, hurt);
+      if (b.hitT > 0 && Math.floor(b.hitT * 20) % 2) { g.globalAlpha = 0.5; g.fillStyle = '#fff'; g.fillRect(Math.round(x) - 26, Math.round(y) - 3, 52, 4); g.globalAlpha = 1; }
+      for (let i = 0; i < b.max; i++) { g.fillStyle = '#14101c'; g.fillRect(Math.round(x) - 10 + i * 7, Math.round(y) + 8, 6, 6); g.fillStyle = i < b.hp ? '#e0453a' : '#3a3450'; g.fillRect(Math.round(x) - 9 + i * 7, Math.round(y) + 9, 4, 4); }   // the boat's hearts, under the hull
+      g.fillStyle = 'rgba(200,235,255,.5)'; g.fillRect(Math.round(x) - 28, Math.round(y) - 1, 56, 1);
+      if (Q.state === 'play' && Q.nearBoard) txt(sv('E: Board the boat', 'E: Lên thuyền'), Math.round(sea.pierEnd * TS - camX), Math.round(sea.surface - camY) - 30, { al: 'center', size: 6, col: '#9fe8ff', world: true });
+    } else if (b && b.hp <= 0 && b.x > camX - 60 && b.x < camX + VW + 60) {   // wreckage floating on the water
+      const x = b.x - camX, y = sea.surface - camY; g.fillStyle = '#5e3b1a';
+      for (let i = 0; i < 6; i++) g.fillRect(Math.round(x + Math.sin(i * 2.1 + Q.t * 0.6) * 18 + (i - 3) * 6), Math.round(y - 1 + Math.sin(Q.t * 1.5 + i) * 1), 5 + (i % 3) * 2, 2);
+    }
+    const be = Q.beast; if (!be || be.x < camX - 60 || be.x > camX + VW + 60) return;
+    const x = Math.round(be.x - camX + (be.shake || 0)), y = Math.round(be.y - camY);
+    if (be.st === 'warn' || be.st === 'tele' || be.st === 'dive') {   // a dark shape under the water and ripples
+      g.globalAlpha = be.st === 'dive' ? 0.25 : 0.4; g.fillStyle = '#041018'; g.beginPath(); g.ellipse(x, y + 12, 34, 7, 0, 0, Math.PI * 2); g.fill(); g.globalAlpha = 1;
+    }
+    if (be.st === 'warn' || be.st === 'tele') { for (let i = 0; i < 3; i++) { g.strokeStyle = 'rgba(200,235,255,' + (0.5 - i * 0.15) + ')'; g.beginPath(); g.ellipse(x, y + 1, 10 + i * 9 + Math.sin(Q.t * 5 + i) * 2, 2 + i * 0.8, 0, 0, Math.PI * 2); g.stroke(); } }
+    if (be.st === 'fin' || be.st === 'tele' || be.st === 'warn') {   // the dorsal fin
+      const h = be.st === 'warn' ? Math.min(14, be.t * 8) : 14, f = be.face < 0 ? -1 : 1;
+      g.fillStyle = '#14101c'; g.beginPath(); g.moveTo(x - 7 * f, y + 2); g.lineTo(x - 1 * f, y - h - 1); g.lineTo(x + 8 * f, y + 2); g.fill();
+      g.fillStyle = '#2e7488'; g.beginPath(); g.moveTo(x - 5 * f, y + 1); g.lineTo(x - 1 * f, y - h + 1); g.lineTo(x + 6 * f, y + 1); g.fill();
+      g.fillStyle = 'rgba(220,245,255,.6)'; g.fillRect(x - 12, y + 1, 24, 1);
+    }
+    if (be.st === 'bite') {
+      const k = Math.min(1, be.t / 0.18), lift = Math.round(34 * Math.sin(Math.min(1, be.t / 0.55) * Math.PI) * k), sp = beastSprite(be.t > 0.12 && be.t < 0.45);
+      g.save(); g.beginPath(); g.rect(x - 40, y - 60, 80, 60 + 1); g.clip();   // only the part above the water shows
+      g.translate(x, y + 8 - lift); g.scale(be.face < 0 ? 1 : -1, 1); g.drawImage(sp.c, -sp.w / 2, -sp.h + 14); g.restore();
+    }
   }
   function drawPonds(camX, camY) {
     for (const o of Q.L.ponds || []) {
@@ -2866,6 +3067,7 @@
       g.fillStyle = '#14101c'; g.fillRect(px - 5, py - 21, 10, 7); g.fillStyle = '#f0f4ff'; g.fillRect(px - 4, py - 20, 8, 5); g.fillStyle = '#e0453a'; g.fillRect(px - 4, py - 20, 8, 2); g.fillStyle = '#14101c'; g.fillRect(px - 1, py - 18, 2, 1);
       if (Q.nearFish === sp && Q.state === 'play') txt(sv('E: Fish', 'E: Câu cá'), px, py - 28, { al: 'center', size: 6, col: '#9fe8ff', world: true });
     }
+    { const me = Q.me || Q.P; if (me && me.boat && !me.fish && Q.state === 'play') txt(sv('E: Fish   Jump: leave', 'E: Câu cá   Nhảy: xuống'), Math.round(me.x + 4 - camX), Math.round(me.y - 12 - camY), { al: 'center', size: 6, col: '#9fe8ff', world: true }); }
     for (const p of Q.players || [Q.P]) {
       const f = p.fish; if (!f) continue;
       const hx = p.x + 4 + p.face * 7 - camX, hy = p.y + 6 - camY, bx = f.bx - camX, bob = f.ph === 'bite' ? 2 + Math.sin(Q.t * 30) * 1.5 : Math.sin(Q.t * 3 + f.t) * 0.8, by = f.by - camY + bob;
@@ -2878,7 +3080,7 @@
       if (f.ph === 'bite') {   // the needle gauge
         g.fillStyle = '#14101c'; g.fillRect(gx - 19, gyy - 1, 38, 7); g.fillStyle = '#3a3450'; g.fillRect(gx - 18, gyy, 36, 5);
         g.fillStyle = '#5ad87a'; g.fillRect(Math.round(gx - 18 + 36 * (f.zc - f.zw / 2)), gyy, Math.round(36 * f.zw), 5);
-        g.fillStyle = '#fff'; g.fillRect(Math.round(gx - 18 + 35 * needleAt(f.bt)), gyy - 2, 2, 9);
+        g.fillStyle = '#fff'; g.fillRect(Math.round(gx - 18 + 35 * needleAt(f.bt, f.speed)), gyy - 2, 2, 9);
         txt('!', gx, gyy - 8, { al: 'center', size: 8, bold: true, col: '#ffd34e', world: true });
       } else if (f.ph === 'catch') { txt('!', gx, gyy - 8, { al: 'center', size: 8, bold: true, col: '#9fff9f', world: true }); }
     }
@@ -4017,6 +4219,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (act.shopP && st === 'play') { openShopInGame(); return; }
     if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && Q.nearCp) { const why = travelBlock(); if (why === '') { openTravel(); return; } if (why) { Q.msg = why; Q.msgT = 2.5; Snd.play('select'); } }
     if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && !Q.nearCp && Q.nearPost) { resetCrate(Q.nearPost); return; }
+    if (st === 'play' && act.talkP && Q.P.boat && !Q.P.fish) { startFish(Q.P, boatSpot(Q.P)); return; }
+    if (st === 'play' && act.talkP && !Q.P.boat && Q.nearBoard) { boardBoat(Q.P); return; }
     if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && (!Q.nearCp || travelBlock() === null) && !Q.nearPost && Q.nearFish && !Q.P.fish) { startFish(Q.P, Q.nearFish); return; }
     if (st === 'travel') { updateTravel(); return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
@@ -4025,7 +4229,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (Q.shake > 0) Q.shake -= dt;
     if (Q.msgT > 0) Q.msgT -= dt;
     if (Q.wishT > 0) Q.wishT -= dt;
-    updatePlats(dt); updateCrumble(dt); nearSounds(dt); updateCrates(dt); updateDayNight(dt); updateFishing(); if (Q.brk.some(b => b.dead)) Q.brk = Q.brk.filter(b => !b.dead);
+    updatePlats(dt); updateCrumble(dt); nearSounds(dt); updateCrates(dt); updateDayNight(dt); updateFishing(); updateSea(dt); if (Q.brk.some(b => b.dead)) Q.brk = Q.brk.filter(b => !b.dead);
     if (st === 'bossintro' && !(Q.boss && Q.boss.st === 'intro')) Q.state = 'play'; // never get stuck in the intro
     if (st === 'bossintro') { asP(coop ? bossTgt(dt) : Q.P, () => updateBoss(dt)); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
     if (!Q.P.down) updatePlayer(dt);
@@ -4105,7 +4309,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       if (d.x < camX - 20 || d.x > camX + VW + 20) continue;
       const sp = ts.decor[d.k]; g.drawImage(sp.c, Math.round(d.x - camX - sp.w / 2), Math.round(d.y - camY - sp.h + 1));
     }
-    drawBrk(camX, camY); drawCrateRooms(camX, camY); drawPonds(camX, camY);
+    drawBrk(camX, camY); drawCrateRooms(camX, camY); drawPonds(camX, camY); drawSea(camX, camY);
     drawFishing(camX, camY);
     drawProps(camX, camY);
     // moving platforms
@@ -4612,6 +4816,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       txt(LN(b.cfg.name) + (b.forms ? '  [' + (b.fi + 1) + '/' + b.forms.length + ']' : '') + (b.cfg.armor > 0 ? '   [' + Math.round(b.cfg.armor * 100) + '% ' + (save.lang === 'vi' ? 'giáp' : 'armor') + ']' : ''), VW / 2, y + 14, { al: 'center', size: 8 });
     }
     drawGearHUD();
+    drawFishCard();
     if (Q.msgT > 0 && Q.msg && Q.state === 'play') txt(Q.msg, VW / 2, VH - 14, { al: 'center', size: 7, alpha: Math.min(1, Q.msgT) });
   }
 
@@ -5363,7 +5568,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     ['g', 'OTHER', 'KHÁC', '#c8a0ff'],
     ['Talk / use / fast travel (checkpoint)', 'Nói chuyện / dùng / dịch chuyển nhanh', 'E', 'Y'],
     ['Push a crate: walk into it', 'Đẩy thùng: đi dồn vào nó', 'Arrows / A D', 'Stick'],
-    ['Fish: E at a post, E on a bite', 'Câu cá: E ở cột câu, E khi cá cắn', 'E', 'Y'],
+    ['Fish / boat: E at a post or pier end', 'Câu cá / thuyền: E ở cột hoặc cuối cầu', 'E', 'Y'],
     ['Shop & bag', 'Cửa hàng & túi đồ', 'B', 'Back'],
     ['Pause menu', 'Tạm dừng', 'Esc', 'Start'],
     ['Sound on / off  ·  fullscreen', 'Tắt / bật tiếng  ·  toàn màn hình', 'M  ·  F11', '-'],
@@ -6354,7 +6559,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const npc = nearNpcFor(P); if (npc) { startTalk(npc); return; }
     const pz = nearPzFor(P); if (pz) { usePz(pz); return; }
     for (const r of Q.L.crateRooms || []) if (Math.abs(P.x + P.w / 2 - (r.postX + 0.5) * TS) < 20 && Math.abs(P.y + P.h - r.y * TS) < 10) { resetCrate(r); return; }   // a guest can reset a crate too
-    if (!P.fish) { const sp = fishSpotNear(P); if (sp) startFish(P, sp); }   // ... and fish
+    if (!P.fish) { if (P.boat) startFish(P, boatSpot(P)); else if (boardSpotNear(P)) boardBoat(P); else { const sp = fishSpotNear(P); if (sp) startFish(P, sp); } }   // ... and fish or sail
   }
   function coopHostPlayers(dt) {
     const me = Q.me, ar = Q.L.arena;
@@ -6467,7 +6672,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   }
   // lists of world objects sent with ids; only the fields that changed are sent again
   const QLISTS = ['ents', 'projs', 'fps', 'fires', 'zones', 'rings', 'ghosts', 'corpses', 'items', 'traps', 'pz', 'gates', 'trials', 'minis', 'dragons', 'brk'];
-  const QONE = ['boss', 'dragon', 'syFig', 'mainBoss'];
+  const QONE = ['boss', 'dragon', 'syFig', 'mainBoss', 'boat', 'beast'];
   const GLISTS = ['allies', 'pops', 'bolts', 'holes', 'torn', 'sums', 'slashes', 'mtraps'];
   const GONE = ['god', 'dr', 'lyra'];
   const QVALS = ['state', 'trav', 'stateT', 'time', 'shake', 'arenaSealed', 'bossDead', 'msg', 'msgT', 'banner', 'cp', 'talk', 'darkBoost', 'darkBoostT', 'windT', 'windDir', 'shardFlash', 'coinsRun', 'pearls', 'dj', 'dashAb', 'btSlot'];
@@ -6497,7 +6702,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     return out;
   }
   function packPlayer(p) {
-    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, vn: p.vine ? p.vine.v.i : -1, ws: p.ws, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, armT: p.armT, armDur: p.armDur, armDir: p.armDir, armSpin: p.armSpin, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, fish: p.fish || null, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
+    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, vn: p.vine ? p.vine.v.i : -1, ws: p.ws, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, armT: p.armT, armDur: p.armDur, armDir: p.armDir, armSpin: p.armSpin, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, fish: p.fish || null, boat: !!p.boat, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
   }
   function coopSnapshot() {
     if (Q.talk && !Q.talk.id) { Q.talk.id = ++coop.tkN; Q.talk.doneList = Q.talk.doneList || []; }
