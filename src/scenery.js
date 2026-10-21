@@ -109,7 +109,6 @@ const EGG_PAINT = {
   woodbox: [22, 22, P => { P.rect(2, 4, 12, 18, 'n'); P.rect(2, 4, 12, 2, 'E'); P.rect(2, 10, 12, 1, 'N'); P.rect(2, 16, 12, 1, 'N'); P.line(2, 4, 13, 21, 'R', 1); P.rect(12, 14, 10, 8, 'G'); for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) if ((i + j) % 2) P.rect(12 + i * 2 + (i >> 1), 14 + j * 3, 2, 2, 'k'); P.px(5, 7, 'm'); }],
   mechahead: [30, 26, P => { P.ell(15, 17, 12, 9, '#5a3a8a'); P.ell(15, 15, 11, 8, '#7a4ab0'); P.tri(15, 0, 12, 10, 18, 10, '#7a4ab0'); P.both(() => { P.rect(7, 13, 5, 3, '#9be564'); P.px(8, 14, 'w'); }); P.rect(10, 20, 10, 2, '#9be564'); P.rect(8, 24, 14, 2, 'D'); P.rect(0, 24, 30, 2, 'B'); }],
   drill: [30, 20, P => { for (let i = 0; i < 6; i++) { const x = 4 + i * 4, h = 9 - i * 1.4; P.rect(x, 10 - h, 4, h * 2, i % 2 ? 'Y' : 'y'); } P.tri(28, 10, 26, 7, 26, 13, 'y'); P.rect(0, 6, 5, 8, 'R'); P.line(1, 18, 9, 18, 'r', 1); P.tri(1, 16, 5, 16, 3, 19, 'k'); P.tri(6, 16, 10, 16, 8, 19, 'k'); P.rect(5, 16, 1, 1, 'k'); }],
-  wishorb: [12, 12, P => { P.ell(6, 6, 5, 5, 'o'); P.ell(6, 5, 4, 4, '#ffb04a'); P.ell(4, 3, 1, 1, '#fff6c0'); }]
 };
 const EGGS = {
   meadow: { k: 'strawhat', en: 'An old straw hat rests on a sign by the shore. Its owner must be sailing after the greatest treasure in the world.', vi: 'Một chiếc mũ rơm cũ để trên tấm biển ven bờ. Chủ của nó chắc đang ra khơi tìm kho báu lớn nhất thế giới.' },
@@ -123,8 +122,14 @@ const EGGS = {
   ocean: { k: 'mechahead', en: 'A giant purple robot head sleeps on the seabed. It really, really does not want anyone to get in.', vi: 'Một cái đầu robot tím khổng lồ ngủ dưới đáy biển. Hình như nó rất, rất không muốn ai trèo vào lái.' },
   tunnels: { k: 'drill', en: 'A huge spiral drill and a pair of pointy sunglasses. This drill looks like it could pierce the sky.', vi: 'Một mũi khoan xoắn khổng lồ và cặp kính râm nhọn hoắt. Mũi khoan này trông như khoan thủng được cả bầu trời.' }
 };
-// seven Wish Orbs (one star more on each) hidden in seven lands
+// Lyra's seven notes, one hidden in each of seven lands (the n-th note in the n-th land); a crystal music note in its own colour
 const ORB_MAPS = [0, 1, 2, 3, 4, 5, 9];
+const NOTE_COL = [['#ff5a5a', '#ffc8c8'], ['#ff9a3a', '#ffdcb0'], ['#ffd34e', '#fff3b8'], ['#7ed957', '#d8ffc8'], ['#6ee7f2', '#dcfcff'], ['#5a8bff', '#cddcff'], ['#c07bff', '#eedcff']];
+function noteSprite(n) {
+  const key = 'note_' + n;
+  if (!_cache[key]) { const c = NOTE_COL[(n - 1) % 7]; _cache[key] = paint(12, 16, P => { P.ell(4, 12, 3, 2, c[0]); P.rect(6, 2, 2, 11, c[0]); P.tri(8, 2, 8, 7, 11, 6, c[0]); P.px(3, 11, c[1]); P.px(4, 11, c[1]); P.rect(6, 3, 1, 7, c[1]); P.px(9, 4, c[1]); }, '#14121f'); }
+  return _cache[key];
+}
 function eggSprite(k) { const key = 'egg_' + k; if (!_cache[key]) { const d = EGG_PAINT[k]; _cache[key] = paint(d[0], d[1], d[2], '#14121f'); } return _cache[key]; }
 
 // ---------------- distant landmarks painted into the background (one per land) ----------------

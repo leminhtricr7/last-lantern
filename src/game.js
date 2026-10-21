@@ -2668,13 +2668,13 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
           else { startScripted('narr', [{ en: E.en, vi: E.vi }, found], null); if (first) save.rare++; } }
       } else if (it.kind === 'orb') {
         if (d < 13) {
-          it.dead = true; if (save.orbs.indexOf(Q.li) < 0) save.orbs.push(Q.li); writeSave(); Snd.play('shard'); emit(it.x, it.y, 30, { col: ['#ffb04a', '#ffd34e', '#fff'], sp0: 20, sp1: 120 }); addRing(it.x, it.y, '#ffb04a', 40, 0.5);
+          it.dead = true; if (save.orbs.indexOf(Q.li) < 0) save.orbs.push(Q.li); writeSave(); Snd.play('chime'); const nc = NOTE_COL[(it.n - 1) % 7][0]; emit(it.x, it.y, 30, { col: [nc, '#ffd34e', '#fff'], sp0: 20, sp1: 120 }); addRing(it.x, it.y, nc, 40, 0.5);
           if (save.orbs.length >= 7 && !save.wish) { save.wish = 1; writeSave(); Q.wishT = 9; Snd.devilRoar && Snd.play('boom');
-            startScripted('narr', [{ en: 'The seven Wish Orbs shine together... the sky turns dark... and a great green dragon rises from the light!', vi: 'Bảy viên Ngọc Ước cùng phát sáng... bầu trời tối sầm... và một con rồng xanh khổng lồ bay lên từ ánh sáng!' },
+            startScripted('narr', [{ en: 'The seven notes ring out together. Lyra sings her whole song for the first time... and a crane made of light glides across the sunless sky!', vi: 'Bảy nốt nhạc cùng vang lên. Lyra hát trọn bài ca lần đầu tiên... và một con hạc bằng ánh sáng lướt ngang bầu trời không mặt trời!' },
               { en: '"SPEAK YOUR WISH, LITTLE FLAME. I SHALL GRANT ONE."', vi: '"HÃY NÓI ĐIỀU ƯỚC CỦA NGƯƠI, NGỌN LỬA NHỎ. TA SẼ BAN MỘT ĐIỀU."' },
               { en: 'You wish for the strength to protect everyone. (+1 max heart, +1 damage, +10 Star Gems!)', vi: 'Bạn ước có sức mạnh để bảo vệ mọi người. (+1 tim tối đa, +1 sát thương, +10 Ngọc Sao!)' }],
               () => { save.bonusHP = Math.min(6, save.bonusHP + 1); save.bonusDmg = Math.min(4, save.bonusDmg + 1); save.rare += 10; writeSave(); Q.P.hp = maxHP(); });
-          } else { Q.msg = sv('Wish Orb with ', 'Ngọc Ước ') + it.n + sv(' stars! (', ' sao! (') + save.orbs.length + '/7)' + sv(' Gather all seven...', ' Hãy gom đủ bảy viên...'); Q.msgT = 4; }
+          } else { Q.msg = sv("Lyra's note ", 'Nốt nhạc thứ ') + it.n + sv('! (', ' của Lyra! (') + save.orbs.length + '/7)' + sv(' Find all seven...', ' Hãy tìm đủ bảy nốt...'); Q.msgT = 4; }
         }
       } else if (it.kind === 'rare') {
         if (d < 13) {
@@ -3614,7 +3614,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     g.drawImage(Q.bg.sky, 0, 0, VW, VH);
     drawSun();
     drawSkyLife(camX, camY);
-    if (Q.wishT > 0) drawWishDragon();
+    if (Q.wishT > 0) drawLightCrane();
     for (const ly of Q.bg.layers) {
       let ox = -((cam.x * ly.f) % 512); if (ox > 0) ox -= 512;
       const y = Math.round(ly.anchor === 'top' ? ly.y - camY * 0.1 + 24 * 0.1 : ly.y + (24 - cam.y) * ly.f + (VH - BVH) + Math.max(0, cam.y - (Q.L.H - 15) * TS) * 0);
@@ -3715,11 +3715,10 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       } else if (it.kind === 'egg') {
         drawSpr(g, eggSprite(EGGS[it.k].k), x, y, false);
         if (!it.seen && Math.sin(Q.t * 3 + it.x) > 0.6) { g.fillStyle = '#fff'; g.fillRect(x + 6, y - 20, 1, 3); g.fillRect(x + 5, y - 19, 3, 1); }
-      } else if (it.kind === 'orb') {
-        const by = y + Math.round(Math.sin(it.ph * 2) * 2);
-        g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35; disc(g, x, by, 11, '#ffb04a'); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
-        drawSpr(g, eggSprite('wishorb'), x, by + 7, false);
-        g.fillStyle = '#e0453a'; for (let k = 0; k < it.n; k++) { const a = k / Math.max(1, it.n) * 6.283; g.fillRect(Math.round(x + (it.n > 1 ? Math.cos(a) * 2.5 : 0)) - 1, Math.round(by + 1 + (it.n > 1 ? Math.sin(a) * 2.5 : 0)) - 1, 2, 2); }
+      } else if (it.kind === 'orb') {   // one of Lyra's seven notes
+        const by = y + Math.round(Math.sin(it.ph * 2) * 2), col = NOTE_COL[(it.n - 1) % 7][0];
+        g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35; disc(g, x, by, 11, col); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+        drawSpr(g, noteSprite(it.n), x, by + 8, false);
       } else if (it.kind === 'rare') {
         const by = y + Math.round(Math.sin(it.ph * 3) * 2);
         g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.3 + Math.sin(it.ph * 5) * 0.1; disc(g, x, by, 10, '#c07bff'); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
@@ -6718,13 +6717,29 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (!vignette || vignette.width !== Math.ceil(VW)) { const [c, x] = mkCanvas(Math.ceil(VW), Math.ceil(VH)), v = x.createRadialGradient(VW / 2, VH / 2, VH * 0.35, VW / 2, VH / 2, VW * 0.62); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.42)'); x.fillStyle = v; x.fillRect(0, 0, VW, VH); vignette = c; }
     g.drawImage(vignette, 0, 0);
   }
-  // the green wish dragon winding across the sky
-  function drawWishDragon() {
+  // the Lightcrane: a crane made of light that glides across the sunless sky when Lyra sings all seven notes
+  function craneSprite(up) {
+    const key = 'crane' + up;
+    if (!_cache[key]) _cache[key] = paint(40, 30, P => {   // faces right; wings up (1) or down (0)
+      const W = '#fff6dc', D = '#e8dcc0', K = '#3a3a5a', S = '#ffd34e';
+      if (up) { P.tri(14, 14, 24, 13, 12, 0, D); P.tri(12, 14, 22, 14, 6, 1, W); P.tri(6, 1, 10, 2, 4, 5, K); }
+      else { P.tri(14, 17, 24, 17, 14, 28, D); P.tri(12, 17, 22, 17, 8, 29, W); P.tri(8, 29, 12, 27, 6, 26, K); }
+      P.line(10, 18, 1, 22, S, 1); P.line(11, 19, 2, 24, S, 1);   // legs trailing behind
+      P.tri(8, 14, 8, 18, 3, 17, K);   // tail
+      P.ell(16, 16, 8, 4, W); P.ell(16, 18, 6, 2, D);   // body
+      P.line(22, 14, 31, 11, W, 2); P.rect(31, 9, 4, 3, W); P.px(32, 9, '#ff5a4a'); P.px(33, 10, '#14121f'); P.line(35, 10, 39, 11, S, 1);   // neck, head, beak
+    }, null);
+    return _cache[key];
+  }
+  function drawLightCrane() {
     const k = Q.wishT, a = Math.min(1, k / 1.5, (9 - k) / 1.5);
-    g.globalAlpha = 0.35 * a; g.fillStyle = '#05140a'; g.fillRect(0, 0, VW, VH); g.globalAlpha = a;
-    const hx = VW + 60 - (9 - k) * 70;
-    for (let i = 40; i >= 0; i--) { const x = hx + i * 9, y = 70 + Math.sin(i * 0.35 + Q.t * 2) * 26, r = i === 0 ? 9 : Math.max(3, 7 - i * 0.1); disc(g, Math.round(x), Math.round(y), Math.round(r), i % 2 ? '#2a8a3a' : '#3ab04a'); if (i % 4 === 0) { g.fillStyle = '#ffd34e'; g.fillRect(Math.round(x) - 1, Math.round(y - r), 2, 2); } }
-    g.fillStyle = '#ff3a2a'; g.fillRect(Math.round(hx) - 4, 66 + Math.round(Math.sin(Q.t * 2) * 26), 2, 2); g.fillStyle = '#ffd34e'; g.fillRect(Math.round(hx) - 2, 58 + Math.round(Math.sin(Q.t * 2) * 26), 6, 2);
+    g.globalAlpha = 0.35 * a; g.fillStyle = '#060a1e'; g.fillRect(0, 0, VW, VH);
+    const cx = VW + 50 - (9 - k) * 64, cy = 64 + Math.sin(Q.t * 1.3) * 8;
+    g.globalCompositeOperation = 'lighter';
+    for (let i = 1; i < 26; i++) { g.globalAlpha = a * (1 - i / 26) * 0.7; g.fillStyle = i % 3 ? '#ffe08a' : '#ffffff'; g.fillRect(Math.round(cx + 14 + i * 6), Math.round(cy + 4 + Math.sin(Q.t * 1.3 - i * 0.2) * 3 + Math.sin(i * 1.7 + Q.t * 5) * 2), 2, 2); }   // a trail of light
+    g.globalAlpha = a * 0.4; disc(g, Math.round(cx), Math.round(cy), 26, '#ffe08a');
+    g.globalCompositeOperation = 'source-over'; g.globalAlpha = a;
+    drawSpr(g, craneSprite(Math.floor(Q.t * 3) % 2), Math.round(cx), Math.round(cy + 24), true, false, 1.6, 1.6);
     g.globalAlpha = 1;
   }
   // ===================== DIVINE SUMMONS (swords, armors, pet forms): giants and beasts that fight beside you =====================
