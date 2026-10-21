@@ -599,3 +599,20 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   `tools/pixel/summons.py` (one rig, a spec per summon: build, armour, head, weapon, wings, cape); beasts, dragons, the
   whale, the phoenix's final form, the Shadow Trio, the Cobble Colossus (`cobble`, used when the Cobblekin pet grows) and
   the five small pets (`pet_<id>`, idle + walk) from `tools/pixel/beasts.py`. Previews in `docs/sprites_3B/`.
+
+## Sound identities (phase 4)
+- All sound is synthesised in `src/audio.js` (no recorded samples). Every boss id has a material that colours its
+  voice, footsteps and skills: b0 Gulgor slime, b1 Veylith whispering silk, b2 Prismor glass (rings instead of roaring),
+  b3 Khepsar sand, b4 Rimvald ice, b5 Kaldrok forge, b7 Morvella spores (a lullaby), b8 Oktavor water, b9 Vorgrub earth;
+  Quoc's eight forms steel, shadow (a sob), hound, chains, hollow armour (wind, no voice), torn wings, ash, eclipse
+  (choir + heartbeat); Shorty butler then fiend; Sy bottles then snake. `Snd.boss / bossSkill / bossStep` in audio.js,
+  `bossVox` / `bossVoxId` in game.js.
+- Dragons: `Snd.dragon(form, evt)`: Ignar young and high, Ignarok deep, Three Furies three voices, Duskflame echo + choir.
+- Summons: `Snd.summon(kind, 'spawn' | 'attack' | 'evo' | 'step')`; footsteps are quiet and never more than two at once.
+- Music: `BOSS_TRACK(li, tag, form)` in levels.js picks a theme per fight (`BOSS_THEME`, `QUOC_THEME`, `MINI_THEME`,
+  `DRAGON_THEME`): mode, tempo, lead and a signature layer (`SIG` in audio.js: bubbles, whispers, glass bells, desert
+  jingle, music box, anvil, dark choir, lullaby, sonar, taiko, waltz, lab bells, brass, chains, heartbeat, flames).
+  The music changes with every Quoc form, each gatekeeper form and each dragon stage.
+- Loudness: each id plays through its own gain bus. `BAL` (roars) and `KG` (skills per role, footsteps) were measured
+  with `Snd.meter` so every roar peaks near -14 dBFS on the effects bus (Quoc's last form a little louder), skills near
+  -24 and footsteps near -30. `tools/soundtest.html` (dev only) plays every voice, skill, step and theme and re-measures.

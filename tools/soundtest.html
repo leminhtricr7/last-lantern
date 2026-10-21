@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sound test</title>
+<style>
+  :root { --bg: #17141f; --panel: #221d2e; --ink: #ece6f5; --dim: #a59bb8; --acc: #ffd34e; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.4 system-ui, sans-serif; padding: 16px; }
+  h1 { font-size: 18px; margin: 0 0 4px; } h2 { font-size: 15px; margin: 18px 0 6px; color: var(--acc); }
+  p { color: var(--dim); margin: 0 0 10px; }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0; }
+  .row b { width: 120px; flex: none; font-weight: 600; }
+  button { background: var(--panel); color: var(--ink); border: 1px solid #3a3350; border-radius: 6px; padding: 4px 8px; cursor: pointer; font: inherit; }
+  button:hover { border-color: var(--acc); }
+  #out { white-space: pre; font: 12px/1.4 ui-monospace, monospace; color: var(--dim); }
+</style>
+</head>
+<body>
+<h1>LAST LANTERN · thử âm thanh (bản phát triển)</h1>
+<p>Bấm để nghe giọng, chiêu, bước chân và nhạc của từng boss và triệu hồi. "Đo" in độ lớn (dBFS) của giọng gầm.</p>
+<div class="row"><button id="stop">Dừng nhạc</button><button id="measure">Đo độ lớn tất cả boss</button></div>
+<div id="ui"></div>
+<div id="out"></div>
+<script src="../src/art.js"></script>
+<script src="../src/audio.js"></script>
+<script src="../src/items.js"></script>
+<script src="../src/foes.js"></script>
+<script src="../src/levels.js"></script>
+<script>
+const IDS = ['b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b7', 'b8', 'b9', 'quoc0', 'quoc1', 'quoc2', 'quoc3', 'quoc4', 'quoc5', 'quoc6', 'quoc7', 'shorty0', 'shorty1', 'sy0', 'sy1'];
+const NAME = { b0: 'Gulgor', b1: 'Veylith', b2: 'Prismor', b3: 'Khepsar', b4: 'Rimvald', b5: 'Kaldrok', b7: 'Morvella', b8: 'Oktavor', b9: 'Vorgrub', shorty0: 'Shorty', shorty1: 'Shorty quỷ', sy0: 'Thầy Sy', sy1: 'Mãng Xà Sy' };
+const SK = ['slam', 'shoot', 'rain', 'teleport', 'shield', 'summon'];
+const track = id => id[0] === 'b' ? BOSS_TRACK(+id.slice(1)) : id.indexOf('quoc') === 0 ? BOSS_TRACK(6, null, +id.slice(4)) : BOSS_TRACK(6, id.slice(0, -1), +id.slice(-1));
+const ui = document.getElementById('ui'), out = document.getElementById('out');
+const btn = (row, label, fn) => { const b = document.createElement('button'); b.textContent = label; b.onclick = () => { Snd.init(); fn(); }; row.appendChild(b); };
+const section = t => { const h = document.createElement('h2'); h.textContent = t; ui.appendChild(h); };
+const line = t => { const r = document.createElement('div'); r.className = 'row'; const b = document.createElement('b'); b.textContent = t; r.appendChild(b); ui.appendChild(r); return r; };
+section('Boss');
+for (const id of IDS) {
+  const r = line(NAME[id] || ('Quốc dạng ' + (+id.slice(4) + 1)));
+  for (const e of ['alert', 'attack', 'hurt', 'die']) btn(r, e, () => Snd.boss(id, e));
+  btn(r, 'bước', () => Snd.bossStep(id, true));
+  for (const k of SK) btn(r, k, () => Snd.bossSkill(id, k));
+  btn(r, '♪ nhạc', () => Snd.music('t' + id, track(id)));
+}
+section('Rồng');
+['Ignar', 'Ignarok Vảy Tro', 'Ba Cơn Thịnh Nộ', 'Lửa Hoàng Hôn'].forEach((n, f) => { const r = line(n); for (const e of ['alert', 'attack', 'hurt', 'die']) btn(r, e, () => Snd.dragon(f, e)); btn(r, '♪ nhạc', () => Snd.music('d' + f, BOSS_TRACK(5, 'dragon', f))); });
+section('Triệu hồi');
+for (const k of ['titan', 'stormgod', 'seagoddess', 'moongoddess', 'frostgiant', 'sunemperor', 'shogun', 'treant', 'aegis', 'valkyrie', 'angel', 'golems', 'phoenix', 'dragonking', 'dragonform', 'thunderkirin', 'skywhale', 'ninetail', 'clones', 'cobble']) {
+  const r = line(k); for (const e of ['spawn', 'attack', 'evo', 'step']) btn(r, e, () => Snd.summon(k, e, 1));
+}
+document.getElementById('stop').onclick = () => Snd.stop();
+document.getElementById('measure').onclick = async () => {
+  Snd.init(); Snd.stop(); out.textContent = 'Đang đo...\n';
+  for (const id of IDS) { const db = await Snd.meter(() => Snd.boss(id, 'alert'), 2200); out.textContent += id.padEnd(9) + (db === null ? '-' : db.toFixed(1)) + ' dBFS\n'; }
+};
+</script>
+</body>
+</html>

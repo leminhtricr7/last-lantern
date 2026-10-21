@@ -123,12 +123,40 @@ const HARDK = li => (li >= 2 ? Math.min(1, Math.max(0, (LPOS(li) - 1) / 8)) : 0)
 
 const BOSS_MUSIC = { root: 48, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 150, wave: 'square', prog: [0, 1, 3, 1], seed: 77, density: 0.7 };
 // a fight track for each boss, built from its map's music: same key, a minor scale, its own melody, faster later on
-const BOSS_TRACK = (li, tag) => {
+const BOSS_TRACK = (li, tag, form) => {
   const m = BIOMES[li].music, p = LPOS(li), minor = m.scale.indexOf(3) >= 0 || m.scale.indexOf(1) >= 0, k = tag === 'shorty' ? 1 : (tag === 'sy' ? 2 : 0);
-  return { root: (m.root % 12) + 48 - (li === 6 && !k ? 2 : 0) + (k ? 3 * k : 0), scale: minor ? m.scale : [0, 2, 3, 5, 7, 8, 10], bpm: 100 + p * 2.4 + k * 3,
+  const T = { root: (m.root % 12) + 48 - (li === 6 && !k ? 2 : 0) + (k ? 3 * k : 0), scale: minor ? m.scale : [0, 2, 3, 5, 7, 8, 10], bpm: 100 + p * 2.4 + k * 3,
     wave: (li === 6 && !k) || m.wave === 'triangle' ? 'sawtooth' : 'square', prog: [[0, 1, 3, 1], [0, -2, -4, -5], [0, 3, 5, 3], [0, 1, 0, -2], [0, -4, -2, -5]][(p + k) % 5],
     seed: 700 + li * 13 + k * 101, density: 0.62 + p * 0.03 };
+  const th = tag === 'dragon' ? DRAGON_THEME[form || 0] : (tag ? MINI_THEME[tag + (form || 0)] : (li === 6 ? QUOC_THEME[form || 0] : BOSS_THEME[li]));
+  return Object.assign(T, th || {}, { seed: T.seed + (form || 0) * 7 });
 };
+// phase 4 boss themes: mode, tempo, lead and one signature instrument per fight (see SIG in audio.js)
+const MINOR = [0, 2, 3, 5, 7, 8, 10], HARM = [0, 2, 3, 5, 7, 8, 11], PHRYG = [0, 1, 3, 5, 7, 8, 10], LOCR = [0, 1, 3, 5, 6, 8, 10], PENT = [0, 3, 5, 7, 10], WHOLE = [0, 2, 4, 6, 8, 10];
+const BOSS_THEME = {
+  0: { scale: MINOR, bpm: 100, wave: 'triangle', sig: 'bubbles' },          // Gulgor: a bouncy swamp-belly tune
+  1: { scale: HARM, bpm: 106, wave: 'square', sig: 'whisper' },             // Veylith: whispers in the rests
+  2: { scale: PENT, bpm: 102, wave: 'triangle', sig: 'glass' },             // Prismor: glass bells
+  3: { scale: PHRYG, bpm: 98, wave: 'sawtooth', sig: 'jingle' },            // Khepsar: an old desert mode, little bells
+  4: { scale: MINOR, bpm: 62, wave: 'triangle', sig: 'musicbox' },          // Rimvald: slow and heavy, a cold music box
+  5: { scale: HARM, bpm: 118, wave: 'sawtooth', sig: 'anvil' },             // Kaldrok: hammer on the anvil on 2 and 4
+  7: { scale: MINOR, bpm: 58, wave: 'triangle', sig: 'lullaby', density: 0.4 },   // Morvella: a lullaby
+  8: { scale: MINOR, bpm: 92, wave: 'sawtooth', sig: 'sonar' },             // Oktavor: the deep, sonar pings
+  9: { scale: LOCR, bpm: 112, wave: 'square', sig: 'taiko' }                // Vorgrub: the most uneasy mode, taiko drums
+};
+const QUOC_THEME = [   // the music climbs with each of Quoc's eight forms; the dark choir is always there
+  { scale: MINOR, bpm: 96, sig: 'choir' }, { scale: MINOR, bpm: 60, sig: 'choir', nodrums: true, density: 0.3 }, { scale: HARM, bpm: 106, sig: ['choir', 'taiko'] },
+  { scale: HARM, bpm: 110, sig: ['choir', 'chains'] }, { scale: MINOR, bpm: 114, wave: 'triangle', sig: ['choir', 'musicbox'] }, { scale: PHRYG, bpm: 118, sig: 'choir' },
+  { scale: HARM, bpm: 122, sig: ['choir', 'flames'] }, { scale: PHRYG, bpm: 126, wave: 'sawtooth', sig: ['choir', 'heart'], density: 0.75 }
+];
+const MINI_THEME = {
+  shorty0: { scale: [0, 2, 4, 5, 7, 9, 11], bpm: 104, wave: 'square', sig: 'waltz' }, shorty1: { scale: HARM, bpm: 110, wave: 'sawtooth', sig: 'waltz' },
+  sy0: { scale: WHOLE, bpm: 104, wave: 'triangle', sig: 'lab' }, sy1: { scale: WHOLE, bpm: 108, wave: 'sawtooth', sig: ['lab', 'whisper'] }
+};
+const DRAGON_THEME = [
+  { scale: MINOR, bpm: 104, wave: 'square', sig: 'brass' }, { scale: HARM, bpm: 110, wave: 'sawtooth', sig: 'brass' },
+  { scale: HARM, bpm: 114, wave: 'sawtooth', sig: ['brass', 'taiko'] }, { scale: PHRYG, bpm: 112, wave: 'sawtooth', sig: ['brass', 'choir'] }
+];
 const DEVIL_MUSIC = { root: 38, scale: [0, 1, 3, 5, 7, 8, 10], bpm: 68, wave: 'sawtooth', prog: [0, 1, 0, -2], seed: 66, density: 0.3 };
 const TITLE_MUSIC = { root: 60, scale: [0, 2, 4, 7, 9], bpm: 78, wave: 'triangle', prog: [0, 5, 3, 7], seed: 2, density: 0.4, drums: true };
 

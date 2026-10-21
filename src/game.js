@@ -1208,7 +1208,7 @@
     Q.state = 'bossintro'; Q.stateT = 0;
     Q.boss.st = 'intro'; Q.boss.max = Q.boss.hp;
     bossCard(Q.li === 6 ? BOSS[6] : Q.boss.cfg, Q.li === 6 ? sv('FINAL BOSS', 'TRÙM CUỐI') : null);   // (map 10: the card of the whole fight; each form shows its own card later)
-    Snd.creature(Q.li, 'alert', true); Snd.music('boss' + Q.li, BOSS_TRACK(Q.li)); setEmo('angry', 2.6);
+    bossVox('alert'); Snd.music('boss' + Q.li, BOSS_TRACK(Q.li)); setEmo('angry', 2.6);
     Q.shake = 0.6;
     if (Q.li === 6) startScripted('quoc', QUOC_PRE, () => { Q.state = 'bossintro'; Q.stateT = 0; });
     else bossPre();
@@ -1638,7 +1638,7 @@
   function bossPhase(b, n) {
     b.pp = n; b.invul = Math.max(b.invul, 1.1); b.st = 'rec'; b.timer = 1.1; b.sk = null;
     if (n >= 2) b.shield = Math.max(b.shield || 0, 2.2);
-    Q.shake = 1; Q.freeze = 0.12; Snd.creature(Q.li, 'alert', true); Snd.play('boom'); addRing(b.x + b.w / 2, b.y + b.h / 2, bpc(), 130, 0.7);
+    Q.shake = 1; Q.freeze = 0.12; bossVox('alert'); Snd.play('boom'); addRing(b.x + b.w / 2, b.y + b.h / 2, bpc(), 130, 0.7);
     emit(b.x + b.w / 2, b.y + b.h / 2, 40, { col: [bpc(), '#fff', '#ff3a3a'], sp0: 40, sp1: 180 });
     Q.msg = sv('The boss is enraged! Phase ' + (n + 1) + '/4', 'Boss nổi giận! Giai đoạn ' + (n + 1) + '/4'); Q.msgT = 3;
     if (b.cfg && b.cfg.minion) { let alive = Q.ents.filter(e => !e.dead).length; for (let i = 0; i < 2 + n && alive < 7; i++, alive++) { const m = makeEnemy(b.cfg.minion, b.x + b.w / 2 + (i - 1) * 34, b.y + b.h - 4, { minion: true }); if (!m.fly) m.vy = -150; m.alerted = true; Q.ents.push(m); emit(m.x, m.y, 10, { col: bpc() }); } }
@@ -1655,7 +1655,7 @@
     let gm = 1; if (b.guard > 0) { if (!pierce) { gm = 0.15; Snd.play('clang'); emit(b.x + b.w / 2, b.y + b.h / 2, 5, { col: ['#fff', '#cfd6e6'], sp0: 40, sp1: 120 }); } else gm = 0.6; }
     const arm = b.cfg.armor || 0, eff = dmg * gm * (1 - arm * (pierce ? 0.4 : 1)) * ((b.st === 'stun' || b.st === 'rec') ? 1.25 : 1);
     b.hp -= eff; b.flash = 0.1; Q.shake = Math.max(Q.shake, 0.12);
-    if (!quiet || b.hp <= 0) Snd.creature(Q.li, b.hp <= 0 ? 'die' : 'hurt', true);
+    if (!quiet || b.hp <= 0) bossVox(b.hp <= 0 ? 'die' : 'hurt');
     emit(b.x + b.w / 2, b.y + b.h / 2, 8, { col: ['#fff', '#ffd34e'], sp0: 20, sp1: 90 });
     if (arm > 0.15 && !pierce) emit(b.x + b.w / 2, b.y + b.h / 2, 4, { col: ['#cfd6e6', '#8d9bbd'], sp0: 30, sp1: 100 });
     const pct = b.hp / b.max;
@@ -1802,9 +1802,10 @@
     const c = b.forms[idx], cx = b.x + b.w / 2, bot = b.y + b.h, hp = Math.round(c.hp * (1 + 0.25 * HARDK(Q.li)) * (1 + 0.02 * totalShards()));
     b.fi = idx; b.cfg = c; b.spr = formSprite(c.spr); b.w = c.w; b.h = c.h; b.x = cx - b.w / 2; b.y = bot - b.h - 2;
     b.hp = b.max = hp; b.armor = c.armor; b.phase = 0; b.t1 = b.t2 = 0; b.p1 = b.p2 = b.p3 = 0; b.pp = 0; b.st = 'rec'; b.timer = 1.1; b.invul = 1.8; b.sk = null; b.atkSk = null; b.shield = 0; b.guard = 0; b.cloak = false; b.hide = false; b.vx = 0; b.vy = 0;
-    Q.shake = 1; Q.freeze = 0.1; Snd.creature(Q.li, 'alert', true); Snd.play('boom');
+    Q.shake = 1; Q.freeze = 0.1; bossVox('alert'); Snd.play('boom');
     emit(b.x + b.w / 2, b.y + b.h / 2, 50, { col: [bpc(), '#fff', '#ffd34e'], sp0: 40, sp1: 180 }); addRing(b.x + b.w / 2, b.y + b.h, bpc(), 110, 0.7);
     bossCard(c, sv('FORM ', 'DẠNG ') + (idx + 1) + '/' + b.forms.length);
+    if (b.id === 'quoc') Snd.music('quoc' + idx, BOSS_TRACK(6, null, idx)); else if (b.id) Snd.music('mini' + b.id + idx, BOSS_TRACK(Q.li, b.id, idx));
     if (b.id === 'quoc' && FORM_SCENES[idx]) {
       const P = Q.P, ar = Q.L.arena; P.x = (ar.x0 + 4) * TS; P.y = (ar.gy - 1) * TS - P.h; P.vx = P.vy = 0; P.inv = Math.max(P.inv, 1.5); if (coop) coopGather(true);
       Q.G.flash = 0.6; Snd.play('thunder'); Snd.whisper();
@@ -1827,7 +1828,7 @@
     return true;
   }
   // transformation: the old body shakes, shrinks into swirling shadow, and the new form grows out of it
-  function formMorph(b, idx, allies) { b.morph = { t: 0, idx, allies, swapped: false }; b.invul = 99; b.st = 'rec'; b.flash = 0; if (b.id === 'quoc') Snd.devilRoar(0.8); else Snd.creature(Q.li, 'alert', true); }
+  function formMorph(b, idx, allies) { b.morph = { t: 0, idx, allies, swapped: false }; b.invul = 99; b.st = 'rec'; b.flash = 0; if (b.id === 'quoc') Snd.devilRoar(0.8); else bossVox('alert'); }
   function morphTick(b, dt) {
     const m = b.morph; m.t += dt; Q.shake = Math.max(Q.shake, m.t < 1.1 ? 0.45 : 0.25);
     const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
@@ -1859,7 +1860,7 @@
     const b = makeFormBoss(def.forms, (m.lw + m.rw) / 2 * TS + 48, m.gy * TS, { id: m.who, who: m.who, mini: m });
     b.st = 'intro'; b.timer = 0; Q.boss = b; Q.arenaSealed = true; Q.bossDead = false; if (coop) coopGather(false, m.lead);
     bossCard(b.cfg, sv('GATEKEEPER', 'GÁC CỔNG'));
-    Q.state = 'bossintro'; Q.stateT = 0; Snd.music('mini' + m.who, BOSS_TRACK(Q.li, m.who)); setEmo('angry', 2.6); Snd.creature(Q.li, 'alert', true); Q.shake = 0.6;
+    Q.state = 'bossintro'; Q.stateT = 0; Snd.music('mini' + m.who, BOSS_TRACK(Q.li, m.who)); setEmo('angry', 2.6); bossVox('alert'); Q.shake = 0.6;
   }
   function updateMiniEnc() {
     if (!Q.minis) return;
@@ -1981,17 +1982,17 @@
     summon: { tele: 0.5, start(b) {
       let alive = Q.ents.filter(e => !e.dead).length;
       for (let i = 0; i < 3 && alive < 5; i++, alive++) { const m = makeEnemy(b.cfg.minion, b.x + b.w / 2 + (i - 1) * 34, b.y + b.h - 4, { minion: true }); if (!m.fly) m.vy = -150; m.alerted = true; Q.ents.push(m); emit(m.x, m.y, 10, { col: bpc() }); }
-      Snd.creature(Q.li, 'alert', true); b.skT = 0.8; }, upd: wait },
+      bossVox('alert'); b.skT = 0.8; }, upd: wait },
     splitslime: { tele: 0.5, start(b) { for (let i = 0; i < 3; i++) { const m = makeEnemy('slime', b.x + b.w / 2 + (i - 1) * 30, b.y + b.h - 4, { minion: true, v: 'small' }); m.vy = -170; m.alerted = true; Q.ents.push(m); emit(m.x, m.y, 8, { col: '#a4e86b' }); } Snd.creature('slime', 'alert'); b.skT = 0.9; }, upd: wait },
     goo: { tele: 0.5, start(b) { const P = Q.P; for (let i = -1; i <= 1; i++) { const x = arenaClamp(P.x + 4 + i * 44 + rr(-8, 8)); addZone({ type: 'goo', x: x - 18, y: groundYAt(x) - 5, w: 36, h: 5, tel: 0.4, life: 6, col: '#7a4cff' }); } b.skT = 0.9; Snd.play('flame'); }, upd: wait },
     web: { tele: 0.55, start(b) { const c = bc(b), P = Q.P, a0 = Math.atan2(P.y + 7 - c.y, P.x + 4 - c.x); for (let i = -1; i <= 1; i++) firePr(c.x, c.y, Math.cos(a0 + i * 0.25) * 95, Math.sin(a0 + i * 0.25) * 95, { boss: true, col: '#e8e8f8', big: true, status: { slow: 2.4 } }); b.skT = 0.6; }, upd: wait },
     spit: { tele: 0.6, start(b) { const c = bc(b), P = Q.P, t = 1.0; Q.projs.push({ x: c.x, y: c.y, vx: ((P.x + 4) - c.x) / t, vy: -150, grav: 300, life: 3, col: '#9be564', type: 'ball', boss: true, big: true, onLand: 'poison' }); Snd.play('shoot'); b.skT = 1.0; }, upd: wait },
-    ambush: { tele: 0.7, start(b) { addGhost(b, 'out'); Snd.play('poof'); b.hide = true; b.ph = 0; b.skT = 0.5; emit(b.x + b.w / 2, b.y + b.h / 2, 16, { col: ['#5a2d8f', '#a15be0'], sp0: 20, sp1: 80 }); b.y = -300; Snd.creature(Q.li, 'attack', true); },
+    ambush: { tele: 0.7, start(b) { addGhost(b, 'out'); Snd.play('poof'); b.hide = true; b.ph = 0; b.skT = 0.5; emit(b.x + b.w / 2, b.y + b.h / 2, 16, { col: ['#5a2d8f', '#a15be0'], sp0: 20, sp1: 80 }); b.y = -300; bossVox('attack'); },
       upd(b, dt) {
         b.skT -= dt; const P = Q.P, ar = Q.L.arena;
         if (b.ph === 0) { if (b.skT <= 0) { b.ph = 1; b.skT = 1.0; b.mx = P.x + 4; } }
         else if (b.ph === 1) { b.mx = lerp(b.mx, P.x + 4, 0.07); if (b.skT <= 0) { b.ph = 2; b.skT = 0.4; b.lockx = arenaClampB(b, b.mx); } }
-        else if (b.ph === 2) { if (b.skT <= 0) { b.hide = false; b.x = b.lockx - b.w / 2; b.y = Q.cam.y - b.h - 8; b.vy = 380; b.ph = 3; b.jt = 0; Snd.creature(Q.li, 'alert', true); } }
+        else if (b.ph === 2) { if (b.skT <= 0) { b.hide = false; b.x = b.lockx - b.w / 2; b.y = Q.cam.y - b.h - 8; b.vy = 380; b.ph = 3; b.jt = 0; bossVox('alert'); } }
         else if (b.ph === 3) { b.jt += dt; if (b.onGround && b.jt > 0.1) { shockwave(b); return true; } }
       } },
     erupt: { tele: 0.55, start(b) {
@@ -2009,7 +2010,7 @@
     teleport: { tele: 0.3, start(b) { addGhost(b, 'out'); Snd.play('poof'); b.hide = true; b.ph = 0; b.skT = 0.55; emit(b.x + b.w / 2, b.y + b.h / 2, 20, { col: ['#5a2d8f', '#a15be0', '#fff'], sp0: 20, sp1: 90 }); Snd.sting(); b.y = -300; },
       upd(b, dt) {
         b.skT -= dt; const P = Q.P, ar = Q.L.arena;
-        if (b.ph === 0 && b.skT <= 0) { let nx = P.x + 4 + (Math.random() < 0.5 ? -1 : 1) * 70; nx = arenaClampB(b, nx); b.x = nx - b.w / 2; b.y = ar.gy * TS - b.h; b.vy = 0; b.hide = false; b.ph = 1; b.skT = 0.45; addGhost(b, 'in'); addRing(nx, b.y + b.h, '#a15be0', 50, 0.4); Snd.play('poof'); emit(nx, b.y + b.h / 2, 20, { col: ['#5a2d8f', '#a15be0', '#fff'], sp0: 20, sp1: 90 }); Snd.creature(Q.li, 'alert', true); }
+        if (b.ph === 0 && b.skT <= 0) { let nx = P.x + 4 + (Math.random() < 0.5 ? -1 : 1) * 70; nx = arenaClampB(b, nx); b.x = nx - b.w / 2; b.y = ar.gy * TS - b.h; b.vy = 0; b.hide = false; b.ph = 1; b.skT = 0.45; addGhost(b, 'in'); addRing(nx, b.y + b.h, '#a15be0', 50, 0.4); Snd.play('poof'); emit(nx, b.y + b.h / 2, 20, { col: ['#5a2d8f', '#a15be0', '#fff'], sp0: 20, sp1: 90 }); bossVox('alert'); }
         else if (b.ph === 1 && b.skT <= 0) { shockwave(b, true); return true; }
       } },
     breath: { tele: 0.7, start(b) { b.n = 10; b.skT = 0; Snd.play('flame'); }, upd(b, dt) { b.skT -= dt; if (b.skT <= 0 && b.n > 0) { const c = bc(b), P = Q.P, a0 = Math.atan2(P.y + 7 - c.y, P.x + 4 - c.x), a = a0 + (b.n - 5) * 0.07; firePr(c.x, c.y, Math.cos(a) * 115, Math.sin(a) * 115, { boss: true, col: '#bfeaff', status: { slow: 1.8 }, life: 1.1 }); b.n--; b.skT = 0.06; } return b.n <= 0; } },
@@ -2031,7 +2032,7 @@
         if (b.ph === 0 && b.vy > 0) { b.ph = 1; b.vy = 540; Snd.play('whoosh'); }
         if (b.ph === 1 && b.onGround) { shockwave(b); const c = bc(b); for (let i = 1; i <= 4; i++) for (const sg of [-1, 1]) { const x = arenaClamp(c.x + sg * i * 24); addZone({ type: 'spike', x: x - 7, y: groundYAt(x) - 30, w: 14, h: 30, tel: 0.15 + i * 0.08, life: 0.4 }); } return true; }
       } },
-    roar: { tele: 0.7, start(b) { b.skT = 1.5; b.rt = 0; b.hitDone = false; b.vx = 0; const c = bc(b); addRing(c.x, b.y + b.h, bpc(), 110, 0.8); if (b.id === 'quoc') Snd.devilRoar(1); else Snd.creature(Q.li, 'alert', true); Snd.play('boom'); }, upd(b, dt) { b.skT -= dt; b.rt -= dt; Q.shake = Math.max(Q.shake, 0.55); const c = bc(b), P = Q.P; if (b.rt <= 0 && b.skT > 0.2) { b.rt = 0.22; addRing(c.x, b.y + b.h * 0.5, bpc(), 60 + Math.random() * 40, 0.45); emit(c.x + rr(-b.w / 2, b.w / 2), b.y + rr(0, b.h * 0.5), 6, { col: ['#fff', bpc()], sp0: 30, sp1: 110 }); } if (!b.hitDone && b.skT < 1.2) { b.hitDone = true; for (const q of allPl()) if (Math.hypot(q.x + 4 - c.x, q.y + 7 - c.y) < b.w / 2 + 64) asP(q, () => { hurtPlayer(1, c.x); q.vx = (q.x + 4 < c.x ? -1 : 1) * 190; q.vy = -150; }); } return b.skT <= 0; } },
+    roar: { tele: 0.7, start(b) { b.skT = 1.5; b.rt = 0; b.hitDone = false; b.vx = 0; const c = bc(b); addRing(c.x, b.y + b.h, bpc(), 110, 0.8); if (b.id === 'quoc') Snd.devilRoar(1); else bossVox('alert'); Snd.play('boom'); }, upd(b, dt) { b.skT -= dt; b.rt -= dt; Q.shake = Math.max(Q.shake, 0.55); const c = bc(b), P = Q.P; if (b.rt <= 0 && b.skT > 0.2) { b.rt = 0.22; addRing(c.x, b.y + b.h * 0.5, bpc(), 60 + Math.random() * 40, 0.45); emit(c.x + rr(-b.w / 2, b.w / 2), b.y + rr(0, b.h * 0.5), 6, { col: ['#fff', bpc()], sp0: 30, sp1: 110 }); } if (!b.hitDone && b.skT < 1.2) { b.hitDone = true; for (const q of allPl()) if (Math.hypot(q.x + 4 - c.x, q.y + 7 - c.y) < b.w / 2 + 64) asP(q, () => { hurtPlayer(1, c.x); q.vx = (q.x + 4 < c.x ? -1 : 1) * 190; q.vy = -150; }); } return b.skT <= 0; } },
     guard: { tele: 0.4, start(b) { b.guard = 3; b.skT = 3; b.recAfter = 0.4; Snd.play('gate'); addRing(b.x + b.w / 2, b.y + b.h, '#6ee7f2', 50, 0.5); }, upd: wait },
     cloak: { tele: 0.5, start(b) { b.cloak = true; b.skT = 3.0; b.ph = 0; addGhost(b, 'out'); Snd.whisper(); Snd.play('poof'); },
       upd(b, dt) {
@@ -2039,10 +2040,10 @@
         if (b.ph === 0) {
           b.skT -= dt; b.dir = dx < 0 ? -1 : 1; moveX(b, b.dir * b.cfg.sp * 1.7 * dt);
           if (Math.random() < 0.3) emit(c.x + rr(-b.w / 2, b.w / 2), b.y + b.h, 1, { col: ['#a15be0', '#fff'], sp0: 3, sp1: 14, grav: -10, l0: 0.3, l1: 0.6 });
-          if (Math.abs(dx) < 48 || b.skT <= 0) { b.ph = 1; b.cloak = false; b.revT = 0.3; b.vy = -210; b.onGround = false; b.jt = 0; b.vx = 0; addGhost(b, 'in'); Snd.creature(Q.li, 'attack', true); Snd.play('poof'); }
+          if (Math.abs(dx) < 48 || b.skT <= 0) { b.ph = 1; b.cloak = false; b.revT = 0.3; b.vy = -210; b.onGround = false; b.jt = 0; b.vx = 0; addGhost(b, 'in'); bossVox('attack'); Snd.play('poof'); }
         } else { b.jt += dt; if (b.onGround && b.jt > 0.15) { shockwave(b); return true; } }
       } },
-    clone: { tele: 0.6, start(b) { const ar = Q.L.arena; for (let i = 0; i < 2; i++) { const m = makeEnemy('eclipseclone', (ar.x0 + 8 + i * 14) * TS, ar.gy * TS, { minion: true, v: 'big' }); m.alerted = true; Q.ents.push(m); emit(m.x, m.y, 14, { col: ['#a15be0', '#fff'], sp0: 20, sp1: 80 }); } Snd.creature(Q.li, 'alert', true); b.skT = 0.9; }, upd: wait },
+    clone: { tele: 0.6, start(b) { const ar = Q.L.arena; for (let i = 0; i < 2; i++) { const m = makeEnemy('eclipseclone', (ar.x0 + 8 + i * 14) * TS, ar.gy * TS, { minion: true, v: 'big' }); m.alerted = true; Q.ents.push(m); emit(m.x, m.y, 14, { col: ['#a15be0', '#fff'], sp0: 20, sp1: 80 }); } bossVox('alert'); b.skT = 0.9; }, upd: wait },
     fan: { tele: 0.55, start(b) { b.n = 2; b.skT = 0; }, upd(b, dt) { b.skT -= dt; if (b.skT <= 0) { const c = bc(b), P = Q.P, a0 = Math.atan2(P.y + 7 - c.y, P.x + 4 - c.x); for (let i = -4; i <= 4; i++) firePr(c.x, c.y, Math.cos(a0 + i * 0.2) * 95, Math.sin(a0 + i * 0.2) * 95, { boss: true }); if (--b.n <= 0) return true; b.skT = 0.75 / b.fury; } } },
     lobs: { tele: 0.6, start(b) { const c = bc(b), P = Q.P; for (let i = 0; i < 3; i++) { const tx = arenaClamp(P.x + 4 + (i - 1) * 54 + rr(-12, 12)), t = 0.95 + i * 0.22; Q.projs.push({ x: c.x, y: c.y, vx: (tx - c.x) / t, vy: -160, grav: 320, life: 3, col: bpc(), type: 'ball', boss: true, big: true, onLand: 'poison' }); } Snd.play('shoot'); b.skT = 1.4; }, upd: wait },
     crossBeam: { tele: 0.9, start(b) { const ar = Q.L.arena, gt = ar.gy * TS; addZone({ type: 'beam', x: ar.x0 * TS + 8, y: gt - 9, w: (ar.x1 - ar.x0) * TS - 16, h: 10, tel: 0.9, life: 0.5 }); addZone({ type: 'beam', x: ar.x0 * TS + 8, y: gt - 27, w: (ar.x1 - ar.x0) * TS - 16, h: 10, tel: 1.8, life: 0.5 }); b.skT = 2.8; Snd.play('flame'); }, upd: wait },
@@ -2071,10 +2072,13 @@
     let r = Math.random() * tot; for (let i = 0; i < list.length; i++) { r -= ws[i]; if (r <= 0) return list[i]; }
     return list[0];
   }
+  // phase 4: which sound identity the current boss uses (b0-b9, quoc0-7, shorty0-1, sy0-1)
+  function bossVoxId(b) { b = b || Q.boss; return b && b.id ? b.id + (b.fi || 0) : 'b' + Q.li; }
+  function bossVox(evt, v) { Snd.boss(bossVoxId(), evt, v); }
   // every boss skill has a sound of its own (on top of the creature's voice)
   function bossSkillSnd(sk) {
     const G = { jump: 'whoosh', stomp: 'bstep', slam: 'boom', bounce3: 'whoosh', charge: 'rumble', rush: 'rumble', shoot: 'shoot', fan: 'shoot', spit: 'shoot', lobs: 'throw', rain: 'rumble', erupt: 'crumble', meteor: 'explode', lavaCols: 'flame', sweep: 'flame', beam: 'flame', crossBeam: 'flame', breath: 'flame', summon: 'poof', clone: 'poof', dark: 'poof', cloak: 'poof', teleport: 'poof', ambush: 'poof', shield: 'chime', guard: 'chime', tornado: 'windy', blizzard: 'windy', wall: 'crumble', curse: 'zap', web: 'throw', goo: 'splash', splitslime: 'splash', spin: 'whoosh', tentacles: 'rumble', burrow: 'crumble' };
-    const n = G[sk]; if (n) Snd.play(n); if (sk === 'spin' || sk === 'bounce3') setTimeout(() => Snd.play('whoosh'), 250);
+    const n = G[sk]; if (n) Snd.play(n); Snd.bossSkill(bossVoxId(), sk); if (sk === 'spin' || sk === 'bounce3') setTimeout(() => Snd.play('whoosh'), 250);
   }
   // a boss that got lost (hidden too long, outside the arena, below the map): back to the middle of the arena, on the ground
   function bossReturn(b) {
@@ -2099,7 +2103,7 @@
         if (b.regT <= 0) { b.regT = 2; pop(b.x + b.w / 2, b.y - 8, save.lang === 'vi' ? 'BOSS ĐANG HỒI MÁU!' : 'THE BOSS IS HEALING!', '#7ed957'); }
       }
       if (b.cfg.art) {
-        b.growlT = (b.growlT === undefined ? 3 : b.growlT) - dt; if (b.growlT <= 0) { b.growlT = rr(4, 7); Snd.creature(Q.li, 'idle', true, 0.8); }
+        b.growlT = (b.growlT === undefined ? 3 : b.growlT) - dt; if (b.growlT <= 0) { b.growlT = rr(4, 7); bossVox('idle', 0.8); }
         const cxm2 = b.x + b.w / 2;
         if (b.cfg.art === 'shroom' && Math.random() < 0.25) emit(cxm2 + rr(-b.w / 2, b.w / 2), b.y + rr(0, b.h * 0.3), 1, { col: ['#c8f0a0', '#c07bff', '#a4ffc0'], sp0: 3, sp1: 14, grav: -18, l0: 0.8, l1: 1.6 });
         else if (b.cfg.art === 'kraken' && Math.random() < 0.3) emit(cxm2 + rr(-b.w / 3, b.w / 3), b.y + rr(b.h * 0.2, b.h * 0.6), 1, { col: ['#bfeaff', '#fff'], sp0: 3, sp1: 10, grav: -60, l0: 0.8, l1: 1.6 });
@@ -2121,7 +2125,7 @@
     }
     if (b.st === 'intro') { b.timer += dt; if (b.timer > 2.2) { b.st = 'wait'; b.timer = 0.8; Q.state = 'play'; } return; }
     const pct = b.hp / b.max, ph = pct < 0.33 ? 2 : (pct < 0.66 ? 1 : 0);
-    if (ph > b.phase) { b.phase = ph; b.invul = 1.0; Q.shake = 0.8; Snd.creature(Q.li, 'alert', true); emit(b.x + b.w / 2, b.y + b.h / 2, 30, { col: ['#fff', bpc()], sp0: 40, sp1: 160 }); Q.msg = save.lang === 'vi' ? 'Boss nổi điên!' : 'The boss is enraged!'; Q.msgT = 3; }
+    if (ph > b.phase) { b.phase = ph; b.invul = 1.0; Q.shake = 0.8; bossVox('alert'); emit(b.x + b.w / 2, b.y + b.h / 2, 30, { col: ['#fff', bpc()], sp0: 40, sp1: 160 }); Q.msg = save.lang === 'vi' ? 'Boss nổi điên!' : 'The boss is enraged!'; Q.msgT = 3; }
     if (b.hide) { const sk = BS[b.sk]; b.actT = (b.actT || 0) + dt; if (!sk || sk.upd(b, dt)) endSkill(b); else if (b.actT > 7) { endSkill(b); bossReturn(b); } return; }
     b.vy = Math.min(420, b.vy + GRAV * dt);
     if (c.swim && !b.hide && Q.L.arena.y0 !== undefined) { const ar = Q.L.arena, ty = clamp(P.y + 7 - b.h * 0.5, ar.y0 * TS + 14, ar.gy * TS - b.h); b.vy = clamp((ty - b.y) * 1.4, -62, 62); }
@@ -2133,7 +2137,7 @@
         // chase: when the hero is far away the boss runs after them first and attacks once it is close (or after ~3s)
         const far = Math.abs(dxp) > b.w / 2 + 110;
         b.chaseT = far ? (b.chaseT || 0) + dt : 0;
-        if (b.onGround && b.moveT > 0) { b.stepT = (b.stepT || 0) - dt; if (b.stepT <= 0) { b.stepT = clamp(0.62 - b.w / 400, 0.3, 0.6); if (b.w >= 30) { Snd.play('bstep'); Q.shake = Math.max(Q.shake, b.w >= 60 ? 0.12 : 0.05); } } }
+        if (b.onGround && b.moveT > 0) { b.stepT = (b.stepT || 0) - dt; if (b.stepT <= 0) { b.stepT = clamp(0.62 - b.w / 400, 0.3, 0.6); Snd.bossStep(bossVoxId(b), b.w >= 60); if (b.w >= 30) { if (b.w >= 60) Snd.play('bstep'); Q.shake = Math.max(Q.shake, b.w >= 60 ? 0.12 : 0.05); } } }
         { const rg = bossRange(b.nextSk), gap = Math.abs(dxp) - b.w / 2, sd = Math.sign(dxp) || 1;
           let mv = gap > rg[1] ? sd : (gap < rg[0] ? -sd : 0);   // approach for close attacks, keep away for ranged ones
           const [ia, ib] = arenaInner(); if (mv < 0 && ((sd > 0 && b.x < ia + 24) || (sd < 0 && b.x + b.w > ib - 24))) mv = 0;   // no backing into a wall
@@ -2159,7 +2163,7 @@
         b.timer -= dt;
         if (b.timer <= 0 || b.closeT > 1.5) {
           b.atkSk = b.closeT > 1.5 ? 'stomp' : (b.nextSk || pickSkill(b)); b.nextSk = null; b.closeT = 0; b['u_' + b.atkSk] = Q.t;
-          b.st = 'tele'; b.timer = BS[b.atkSk].tele / b.fury; Snd.creature(Q.li, 'attack', true);
+          b.st = 'tele'; b.timer = BS[b.atkSk].tele / b.fury; bossVox('attack');
         }
         break;
       }
@@ -2291,7 +2295,7 @@
         const lo = (tr.lw + 1) * TS + d.w / 2 + 2, hi = tr.rw * TS - d.w / 2 - 2; d.sx = clamp(d.sx, lo, hi); d.ex = clamp(d.ex, lo, hi); },   // a wide dragon (shadow form) could never reach the old end point and dived forever
       upd(d, dt) {
         const c = dc(d);
-        if (d.ph === 0) { dMove(d, d.sx, dHover(d) - 14, 5, dt); d.skT -= dt; if (d.skT <= 0) { d.ph = 1; d.skT = 0.42; d.px = c.x; d.py = c.y; Snd.creature('dragon', 'attack', true); } }
+        if (d.ph === 0) { dMove(d, d.sx, dHover(d) - 14, 5, dt); d.skT -= dt; if (d.skT <= 0) { d.ph = 1; d.skT = 0.42; d.px = c.x; d.py = c.y; Snd.dragon((Q.dragon && Q.dragon.form) || 0, 'attack'); } }
         else if (d.ph === 1) { d.skT -= dt; const k = 1 - Math.max(0, d.skT) / 0.42, tx = d.px + d.side * 90, ty = lerp(d.py, dLow(d), k * k); d.x = lerp(d.px, tx, k) - d.w / 2; d.y = ty - d.h / 2; if (d.skT <= 0) { d.ph = 2; Snd.play('flap'); } }
         else if (d.ph === 2) { d.x += d.side * 280 * dt; d.y += (dLow(d) - d.h / 2 - d.y) * Math.min(1, 8 * dt); if (Math.random() < 0.6) emit(c.x, c.y + 8, 1, { col: ['#ffd34e', '#f08a2b'], sp0: 5, sp1: 25, grav: 20 }); if ((d.side > 0 && c.x >= d.ex) || (d.side < 0 && c.x <= d.ex)) { d.ph = 3; d.skT = 0.6; } }
         else { d.skT -= dt; dMove(d, d.ex - d.side * 40, dHover(d), 4, dt); return d.skT <= 0; }
@@ -2302,13 +2306,13 @@
       else if (d.ph === 1) { d.perchT -= dt; d.fireT -= dt; d.dir = (P.x + 4) < c.x ? -1 : 1; if (d.fireT <= 0) { d.fireT = 0.55; for (const o of [-0.12, 0, 0.12]) dFire(d, (d.dir > 0 ? 0 : Math.PI) + o, 120, { life: 0.55 }); Snd.play('flame'); } if (d.perchT <= 0) { d.ph = 2; d.skT = 0.5; Q.windDir = d.dir; Q.windT = 1.2; Snd.play('flap'); } }
       else { d.skT -= dt; dMove(d, c.x, dHover(d), 5, dt); return d.skT <= 0; } } },
     gust: { tele: 0.6, start(d) { d.skT = 1.7; d.gT = 0.5; Q.windDir = (Q.P.x + 4) < dc(d).x ? -1 : 1; Q.windT = 2.6; Snd.play('flap'); }, upd(d, dt) { dHold(d, dt); d.skT -= dt; d.gT -= dt; if (d.gT <= 0) { d.gT = 0.7; const m = dMouth(d), P = Q.P, a = Math.atan2(P.y + 7 - m.y, P.x + 4 - m.x); firePr(m.x, m.y, Math.cos(a) * 115, Math.sin(a) * 115, { boss: true, fl: true, col: '#ff9a2a', life: 3 }); } if (Math.random() < 0.5) emit(Q.cam.x + rr(0, VW), Q.cam.y + rr(0, 60), 1, { col: ['#ffd34e', '#f08a2b'], sp0: 5, sp1: 20, vx: -Q.windDir * 80, vy: 40, grav: 0 }); return d.skT <= 0; } },
-    roar: { tele: 0.6, start(d) { d.skT = 1.1; d.rT = 0; Q.shake = 1; Snd.creature('dragon', 'alert', true); }, upd(d, dt) {
+    roar: { tele: 0.6, start(d) { d.skT = 1.1; d.rT = 0; Q.shake = 1; Snd.dragon((Q.dragon && Q.dragon.form) || 0, 'alert'); }, upd(d, dt) {
       dHold(d, dt); d.skT -= dt; d.rT -= dt;
       if (d.rT <= 0 && d.skT > 0.2) { d.rT = 0.5; const c = dc(d), gt = d.tr.gy * TS; for (const sgn of [-1, 1]) Q.projs.push({ x: c.x + sgn * 14, y: gt - 6, vx: sgn * 105, vy: 0, life: 2, grav: 0, col: '#ff9a2a', type: 'wave', boss: true }); Q.shake = 0.4; } return d.skT <= 0; } },
     tailsweep: { tele: 0.5, start(d) { const c = dc(d), gt = d.tr.gy * TS; addZone({ type: 'beam', x: c.x - 95, y: gt - 12, w: 190, h: 12, tel: 0.55, life: 0.4, col: '#ff6a3a' }); d.skT = 1.1; }, upd(d, dt) { dHold(d, dt); d.skT -= dt; return d.skT <= 0; } },
     summon: { tele: 0.6, start(d) { const c = dc(d); for (let i = 0; i < 3; i++) { const m = makeEnemy('imp', c.x + (i - 1) * 34, c.y, { minion: true }); m.alerted = true; Q.ents.push(m); emit(m.x, m.y, 10, { col: ['#ffd34e', '#f08a2b'] }); } Snd.creature('imp', 'alert'); d.skT = 0.9; }, upd(d, dt) { dHold(d, dt); d.skT -= dt; return d.skT <= 0; } },
     vanish: { tele: 0.4, start(d) { d.hide = true; d.ph = 0; d.skT = 0.7; emit(dc(d).x, dc(d).y, 24, { col: ['#a15be0', '#14121f', '#ff3aff'], sp0: 20, sp1: 100 }); Snd.sting(); Q.darkBoost = 0.55; Q.darkBoostT = 4; },
-      upd(d, dt) { d.skT -= dt; if (d.ph === 0 && d.skT <= 0) { const tr = d.tr, nx = rr((tr.lw + 6) * TS, (tr.rw - 6) * TS); d.x = nx - d.w / 2; d.y = dHover(d) - d.h / 2; d.hide = false; d.ph = 1; d.skT = 0.5; emit(nx, dHover(d), 24, { col: ['#a15be0', '#fff', '#ff3aff'], sp0: 20, sp1: 100 }); Snd.creature('dragon', 'alert', true); } else if (d.ph === 1 && d.skT <= 0) return true; } },
+      upd(d, dt) { d.skT -= dt; if (d.ph === 0 && d.skT <= 0) { const tr = d.tr, nx = rr((tr.lw + 6) * TS, (tr.rw - 6) * TS); d.x = nx - d.w / 2; d.y = dHover(d) - d.h / 2; d.hide = false; d.ph = 1; d.skT = 0.5; emit(nx, dHover(d), 24, { col: ['#a15be0', '#fff', '#ff3aff'], sp0: 20, sp1: 100 }); Snd.dragon((Q.dragon && Q.dragon.form) || 0, 'alert'); } else if (d.ph === 1 && d.skT <= 0) return true; } },
     darkness: { tele: 0.7, start(d) { Q.darkBoost = 0.78; Q.darkBoostT = 7; const tr = d.tr; for (let i = 0; i < 2; i++) { const m = makeEnemy('shadewisp', (tr.lw + 8 + i * 16) * TS, (tr.gy - 4) * TS, { minion: true }); m.alerted = true; Q.ents.push(m); } Snd.whisper(); d.skT = 1.2; }, upd(d, dt) { dHold(d, dt); d.skT -= dt; return d.skT <= 0; } }
   };
   const DS_MAX = { dive: 6.5, perch: 5.5, breath: 2.6, tripleBreath: 2.6, shadowBreath: 2.8, fireballs: 4, gust: 3, roar: 2.5, tailsweep: 2.2, summon: 2, vanish: 2.5, darkness: 2.5 };
@@ -2322,20 +2326,20 @@
     if (d.invul > 0 || d.dead || d.hide || d.st === 'enter' || d.st === 'talk' || d.st === 'morph' || d.st === 'flee' || d.st === 'flee0') return;
     const arm = d.armor * ((d.st === 'act' && d.sk === 'perch' && d.ph === 1) || d.st === 'rec' ? 0.55 : 1), eff = dmg * (1 - arm * (pierce ? 0.4 : 1));
     d.hp -= eff; d.flash = 0.1; Q.shake = Math.max(Q.shake, 0.15);
-    if (!quiet || d.hp <= 0) Snd.creature('dragon', d.hp <= 0 ? 'die' : 'hurt', true);
+    if (!quiet || d.hp <= 0) Snd.dragon((Q.dragon && Q.dragon.form) || 0, d.hp <= 0 ? 'die' : 'hurt');
     emit(d.x + d.w / 2, d.y + d.h / 2, 8, { col: ['#fff', '#ffd34e', '#f08a2b'], sp0: 20, sp1: 100 });
     if (d.def.kind === 'young') { if (d.hp <= d.max * 0.45) startFlee(d); }
     else if (d.hp <= 0) { d.hp = 0; if (d.stage < 2) startMorph(d); else startDragonDeath(d); }
   }
   function startFlee(d) {
     d.st = 'flee0'; d.invul = 99; Q.projs.length = 0; Q.zones.length = 0; Q.ents.forEach(e => { if (e.minion) e.dead = true; }); setEmo('angry', 2);
-    startScripted('dragon_young', DRG_DLG.young_flee, () => { d.st = 'flee'; d.timer = 2.0; d.dir = 1; Snd.creature('dragon', 'attack', true); });
+    startScripted('dragon_young', DRG_DLG.young_flee, () => { d.st = 'flee'; d.timer = 2.0; d.dir = 1; Snd.dragon((Q.dragon && Q.dragon.form) || 0, 'attack'); });
   }
   function startMorph(d) {
-    d.st = 'morph'; d.invul = 99; Q.projs.length = 0; Q.zones.length = 0; Q.ents.forEach(e => { if (e.minion) e.dead = true; }); Q.shake = 1; Snd.creature('dragon', 'alert', true);
-    startScripted('dragon', DRG_DLG.morph[d.stage], () => { setStage(d, d.stage + 1); d.invul = 1.6; d.st = 'hover'; d.timer = 1.2; Q.shake = 1.2; Snd.creature('dragon', 'alert', true); if (d.form === 3) { Snd.whisper(); Q.darkBoost = 0.5; Q.darkBoostT = 3; } emit(dc(d).x, dc(d).y, 50, { col: d.form === 3 ? ['#a15be0', '#ff3aff', '#fff'] : ['#ffd34e', '#f08a2b', '#fff'], sp0: 40, sp1: 180 }); });
+    d.st = 'morph'; d.invul = 99; Q.projs.length = 0; Q.zones.length = 0; Q.ents.forEach(e => { if (e.minion) e.dead = true; }); Q.shake = 1; Snd.dragon((Q.dragon && Q.dragon.form) || 0, 'alert');
+    startScripted('dragon', DRG_DLG.morph[d.stage], () => { setStage(d, d.stage + 1); Snd.music('dragon' + d.form, BOSS_TRACK(Q.li, 'dragon', d.form)); d.invul = 1.6; d.st = 'hover'; d.timer = 1.2; Q.shake = 1.2; Snd.dragon((Q.dragon && Q.dragon.form) || 0, 'alert'); if (d.form === 3) { Snd.whisper(); Q.darkBoost = 0.5; Q.darkBoostT = 3; } emit(dc(d).x, dc(d).y, 50, { col: d.form === 3 ? ['#a15be0', '#ff3aff', '#fff'] : ['#ffd34e', '#f08a2b', '#fff'], sp0: 40, sp1: 180 }); });
   }
-  function startDragonDeath(d) { d.dead = true; d.deadT = 0; d.booms = 0; Q.projs.length = 0; Q.zones.length = 0; Q.windT = 0; Q.ents.forEach(e => { if (e.minion) e.dead = true; }); Snd.stop(); Snd.creature('dragon', 'die', true); }
+  function startDragonDeath(d) { d.dead = true; d.deadT = 0; d.booms = 0; Q.projs.length = 0; Q.zones.length = 0; Q.windT = 0; Q.ents.forEach(e => { if (e.minion) e.dead = true; }); Snd.stop(); Snd.dragon((Q.dragon && Q.dragon.form) || 0, 'die'); }
   function finishDragon(d) {
     const tr = d.tr; Q.dragonsDone.add(tr.id); const dr = Q.dragons.find(o => o.id === tr.id); if (dr) dr.state = 'done';
     for (let y = 0; y < tr.gy; y++) { Q.L.grid[y][tr.lw] = ' '; Q.L.grid[y][tr.rw] = ' '; }
@@ -2377,7 +2381,7 @@
         d.timer -= dt;
         if (d.timer <= 0) {
           if (d.st === 'rec') { d.st = 'hover'; d.timer = 0.5 / d.fury; }
-          else { d.atkSk = pickDS(d); d['u_' + d.atkSk] = Q.t; d.st = 'tele'; d.timer = DS[d.atkSk].tele / d.fury; Snd.creature('dragon', 'attack', true); }
+          else { d.atkSk = pickDS(d); d['u_' + d.atkSk] = Q.t; d.st = 'tele'; d.timer = DS[d.atkSk].tele / d.fury; Snd.dragon((Q.dragon && Q.dragon.form) || 0, 'attack'); }
         }
         break;
       }
@@ -2437,7 +2441,7 @@
       const lead = allPl().find(p => p.x > dr.trig * TS && p.x < dr.rw * TS - 8 && p.onGround);
       if (lead) {
         dr.state = 'active'; if (coop && (Q.players || []).length > 1) { coopGather(false, lead, { x0: dr.lw, x1: dr.rw }); Q.msg = cvs('Dragon fight! Your teammates are pulled in!', 'Đánh rồng! Đồng đội được kéo vào đánh cùng!'); Q.msgT = 3.5; } for (let y = 0; y < dr.gy; y++) { Q.L.grid[y][dr.lw] = 'G'; Q.L.grid[y][dr.rw] = 'G'; }
-        Q.dragon = makeDragon(dr); Snd.creature('dragon', 'alert', true); Snd.play('gate'); Q.shake = 1.2; setEmo('scared', 2.5);
+        Q.dragon = makeDragon(dr); Snd.dragon((Q.dragon && Q.dragon.form) || 0, 'alert'); Snd.music('dragon' + Q.dragon.form, BOSS_TRACK(Q.li, 'dragon', Q.dragon.form)); Snd.play('gate'); Q.shake = 1.2; setEmo('scared', 2.5);
       }
     }
   }
@@ -2542,7 +2546,7 @@
     tk.t += dt;
     const full = TX(tk.lines[tk.i]).length;
     { const ln = TX(tk.lines[tk.i]), n0 = Math.floor((tk.t - dt) * 45), n1 = Math.min(ln.length, Math.floor(tk.t * 45));
-      for (let k = n0 + 1; k <= n1; k++) if (k % 2 === 0 && /\S/.test(ln[k - 1] || ' ')) { const sw = tk.lines[tk.i].w || tk.it.who; if (sw.indexOf('boss') === 0) Snd.creature(Q.li, 'idle', true, 0.7); else if (sw !== 'narr') Snd.blip(sw); } }
+      for (let k = n0 + 1; k <= n1; k++) if (k % 2 === 0 && /\S/.test(ln[k - 1] || ' ')) { const sw = tk.lines[tk.i].w || tk.it.who; if (sw.indexOf('boss') === 0) bossVox('idle', 0.7); else if (sw !== 'narr') Snd.blip(sw); } }
     if (act.okP || act.talkP || act.atkP) {
       if (tk.t * 45 < full) tk.t = 999;
       else { tk.i++; tk.t = 0; Snd.play('select'); if (tk.i >= tk.lines.length) coopTalkEnd(tk); }
@@ -6525,7 +6529,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         if (Math.random() < 0.7) emit(b.tx + rr(-14, 14), gy, 1, { col: ['#8a6a4a', '#c8a070'], sp0: 10, sp1: 50, vy: -50 });
         if (b.skT <= 0) {
           b.x = b.tx - b.w / 2; b.y = gy - b.h; b.hide = false; b.vy = -330; b.onGround = false; b.ph = 2; b.skT = 0.75;
-          Snd.play('boom'); Snd.creature(Q.li, 'attack', true); Q.shake = 0.7; emit(b.tx, gy, 40, { col: ['#8a6a4a', '#5a4430', '#fff6e0'], sp0: 40, sp1: 170, vy: -90 }); addRing(b.tx, gy, '#c8a070', 70, 0.5);
+          Snd.play('boom'); bossVox('attack'); Q.shake = 0.7; emit(b.tx, gy, 40, { col: ['#8a6a4a', '#5a4430', '#fff6e0'], sp0: 40, sp1: 170, vy: -90 }); addRing(b.tx, gy, '#c8a070', 70, 0.5);
           hitPlB({ x: b.tx - b.w / 2 - 6, y: gy - b.h - 20, w: b.w + 12, h: b.h + 20 }, () => hurtPlayer(2, b.tx));
           for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + (i - 2.5) * 0.35; firePr(b.tx, gy - 10, Math.cos(a) * 130, Math.sin(a) * 160, { col: '#8a6a4a' }); }
         }
@@ -6919,7 +6923,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const sm = { slotOff: (G.sums.filter(q => q.owner === o).length % 4) * 18, evo: !!evo, stage: 1, hp: sumHp(1), hpMax: sumHp(1), inv: 9, kind, life: L, max: L, t: 0, x, y, f: dir, cd: 0.6, n: 0, owner: o, ph: 'enter', pt: 0, ent, ex: x, ey: y, fromPet: !!from };
     if (ent === 'swoop') { sm.x = sm.sx0 = x - dir * 220; sm.y = sm.sy0 = y - 120; }
     G.sums.push(sm);
-    Snd.play('relic'); if (ent === 'shadow') { addRing(o.x + 4, o.y + o.h, '#5a2a8a', 40, 0.6); } else { G.flash = Math.max(G.flash || 0, 0.12); }
+    Snd.play('relic'); Snd.summon(sumSheetName(sm), 'spawn'); if (ent === 'shadow') { addRing(o.x + 4, o.y + o.h, '#5a2a8a', 40, 0.6); } else { G.flash = Math.max(G.flash || 0, 0.12); }
     pop(o.x + 4, o.y - 26, (label ? LN(label) : sumName(kind)) + '!', glow);
   }
   function sumIntro(s, o, dt) {
@@ -7091,10 +7095,12 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const onG = sumPhys(s, dt);
     if (onG && t) { const d = t.x + t.w / 2 - s.x, ad = Math.abs(d); s.f = d < 0 ? -1 : 1; if (ad > w[1] && sumStepX(s, s.f * Math.min(sp * dt, ad - w[1]))) s.mv = 1; }
     else if (onG) sumFollow(s, o, dt, false);
+    if (s.mv && onG) { s.stepT = (s.stepT || 0) - dt; if (s.stepT <= 0) { s.stepT = 0.4; Snd.summon(sumSheetName(s), 'step', s.stage); } }   // small footsteps (audio.js plays at most two at once)
     if (Q.arenaSealed) s.x = arenaClamp(s.x);
   }
   function evolveSummon(s) {
     s.evoAt = s.t;   // the evolve animation plays from here (drawing only)
+    Snd.summon(sumSheetName(s), 'evo', 2);
     s.stage = 2; s.life = 30; s.max = 30; s.hpMax = s.hp = sumHp(2); s.inv = 99; s.atkT = 0.5; s.cd = 0.3; s.mv = 0; s.ultT = 1.1; s.ultN = 3;
     const info = GIANT[s.kind] || BEAST[s.kind], x = s.x, y = s.y;
     Snd.play('relic'); Snd.play('boom'); Q.shake = Math.max(Q.shake, 0.6); Q.G.flash = Math.max(Q.G.flash || 0, 0.3);
@@ -7274,7 +7280,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         case 'ninetail': s.cd = 0.6; for (let i = 0; i < 3; i++) shootG({ x: s.x, y: s.y - 16, vx: rr(-120, 120), vy: -rr(60, 140), home: true, life: 2, dmg: sd(3), burn: 2, shape: 'orb', col: '#6ee7f2', trail: '#ff9a4a', sz: 3, quiet: true }); break;
       }
       if (s.cd > cd0 + 0.001 && tg0 && Math.abs(tg0.x + tg0.w / 2 - s.x) < 460) s.hits = (s.hits || 0) + Math.min(1, s.cd / 0.8) * (tg0.isBoss ? 1 : 0.6);
-      if (s.cd > cd0 + 0.001 && s.kind !== 'aegis') { s.atkT = 0.35; if (s.stage === 2) s.cd = cd0 + (s.cd - cd0) * 0.72; }
+      if (s.cd > cd0 + 0.001 && s.kind !== 'aegis') { s.atkT = 0.35; Snd.summon(sumSheetName(s), 'attack', s.stage); if (s.stage === 2) s.cd = cd0 + (s.cd - cd0) * 0.72; }
     }
     G.sums = G.sums.filter(s => s.life > 0 && (s.hp > 0 || s.dying > 0));
     sumCtx = false;
