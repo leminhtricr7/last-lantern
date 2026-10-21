@@ -587,3 +587,6 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
 - Quoc's 8 forms (`tools/pixel/quoc.py`) and the gatekeepers Shorty and Sy, 2 forms each (`tools/pixel/gatekeepers.py`)
   use their own sheets too (`sheet:` on each form in `FORMS`); the form change shrinks and regrows the new art.
   Cells are fitted automatically to the widest pose (`fit_states`).
+- Hitboxes follow the art: each boss's `w` / `h` is the solid body of its sheet (`tools/pixel/hitbox.py`; thin parts
+  such as staffs, spider legs and tentacle tips are left out). The art is shifted by `SHEET_OFF` so its body sits on the
+  hitbox. Three were tuned by hand: the coiled Venom Wyrm (60×70), Oktavor (110×140) and Mr Shorty Phong (24×60).
