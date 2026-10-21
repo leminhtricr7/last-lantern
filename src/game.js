@@ -916,7 +916,7 @@
   }
   function solid(tx, ty) {
     const c = ch(tx, ty);
-    if (c === '#' || c === 'I' || c === 'G' || c === 'X') return true;
+    if (c === '#' || c === 'I' || c === 'G' || c === 'X' || c === 'H' || c === 'K') return true;
     if (c === 'C') { const s = Q.crum.get(ty * Q.L.W + tx); return !(s && s.st === 2); }
     return false;
   }
@@ -1028,10 +1028,12 @@
     Q.brk = (L.brk || []).filter(b => !Q.brokenB.has(b.id)).map(b => Object.assign({}, b, { hitT: 0 }));   // phase 5: pots and bushes
     for (const gd of L.gates) { const open = Q.solved.has(gd.id); for (let y = gd.y0; y <= gd.y1; y++) L.grid[y][gd.x] = open ? ' ' : 'G'; }
     for (const w of L.xwalls) for (const t of w.tiles) L.grid[t[1]][t[0]] = Q.brokenX.has(t[0] + ',' + t[1]) ? ' ' : 'X';
+    for (const c of L.covers || []) L.grid[c.y][c.x] = Q.brokenX.has(c.x + ',' + c.y) ? ' ' : c.c;   // phase 5: secret-room covers
     Q.gates = L.gates.map(gd => Object.assign({}, gd, { open: Q.solved.has(gd.id), seqIdx: 0, timer: 0, levers: 0 }));
     for (const t of L.trials) for (let y = 0; y < t.gy; y++) L.grid[y][t.lw] = ' ';
     Q.trials = L.trials.map(t => Object.assign({}, t, { state: Q.trialsDone.has(t.id) ? 'done' : 'idle', wave: 0, cd: 0 }));
     for (const s of L.spawns) {
+      if (s.type === 'chest') { Q.items.push({ kind: 'chest', k: s.k, x: s.x, y: s.y, id: s.id, open: Q.taken.has(s.id), ph: 0 }); continue; }
       if (Q.taken.has(s.id)) continue;
       if (s.type === 'coin') Q.items.push({ kind: 'coin', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'heart') Q.items.push({ kind: 'heart', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
@@ -1590,6 +1592,7 @@
     if (Q.P.counterHit) { Q.P.counterHit = false; Q.P.counterT = 0; pop(Q.P.x + 4, Q.P.y - 14, sv('COUNTER x2', 'PHẢN ĐÒN x2'), '#ffd34e'); Snd.play('explode'); }
     const P = Q.P, r = swordRect(), sw = P.sw || ITEM.iron, st = sw.st, base = baseDmg() + (st.dmg || 0);
     for (const b of Q.brk) if (!b.dead && !P.atkHit.has(b) && ov(r, brkBox(b))) { P.atkHit.add(b); breakBrk(b, 'sword'); }
+    for (let ty = Math.floor(r.y / TS); ty <= Math.floor((r.y + r.h) / TS); ty++) for (let tx = Math.floor(r.x / TS); tx <= Math.floor((r.x + r.w) / TS); tx++) { const c = ch(tx, ty); if (c === 'H' || c === 'K') breakCover(tx, ty); }
     const list = Q.ents.slice().concat(bossTargets());
     for (const e of list) {
       if (e.dead || e.hid || P.atkHit.has(e)) continue;
@@ -2513,6 +2516,64 @@
     Q.projs = Q.projs.filter(p => !p.dead);
   }
 
+  // ===================== phase 5 (C): secret rooms: covers, chests and their stories =====================
+  function breakCover(tx, ty) {
+    if (coop && coop.role === 'client') return;
+    const c = ch(tx, ty); if (c !== 'H' && c !== 'K') return;
+    let x0 = tx, x1 = tx; while (ch(x0 - 1, ty) === c) x0--; while (ch(x1 + 1, ty) === c) x1++;
+    for (let x = x0, y = ty; x <= x1; x++) {   // the whole opening goes at once
+      Q.L.grid[y][x] = ' '; Q.brokenX.add(x + ',' + y);
+      const col = c === 'H' ? (BRK_COL[BUSH_STYLE[Q.B.id]] || BRK_COL.leaf) : [Q.B.ground.top, Q.B.ground.dark, Q.B.ground.light];
+      emit(x * TS + 8, y * TS + 6, 14, { col: [col[0], col[1], col[2]], sp0: 30, sp1: 100, vy: -60 });
+    }
+    Snd.play(c === 'H' ? (BRK_SND[BUSH_STYLE[Q.B.id]] || 'leafcut') : 'brkstone'); Snd.play('chime');
+    Q.msg = sv('A hidden way down!', 'Một lối bí mật!'); Q.msgT = 2.5;
+  }
+  function drawCover(c, tx, ty, dx, dy, v) {
+    const ts = tiles(Q.li); g.drawImage(ts.top[v], dx, dy);
+    if (c === 'H') { const sp = brkSprite(BUSH_STYLE[Q.B.id] || 'leaf'); g.drawImage(sp.c, Math.round(dx + 8 - sp.w / 2), dy - sp.h + 8); }
+    else {   // an odd brick: the same ground, a shade lighter, with a fine seam
+      g.fillStyle = 'rgba(255,255,255,0.09)'; g.fillRect(dx + 1, dy + 3, 14, 12);
+      g.fillStyle = 'rgba(0,0,0,0.28)'; g.fillRect(dx + 1, dy + 8, 14, 1); g.fillRect(dx + (tx % 2 ? 5 : 10), dy + 3, 1, 5); g.fillRect(dx + (tx % 2 ? 10 : 5), dy + 9, 1, 6);
+    }
+    if (Math.sin(Q.t * 1.7 + tx * 2.3) > 0.985) { g.fillStyle = '#fff'; g.fillRect(dx + 3 + (tx * 7) % 10, dy + 2, 1, 1); }   // a rare glint
+  }
+  const chestSpr = {};
+  function chestSprite(open) {
+    if (chestSpr[open ? 1 : 0]) return chestSpr[open ? 1 : 0];
+    return (chestSpr[open ? 1 : 0] = paint(14, 11, P => {
+      P.rect(0, 5, 14, 6, '#8a5a2a'); P.rect(0, 9, 14, 2, '#5e3b1a'); P.rect(0, 5, 14, 1, '#c08a4a');
+      if (open) { P.rect(1, 0, 12, 3, '#5e3b1a'); P.rect(1, 0, 12, 1, '#a8743a'); P.rect(2, 4, 10, 1, '#ffd34e'); P.px(4, 3, '#fff6c0'); P.px(9, 3, '#fff6c0'); }
+      else { P.rect(0, 2, 14, 3, '#a8743a'); P.rect(0, 1, 14, 1, '#c08a4a'); P.rect(6, 4, 2, 3, '#ffd34e'); P.px(6, 5, '#7a5a10'); }
+      P.rect(3, 5, 1, 6, '#ffd34e'); P.rect(10, 5, 1, 6, '#ffd34e');
+    }, '#1a0e06'));
+  }
+  // one page of the Lantern Keeper's story per map, read in the first chest you open there
+  const SECRET_LORE = {
+    0: ['The first Lantern Keeper lit this meadow\'s tower with a single match. The match is still in the wall.', 'Người Giữ Đèn đầu tiên thắp tháp đồng cỏ này bằng đúng một que diêm. Que diêm vẫn còn trong tường.'],
+    1: ['The forest patrol carved their names here: "We keep the light, so the light keeps us."', 'Đội tuần rừng khắc tên ở đây: "Ta giữ ánh sáng, để ánh sáng giữ ta."'],
+    2: ['Crystal-cutters sang while they worked. The crystals still hum the tune when no one listens.', 'Thợ cắt pha lê hát khi làm việc. Pha lê vẫn ngân giai điệu ấy khi không ai nghe.'],
+    3: ['A note in the sand: "Khepsar asked for one night of sleep. The Keeper gave him a hundred years."', 'Mảnh giấy trong cát: "Khepsar xin một đêm ngủ. Người Giữ Đèn cho ông trăm năm."'],
+    4: ['Frozen in the ice: a letter Rimvald never sent. Only the word "sorry" can still be read.', 'Đóng băng trong đá: lá thư Rimvald chưa từng gửi. Chỉ còn đọc được chữ "xin lỗi".'],
+    5: ['The forge-master\'s rule, scratched on an anvil: never let the fire go out, never let it go wild.', 'Luật của thợ cả lò rèn, khắc trên đe: đừng để lửa tắt, đừng để lửa hoang.'],
+    7: ['A cradle of moss. Someone sang lullabies here long before the swamp learned to bite.', 'Một chiếc nôi bằng rêu. Ai đó đã hát ru ở đây từ lâu trước khi đầm lầy biết cắn.'],
+    8: ['The lighthouse log ends mid-sentence: "The water is rising, but the lamp still"', 'Nhật ký hải đăng dừng giữa câu: "Nước đang dâng, nhưng ngọn đèn vẫn"'],
+    9: ['Miners\' tally marks, and under them: "Dig deeper," said Quoc. "The dark is warm down there."', 'Vạch đếm của thợ mỏ, và bên dưới: "Đào sâu nữa," Quốc nói. "Dưới đó bóng tối ấm lắm."'],
+    6: ['Quoc\'s first lantern, cracked and cold. Etched on its base: "For Aurelia. Always."', 'Chiếc đèn đầu tiên của Quốc, nứt và lạnh. Dưới đáy khắc: "Vì Aurelia. Mãi mãi."']
+  };
+  function openChest(it) {
+    if (coop && coop.role === 'client') return;
+    it.open = true; Q.taken.add(it.id); Snd.play('key'); Snd.play('coin'); addRing(it.x, it.y - 6, '#ffd34e', 26, 0.4);
+    emit(it.x, it.y - 6, 22, { col: ['#ffd34e', '#fff6c0', '#fff'], sp0: 20, sp1: 90, vy: -50 });
+    const drop = (kind, ex) => Q.items.push(Object.assign({ kind, x: it.x, y: it.y - 8, id: -1, vy: -rr(110, 170), vx: rr(-50, 50), ph: 0, drop: true }, ex || {}));
+    const n = 8 + ((Math.random() * 7) | 0); for (let i = 0; i < n; i++) drop('coin');
+    const w = ['dagger', 'bomb', 'flask'][(Math.random() * 3) | 0]; drop('pk', { what: w, amt: w === 'dagger' ? 5 : 2, keep: false });
+    if ((Q.players || [Q.P]).some(p => p.hp < maxHP())) drop('heart');
+    const lore = it.k === 0 && SECRET_LORE[Q.li];
+    if (lore && coop) { Q.msg = sv('The Keeper\'s story: ' + lore[0], 'Chuyện Người Giữ Đèn: ' + lore[1]); Q.msgT = 9; }   // co-op: a message, like the secret eggs, so nobody is paused
+    else if (lore) startScripted('narr', [{ en: 'A page of the Keeper\'s story. ' + lore[0], vi: 'Một trang chuyện Người Giữ Đèn. ' + lore[1] }], null);   // a narrated page: no pickup message can hide it
+    else { Q.msg = sv('Secret chest!', 'Rương bí mật!'); Q.msgT = 2.5; }
+  }
   // ===================== phase 5 (A1, A3): pots that break and bushes that can be cut =====================
   // [mid, dark, light, accent] per style; the pot styles follow the map's theme, bushes only grow on the outdoor maps
   const BRK_COL = { clay: ['#c8743a', '#7a3e1c', '#eaa266', '#4a2a14'], amphora: ['#e0b060', '#9a6a28', '#ffe0a0', '#2a6ac8'], crystal: ['#8a88e0', '#4c4aa0', '#e0e0ff', '#6ee7f2'],
@@ -2592,6 +2653,7 @@
     for (const d of Q.L.decor) if (Math.abs(d.x - px) < 34 && Math.abs(d.y - py) < 30 && B.decor[d.k][0] === 'torch') { Snd.near('torch'); break; }
     if (B.hazard === 'lava' && Math.random() < 0.5) { const tx = Math.floor(px / TS), ty = Math.floor(py / TS); search: for (let dx = -3; dx <= 3; dx++) for (let dy = 0; dy <= 4; dy++) if (ch(tx + dx, ty + dy) === '~') { Snd.near('lava'); break search; } }
     if ((B.sun || B.id === 'swamp') && !B.water && py < 3.5 * TS && Math.random() < 0.12) Snd.near('wind');
+    if (Math.random() < 0.35) for (const c of Q.L.covers || []) if (Math.abs(c.x * TS + 8 - px) < 40 && Math.abs(c.y * TS - py) < 36 && ch(c.x, c.y) === c.c) { Snd.near('draught'); break; }
   }
   // ----- NPC dialogue & shop -----
   function startTalk(it) {
@@ -2789,6 +2851,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
               () => { save.bonusHP = Math.min(6, save.bonusHP + 1); save.bonusDmg = Math.min(4, save.bonusDmg + 1); save.rare += 10; writeSave(); Q.P.hp = maxHP(); });
           } else { Q.msg = sv("Lyra's note ", 'Nốt nhạc thứ ') + it.n + sv('! (', ' của Lyra! (') + save.orbs.length + '/7)' + sv(' Find all seven...', ' Hãy tìm đủ bảy nốt...'); Q.msgT = 4; }
         }
+      } else if (it.kind === 'chest') {
+        if (!it.open && d < 14) openChest(it);
       } else if (it.kind === 'rare') {
         if (d < 13) {
           it.dead = true; Snd.play('shard'); emit(it.x, it.y, 26, { col: ['#c07bff', '#6ee7f2', '#fff'], sp0: 20, sp1: 110 }); addRing(it.x, it.y, '#c07bff', 30, 0.4);
@@ -3388,6 +3452,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     for (const b of bossTargets()) if (Math.hypot(b.x + b.w / 2 - x, b.y + b.h / 2 - y) < r + b.w / 2) hurtBoss(b, dmg, true);
     if (!soft) breakWalls(x, y, r);
     for (const b of Q.brk) if (!b.dead && Math.hypot(b.x - x, b.y - 6 - y) < r + 8) breakBrk(b, 'bomb');
+    if (!soft) for (let ty = Math.floor((y - r) / TS); ty <= Math.floor((y + r) / TS); ty++) for (let tx = Math.floor((x - r) / TS); tx <= Math.floor((x + r) / TS); tx++) { const c = ch(tx, ty); if (c === 'H' || c === 'K') breakCover(tx, ty); }
     const P = Q.P; if (!soft && Math.hypot(P.x + 4 - x, P.y + 7 - y) < r * 0.8) { P.vx += (P.x + 4 < x ? -1 : 1) * 140; P.vy = -150; }
     Q.fps.push({ t: 'blast', x, y, life: 0.25, r });
   }
@@ -3402,6 +3467,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       p.x += p.vx * dt; if (solid(Math.floor(p.x / TS), Math.floor(p.y / TS))) { p.x -= p.vx * dt; p.vx = p.t === 'bomb' ? -p.vx * 0.3 : 0; hitTile = true; }
       p.y += p.vy * dt; if (solid(Math.floor(p.x / TS), Math.floor(p.y / TS))) { p.y -= p.vy * dt; if (p.t === 'bomb') { if (p.vy > 0) { p.vx *= 0.6; } p.vy = 0; } else hitTile = true; }
       const box = { x: p.x - 3, y: p.y - 3, w: 6, h: 6 };
+      if (hitTile && p.t !== 'bomb' && p.t !== 'flask') for (const [ox, oy] of [[0, 0], [Math.sign(p.vx) * 4, 0], [0, 4]]) { const tx = Math.floor((p.x + ox) / TS), ty = Math.floor((p.y + oy) / TS), c = ch(tx, ty); if (c === 'H' || c === 'K') { breakCover(tx, ty); break; } }
       if (p.t === 'wave') { if (hitTile) { p.dead = true; continue; } if (Math.random() < 0.7) emit(p.x, p.y + rr(-3, 3), 1, { col: ['#ffd34e', '#f08a2b', '#e0453a'], sp0: 3, sp1: 14, grav: -10, l0: 0.15, l1: 0.3 }); }
       if (p.t === 'dagger') for (const pz of Q.pz) if (pz.type === 'lever' && !pz.on && ov(box, { x: pz.x - 9, y: pz.y - 15, w: 18, h: 15 })) { leverPull(pz); p.dead = true; }
       if (p.dead) continue;
@@ -3433,6 +3499,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         for (const e of Q.ents) if (!e.dead && ov(box, e)) hurtEnemy(e, 1, true);
         for (const b of bossTargets()) if (ov(box, b)) hurtBoss(b, 1, true);
         for (const br of Q.brk) if (!br.dead && br.t === 'bush' && ov(box, brkBox(br))) breakBrk(br, 'fire');   // fire burns bushes
+        for (let tx = Math.floor(box.x / TS); tx <= Math.floor((box.x + box.w) / TS); tx++) { const ty = Math.floor((f.y + 2) / TS); if (ch(tx, ty) === 'H') breakCover(tx, ty); }
       }
       for (const pz of Q.pz) if (pz.type === 'torch' && !pz.lit && Math.abs(pz.x - f.x) < 20 && Math.abs(pz.y - f.y) < 24) lightTorch(pz);
     }
@@ -3766,6 +3833,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       else if (c === '^') g.drawImage(ts.spike, dx, dy);
       else if (c === 'G') g.drawImage(ts.gate, dx, dy);
       else if (c === 'X') g.drawImage(ts.cracked, dx, dy);
+      else if (c === 'H' || c === 'K') drawCover(c, tx, ty, dx, dy, v);
       else if (c === '~') g.drawImage(ts.lava[above === '~' ? 1 : 0][lf], dx, dy);
       else if (c === 'C') {
         const s = Q.crum.get(ty * L.W + tx);
@@ -3840,7 +3908,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         const by = y + Math.round(Math.sin(it.ph * 2) * 2), col = NOTE_COL[(it.n - 1) % 7][0];
         g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35; disc(g, x, by, 11, col); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
         drawSpr(g, noteSprite(it.n), x, by + 8, false);
-      } else if (it.kind === 'rare') {
+      } else if (it.kind === 'chest') { const sp = chestSprite(it.open); g.drawImage(sp.c, Math.round(x - sp.w / 2), Math.round(it.y - camY - sp.h + 1)); if (!it.open && Math.random() < 0.06) emit(it.x + rr(-6, 6), it.y - rr(4, 10), 1, { col: ['#ffd34e', '#fff'], sp0: 2, sp1: 8, grav: -10, l0: 0.4, l1: 0.8 }); }
+      else if (it.kind === 'rare') {
         const by = y + Math.round(Math.sin(it.ph * 3) * 2);
         g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.3 + Math.sin(it.ph * 5) * 0.1; disc(g, x, by, 10, '#c07bff'); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
         drawRareIc(x, by, 1.4);
@@ -6729,7 +6798,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       { en: '"Oh little flame, so brave and bright, you hit the slimes with all your might..." Too much?', vi: '"Ơi ngọn lửa nhỏ dũng cảm sáng ngời, chém lũ slime chẳng nghỉ ngơi..." Hơi lố hả?' }] }
   });
   // ===================== SCENERY: tile details, props, living sky, foreground, colour mood =====================
-  const SOLC = c => c === '#' || c === 'I' || c === 'C' || c === 'X' || c === 'G';
+  const SOLC = c => c === '#' || c === 'I' || c === 'C' || c === 'X' || c === 'G' || c === 'H' || c === 'K';
   function buildScene() {
     const L = Q.L, B = Q.B, rn = mulberry32(4242 + Q.li * 59), props = [], kinds = BIOME_PROPS[B.id] || [];
     const endX = (L.arena ? L.arena.x0 : L.W) - 2, topOf = x => { for (let y = 2; y < L.H - 1; y++) { const c = L.grid[y][x]; if (c === '#' || c === 'I') return L.grid[y - 1][x] === ' ' ? y : -1; if (c !== ' ') return -1; } return -1; };

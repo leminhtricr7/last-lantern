@@ -188,6 +188,44 @@ const PUZZLES = {
 const TRIAL_WAVES = { 0: 2, 2: 3, 5: 4, 6: 5 };
 
 
+// ============ phase 5 (C): secret rooms under the ground, behind three kinds of hidden entrance ============
+// A 6x3 room is carved under a flat stretch of ground with a ledge inside (so you can always jump back out) and a chest.
+// Its 3-tile opening in the ground is covered by: a bush (cut it, outdoor maps), an odd brick (hit it), or a cracked
+// slab that only a bomb breaks. The room itself is visible from the side, like the fake-floor nooks: a hint to look for
+// the way in.
+function addSecretRooms(L, li) {
+  const B = L.B, G = L.grid, H = L.H, rn = mulberry32(6060 + li * 271);
+  const kinds = BUSH_STYLE[B.id] ? ['hedge', 'brick', 'crack'] : ['brick', 'crack', 'brick'];
+  const end = (L.arena ? L.arena.x0 : L.W) - 12, SOL = c => c === '#' || c === 'I';
+  const KEEP = new Set(['npc', 'pk', 'key', 'shard', 'egg', 'orb', 'rare', 'chest', 'heart', 'cage', 'boss', 'lever', 'torch', 'rune', 'tablet', 'pearl', 'spiketrap', 'turret', 'rockfall', 'jets', 'saw']);   // things a room must not sit under; enemies may walk above it
+  const busy = x => L.spawns.some(sp => KEEP.has(sp.type) && Math.abs(sp.x / TS - x) < 6) || L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 7)
+    || (L.nooks || []).some(n => Math.abs(n.x - x) < 10) || L.gates.some(gd => Math.abs(gd.x - x) < 8) || (L.secretRooms || []).some(r => Math.abs(r.x - x) < 14)
+    || [].concat(L.trials || [], L.minis || [], L.dragons || []).some(t => x > t.lw - 8 && x < t.rw + 8);   // never inside a sealed trial or duel arena
+  L.secretRooms = []; L.covers = L.covers || [];
+  const done = [false, false, false];
+  for (let pass = 0; pass < 2; pass++) for (let k = 0; k < 3; k++) {
+    if (done[k]) continue;   // the second pass looks over the whole map for a room the first pass (its third of the map) missed
+    const a = pass ? 30 : Math.floor(30 + (end - 30) * k / 3), b = pass ? end : Math.floor(30 + (end - 30) * (k + 1) / 3);
+    for (let tries = 0; tries < 400; tries++) {
+      const x0 = a + Math.floor(rn() * Math.max(1, b - a - 9)); let y = -1;
+      for (let yy = 4; yy <= H - 5; yy++) if (SOL(G[yy][x0]) && G[yy - 1][x0] === ' ') { y = yy; break; }
+      if (y < 0 || busy(x0 + 4)) continue;
+      let ok = true;
+      for (let i = 0; i < 8 && ok; i++) { for (let d = 1; d <= 3 && ok; d++) if (G[y - d][x0 + i] !== ' ') ok = false; for (let d = 0; d <= 4 && ok; d++) if (!SOL(G[y + d][x0 + i])) ok = false; }
+      if (!ok) continue;
+      for (let i = 1; i <= 6; i++) for (let d = 1; d <= 3; d++) G[y + d][x0 + i] = ' ';
+      G[y + 2][x0 + 2] = '='; G[y + 2][x0 + 3] = '=';
+      const cov = kinds[k] === 'hedge' ? 'H' : (kinds[k] === 'brick' ? 'K' : 'X'), tiles = [[x0 + 3, y], [x0 + 4, y], [x0 + 5, y]];   // 3 wide: easy to jump back out
+      tiles.forEach(t => { G[t[1]][t[0]] = cov; });
+      if (cov === 'X') L.xwalls.push({ tiles, secret: true }); else tiles.forEach(t => L.covers.push({ x: t[0], y: t[1], c: cov }));
+      L.spawns.push({ id: L.id++, type: 'chest', k, x: (x0 + 6) * TS + TS / 2, y: (y + 4) * TS });
+      for (let i = 1; i <= 3; i++) L.spawns.push({ id: L.id++, type: 'coin', x: (x0 + i) * TS + TS / 2, y: (y + 4) * TS });
+      L.secretRooms.push({ x: x0, y, kind: kinds[k] }); done[k] = true;
+      break;
+    }
+  }
+}
+
 // ============ phase 5 (A1, A3): pots that break and bushes that can be cut ============
 // placed after a map is built, on free ground only (never on spikes, lava, gates, in the arena or on top of anything)
 const POT_STYLE = { meadow: 'clay', forest: 'clay', caves: 'crystal', desert: 'amphora', frost: 'ice', volcano: 'stone', citadel: 'bronze', swamp: 'shroom', ocean: 'coral', tunnels: 'barrel' };
@@ -195,7 +233,7 @@ const BUSH_STYLE = { meadow: 'leaf', forest: 'fern', desert: 'dry', frost: 'snow
 function addBreakables(L, li) {
   const B = L.B, G = L.grid, H = L.H, rn = mulberry32(4242 + li * 613), out = L.brk = [], used = [];
   const inArena = (x, y) => L.arena && x >= L.arena.x0 - 3 && (L.arena.y0 === undefined || y >= L.arena.y0);
-  const bad = c => c === '^' || c === '~' || c === 'G' || c === 'X';
+  const bad = c => c === '^' || c === '~' || c === 'G' || c === 'X' || c === 'H' || c === 'K';
   const okAt = (x, y) => x > 8 && x < L.W - 3 && y > 2 && y < H && G[y][x] === '#' && G[y - 1][x] === ' ' && G[y - 2][x] === ' ' && !inArena(x, y)
     && ![-1, 0, 1].some(d => bad(G[y - 1][x + d]) || bad(G[y][x + d]) || bad(G[y - 2][x + d]));
   const free = (x, y, d) => !used.some(u => Math.abs(u[0] - x) < d && Math.abs(u[1] - y) < 3)
@@ -726,7 +764,7 @@ function genLevel(li) {
     const busy = x => L.spawns.some(sp => Math.abs(sp.x / TS - x) < 4) || L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 5);
     for (let part = 0; part < 3; part++) {
       const a = Math.floor(20 + (endX - 20) * part / 3), b = Math.floor(20 + (endX - 20) * (part + 1) / 3);
-      for (let tries = 0; tries < 40; tries++) {
+      for (let tries = 0; tries < 400; tries++) {   // phase 5 (C): 40 tries left four maps with only two nooks
         const x0 = a + Math.floor(rn() * Math.max(1, b - a - 6)), y = topOf(x0); if (y < 0 || y + 3 > H - 1) continue;
         let ok = true; for (let i = 0; i < 5 && ok; i++) { if (topOf(x0 + i) !== y) ok = false; for (let k = 0; k < 4 && ok; k++) if (!SOL(L.grid[y + k][x0 + i])) ok = false; }
         if (!ok || busy(x0 + 2)) continue;
@@ -757,6 +795,7 @@ function genLevel(li) {
       while (ty > 1 && n < 5 && (grid[ty][tx] === '#' || grid[ty][tx] === 'I')) { ty--; n++; }
       if (n) sp.y = (ty + 1) * TS;
     } }
+  addSecretRooms(L, li);
   addBreakables(L, li);
   return L;
 }

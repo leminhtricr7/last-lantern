@@ -628,3 +628,10 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   coins, 20% ammo, 8% a heart when someone is hurt; bushes: 25% a coin, 8% daggers, 4% a heart). Broken ones stay broken
   after a death and in the checkpoint save (`Q.brokenB`, `save.resume.brokenB`); the host decides and co-op guests get
   them through the `brk` world list.
+- Secrets (phase 5, C): every land map now has its three fake-floor nooks (the search gave up too early on four maps)
+  plus 2-3 secret rooms (`addSecretRooms` in levels.js): a 6x3 room under a flat stretch of ground, with a ledge to jump
+  back out and a chest. Its 3-tile opening is hidden under a bush (`H`, cut or burn it; outdoor maps), an odd brick (`K`,
+  any hit) or a cracked slab (`X`, bombs only). Hints: a rare glint on the cover and a faint draught when you stand near.
+  Chests give 8-14 coins, ammo and a heart if someone is hurt; the first chest of each map holds a page of the Lantern
+  Keeper's story (`SECRET_LORE`). Opened covers and chests stay open after a death and in the checkpoint save. The Sunken
+  Deep keeps its six wall pockets.

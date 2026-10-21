@@ -375,6 +375,7 @@ const Snd = (() => {
     if (!ac || !ambG) return; const t = ac.currentTime;
     if (kind === 'torch') { for (let i = 0; i < 3; i++) noise(0.03, 0.03 + Math.random() * 0.02, 2600, t + Math.random() * 0.3, ambG); noise(0.4, 0.02, 500, t, ambG); }
     else if (kind === 'lava') { tone(120 + Math.random() * 80, 0.14, 'sine', 0.05, -60, t, ambG); noise(0.2, 0.04, 200, t + 0.05, ambG); }
+    else if (kind === 'draught') { const s2 = ac.createBufferSource(); s2.buffer = noiseBuf; const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 6; bp.frequency.value = 1400 + Math.random() * 600; const g2 = ac.createGain(); g2.gain.setValueAtTime(0.0001, t); g2.gain.exponentialRampToValueAtTime(0.03, t + 0.4); g2.gain.exponentialRampToValueAtTime(0.001, t + 1.1); s2.connect(bp); bp.connect(g2); g2.connect(ambG); s2.start(t, Math.random() * 0.4); s2.stop(t + 1.2); }   // air whistling through a hidden gap
     else if (kind === 'wind') { const s2 = ac.createBufferSource(); s2.buffer = noiseBuf; const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 2; bp.frequency.setValueAtTime(300, t); bp.frequency.linearRampToValueAtTime(700, t + 1.2); bp.frequency.linearRampToValueAtTime(350, t + 2.4);
       const g2 = ac.createGain(); g2.gain.setValueAtTime(0.0001, t); g2.gain.exponentialRampToValueAtTime(0.07, t + 1); g2.gain.exponentialRampToValueAtTime(0.001, t + 2.5); s2.connect(bp); bp.connect(g2); g2.connect(ambG); s2.start(t, Math.random() * 0.4); s2.stop(t + 2.6); }
   }
