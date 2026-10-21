@@ -54,7 +54,7 @@ const PROP_PAINT = {
   glowcluster: [18, 14, P => { const C = ['c', 'h', 'x']; for (let i = 0; i < 4; i++) { const x = 2 + i * 4, h = 5 + ((i * 7) % 5); P.rect(x, 14 - h, 1, h, 'e'); P.ell(x, 14 - h, 2 + (i % 2), 2, C[i % 3]); P.px(x, 13 - h, 'w'); } }],
   stiltlantern: [12, 26, P => { P.line(6, 26, 6, 6, 'N', 2); P.rect(2, 4, 8, 2, 'N'); P.rect(8, 6, 1, 4, 'n'); P.rect(6, 10, 5, 6, '#2a4a2a'); P.rect(7, 11, 3, 4, 'x'); P.px(8, 12, '#fff'); }],
   lilyrock: [20, 8, P => { P.ell(10, 5, 9, 3, 'D'); P.ell(10, 4, 8, 2, 'd'); P.ell(5, 3, 3, 1, 'g'); P.ell(14, 2, 3, 1, 'g'); P.px(14, 1, 'm'); }],
-  // ---- the giant forest before the Spore Queen ----
+  // ---- the giant forest before Morvella ----
   hugeshroom: [56, 92, P => { P.rect(23, 38, 11, 54, 'e'); P.rect(23, 38, 3, 54, 'w'); P.rect(31, 38, 3, 54, 'E'); P.both(() => { P.tri(23, 80, 14, 92, 24, 92, 'E'); P.line(24, 60, 16, 70, 'E', 2); });
     P.ell(28, 28, 27, 20, 'P'); P.ell(28, 26, 26, 18, 'p'); P.ell(28, 22, 21, 12, 'h'); P.rect(2, 36, 52, 3, 'D'); for (let i = 0; i < 13; i++) P.rect(4 + i * 4, 38, 1, 4, 'P');
     for (const [x, y, r] of [[14, 20, 4], [30, 12, 3], [42, 24, 4], [22, 30, 2], [36, 32, 2]]) { P.ell(x, y, r, Math.max(1, r - 1), 'w'); P.px(x - 1, y - 1, '#ffffff'); } P.px(46, 14, 'm'); P.px(10, 30, 'm'); }],

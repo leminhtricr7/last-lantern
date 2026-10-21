@@ -160,7 +160,7 @@ const PUZZLES = {
 const TRIAL_WAVES = { 0: 2, 2: 3, 5: 4, 6: 5 };
 
 
-// ============ THE SUNKEN DEEP: a vertical level. You start on the shore, dive, and swim down through six zones to the Kraken ============
+// ============ THE SUNKEN DEEP: a vertical level. You start on the shore, dive, and swim down through six zones to Oktavor ============
 function genOcean(B, li) {
   const rnd = mulberry32(9001 + li * 7919), R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
   const W = 84, H = 132, WY = 10, SH = [26, 40, 54, 68, 82, 96], ARY0 = 99, GY = H - 4;
@@ -220,7 +220,7 @@ function genOcean(B, li) {
   L.start = { x: 5 * TS, y: WY * TS };
   // the Tide Door: three Sea Pearls open it
   rect(12, 96, 31, 97, 'G'); L.pearlGate = { x0: 12, x1: 31, y0: 96, y1: 97, open: false };
-  // the Kraken's cavern
+  // Oktavor's cavern
   rect(4, ARY0, W - 5, GY - 1, ' '); rect(0, GY, W - 1, H - 1, '#');
   [[GY - 6, 14, 20], [GY - 6, 40, 46], [GY - 6, 64, 70], [GY - 12, 26, 32], [GY - 12, 54, 60], [GY - 18, 12, 18], [GY - 18, 40, 46], [GY - 18, 66, 72]].forEach(p => { for (let x = p[1]; x <= p[2]; x++) set(x, p[0], '='); });
   for (let i = 0; i < 8; i++) L.decor.push({ x: (10 + i * 9) * TS, y: GY * TS, k: R(0, B.decor.length - 1) });
@@ -604,7 +604,7 @@ function genLevel(li) {
   }
   while (tierN < 3 && x < B.len) { tiers(); tierN++; }   // a map crowded with puzzles still gets its multi-level sections
   { const ax = x; flat(plan.pre ? 16 : 8, { safe: true, cp: true, heart: true }); (plan.pre || []).forEach((w, i) => spawn('npc', ax + 3 + i * 2, gy, { who: w })); }
-  if (li === 7) {   // THE GIANT FOREST: a long dark stretch of huge glowing mushrooms and trees, full of monsters, ending at the Spore Queen's glade
+  if (li === 7) {   // THE GIANT FOREST: a long dark stretch of huge glowing mushrooms and trees, full of monsters, ending at Morvella's glade
     gy = 10; flat(6, { safe: true, cp: true, heart: true }); const f0 = x;
     for (let i = 0; i < 7; i++) {
       const n = R(13, 17), x0 = x;

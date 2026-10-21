@@ -142,7 +142,7 @@
       { en: 'VERDANT MEADOW. Morning comes, pale and cold. The black moon still hangs in the sky, and the First Tower stands dark at the far end of the meadow.', vi: 'ĐỒNG CỎ XANH. Trời sáng, nhưng nhợt nhạt và lạnh lẽo. Mặt trăng đen vẫn treo lơ lửng trên trời, và Tháp Đèn Thứ Nhất đứng tối om ở cuối đồng cỏ.' },
       { en: 'The village hides behind closed doors. Only the child with the old lantern walks out into the dark grass.', vi: 'Cả làng trốn sau những cánh cửa đóng chặt. Chỉ có đứa trẻ cầm cây đèn cổ bước ra bãi cỏ tối.' },
       { en: 'Somewhere ahead, Shorty Phong carried Princess Lyra away in an iron cage. Her song still drifts over the hills.', vi: 'Đâu đó phía trước, Shorty Phong đã chở Công chúa Lyra đi trong một chiếc lồng sắt. Tiếng hát của cô vẫn vọng qua những ngọn đồi.' },
-      { en: 'Above the meadow, Ignarok the Ashwing circles. Quoc has promised him a throne of ash for the last flame in Aurelia.', vi: 'Trên đồng cỏ, Ignarok Cánh Tro lượn vòng. Quốc đã hứa ban cho nó một ngai vàng bằng tro nếu nó dập được ngọn lửa cuối cùng của Aurelia.' },
+      { en: 'Above the meadow, the young dragon Ignar circles. Quoc has promised him a throne of ash for the last flame in Aurelia.', vi: 'Trên đồng cỏ, rồng con Ignar lượn vòng. Quốc đã hứa ban cho nó một ngai vàng bằng tro nếu nó dập được ngọn lửa cuối cùng của Aurelia.' },
       { en: 'Free Lyra. Relight the First Tower. Your journey as the Lanternbearer begins now.', vi: 'Hãy giải cứu Lyra. Thắp lại Tháp Đèn Thứ Nhất. Hành trình Người Giữ Đèn của bạn bắt đầu từ đây.' }
     ],
     1: [
@@ -155,14 +155,14 @@
     ],
     3: [
       { en: 'SUNSCORCH DESERT. The sand burns like coal, though no sun has ever shone on it. Somewhere under a pyramid, the Fourth Tower lies buried.', vi: 'SA MẠC CHÁY NẮNG. Cát ở đây nóng như than, dù chưa từng có mặt trời nào chiếu xuống. Đâu đó dưới một kim tự tháp, Tháp Đèn Thứ Tư bị chôn vùi.' },
-      { en: 'The Sand Pharaoh swore loyalty to Quoc for a promise of endless sleep. Walk lightly, Lanternbearer.', vi: 'Pharaoh Cát đã thề trung thành với Quốc để đổi lấy lời hứa về một giấc ngủ vĩnh cửu. Bước nhẹ thôi, Người Giữ Đèn.' }
+      { en: 'Khepsar, the old pharaoh, swore loyalty to Quoc for a promise of endless sleep. Walk lightly, Lanternbearer.', vi: 'Pharaoh già Khepsar đã thề trung thành với Quốc để đổi lấy lời hứa về một giấc ngủ vĩnh cửu. Bước nhẹ thôi, Người Giữ Đèn.' }
     ],
     4: [
       { en: 'FROSTBITE PEAKS. Snow falls upward here, as if the sky itself is trying to escape. Your lantern burns blue at the edges.', vi: 'ĐỈNH BĂNG GIÁ. Tuyết rơi ngược lên trời, như thể bầu trời đang cố trốn chạy. Ngọn đèn của bạn cháy xanh ở viền.' },
-      { en: 'The Frost King wanted only to be left alone, once. Quoc whispered that light was the thing that melted his crown. The Fifth Tower is frozen on the summit.', vi: 'Vua Băng từng chỉ muốn được yên thân. Quốc thì thầm rằng ánh sáng chính là thứ đã làm tan vương miện của ông. Tháp Đèn Thứ Năm bị đóng băng trên đỉnh núi.' }
+      { en: 'Rimvald, the frozen king, wanted only to be left alone, once. Quoc whispered that light was the thing that melted his crown. The Fifth Tower is frozen on the summit.', vi: 'Rimvald, vị vua băng giá, từng chỉ muốn được yên thân. Quốc thì thầm rằng ánh sáng chính là thứ đã làm tan vương miện của ông. Tháp Đèn Thứ Năm bị đóng băng trên đỉnh núi.' }
     ],
     5: [
-      { en: 'EMBER VOLCANO. The heat is almost kind after the cold. Ignarok swore he would return here, and the Sixth Tower is sinking in the lava.', vi: 'NÚI LỬA TRO TÀN. Hơi nóng gần như dễ chịu sau giá lạnh. Ignarok đã thề sẽ trở lại nơi này, và Tháp Đèn Thứ Sáu đang chìm dần trong dung nham.' },
+      { en: 'EMBER VOLCANO. The heat is almost kind after the cold. The young dragon Ignar swore he would return here, and the Sixth Tower is sinking in the lava.', vi: 'NÚI LỬA TRO TÀN. Hơi nóng gần như dễ chịu sau giá lạnh. Rồng con Ignar đã thề sẽ trở lại nơi này, và Tháp Đèn Thứ Sáu đang chìm dần trong dung nham.' },
       { en: 'Every tower you light rings across the sky like a bell. Quoc hears every one of them.', vi: 'Mỗi ngọn tháp bạn thắp lại vang lên trên trời như một hồi chuông. Quốc nghe thấy từng hồi một.' }
     ],
     6: [
@@ -180,7 +180,7 @@
     { en: 'The Tenth Tower blazes. Ten threads of light join across the sky, and the black moon cracks open like an eggshell.', vi: 'Tháp Đèn Thứ Mười bừng sáng. Mười sợi ánh sáng nối liền nhau trên bầu trời, và mặt trăng đen nứt ra như vỏ trứng.' },
     { en: 'The light of ten towers pours over Aurelia. In the village, every lantern lights by itself, one after another, all the way to the sea.', vi: 'Ánh sáng của mười ngọn tháp tràn khắp Aurelia. Trong làng, mọi chiếc đèn tự thắp sáng, cái này đến cái khác, cho tới tận biển.' },
     { en: 'Lila runs through the square laughing. Captain Bram takes off his helmet. Princess Lyra stands on the meadow and sings, and the whole world sings with her.', vi: 'Lila chạy qua quảng trường, cười vang. Đội trưởng Bram bỏ mũ giáp. Công chúa Lyra đứng trên đồng cỏ cất tiếng hát, và cả thế giới hát cùng cô.' },
-    { en: 'Even QuanSadBoy closes his thick book and smiles for the first time. Mr Shorty Phong, from the top of a tree, sulks that he did not win. Then, quietly, he waves.', vi: 'Ngay cả QuanSadBoy cũng gấp cuốn sách dày lại và mỉm cười lần đầu tiên. Mr Shorty Phong, từ trên ngọn cây, hờn dỗi vì không thắng. Rồi lặng lẽ vẫy tay.' },
+    { en: 'Even QuanSadBoy closes his thick book and smiles for the first time. Mr Shorty Phong, from the top of a tree, sulks that he did not win. Then, quietly, he waves.', vi: 'Ngay cả QuanSadBoy cũng gấp cuốn sách dày lại và mỉm cười lần đầu tiên. Ngài Shorty Phong, từ trên ngọn cây, hờn dỗi vì không thắng. Rồi lặng lẽ vẫy tay.' },
     { en: 'And Quoc? He sits at the foot of the last tower, watching the light he once carried. This time, he does not have to carry it alone.', vi: 'Còn Quốc? Anh ngồi dưới chân ngọn tháp cuối cùng, nhìn thứ ánh sáng mình từng mang. Lần này, anh không phải mang nó một mình.' },
     { en: 'The old lantern dims softly, like a friend finally allowed to rest. In a hundred years it will choose someone again.', vi: 'Cây đèn cổ dịu đi, nhẹ nhàng, như một người bạn cuối cùng được nghỉ ngơi. Trăm năm nữa, nó sẽ lại chọn một ai đó.' },
     { en: 'The Lanternbearer did what no one thought possible: not only ten towers lit again, but a lost friend brought home.', vi: 'Người Giữ Đèn đã làm điều không ai tin nổi: không chỉ thắp lại mười ngọn tháp, mà còn đưa một người lạc lối trở về nhà.' },
@@ -203,7 +203,7 @@
     1: { bram: [
       { en: 'Halt! Captain Bram of the Dawn Guard. This forest has been cursed since the towers went dark.', vi: 'Dừng lại! Đội trưởng Bram của Đội Vệ Binh Bình Minh. Khu rừng này bị nguyền rủa từ khi các tháp đèn tắt.' },
       { en: 'Villagers who wandered in came out... wrong. Do not let them touch you.', vi: 'Dân làng lạc vào đây đi ra đã... biến dạng. Đừng để chúng chạm vào bạn.' },
-      { en: 'The Spider Queen nests deep inside. When she charges, strike her as she recovers.', vi: 'Nữ Hoàng Nhện làm tổ sâu bên trong. Khi nó lao tới, hãy tấn công lúc nó đang hồi sức.' }
+      { en: 'Veylith the spider nests deep inside. When she charges, strike her as she recovers.', vi: 'Nhện chúa Veylith làm tổ sâu bên trong. Khi nó lao tới, hãy tấn công lúc nó đang hồi sức.' }
     ], gob: [
       { en: 'Psst! Gob has potions! Gob found them in the swamp. Gob did NOT steal them.', vi: 'Xì! Gob có thuốc đây! Gob nhặt ở đầm lầy. Gob KHÔNG ăn trộm đâu.' },
       { en: 'Coins for goodies, shiny one. Fair price. Mostly.', vi: 'Xu đổi hàng ngon, người sáng chói ạ. Giá công bằng. Phần lớn là vậy.' }
@@ -213,7 +213,7 @@
       { en: 'Falling rocks here! Watch the markers on the ground - they warn you.', vi: 'Ở đây có đá rơi! Nhìn dấu hiệu trên mặt đất - chúng báo trước cho bạn đó.' }
     ] },
     3: { bram: [
-      { en: 'You again! I led my soldiers here after the Pharaoh woke. The sand swallowed them.', vi: 'Lại là bạn! Tôi dẫn lính tới đây khi Pharaoh thức giấc. Cát đã nuốt chửng họ.' },
+      { en: 'You again! I led my soldiers here after Khepsar woke. The sand swallowed them.', vi: 'Lại là bạn! Tôi dẫn lính tới đây khi Khepsar thức giấc. Cát đã nuốt chửng họ.' },
       { en: 'Beware the statues that shoot, and spikes hiding in the sand. Time your jumps!', vi: 'Coi chừng tượng bắn tên, và gai ẩn dưới cát. Canh thời gian mà nhảy!' },
       { en: 'You learned to dash, did you? Use it - you cannot be hurt while dashing.', vi: 'Bạn đã học được lướt rồi à? Hãy dùng nó - lướt thì không bị thương.' }
     ] },
@@ -287,7 +287,7 @@
   const LYRA_NAME = { en: 'Princess Lyra', vi: 'Công chúa Lyra' }; // change here if you rename the character
   Object.assign(NPCS, {
     lyra: { spr: 'npc_lyra', name: LYRA_NAME },
-    shorty: { spr: 'npc_shorty', name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' } },
+    shorty: { spr: 'npc_shorty', name: { en: 'Mr Shorty Phong', vi: 'Ngài Shorty Phong' } },
     quan: { spr: 'npc_quan', name: { en: 'QuanSadBoy', vi: 'QuanSadBoy' }, gift: { dagger: 5, bomb: 2, flask: 2 } },
     quoc: { spr: 'npc_shorty', name: { en: 'Quoc, King of the Eclipse', vi: 'Quốc, Vua Nhật Thực' } }
   });
@@ -320,7 +320,7 @@
   };
   for (const k in DLG3) DLG[k] = Object.assign(DLG[k] || {}, DLG3[k]);
   const RESCUE = [
-    { en: 'Mr Shorty Phong\'s great beetle is finished, and you climbed all the way up here! You are very brave.', vi: 'Con bọ khổng lồ của Mr Shorty Phong đã gục, và bạn còn leo tận lên đây! Bạn dũng cảm quá.' },
+    { en: 'Mr Shorty Phong\'s great beetle is finished, and you climbed all the way up here! You are very brave.', vi: 'Con bọ khổng lồ của Ngài Shorty Phong đã gục, và bạn còn leo tận lên đây! Bạn dũng cảm quá.' },
     { en: 'You... you came for me? The cage is open! Oh, thank the light!', vi: 'Bạn... bạn đến cứu mình sao? Lồng mở rồi! Ôi, tạ ơn ánh sáng!' },
     { en: 'I am Lyra. My song is the one voice that can wake a tower... that is why Quoc had me locked away.', vi: 'Mình là Lyra. Tiếng hát của mình là giọng duy nhất đánh thức được Tháp Đèn... vì thế Quốc mới nhốt mình lại.' },
     { en: 'And that lantern... it chose you? Then you are the new Lanternbearer!', vi: 'Còn cây đèn kia... nó chọn bạn sao? Vậy bạn chính là Người Giữ Đèn mới!' },
@@ -331,7 +331,7 @@
 
   const TRIAL = {
     0: { intro: [
-      { en: 'Hehehe... so THIS is the nobody the old lantern picked? Mr Shorty Phong welcomes you!', vi: 'Hê hê hê... vậy ĐÂY là đứa vô danh mà cây đèn cổ chọn à? Mr Shorty Phong chào đón nhóc!' },
+      { en: 'Hehehe... so THIS is the nobody the old lantern picked? Mr Shorty Phong welcomes you!', vi: 'Hê hê hê... vậy ĐÂY là đứa vô danh mà cây đèn cổ chọn à? Ngài Shorty Phong chào đón nhóc!' },
       { en: 'My master Quoc wants every light asleep, yours too. So let us play my little trial.', vi: 'Thầy Quốc của ta muốn mọi ánh sáng ngủ yên, kể cả của nhóc. Vậy chơi thử thách nhỏ của ta nào.' },
       { en: 'No exit until every monster is dead AND the torches burn in the right order. Tee-hee!', vi: 'Không có lối ra cho tới khi quái chết hết VÀ đuốc cháy đúng thứ tự. Hí hí!' }
     ], outro: [
@@ -357,7 +357,7 @@
       { en: 'Fine. FINE! Go! Be eaten by the Eclipse!', vi: 'Được thôi. ĐƯỢC THÔI! Đi đi! Để Nhật Thực nuốt chửng cậu!' }
     ] }
   };
-  const SPK = { quoc: { name: { en: 'Quoc, King of the Eclipse', vi: 'Quốc, Vua Nhật Thực' }, col: '#ff5a4a' }, shorty: { name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' }, col: '#ffd34e' }, imp: { name: { en: 'Imp', vi: 'Tiểu quỷ' }, col: '#c07bff' }, sy: { name: { en: 'Mr Sy', vi: 'Mr Sy' }, col: '#7ed957' } };
+  const SPK = { quoc: { name: { en: 'Quoc, King of the Eclipse', vi: 'Quốc, Vua Nhật Thực' }, col: '#ff5a4a' }, shorty: { name: { en: 'Mr Shorty Phong', vi: 'Ngài Shorty Phong' }, col: '#ffd34e' }, imp: { name: { en: 'Imp', vi: 'Tiểu quỷ' }, col: '#c07bff' }, sy: { name: { en: 'Doctor Sy', vi: 'Thầy Sy' }, col: '#7ed957' } };
   const CUT = [
     [ // after Verdant Meadow
       { w: 'quoc', en: 'The First Tower burns again. ...So the lantern has chosen someone.', vi: 'Tháp Thứ Nhất lại cháy rồi. ...Vậy là cây đèn đã chọn được người.' },
@@ -383,7 +383,7 @@
       { w: 'quoc', en: 'Do what you must. Four towers burn now. I can feel each one, like a fever.', vi: 'Cứ làm điều ngươi phải làm. Bốn tháp đã cháy. Ta cảm thấy từng ngọn, như một cơn sốt.' }
     ],
     [ // after Frostbite Peaks
-      { w: 'sy', en: 'The Frost King melted, my lord. He... smiled at the child, before he turned into rain.', vi: 'Vua Băng tan chảy rồi, thưa chủ nhân. Ông ta... mỉm cười với đứa nhóc, trước khi hóa thành mưa.' },
+      { w: 'sy', en: 'Rimvald melted, my lord. He... smiled at the child, before he turned into rain.', vi: 'Rimvald tan chảy rồi, thưa chủ nhân. Ông ta... mỉm cười với đứa nhóc, trước khi hóa thành mưa.' },
       { w: 'quoc', en: 'He smiled at me too, once. Then the cold came back.', vi: 'Ông ấy cũng từng mỉm cười với ta. Rồi cái lạnh quay lại.' },
       { w: 'shorty', en: 'Five towers, master... half the sky is glowing again...', vi: 'Năm tháp rồi, thưa thầy... nửa bầu trời lại sáng rồi...' },
       { w: 'quoc', shout: 1, en: 'Wake the Titan. Let the mountain show the child how heavy a flame can be.', vi: 'Đánh thức Titan. Để ngọn núi cho đứa nhóc thấy một ngọn lửa có thể nặng đến thế nào.' }
@@ -397,11 +397,12 @@
       { w: 'quoc', shout: 1, en: 'LET THE WORLD SLEEP!!!', vi: 'HÃY ĐỂ THẾ GIỚI NGỦ YÊN!!!' }
     ]
   ];
-  NPCS.dragon = { spr: 'dragon_head', name: { en: 'Ignarok the Ashwing', vi: 'Ignarok Cánh Tro' } };
+  NPCS.dragon = { spr: 'dragon_head', name: { en: 'Ignarok', vi: 'Ignarok' } };
+  NPCS.dragon_young = { spr: 'dragon_head', name: { en: 'Ignar', vi: 'Ignar' } };   // the same dragon on the meadow, before it grew up
   NPCS.dragon.generic = [{ en: 'ROAAAR!', vi: 'GÀOOO!' }];
   // ---------- the new cast: Mr Sy, Quoc, and the four helpers who appear on maps 2-5 ----------
   Object.assign(NPCS, {
-    sy: { spr: 'npc_sy', name: { en: 'Mr Sy', vi: 'Mr Sy' } },
+    sy: { spr: 'npc_sy', name: { en: 'Doctor Sy', vi: 'Thầy Sy' } },
     quoc: { spr: 'npc_quoc', name: { en: 'Quoc, King of the Eclipse', vi: 'Quốc, Vua Nhật Thực' } },
     ember: { spr: 'hero_idle', name: { en: 'Ember', vi: 'Ember' } },
     narr: { spr: null, name: { en: 'Story', vi: 'Kể chuyện' } },
@@ -416,19 +417,19 @@
   NPCS.santree.generic = [{ en: 'Ho ho ho! Hope grows here.', vi: 'Ho ho ho! Hy vọng mọc ở đây.' }];
   DLG[2] = Object.assign(DLG[2] || {}, { hoang: [
     { en: 'Psst. Do not scream. I am HoangKiller. Yes, killer. Of boredom, mostly.', vi: 'Suỵt. Đừng la. Tôi là HoangKiller. Ừ, sát thủ. Chủ yếu là giết thời gian chán.' },
-    { en: 'I came into these caves for a rare crystal, and a very rude Golem chased me back out. We have history.', vi: 'Tôi vào hang này tìm một viên pha lê hiếm, và một Người Khổng Lồ rất thô lỗ đuổi tôi chạy ra. Tụi tôi có thù cũ.' },
-    { en: 'Wait... you are the lantern kid? The one who beat the Spider Queen with a LEEK? QuanSadBoy wrote me about you!', vi: 'Khoan... bạn là đứa nhóc cầm đèn? Người đã hạ Nữ Hoàng Nhện bằng một CÂY HÀNH? QuanSadBoy đã viết thư kể về bạn!' },
+    { en: 'I came into these caves for a rare crystal, and a very rude crystal giant called Prismor chased me back out. We have history.', vi: 'Tôi vào hang này tìm một viên pha lê hiếm, và một gã khổng lồ pha lê rất thô lỗ tên Prismor đuổi tôi chạy ra. Tụi tôi có thù cũ.' },
+    { en: 'Wait... you are the lantern kid? The one who beat Veylith with a LEEK? QuanSadBoy wrote me about you!', vi: 'Khoan... bạn là đứa nhóc cầm đèn? Người đã hạ Veylith bằng một CÂY HÀNH? QuanSadBoy đã viết thư kể về bạn!' },
     { en: 'Listen. When you face Quoc himself, I will find you. HoangKiller never misses a fight that matters.', vi: 'Nghe này. Khi cậu đối đầu với chính Quốc, tôi sẽ tìm cậu. HoangKiller không bao giờ bỏ lỡ một trận chiến quan trọng.' }
   ] });
   DLG[3] = Object.assign(DLG[3] || {}, { duong: [
     { en: 'Ah... the towers are dark, so a vampire may walk the desert at noon. Irony is delicious.', vi: 'À... các tháp đèn đã tắt, nên một ma cà rồng có thể đi trên sa mạc giữa trưa. Sự trớ trêu thật ngon.' },
-    { en: 'I am Duong Dracular, count of nothing and keeper of a very large tomb. I was napping when the Pharaoh\'s sand woke me.', vi: 'Ta là Duong Dracular, bá tước của hư vô và người giữ một ngôi mộ rất lớn. Ta đang ngủ trưa thì cát của Pharaoh đánh thức ta.' },
+    { en: 'I am Duong Dracular, count of nothing and keeper of a very large tomb. I was napping when Khepsar\'s sand woke me.', vi: 'Ta là Duong Dracular, bá tước của hư vô và người giữ một ngôi mộ rất lớn. Ta đang ngủ trưa thì cát của Khepsar đánh thức ta.' },
     { en: 'You carry the Last Lantern? ...I know you. QuanSadBoy\'s letter said: "a child with a lantern; protect them." Fascinating.', vi: 'Bạn mang Đèn Cuối Cùng sao? ...Ta biết bạn. Thư của QuanSadBoy viết: "một đứa trẻ cầm đèn; hãy bảo vệ nó." Thú vị.' },
     { en: 'I do not fight in daylight, usually. For you I will make an exception. Call, and my bats will answer.', vi: 'Thường thì ta không chiến đấu dưới ánh sáng. Vì cậu ta sẽ ngoại lệ. Hãy gọi, và lũ dơi của ta sẽ đáp lời.' }
   ] });
   DLG[4] = Object.assign(DLG[4] || {}, { santree: [
     { en: 'HO HO HO! Do not mind me, I am a tree. A walking one. A... SANTREE! Hee!', vi: 'HO HO HO! Đừng bận tâm tôi, tôi là một cái cây. Một cây biết đi. Một... SANTREE! Hí!' },
-    { en: 'I was a seed in the north before Quoc\'s winter. The Frost King froze my forest and I had to walk away. Walking is hard with roots.', vi: 'Tôi từng là một hạt giống ở phương bắc trước mùa đông của Quốc. Vua Băng đóng băng rừng của tôi và tôi phải bỏ đi. Đi bộ khó lắm khi có rễ.' },
+    { en: 'I was a seed in the north before Quoc\'s winter. Rimvald froze my forest and I had to walk away. Walking is hard with roots.', vi: 'Tôi từng là một hạt giống ở phương bắc trước mùa đông của Quốc. Rimvald đóng băng rừng của tôi và tôi phải bỏ đi. Đi bộ khó lắm khi có rễ.' },
     { en: 'You are the one who melted the king? Duong\'s bats told me! We trees talk. Mostly about you.', vi: 'Cậu là người đã làm tan chảy vị vua đó? Lũ dơi của Duong kể tôi nghe! Cây cối tụi tôi hay nói chuyện. Chủ yếu là về cậu.' },
     { en: 'When the final night comes, Santree will plant itself right next to you. Presents optional. Hee hee!', vi: 'Khi đêm cuối cùng đến, Santree sẽ cắm rễ ngay cạnh cậu. Quà tặng không bắt buộc. Hí hí!' }
   ] });
@@ -436,7 +437,7 @@
   const DRG_DLG = {
     young_intro: [
       { en: 'So... the little lantern-bearer crawls through my meadow. I can smell the last flame of Aurelia on you!', vi: 'Thì ra... kẻ cầm đèn bé nhỏ đang bò qua đồng cỏ của ta. Ta ngửi thấy ngọn lửa cuối cùng của Aurelia trên người ngươi!' },
-      { en: 'I am Ignarok the Ashwing. Quoc promised me a throne of ash if I snuff you out, little spark.', vi: 'Ta là Ignarok Cánh Tro. Quốc hứa ban cho ta ngai vàng bằng tro tàn nếu ta dập tắt ngươi, tia lửa nhỏ.' },
+      { en: 'I am Ignar. Quoc promised me a throne of ash if I snuff you out, little spark.', vi: 'Ta là Ignar. Quốc hứa ban cho ta ngai vàng bằng tro tàn nếu ta dập tắt ngươi, tia lửa nhỏ.' },
       { en: 'Come, then! Burn bright... for as long as you can!', vi: 'Lại đây nào! Hãy cháy thật sáng... chừng nào ngươi còn cháy được!' }
     ],
     young_flee: [
@@ -444,7 +445,7 @@
       { en: 'This is not over, lantern-bearer! We will meet again - when you taste the volcano!', vi: 'Chưa xong đâu, kẻ cầm đèn! Chúng ta sẽ gặp lại - khi ngươi nếm mùi núi lửa!' }
     ],
     map6_intro: [
-      { en: 'Did you miss me, little spark? The volcano is MY forge now.', vi: 'Nhớ ta không, tia lửa nhỏ? Núi lửa giờ là lò rèn của ta.' },
+      { en: 'Did you miss me, little spark? I am not little Ignar anymore. I am IGNAROK, and the volcano is MY forge now.', vi: 'Nhớ ta không, tia lửa nhỏ? Ta không còn là Ignar bé nhỏ nữa. Ta là IGNAROK, và núi lửa giờ là lò rèn của ta.' },
       { en: 'Quoc gave me his strongest fire. This time, I will not run.', vi: 'Quốc đã ban cho ta ngọn lửa mạnh nhất của hắn. Lần này ta sẽ không bỏ chạy.' }
     ],
     morph: [
@@ -455,11 +456,11 @@
     death: [{ en: 'The... dark... was never... enough... Quoc... forgive...', vi: 'Bóng tối... chưa bao giờ... đủ... Quốc... tha thứ cho...' }]
   };
   const DRG = {
-    young: { stages: [{ form: 0, hp: 45, armor: 0, w: 58, h: 28, sp: 52, skills: ['fireballs', 'dive', 'breath', 'gust', 'perch'] }] },
+    young: { stages: [{ name: { en: 'Ignar', vi: 'Ignar' }, title: { en: 'the Lost Hatchling', vi: 'Rồng Con Lạc Đàn' }, tag: { en: 'A proud hatchling circling the meadow: Quoc promised it a throne of ash if it snuffs out the last flame.', vi: 'Rồng con kiêu ngạo lượn trên đồng cỏ: Quốc hứa ban cho nó ngai vàng bằng tro nếu nó dập tắt ngọn lửa cuối cùng.' }, form: 0, hp: 45, armor: 0, w: 58, h: 28, sp: 52, skills: ['fireballs', 'dive', 'breath', 'gust', 'perch'] }] },
     map6: { stages: [
-      { form: 1, hp: 280, armor: 0.15, w: 76, h: 36, sp: 80, skills: ['fireballs', 'breath', 'dive', 'gust', 'perch', 'roar'] },
-      { form: 2, hp: 340, armor: 0.25, w: 96, h: 44, sp: 90, skills: ['fireballs', 'tripleBreath', 'dive', 'gust', 'perch', 'tailsweep', 'summon'] },
-      { form: 3, hp: 400, armor: 0.3, w: 84, h: 38, sp: 100, skills: ['shadowBreath', 'dive', 'vanish', 'darkness', 'tripleBreath', 'tailsweep', 'roar', 'summon'] }
+      { name: { en: 'Ignarok Ashscale', vi: 'Ignarok Vảy Tro' }, title: { en: 'the Grown Flame', vi: 'Ngọn Lửa Đã Lớn' }, tag: { en: 'The hatchling has grown up; it still remembers the little flame from the meadow.', vi: 'Chú rồng con năm nào đã lớn; nó vẫn nhớ ngọn lửa nhỏ ở đồng cỏ.' }, form: 1, hp: 280, armor: 0.15, w: 76, h: 36, sp: 80, skills: ['fireballs', 'breath', 'dive', 'gust', 'perch', 'roar'] },
+      { name: { en: 'Ignarok of Three Furies', vi: 'Ignarok Ba Đầu Thịnh Nộ' }, title: { en: 'Rage Split Three Ways', vi: 'Cơn Giận Chia Ba' }, tag: { en: 'Its rage splits into three heads, each breathing its own fire.', vi: 'Cơn giận tách làm ba cái đầu, mỗi đầu phun một luồng lửa.' }, form: 2, hp: 340, armor: 0.25, w: 96, h: 44, sp: 90, skills: ['fireballs', 'tripleBreath', 'dive', 'gust', 'perch', 'tailsweep', 'summon'] },
+      { name: { en: 'Ignarok the Duskflame', vi: 'Ignarok Cánh Đêm' }, title: { en: 'the Swallowed Flame', vi: 'Ngọn Lửa Bị Nuốt' }, tag: { en: 'The Eclipse\'s dark swallowed its fire; now it breathes violet flame.', vi: 'Bóng tối Nhật Thực nuốt lấy ngọn lửa của nó; giờ nó phun ra hơi thở tím.' }, form: 3, hp: 400, armor: 0.3, w: 84, h: 38, sp: 100, skills: ['shadowBreath', 'dive', 'vanish', 'darkness', 'tripleBreath', 'tailsweep', 'roar', 'summon'] }
     ] }
   };
   const SHOPS = {
@@ -467,10 +468,10 @@
     smith: [{ k: 'shopb', price: 14, fx: () => { Q.P.ammo.bomb += 3; } }, { k: 'shopd', price: 10, fx: () => { Q.P.ammo.dagger += 8; } }, { k: 'shopf', price: 14, fx: () => { Q.P.ammo.flask += 3; } }]
   };
   const RELICS = [
-    { name: { en: 'Crown of the Slime King', vi: 'Vương miện Vua Slime' }, desc: { en: '+2 maximum hearts', vi: '+2 tim tối đa' } },
+    { name: { en: "Gulgor's Crown", vi: 'Vương Miện Của Gulgor' }, desc: { en: '+2 maximum hearts', vi: '+2 tim tối đa' } },
     { name: { en: 'Venom Fang', vi: 'Nanh Độc' }, desc: { en: 'Sword and daggers hit harder (+1)', vi: 'Kiếm và dao găm mạnh hơn (+1)' } },
     { name: { en: 'Crystal Lantern', vi: 'Đèn Pha Lê' }, desc: { en: 'Your lantern shines much brighter', vi: 'Đèn của bạn sáng hơn nhiều' } },
-    { name: { en: "Pharaoh's Scarab", vi: 'Bọ Hung Pharaoh' }, desc: { en: 'Coins are worth double and fly to you', vi: 'Xu giá trị gấp đôi và bay về phía bạn' } },
+    { name: { en: "Khepsar's Scarab", vi: 'Bọ Hung Của Khepsar' }, desc: { en: 'Coins are worth double and fly to you', vi: 'Xu giá trị gấp đôi và bay về phía bạn' } },
     { name: { en: 'Frost Heart', vi: 'Trái Tim Băng' }, desc: { en: 'Never slip on ice; dash recharges faster', vi: 'Không trượt trên băng; lướt hồi nhanh hơn' } },
     { name: { en: 'Magma Core', vi: 'Lõi Dung Nham' }, desc: { en: 'Your sword throws a wave of flame', vi: 'Kiếm bắn ra sóng lửa' } },
     { name: { en: 'Heart of the Towers', vi: 'Trái Tim Tháp Đèn' }, desc: { en: 'The towers burn again', vi: 'Các tháp đèn lại cháy sáng' } }
@@ -697,41 +698,41 @@
     lavablob: { spr: 'slime', swap: { g: 'o', t: 'y', G: 'r' }, w: 8, h: 8, hp: 1, sp: 0, ai: 'blob' }
   };
   const BOSS = [
-    { name: { en: 'King Slime', vi: 'Vua Slime' }, w: 38, h: 26, hp: 150, armor: 0, smart: 0.35, sp: 20, minion: 'slime', skills: ['jump', 'bounce3', 'goo', 'splitslime', 'stomp', 'guard'], skills2: ['shoot', 'slam'] },
-    { name: { en: 'Spider Queen', vi: 'Nữ Hoàng Nhện' }, w: 40, h: 26, hp: 230, armor: 0.1, smart: 0.5, sp: 26, minion: 'spider', skills: ['charge', 'web', 'spit', 'ambush', 'summon', 'cloak'], skills2: ['jump', 'roar'] },
-    { name: { en: 'Crystal Golem', vi: 'Người Khổng Lồ Pha Lê' }, w: 34, h: 44, hp: 300, armor: 0.2, smart: 0.45, sp: 18, minion: 'wisp', skills: ['jump', 'erupt', 'shield', 'beam', 'rain', 'slam'], skills2: ['charge', 'roar'] },
-    { name: { en: 'Sand Pharaoh', vi: 'Pharaoh Cát' }, w: 26, h: 52, hp: 380, armor: 0.25, smart: 0.6, sp: 28, minion: 'scorpion', skills: ['curse', 'tornado', 'summon', 'teleport', 'shoot', 'charge', 'cloak'], skills2: ['spin', 'roar'] },
-    { name: { en: 'Frost King', vi: 'Vua Băng' }, w: 36, h: 48, hp: 450, armor: 0.3, smart: 0.55, sp: 18, minion: 'iceslime', skills: ['breath', 'wall', 'blizzard', 'rain', 'jump', 'spin', 'guard'], skills2: ['shield', 'summon', 'slam', 'roar'] },
-    { name: { en: 'Magma Titan', vi: 'Titan Dung Nham' }, w: 40, h: 50, hp: 540, armor: 0.4, smart: 0.5, sp: 22, minion: 'imp', skills: ['lavaCols', 'meteor', 'sweep', 'charge', 'shield', 'jump', 'slam'], skills2: ['spin', 'summon', 'roar'] },
-    { name: { en: 'THE ECLIPSE', vi: 'NHẬT THỰC' }, w: 30, h: 56, hp: 760, armor: 0.4, smart: 0.8, sp: 30, minion: 'ghost', eclipse: true, skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak'], skills2: ['dark', 'clone', 'summon', 'roar'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
+    { name: { en: 'Gulgor', vi: 'Gulgor' }, title: { en: 'the Lantern Gulper', vi: 'Bụng Nuốt Đèn' }, tag: { en: 'A crowned ooze asleep on the First Tower, swallowing every spark of light that falls on the meadow.', vi: 'Khối nhầy đội vương miện ngủ trên Tháp Đèn Thứ Nhất, nuốt mọi đốm sáng rơi xuống đồng cỏ.' }, w: 38, h: 26, hp: 150, armor: 0, smart: 0.35, sp: 20, minion: 'slime', skills: ['jump', 'bounce3', 'goo', 'splitslime', 'stomp', 'guard'], skills2: ['shoot', 'slam'] },
+    { name: { en: 'Veylith', vi: 'Veylith' }, title: { en: 'the Hush Spinner', vi: 'Kẻ Dệt Lời Thì Thầm' }, tag: { en: 'She spins her web from the forest\'s whispers; whoever follows the voices is lost for good.', vi: 'Nhện chúa dệt tơ từ lời thì thầm của khu rừng; ai đi theo tiếng gọi ấy sẽ lạc mãi.' }, w: 40, h: 26, hp: 230, armor: 0.1, smart: 0.5, sp: 26, minion: 'spider', skills: ['charge', 'web', 'spit', 'ambush', 'summon', 'cloak'], skills2: ['jump', 'roar'] },
+    { name: { en: 'Prismor', vi: 'Prismor' }, title: { en: 'the Silent Prism', vi: 'Trái Tim Pha Lê Câm' }, tag: { en: 'A stone giant that locks the cave\'s light inside its crystal heart and lets no ray escape.', vi: 'Người khổng lồ đá nhốt ánh sáng của hang trong trái tim pha lê, không cho tia nào lọt ra ngoài.' }, w: 34, h: 44, hp: 300, armor: 0.2, smart: 0.45, sp: 18, minion: 'wisp', skills: ['jump', 'erupt', 'shield', 'beam', 'rain', 'slam'], skills2: ['charge', 'roar'] },
+    { name: { en: 'Khepsar', vi: 'Khepsar' }, title: { en: 'the One Who Begged to Sleep', vi: 'Kẻ Xin Được Ngủ' }, tag: { en: 'A century ago he begged Quoc to let the Fourth Tower sleep; now he has traded his loyalty for a sleep that never ends.', vi: 'Trăm năm trước hắn xin Quốc để Tháp Thứ Tư ngủ yên; nay hắn đổi lòng trung thành lấy giấc ngủ không bao giờ dứt.' }, w: 26, h: 52, hp: 380, armor: 0.25, smart: 0.6, sp: 28, minion: 'scorpion', skills: ['curse', 'tornado', 'summon', 'teleport', 'shoot', 'charge', 'cloak'], skills2: ['spin', 'roar'] },
+    { name: { en: 'Rimvald', vi: 'Rimvald' }, title: { en: 'the Self-Frozen Heart', vi: 'Trái Tim Tự Đóng Băng' }, tag: { en: 'A king who froze his own heart so it would not hurt when his tower went dark; now his ice covers the whole summit.', vi: 'Vị vua tự đóng băng trái tim để khỏi đau khi tháp tắt; giờ băng của ông phủ kín đỉnh núi.' }, w: 36, h: 48, hp: 450, armor: 0.3, smart: 0.55, sp: 18, minion: 'iceslime', skills: ['breath', 'wall', 'blizzard', 'rain', 'jump', 'spin', 'guard'], skills2: ['shield', 'summon', 'slam', 'roar'] },
+    { name: { en: 'Kaldrok', vi: 'Kaldrok' }, title: { en: 'the Walking Forge', vi: 'Lò Rèn Biết Đi' }, tag: { en: 'A lava giant who tends the Sixth Tower\'s furnace, and whose own weight is dragging the tower down into the fire.', vi: 'Người khổng lồ dung nham canh lò lửa của Tháp Thứ Sáu, và chính sức nặng của hắn đang kéo ngọn tháp chìm xuống.' }, w: 40, h: 50, hp: 540, armor: 0.4, smart: 0.5, sp: 22, minion: 'imp', skills: ['lavaCols', 'meteor', 'sweep', 'charge', 'shield', 'jump', 'slam'], skills2: ['spin', 'summon', 'roar'] },
+    { name: { en: 'Quoc, King of the Eclipse', vi: 'Quốc, Vua Nhật Thực' }, title: { en: 'the Lanternbearer Who Went Dark', vi: 'Người Giữ Đèn Đã Tắt' }, tag: { en: 'A century ago he lit nine towers and fell before the tenth; now he wants the dark to stay forever.', vi: 'Trăm năm trước anh thắp chín ngọn tháp rồi gục ngã trước ngọn thứ mười; giờ anh muốn bóng tối ở lại mãi.' }, w: 30, h: 56, hp: 760, armor: 0.4, smart: 0.8, sp: 30, minion: 'ghost', eclipse: true, skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak'], skills2: ['dark', 'clone', 'summon', 'roar'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
   ];
 
   // ---------- final map: Shorty, Sy and Quoc (multi-form bosses) ----------
   const FORMS = {
     shorty: [
-      { name: { en: 'Mr Shorty Phong', vi: 'Mr Shorty Phong' }, spr: 'shorty_h', w: 32, h: 46, hp: 380, armor: 0.15, smart: 0.75, sp: 34, minion: 'imp', proj: '#d58bff', skills: ['shoot', 'fan', 'teleport', 'jump', 'charge', 'guard'], skills2: ['clone', 'crossBeam', 'rush'] },
-      { name: { en: 'SHORTY, THE HAT BEAST', vi: 'SHORTY, QUÁI VẬT MŨ CAO' }, spr: 'shorty_m', w: 58, h: 68, hp: 620, armor: 0.3, smart: 0.55, sp: 26, minion: 'imp', proj: '#ff6a3a', skills: ['slam', 'sweep', 'lobs', 'summon', 'rain', 'erupt', 'rush'], skills2: ['roar', 'spin', 'crossBeam'], skills3: ['meteor', 'guard', 'shield'] }
+      { name: { en: 'Mr Shorty Phong', vi: 'Ngài Shorty Phong' }, title: { en: 'the Tall-Hat Butler', vi: 'Quản Gia Mũ Cao' }, tag: { en: 'A loyal butler who only ever wanted his master to smile once.', vi: 'Người quản gia trung thành chỉ mong chủ nhân mỉm cười một lần.' }, spr: 'shorty_h', w: 32, h: 46, hp: 380, armor: 0.15, smart: 0.75, sp: 34, minion: 'imp', proj: '#d58bff', skills: ['shoot', 'fan', 'teleport', 'jump', 'charge', 'guard'], skills2: ['clone', 'crossBeam', 'rush'] },
+      { name: { en: 'Shorty Phong, the Tall-Hat Fiend', vi: 'Shorty Phong, Quỷ Mũ Cao' }, title: { en: 'the Grin Turned Fang', vi: 'Nụ Cười Hóa Nanh' }, tag: { en: 'When the tall hat swallowed him, his smile turned into fangs.', vi: 'Khi chiếc mũ cao nuốt lấy ông, nụ cười cũng hóa thành nanh.' }, spr: 'shorty_m', w: 58, h: 68, hp: 620, armor: 0.3, smart: 0.55, sp: 26, minion: 'imp', proj: '#ff6a3a', skills: ['slam', 'sweep', 'lobs', 'summon', 'rain', 'erupt', 'rush'], skills2: ['roar', 'spin', 'crossBeam'], skills3: ['meteor', 'guard', 'shield'] }
     ],
     sy: [
-      { name: { en: 'Mr Sy', vi: 'Mr Sy' }, spr: 'sy_h', w: 32, h: 52, hp: 420, armor: 0.2, smart: 0.8, sp: 32, minion: 'shadewisp', proj: '#7ed957', skills: ['spit', 'lobs', 'curse', 'web', 'cloak', 'teleport'], skills2: ['dark', 'tornado', 'crossBeam'] },
-      { name: { en: 'SY, THE VENOM SERPENT', vi: 'SY, RẮN CHÚA ĐỘC' }, spr: 'sy_m', w: 70, h: 62, hp: 680, armor: 0.3, smart: 0.5, sp: 22, minion: 'spider', proj: '#7ed957', skills: ['breath', 'spit', 'lobs', 'wall', 'rain', 'charge', 'slam'], skills2: ['summon', 'curse', 'spin', 'tornado'], skills3: ['blizzard', 'shield', 'roar'] }
+      { name: { en: 'Doctor Sy', vi: 'Thầy Sy' }, title: { en: 'the Green-Coat Poisoner', vi: 'Nhà Pha Độc Áo Xanh' }, tag: { en: 'An alchemist in green whose every potion is a sleep you never wake from.', vi: 'Nhà giả kim áo xanh; mỗi lọ thuốc của ông là một giấc ngủ không bao giờ tỉnh.' }, spr: 'sy_h', w: 32, h: 52, hp: 420, armor: 0.2, smart: 0.8, sp: 32, minion: 'shadewisp', proj: '#7ed957', skills: ['spit', 'lobs', 'curse', 'web', 'cloak', 'teleport'], skills2: ['dark', 'tornado', 'crossBeam'] },
+      { name: { en: 'Sy, the Venom Wyrm', vi: 'Sy, Mãng Xà Độc Dược' }, title: { en: 'the Final Dose', vi: 'Liều Độc Cuối Cùng' }, tag: { en: 'Drinking his own final dose, he became a serpent coiled around the citadel gate.', vi: 'Uống chính liều độc cuối cùng của mình, ông hóa thành con mãng xà quấn quanh cổng thành.' }, spr: 'sy_m', w: 70, h: 62, hp: 680, armor: 0.3, smart: 0.5, sp: 22, minion: 'spider', proj: '#7ed957', skills: ['breath', 'spit', 'lobs', 'wall', 'rain', 'charge', 'slam'], skills2: ['summon', 'curse', 'spin', 'tornado'], skills3: ['blizzard', 'shield', 'roar'] }
     ],
     quoc: [
-      { name: { en: 'Quoc, the Dark Lord', vi: 'Quốc - Quỷ Vương Hắc Ám' }, spr: 'quoc0', img: 'form0', anim: { idle: [0, 1], move: [0, 1], melee: [2], cast: [3], special: [4] }, w: 34, h: 78, hp: 220, armor: 0.1, smart: 0.9, sp: 40, minion: 'imp', proj: '#ff3a2a', skills: ['shoot', 'fan', 'teleport', 'rush', 'jump', 'crossBeam'], skills2: ['lobs', 'guard', 'summon'] },
-      { name: { en: 'Quoc - Dark Imp', vi: 'Quốc - Tiểu Quỷ Bóng Tối' }, spr: 'quoc1', img: 'form1', anim: { idle: [0, 1], move: [0, 1], air: [2, 3], melee: [4, 5], cast: [4, 5] }, w: 26, h: 46, hp: 200, armor: 0.1, smart: 0.9, sp: 52, minion: 'imp', proj: '#c07bff', skills: ['jump', 'bounce3', 'charge', 'rush', 'shoot'], skills2: ['teleport', 'fan'] },
-      { name: { en: 'Quoc - Hellhound', vi: 'Quốc - Chó Địa Ngục' }, spr: 'quoc2', img: 'form2', anim: { idle: [0, 1], move: [0, 1, 2, 3], air: [3], melee: [2, 3], cast: [4] }, w: 60, h: 46, hp: 260, armor: 0.15, smart: 0.7, sp: 54, minion: 'imp', proj: '#ff7a2a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
-      { name: { en: 'Quoc - Chained Demon', vi: 'Quốc - Quỷ Xích' }, spr: 'quoc3', img: 'form3', anim: { idle: [0, 1], move: [0, 1], melee: [2, 3], cast: [2, 3], slam: [4] }, w: 50, h: 70, hp: 340, armor: 0.25, smart: 0.6, sp: 28, minion: 'imp', proj: '#a8b2c8', skills: ['slam', 'stomp', 'charge', 'erupt', 'sweep', 'crossBeam'], skills2: ['spin', 'summon'] },
-      { name: { en: 'Quoc - Iron General', vi: 'Quốc - Đại Tướng Giáp Sắt' }, spr: 'quoc4', img: 'form4', anim: { idle: [0, 1], move: [0, 1, 2, 3], melee: [4], cast: [4] }, w: 40, h: 74, hp: 420, armor: 0.4, smart: 0.6, sp: 26, minion: 'eclipseclone', proj: '#ff8a2a', skills: ['shield', 'guard', 'sweep', 'charge', 'slam', 'lobs', 'crossBeam'], skills2: ['roar', 'erupt', 'meteor'] },
-      { name: { en: 'Quoc - Winged Archdemon', vi: 'Quốc - Đại Quỷ Có Cánh' }, spr: 'quoc5', img: 'form5', anim: { idle: [0, 1], move: [0, 1], melee: [2], cast: [3, 4] }, w: 50, h: 68, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffb02a', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
-      { name: { en: 'Quoc - Ashen Titan', vi: 'Quốc - Titan Tro Tàn' }, spr: 'quoc6', img: 'form6', anim: { idle: [0, 1], move: [0, 1], melee: [4], cast: [2, 3], slam: [2, 3] }, w: 60, h: 98, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
-      { name: { en: 'QUOC, THE ETERNAL ECLIPSE', vi: 'QUOC, NHẬT THỰC VĨNH CỬU' }, spr: 'quoc7', img: 'form7', anim: { idle: [0], move: [0], melee: [3], cast: [1, 2, 3], special: [4] }, w: 44, h: 106, hp: 780, armor: 0.45, smart: 0.9, sp: 30, minion: 'ghost', eclipse: true, proj: '#d58bff', skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak', 'crossBeam', 'rush'], skills2: ['dark', 'clone', 'summon', 'roar', 'fan', 'lobs'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
+      { name: { en: 'Quoc · the Fallen Lanternbearer', vi: 'Quốc · Người Giữ Đèn Sa Ngã' }, title: { en: 'Step 1 · The Fall', vi: 'Chặng 1 · Sa ngã' }, tag: { en: 'Still the man, inside the black armour of a hundred lonely years.', vi: 'Vẫn là anh, trong bộ giáp đen của trăm năm cô độc.' }, spr: 'quoc0', img: 'form0', anim: { idle: [0, 1], move: [0, 1], melee: [2], cast: [3], special: [4] }, w: 34, h: 78, hp: 220, armor: 0.1, smart: 0.9, sp: 40, minion: 'imp', proj: '#ff3a2a', skills: ['shoot', 'fan', 'teleport', 'rush', 'jump', 'crossBeam'], skills2: ['lobs', 'guard', 'summon'] },
+      { name: { en: 'Quoc · the Lonely Shade', vi: 'Quốc · Bóng Cô Đơn' }, title: { en: 'Step 2 · Loneliness', vi: 'Chặng 2 · Cô đơn' }, tag: { en: 'The smallest part of him: a child who only wished someone would walk with him.', vi: 'Phần nhỏ bé nhất trong anh: đứa trẻ chỉ ước có ai đi cùng.' }, spr: 'quoc1', img: 'form1', anim: { idle: [0, 1], move: [0, 1], air: [2, 3], melee: [4, 5], cast: [4, 5] }, w: 26, h: 46, hp: 200, armor: 0.1, smart: 0.9, sp: 52, minion: 'imp', proj: '#c07bff', skills: ['jump', 'bounce3', 'charge', 'rush', 'shoot'], skills2: ['teleport', 'fan'] },
+      { name: { en: 'Quoc · the Masterless Hound', vi: 'Quốc · Chó Săn Không Chủ' }, title: { en: 'Step 3 · Lost', vi: 'Chặng 3 · Lạc lối' }, tag: { en: 'Loyalty with no one left to follow, hunting the light.', vi: 'Lòng trung thành không còn ai để theo, chỉ còn biết săn ánh sáng.' }, spr: 'quoc2', img: 'form2', anim: { idle: [0, 1], move: [0, 1, 2, 3], air: [3], melee: [2, 3], cast: [4] }, w: 60, h: 46, hp: 260, armor: 0.15, smart: 0.7, sp: 54, minion: 'imp', proj: '#ff7a2a', skills: ['rush', 'charge', 'jump', 'breath', 'summon'], skills2: ['fan', 'erupt'] },
+      { name: { en: 'Quoc · the Oath-Chained', vi: 'Quốc · Kẻ Mang Xích Lời Thề' }, title: { en: 'Step 4 · Bound', vi: 'Chặng 4 · Ràng buộc' }, tag: { en: 'His vow to light all ten towers turned into chains that bind him.', vi: 'Lời thề thắp đủ mười tháp hóa thành xích, trói chặt anh lại.' }, spr: 'quoc3', img: 'form3', anim: { idle: [0, 1], move: [0, 1], melee: [2, 3], cast: [2, 3], slam: [4] }, w: 50, h: 70, hp: 340, armor: 0.25, smart: 0.6, sp: 28, minion: 'imp', proj: '#a8b2c8', skills: ['slam', 'stomp', 'charge', 'erupt', 'sweep', 'crossBeam'], skills2: ['spin', 'summon'] },
+      { name: { en: 'Quoc · the Warmthless Knight', vi: 'Quốc · Hiệp Sĩ Hết Hơi Ấm' }, title: { en: 'Step 5 · Empty', vi: 'Chặng 5 · Trống rỗng' }, tag: { en: 'The farther he walked, the less warmth was left; now only cold wind lives in the armour.', vi: 'Càng đi xa, hơi ấm càng vơi; giờ trong giáp chỉ còn gió lạnh.' }, spr: 'quoc4', img: 'form4', anim: { idle: [0, 1], move: [0, 1, 2, 3], melee: [4], cast: [4] }, w: 40, h: 74, hp: 420, armor: 0.4, smart: 0.6, sp: 26, minion: 'eclipseclone', proj: '#ff8a2a', skills: ['shield', 'guard', 'sweep', 'charge', 'slam', 'lobs', 'crossBeam'], skills2: ['roar', 'erupt', 'meteor'] },
+      { name: { en: 'Quoc · Wings That Fell Short', vi: 'Quốc · Đôi Cánh Lỡ Đỉnh' }, title: { en: 'Step 6 · Failure', vi: 'Chặng 6 · Thất bại' }, tag: { en: 'He grew wings to reach the top of the tenth tower, and never made it.', vi: 'Anh mọc cánh để bay lên đỉnh tháp thứ mười, nhưng chưa bao giờ chạm tới.' }, spr: 'quoc5', img: 'form5', anim: { idle: [0, 1], move: [0, 1], melee: [2], cast: [3, 4] }, w: 50, h: 68, hp: 500, armor: 0.35, smart: 0.8, sp: 30, minion: 'ghost', proj: '#ffb02a', skills: ['beam', 'meteor', 'rain', 'tornado', 'teleport', 'fan', 'clone'], skills2: ['lobs', 'spin', 'dark', 'crossBeam'] },
+      { name: { en: 'Quoc · Ash of Nine Towers', vi: 'Quốc · Tro Tàn Chín Ngọn Tháp' }, title: { en: 'Step 7 · Burned Out', vi: 'Chặng 7 · Thiêu rụi' }, tag: { en: 'The nine fires he once lit now burn him to ash.', vi: 'Chín ngọn lửa anh từng thắp nay thiêu chính anh thành tro.' }, spr: 'quoc6', img: 'form6', anim: { idle: [0, 1], move: [0, 1], melee: [4], cast: [2, 3], slam: [2, 3] }, w: 60, h: 98, hp: 620, armor: 0.45, smart: 0.5, sp: 22, minion: 'imp', proj: '#ff6a3a', skills: ['lavaCols', 'meteor', 'sweep', 'roar', 'slam', 'erupt', 'spin', 'summon', 'crossBeam'], skills2: ['shield', 'rush', 'rain'] },
+      { name: { en: 'QUOC · HEART OF THE ECLIPSE', vi: 'QUỐC · TRÁI TIM NHẬT THỰC' }, title: { en: 'Step 8 · Darkness', vi: 'Chặng 8 · Bóng tối' }, tag: { en: 'No light is left in him; he wants the whole world as dark as he is.', vi: 'Không còn chút ánh sáng nào trong anh; anh muốn cả thế giới tối như mình.' }, spr: 'quoc7', img: 'form7', anim: { idle: [0], move: [0], melee: [3], cast: [1, 2, 3], special: [4] }, w: 44, h: 106, hp: 780, armor: 0.45, smart: 0.9, sp: 30, minion: 'ghost', eclipse: true, proj: '#d58bff', skills: ['beam', 'teleport', 'spin', 'erupt', 'tornado', 'cloak', 'crossBeam', 'rush'], skills2: ['dark', 'clone', 'summon', 'roar', 'fan', 'lobs'], skills3: ['shield', 'meteor', 'guard', 'slam'] }
     ]
   };
   const MINI = {
     shorty: { forms: FORMS.shorty,
       intro: [
         { en: 'Well, well. You made it all the way to the Citadel, little lantern. I am done playing with trials.', vi: 'Chà chà. Nhóc đến được tận Thành Trì rồi đấy, đèn nhỏ. Ta chán mấy trò thử thách rồi.' },
-        { w: 'ember', en: 'Mr Shorty... you do not have to do this. Quoc is only using you.', vi: 'Mr Shorty... ông không cần làm vậy. Quốc chỉ đang lợi dụng ông thôi.' },
+        { w: 'ember', en: 'Mr Shorty... you do not have to do this. Quoc is only using you.', vi: 'Ngài Shorty... ông không cần làm vậy. Quốc chỉ đang lợi dụng ông thôi.' },
         { en: 'Using me?! He promised me a taller throne and a TALLER HAT! ...And I am short, not small. Come on!', vi: 'Lợi dụng ta?! Ngài hứa cho ta ngai vàng cao hơn và một chiếc MŨ CAO HƠN! ...Ta thấp chứ không nhỏ. Lại đây!' }
       ],
       outro: [
@@ -742,7 +743,7 @@
     sy: { forms: FORMS.sy,
       intro: [
         { en: 'Shorty fell? A pity. He was loud, but cheap. I am Sy. Quoc\'s second hand, and the quieter one.', vi: 'Shorty gục rồi à? Tiếc thật. Hắn ồn ào nhưng rẻ tiền. Ta là Sy. Cánh tay thứ hai của Quốc, và là người kín tiếng hơn.' },
-        { w: 'ember', en: 'You were in the caves, and in the snow. You woke the Golem and the Frost King for me.', vi: 'Ông đã ở trong hang động, và cả trên tuyết. Ông đã đánh thức Người Khổng Lồ và Vua Băng cho tôi.' },
+        { w: 'ember', en: 'You were in the caves, and in the snow. You woke Prismor and Rimvald for me.', vi: 'Ông đã ở trong hang động, và cả trên tuyết. Ông đã đánh thức Prismor và Rimvald cho tôi.' },
         { en: 'Test subjects, little lantern. I wanted to see how bright your lantern really burns. Now I want to see how long it lasts against my venom.', vi: 'Vật thí nghiệm thôi, nhóc. Ta muốn xem đèn của nhóc thực sự cháy sáng đến đâu. Giờ ta muốn xem nó chịu nổi bao lâu trước nọc độc của ta.' }
       ],
       outro: [
@@ -779,7 +780,7 @@
     { w: 'ember', en: 'QuanSadBoy?! How did you get into the Citadel?!', vi: 'QuanSadBoy?! Làm sao cậu vào được Thành Trì?!' },
     { w: 'hoang', en: 'Through the back door. HoangKiller is very good at back doors.', vi: 'Qua cửa sau. HoangKiller rất giỏi các cánh cửa sau.' },
     { w: 'ember', en: 'HoangKiller! The one from the Crystal Caverns?', vi: 'HoangKiller! Người ở Hang Pha Lê đó sao?' },
-    { w: 'hoang', en: 'You beat the Golem that chased me. I never forget a debt... or a friend.', vi: 'Cậu đã hạ Người Khổng Lồ từng đuổi tôi. Tôi không bao giờ quên ơn... hay một người bạn.' },
+    { w: 'hoang', en: 'You beat Prismor, the giant that chased me. I never forget a debt... or a friend.', vi: 'Cậu đã hạ Prismor, gã khổng lồ từng đuổi tôi. Tôi không bao giờ quên ơn... hay một người bạn.' },
     { w: 'duong', en: 'And Duong Dracular could not miss such a splendid night. The towers burn again, and a vampire can finally see the stars. I owe you my evenings.', vi: 'Và Duong Dracular sao có thể bỏ lỡ một đêm tuyệt vời thế này. Các tháp đã cháy lại, và một ma cà rồng cuối cùng cũng được ngắm sao. Ta nợ bạn những buổi tối.' },
     { w: 'santree', en: 'SANTREE IS HERE TOO! HO HO HO! Santree grows wherever there is hope! And there is a LOT of hope in this room!', vi: 'SANTREE CŨNG ĐÂY! HO HO HO! Santree mọc ở nơi nào có hy vọng! Và trong căn phòng này có RẤT NHIỀU hy vọng!' },
     { w: 'ember', en: 'Everyone... why did you all come?', vi: 'Mọi người... sao tất cả lại đến đây?' },
@@ -790,16 +791,16 @@
   const SY_CAMEO = {
     2: {
       pre: [
-        { en: 'Hm. The Golem is sleeping on the job. Allow me. *snaps fingers* ARISE, my little experiment!', vi: 'Hm. Người Khổng Lồ đang ngủ gật khi làm việc. Để ta. *búng tay* TRỖI DẬY, thí nghiệm bé nhỏ của ta!' },
+        { en: 'Hm. Prismor is sleeping on the job. Allow me. *snaps fingers* ARISE, my little experiment!', vi: 'Hm. Prismor đang ngủ gật khi làm việc. Để ta. *búng tay* TRỖI DẬY, thí nghiệm bé nhỏ của ta!' },
         { en: 'I am Sy, one of Quoc\'s two hands. Do not worry, boy. I will not fight you today. Today... I only watch.', vi: 'Ta là Sy, một trong hai cánh tay của Quốc. Đừng lo, nhóc. Hôm nay ta sẽ không đánh nhau với nhóc. Hôm nay... ta chỉ xem.' }
       ],
       post: [
-        { en: 'Impressive. The Golem lasted longer than I bet. Keep the shiny dust, little lantern.', vi: 'Ấn tượng. Người Khổng Lồ trụ lâu hơn ta cược. Cứ giữ lấy bụi lấp lánh đi, nhóc.' },
+        { en: 'Impressive. Prismor lasted longer than I bet. Keep the shiny dust, little lantern.', vi: 'Ấn tượng. Prismor trụ lâu hơn ta cược. Cứ giữ lấy bụi lấp lánh đi, nhóc.' },
         { en: 'We will meet again at the Citadel. Bring your little leek.', vi: 'Chúng ta sẽ gặp lại ở Thành Trì. Nhớ mang theo cây hành bé nhỏ của nhóc.' }
       ] },
     4: {
       pre: [
-        { en: 'The Frost King. A prince of ice. Quoc told me to wake him, but I like him better angry.', vi: 'Vua Băng. Một hoàng tử của băng giá. Quốc bảo ta đánh thức ông ta, nhưng ta thích ông ta khi nổi giận hơn.' },
+        { en: 'Rimvald. A prince of ice. Quoc told me to wake him, but I like him better angry.', vi: 'Rimvald. Một hoàng tử của băng giá. Quốc bảo ta đánh thức ông ta, nhưng ta thích ông ta khi nổi giận hơn.' },
         { en: '*shatters the ice cage* WAKE UP, Majesty! A lantern has come to melt you!', vi: '*đập vỡ lồng băng* DẬY ĐI, Bệ hạ! Có một chiếc đèn đến để làm tan chảy ngài!' }
       ],
       post: [
@@ -809,7 +810,7 @@
   };
   // every boss can roar
   [].concat(BOSS, FORMS.shorty, FORMS.sy, FORMS.quoc).forEach(c => { if (c.skills.indexOf('roar') < 0) c.skills.push('roar'); });
-  const SPEAKER_COL = { quoc: '#ff5a4a', sy: '#7ed957', ember: '#ff9a4a', lyra: '#6ee7f2', shorty: '#ffd34e', quan: '#a98bff', hoang: '#e0453a', duong: '#c0304a', santree: '#5fcf5a', narr: '#a8b0d0', dragon: '#ff8a2a', lila: '#a4e86b', bram: '#cfd6e6', angel: '#fff6c0', wizard: '#a98bff', fairy: '#ff9fd0', gob: '#9be564', smith: '#ff9a4a' };
+  const SPEAKER_COL = { quoc: '#ff5a4a', sy: '#7ed957', ember: '#ff9a4a', lyra: '#6ee7f2', shorty: '#ffd34e', quan: '#a98bff', hoang: '#e0453a', duong: '#c0304a', santree: '#5fcf5a', narr: '#a8b0d0', dragon: '#ff8a2a', dragon_young: '#ffb04a', lila: '#a4e86b', bram: '#cfd6e6', angel: '#fff6c0', wizard: '#a98bff', fairy: '#ff9fd0', gob: '#9be564', smith: '#ff9a4a' };
   const bpc = () => (Q && Q.boss && Q.boss.cfg && Q.boss.cfg.proj) || Q.B.proj;
 
   // ---------- the movie: every boss speaks before and after its fight, and every map has a mid-way story beat ----------
@@ -851,7 +852,7 @@
         { w: 'ember', en: 'Then let me remind you.', vi: 'Vậy để ta nhắc lại cho ngươi.' }
       ], post: [
         { en: 'Warm... it is... warm... thank you... little flame...', vi: 'Ấm... thật... ấm... cảm ơn... ngọn lửa nhỏ...' },
-        { w: 'narr', en: 'For the first time in a hundred years, the Frost King smiles. Then he melts into a quiet spring rain, and the Fifth Tower shines through the ice.', vi: 'Lần đầu tiên sau trăm năm, Vua Băng mỉm cười. Rồi ông tan thành một cơn mưa xuân lặng lẽ, và Tháp Đèn Thứ Năm tỏa sáng xuyên qua lớp băng.' }
+        { w: 'narr', en: 'For the first time in a hundred years, Rimvald smiles. Then he melts into a quiet spring rain, and the Fifth Tower shines through the ice.', vi: 'Lần đầu tiên sau trăm năm, Rimvald mỉm cười. Rồi ông tan thành một cơn mưa xuân lặng lẽ, và Tháp Đèn Thứ Năm tỏa sáng xuyên qua lớp băng.' }
       ] },
     5: { pre: [
         { en: 'I AM THE MOUNTAIN\'S HEART! YOUR LITTLE LANTERN IS A SPARK IN MY FURNACE!', vi: 'TA LÀ TRÁI TIM CỦA NGỌN NÚI! CHIẾC ĐÈN BÉ NHỎ CỦA NGƯƠI CHỈ LÀ MỘT TIA LỬA TRONG LÒ RÈN CỦA TA!' },
@@ -883,7 +884,7 @@
         { w: 'lyra', en: '(Lyra squeezes his hand) It is all right. I am here. Sing with me if you are scared.', vi: '(Lyra nắm chặt tay cậu) Không sao đâu. Có mình ở đây. Nếu sợ thì hát cùng mình nhé.' }],
     2: [{ w: 'ember', en: 'So dark... my lantern feels heavier down here.', vi: 'Tối quá... chiếc đèn như nặng hơn khi xuống tới đây.' },
         { w: 'narr', en: 'Deep inside the crystals, something watches him pass. A green glint. A thin smile.', vi: 'Sâu bên trong những viên pha lê, có thứ gì đó dõi theo cậu. Một tia sáng xanh. Một nụ cười mỏng.' }],
-    3: [{ w: 'ember', en: 'Sand everywhere... and that heat. Duong said the Pharaoh hates visitors.', vi: 'Cát ở khắp nơi... và cái nóng này. Duong nói Pharaoh ghét khách lạ lắm.' },
+    3: [{ w: 'ember', en: 'Sand everywhere... and that heat. Duong said Khepsar hates visitors.', vi: 'Cát ở khắp nơi... và cái nóng này. Duong nói Khepsar ghét khách lạ lắm.' },
         { w: 'narr', en: 'Under the dunes, old bones shift in their sleep.', vi: 'Dưới những đụn cát, những bộ xương cổ trở mình trong giấc ngủ.' }],
     4: [{ w: 'ember', en: 'So cold my fingers hurt. Santree walked all the way from here?', vi: 'Lạnh đến buốt cả ngón tay. Santree đã đi bộ từ tận đây sao?' },
         { w: 'narr', en: 'The wind carries a sad, frozen song from the castle on the peak.', vi: 'Cơn gió mang theo một khúc ca buồn, đóng băng, từ tòa lâu đài trên đỉnh núi.' }],
@@ -1185,6 +1186,18 @@
     if (Q.wait.msgT <= 0) { Q.wait.msgT = 4; Q.msg = cvs('Boss ahead! Waiting for your teammates to walk in...', 'Phía trước có boss! Đợi đồng đội cùng bước vào...'); Q.msgT = 3.5; }
     return false;
   }
+  // the boss card: name, title and a one-line intro, shown when a fight starts, when a boss changes form and when the
+  // dragon changes stage (it fades by itself and never pauses the fight)
+  function bossCard(c, label) { if (c && c.name) Q.bcard = { n: c.name, ti: c.title, tg: c.tag, lb: label, t: 0 }; }
+  function drawBossCard() {
+    const b = Q.bcard; if (!b || b.t > 3.8 || (Q.state !== 'play' && Q.state !== 'bossintro')) return;
+    const a = Math.max(0, Math.min(1, b.t / 0.35, (3.8 - b.t) / 0.6)), Y = 110;   // (above the item bar)
+    g.globalAlpha = 0.6 * a; g.fillStyle = '#000'; g.fillRect(0, Y, VW, 62); g.globalAlpha = 1;
+    txt(b.lb || T('boss'), VW / 2, Y + 7, { al: 'center', size: 6.5, col: '#e0453a', alpha: a });
+    txt(LN(b.n), VW / 2, Y + 20, { al: 'center', size: 13, bold: true, alpha: a });
+    if (b.ti) txt(LN(b.ti), VW / 2, Y + 33, { al: 'center', size: 7.5, col: '#ffd34e', alpha: a });
+    if (b.tg) wrapText(LN(b.tg), 84).slice(0, 2).forEach((l, i) => txt(l, VW / 2, Y + 44 + i * 8, { al: 'center', size: 6, col: '#cfd6e6', alpha: a }));
+  }
   function seal() {
     const L = Q.L, ar = L.arena;
     if (ar.rects) for (const r of ar.rects) for (let y = r[1]; y <= r[3]; y++) for (let x = r[0]; x <= r[2]; x++) L.grid[y][x] = '#'; else for (let y = 0; y < ar.gy; y++) L.grid[y][ar.x0 + 1] = '#';
@@ -1192,6 +1205,7 @@
     if (coop) coopGather();
     Q.state = 'bossintro'; Q.stateT = 0;
     Q.boss.st = 'intro'; Q.boss.max = Q.boss.hp;
+    bossCard(Q.li === 6 ? BOSS[6] : Q.boss.cfg, Q.li === 6 ? sv('FINAL BOSS', 'TRÙM CUỐI') : null);   // (map 10: the card of the whole fight; each form shows its own card later)
     Snd.creature(Q.li, 'alert', true); Snd.music('boss' + Q.li, BOSS_TRACK(Q.li)); setEmo('angry', 2.6);
     Q.shake = 0.6;
     if (Q.li === 6) startScripted('quoc', QUOC_PRE, () => { Q.state = 'bossintro'; Q.stateT = 0; });
@@ -1787,12 +1801,12 @@
     b.hp = b.max = hp; b.armor = c.armor; b.phase = 0; b.t1 = b.t2 = 0; b.p1 = b.p2 = b.p3 = 0; b.pp = 0; b.st = 'rec'; b.timer = 1.1; b.invul = 1.8; b.sk = null; b.atkSk = null; b.shield = 0; b.guard = 0; b.cloak = false; b.hide = false; b.vx = 0; b.vy = 0;
     Q.shake = 1; Q.freeze = 0.1; Snd.creature(Q.li, 'alert', true); Snd.play('boom');
     emit(b.x + b.w / 2, b.y + b.h / 2, 50, { col: [bpc(), '#fff', '#ffd34e'], sp0: 40, sp1: 180 }); addRing(b.x + b.w / 2, b.y + b.h, bpc(), 110, 0.7);
-    Q.msg = LN(c.name); Q.msgT = 3;
+    bossCard(c, sv('FORM ', 'DẠNG ') + (idx + 1) + '/' + b.forms.length);
     if (b.id === 'quoc' && FORM_SCENES[idx]) {
       const P = Q.P, ar = Q.L.arena; P.x = (ar.x0 + 4) * TS; P.y = (ar.gy - 1) * TS - P.h; P.vx = P.vy = 0; P.inv = Math.max(P.inv, 1.5); if (coop) coopGather(true);
       Q.G.flash = 0.6; Snd.play('thunder'); Snd.whisper();
       for (const a of Q.G.allies || []) { a.x = P.x - 12 - a.i * 6; a.y = P.y; a.vx = a.vy = 0; }
-      Q.msg = (save.lang === 'vi' ? 'Quoc kéo bạn vào ' : 'Quoc drags you into ') + LN(FORM_SCENES[idx]) + '!'; Q.msgT = 4;
+      Q.msg = (save.lang === 'vi' ? 'Quốc kéo bạn vào ' : 'Quoc drags you into ') + LN(FORM_SCENES[idx]) + '!'; Q.msgT = 4;
     }
   }
   function nextForm(b) {
@@ -1841,6 +1855,7 @@
     Q.mainBoss = Q.boss; Q.mainArena = L.arena; L.arena = { x0: m.lw, x1: m.rw, gy: m.gy };
     const b = makeFormBoss(def.forms, (m.lw + m.rw) / 2 * TS + 48, m.gy * TS, { id: m.who, who: m.who, mini: m });
     b.st = 'intro'; b.timer = 0; Q.boss = b; Q.arenaSealed = true; Q.bossDead = false; if (coop) coopGather(false, m.lead);
+    bossCard(b.cfg, sv('GATEKEEPER', 'GÁC CỔNG'));
     Q.state = 'bossintro'; Q.stateT = 0; Snd.music('mini' + m.who, BOSS_TRACK(Q.li, m.who)); setEmo('angry', 2.6); Snd.creature(Q.li, 'alert', true); Q.shake = 0.6;
   }
   function updateMiniEnc() {
@@ -1857,7 +1872,7 @@
       }
     }
   }
-  // Mr Sy watches from a ledge on maps 3 and 5: he wakes the boss before the fight and speaks when it falls
+  // Sy watches from a ledge on maps 3 and 5: he wakes the boss before the fight and speaks when it falls
   function syPoof() { const f = Q.syFig; if (!f) return; emit(f.x, f.y - 12, 30, { col: ['#7ed957', '#2f7a4a', '#fff'], sp0: 20, sp1: 100 }); addRing(f.x, f.y, '#7ed957', 50, 0.5); Snd.play('poof'); Q.syFig = null; }
   function syCameoPre() {
     const cam = SY_CAMEO[Q.li], ar = Q.L.arena; if (!cam) return false;
@@ -2296,9 +2311,9 @@
   const DS_MAX = { dive: 6.5, perch: 5.5, breath: 2.6, tripleBreath: 2.6, shadowBreath: 2.8, fireballs: 4, gust: 3, roar: 2.5, tailsweep: 2.2, summon: 2, vanish: 2.5, darkness: 2.5 };
   function makeDragon(def) {
     const cfg = DRG[def.kind], st = cfg.stages[0], cx = (def.lw + def.rw) / 2 * TS;
-    return { isBoss: true, isDragon: true, def, tr: def, stage: 0, form: st.form, w: st.w, h: st.h, x: cx - st.w / 2, y: Q.cam.y - st.h - 80, vx: 0, vy: 0, hp: st.hp, max: st.hp, armor: st.armor, cfg: { name: NPCS.dragon.name, armor: st.armor }, skills: st.skills, sp: st.sp, dir: -1, st: 'enter', timer: 1.8, t: 0, flash: 0, invul: 0, wing: 0, flapT: 0, sk: null, lastSk: null, evCd: 1, fury: 1, hide: false };
+    return { isBoss: true, isDragon: true, def, tr: def, stage: 0, form: st.form, w: st.w, h: st.h, x: cx - st.w / 2, y: Q.cam.y - st.h - 80, vx: 0, vy: 0, hp: st.hp, max: st.hp, armor: st.armor, cfg: { name: st.name || NPCS.dragon.name, armor: st.armor }, skills: st.skills, sp: st.sp, dir: -1, st: 'enter', timer: 1.8, t: 0, flash: 0, invul: 0, wing: 0, flapT: 0, sk: null, lastSk: null, evCd: 1, fury: 1, hide: false };
   }
-  function setStage(d, i) { const st = DRG[d.def.kind].stages[i], cx = dc(d).x, cy = dc(d).y; d.stage = i; d.form = st.form; d.w = st.w; d.h = st.h; d.hp = d.max = st.hp; d.armor = st.armor; d.cfg.armor = st.armor; d.skills = st.skills; d.sp = st.sp; d.x = cx - d.w / 2; d.y = cy - d.h / 2; }
+  function setStage(d, i) { const st = DRG[d.def.kind].stages[i], cx = dc(d).x, cy = dc(d).y; d.stage = i; d.form = st.form; d.w = st.w; d.h = st.h; d.hp = d.max = st.hp; d.armor = st.armor; d.cfg.armor = st.armor; d.cfg.name = st.name || d.cfg.name; bossCard(st, sv('DRAGON', 'RỒNG')); d.skills = st.skills; d.sp = st.sp; d.x = cx - d.w / 2; d.y = cy - d.h / 2; }
   function hurtDragon(d, dmg, pierce, quiet) {
     if (d.invul > 0 || d.dead || d.hide || d.st === 'enter' || d.st === 'talk' || d.st === 'morph' || d.st === 'flee' || d.st === 'flee0') return;
     const arm = d.armor * ((d.st === 'act' && d.sk === 'perch' && d.ph === 1) || d.st === 'rec' ? 0.55 : 1), eff = dmg * (1 - arm * (pierce ? 0.4 : 1));
@@ -2310,7 +2325,7 @@
   }
   function startFlee(d) {
     d.st = 'flee0'; d.invul = 99; Q.projs.length = 0; Q.zones.length = 0; Q.ents.forEach(e => { if (e.minion) e.dead = true; }); setEmo('angry', 2);
-    startScripted('dragon', DRG_DLG.young_flee, () => { d.st = 'flee'; d.timer = 2.0; d.dir = 1; Snd.creature('dragon', 'attack', true); });
+    startScripted('dragon_young', DRG_DLG.young_flee, () => { d.st = 'flee'; d.timer = 2.0; d.dir = 1; Snd.creature('dragon', 'attack', true); });
   }
   function startMorph(d) {
     d.st = 'morph'; d.invul = 99; Q.projs.length = 0; Q.zones.length = 0; Q.ents.forEach(e => { if (e.minion) e.dead = true; }); Q.shake = 1; Snd.creature('dragon', 'alert', true);
@@ -2348,7 +2363,7 @@
     const c = dc(d);
     switch (d.st) {
       case 'enter': d.timer -= dt; dMove(d, (tr.lw + tr.rw) / 2 * TS, dHover(d), 2.2, dt); if (Math.random() < 0.3) emit(c.x + rr(-20, 20), c.y, 1, { col: ['#ffd34e', '#f08a2b'], sp0: 5, sp1: 30, grav: 30 });
-        if (d.timer <= 0) { d.st = 'talk'; startScripted('dragon', d.def.kind === 'young' ? DRG_DLG.young_intro : DRG_DLG.map6_intro, () => { d.st = 'hover'; d.timer = 0.9; Snd.music('boss', BOSS_MUSIC); }); } break;
+        if (d.timer <= 0) { d.st = 'talk'; startScripted(d.def.kind === 'young' ? 'dragon_young' : 'dragon', d.def.kind === 'young' ? DRG_DLG.young_intro : DRG_DLG.map6_intro, () => { d.st = 'hover'; d.timer = 0.9; bossCard(DRG[d.def.kind].stages[d.stage], sv('DRAGON', 'RỒNG')); Snd.music('boss', BOSS_MUSIC); }); } break;
       case 'talk': break;
       case 'hover': case 'rec': {
         dHold(d, dt);
@@ -3129,7 +3144,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       if (G.god) chip((save.lang === 'vi' ? 'THẦN SẤM ' : 'THUNDER GOD ') + G.god.life.toFixed(1), '#ffe44e');
       if (G.dr) chip((save.lang === 'vi' ? 'RỒNG ' : 'DRAGON ') + G.dr.life.toFixed(1), '#ff9a2a');
       if (G.powerT > 0) chip((save.lang === 'vi' ? 'SỨC MẠNH ' : 'POWER ') + G.powerT.toFixed(1), '#ff5a3a');
-      if (Q.L.pearlGate && !Q.bossDead) chip(Q.L.pearlGate.open ? (save.lang === 'vi' ? 'Hạ Kraken!' : 'Defeat the Kraken!') : (save.lang === 'vi' ? 'Ngọc trai ' : 'Sea Pearls ') + (Q.pearls || 0) + '/3', Q.L.pearlGate.open ? '#ff7a8a' : '#bfeaff');
+      if (Q.L.pearlGate && !Q.bossDead) chip(Q.L.pearlGate.open ? (save.lang === 'vi' ? 'Hạ Oktavor!' : 'Defeat Oktavor!') : (save.lang === 'vi' ? 'Ngọc trai ' : 'Sea Pearls ') + (Q.pearls || 0) + '/3', Q.L.pearlGate.open ? '#ff7a8a' : '#bfeaff');
     }
     drawSkBadges();
     if (petRole() === 'scout') {
@@ -3531,6 +3546,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (mfIntro >= 0 && Q && Q.li === mfIntro && Q.state === 'play' && !coop) { const L = MFILM[mfIntro] && MFILM[mfIntro].open; mfIntro = -1; if (L) startScripted('narr', L, null); }
     Q.stateT += dt;
     const st = Q.state;
+    if (Q.bcard && (st === 'play' || st === 'bossintro')) Q.bcard.t += dt;
     if (st === 'intro') { if (Q.stateT > 2.6 || act.okP) Q.state = 'play'; updateCam(dt); updateWeather(dt); return; }
     if (st === 'pause') {
       if (act.upP) { Q.menu = (Q.menu + 6) % 7; Snd.play('select'); } if (act.downP) { Q.menu = (Q.menu + 1) % 7; Snd.play('select'); }
@@ -3741,7 +3757,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const x = Math.round(e.x + e.w / 2 - camX), y = Math.round(e.y - camY) + 2;
     g.fillStyle = '#14121f'; g.fillRect(x - 6, y - 12, 12, 11); g.fillRect(x - 10, y - 2, 20, 3);
     g.fillStyle = '#e0453a'; g.fillRect(x - 6, y - 5, 12, 2); g.fillStyle = '#4a4a62'; g.fillRect(x - 5, y - 11, 2, 7);
-    txt('Mr Shorty Phong', x, y - 18, { al: 'center', size: 5, col: '#ffd34e', ol: '#14121f' });
+    txt(sv('Mr Shorty Phong', 'Ngài Shorty Phong'), x, y - 18, { al: 'center', size: 5, col: '#ffd34e', ol: '#14121f' });
   }
   function drawEnemy(e, camX, camY) {
     const c = e.cfg, x = e.x + e.w / 2 - camX, bot = e.y + e.h - camY;
@@ -4128,6 +4144,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   }
   function drawPlayOver() {
     if (Q.state !== 'talk') drawHUD();
+    drawBossCard();
     if (coop && Q.state !== 'talk') drawCoopHUD();
     const st = Q.state;
     if (st === 'intro') {
@@ -4136,11 +4153,6 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       txt((save.lang === 'vi' ? 'MÀN ' : 'LEVEL ') + (LPOS(Q.li) + 1), VW / 2, 88, { al: 'center', size: 8, col: '#ffd34e', alpha: a });
       txt(LN(Q.B.name), VW / 2, 104, { al: 'center', size: 16, alpha: a, bold: true });
       txt(LN(Q.B.sub), VW / 2, 122, { al: 'center', size: 7, col: '#cfd6e6', alpha: a });
-    } else if (st === 'bossintro') {
-      const b = Q.boss, a = Math.min(1, Q.stateT / 0.4);
-      g.globalAlpha = 0.55 * a; g.fillStyle = '#000'; g.fillRect(0, 150, VW, 40); g.globalAlpha = 1;
-      txt(T('boss'), VW / 2, 160, { al: 'center', size: 7, col: '#e0453a', alpha: a });
-      txt(LN(b.cfg.name), VW / 2, 176, { al: 'center', size: 14, bold: true, alpha: a });
     } else if (st === 'pause') {
       g.fillStyle = 'rgba(5,3,15,.7)'; g.fillRect(0, 0, VW, VH);
       txt(T('paused'), VW / 2, 52, { al: 'center', size: 16, bold: true });
@@ -4578,7 +4590,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
 
   // ============================== RIDE HOME (after map 1): Ember carries Lyra on a horse ==============================
   const RIDE = [
-    { w: 'narr', en: 'King Slime melts into the grass. The cage is empty at last, and the meadow is silent in a way that is almost peaceful.', vi: 'Vua Slime tan chảy vào bãi cỏ. Chiếc lồng cuối cùng cũng trống, và đồng cỏ yên lặng đến mức gần như bình yên.' },
+    { w: 'narr', en: 'Gulgor melts into the grass. The cage is empty at last, and the meadow is silent in a way that is almost peaceful.', vi: 'Gulgor tan chảy vào bãi cỏ. Chiếc lồng cuối cùng cũng trống, và đồng cỏ yên lặng đến mức gần như bình yên.' },
     { w: 'narr', en: 'The Lanternbearer whistles. A brown mare trots out of the hills, one of the few animals that never ran from the dark. Lyra is lifted onto the saddle, and the Lanternbearer climbs up in front of her.', vi: 'Người Giữ Đèn huýt sáo. Một con ngựa nâu chạy ra từ đồi, một trong số ít con vật không bỏ chạy trước bóng tối. Lyra được đỡ lên yên, rồi Người Giữ Đèn leo lên phía trước.' },
     { w: 'lyra', heart: 1, en: 'You... you do not have to take me all the way, {hero}. I can walk. (She holds on to the cloak in front of her anyway.)', vi: 'Bạn... bạn không cần đưa mình đi tận nơi đâu, {hero}. Mình tự đi được mà. (Nói vậy nhưng cô vẫn nắm chặt vạt áo choàng phía trước.)' },
     { w: 'ember', en: 'You are shaking, Princess. The road is full of shadows. Hold on tight.', vi: 'Công chúa đang run kìa. Đường này đầy bóng tối. Cứ nắm chặt vào nhé.' },
@@ -6432,9 +6444,9 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   });
   ['mosquito', 'piranha'].forEach(t => FLY.add(t));
   BOSS.push(
-    { name: { en: 'Spore Queen', vi: 'Nữ Hoàng Bào Tử' }, art: 'shroom', drop: true, w: 64, h: 88, hp: 600, armor: 0.3, smart: 0.55, sp: 24, minion: 'bogslime', proj: '#c8f0a0', skills: ['goo', 'shoot', 'summon', 'rain', 'jump', 'spin'], skills2: ['slam', 'roar', 'erupt'] },
-    { name: { en: 'Abyssal Kraken', vi: 'Thủy Quái Kraken' }, art: 'kraken', swim: true, artScale: 1.35, w: 170, h: 150, hp: 660, armor: 0.3, smart: 0.6, sp: 26, minion: 'piranha', proj: '#6ee7f2', skills: ['erupt', 'shoot', 'rain', 'charge', 'summon', 'fan', 'tentacles'], skills2: ['spin', 'roar', 'tentacles', 'tentacles'] },
-    { name: { en: 'Gravemaw the Great Worm', vi: 'Sâu Khổng Lồ Gravemaw' }, art: 'worm', artScale: 1.15, w: 84, h: 108, hp: 720, armor: 0.35, smart: 0.6, sp: 28, minion: 'mole', proj: '#c8a070', skills: ['burrow', 'burrow', 'charge', 'rain', 'summon'], skills2: ['burrow', 'slam', 'roar'] }
+    { name: { en: 'Morvella', vi: 'Morvella' }, title: { en: 'the Swamp\'s Lullaby', vi: 'Lời Ru Của Đầm Lầy' }, tag: { en: 'The mushroom mother once promised Quoc that sleep would be kinder; her spores lull the whole swamp to sleep.', vi: 'Bà mẹ nấm từng hứa với Quốc rằng giấc ngủ sẽ dịu dàng hơn; bào tử của bà ru cả đầm lầy ngủ say.' }, art: 'shroom', drop: true, w: 64, h: 88, hp: 600, armor: 0.3, smart: 0.55, sp: 24, minion: 'bogslime', proj: '#c8f0a0', skills: ['goo', 'shoot', 'summon', 'rain', 'jump', 'spin'], skills2: ['slam', 'roar', 'erupt'] },
+    { name: { en: 'Oktavor', vi: 'Oktavor' }, title: { en: 'Drowner of the Eighth Tower', vi: 'Kẻ Nhấn Chìm Tháp Thứ Tám' }, tag: { en: 'A giant octopus that dragged the Eighth Tower to the seabed, sealed its cave with the Tide Door and will not let go.', vi: 'Bạch tuộc khổng lồ ôm Tháp Thứ Tám xuống đáy biển, khóa hang bằng Cánh Cửa Thủy Triều và không chịu buông.' }, art: 'kraken', swim: true, artScale: 1.35, w: 170, h: 150, hp: 660, armor: 0.3, smart: 0.6, sp: 26, minion: 'piranha', proj: '#6ee7f2', skills: ['erupt', 'shoot', 'rain', 'charge', 'summon', 'fan', 'tentacles'], skills2: ['spin', 'roar', 'tentacles', 'tentacles'] },
+    { name: { en: 'Vorgrub', vi: 'Vorgrub' }, title: { en: 'the Ember Eater', vi: 'Miệng Nuốt Tàn Lửa' }, tag: { en: 'An ancient worm hollowing out the mountain to eat the Ninth Tower\'s embers; when the dust jumps, it is right beneath you.', vi: 'Con sâu già đào rỗng lòng núi để nuốt tàn lửa của Tháp Thứ Chín; khi bụi nảy lên là nó đang ở ngay dưới chân.' }, art: 'worm', artScale: 1.15, w: 84, h: 108, hp: 720, armor: 0.35, smart: 0.6, sp: 28, minion: 'mole', proj: '#c8a070', skills: ['burrow', 'burrow', 'charge', 'rain', 'summon'], skills2: ['burrow', 'slam', 'roar'] }
   );
   [7, 8, 9].forEach(i => { NPCS['boss' + i] = { spr: 'boss:' + i, name: BOSS[i].name }; });   // so their pre/post-fight dialogue has a speaker
   // the worm hides under the ground, rumbles under a hero for a moment, then bursts out - move away in time!
@@ -6459,7 +6471,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       }
     }
   };
-  // the Kraken sweeps its tentacles across the cavern in bands: only one band is safe - swim there!
+  // Oktavor sweeps its tentacles across the cavern in bands: only one band is safe - swim there!
   BS.tentacles = {
     tele: 0.5,
     start(b) {
@@ -6476,13 +6488,13 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   );
   Object.assign(MAP_STORY, {
     7: [{ en: 'GLOWCAP SWAMP. After the volcano, the road sinks into a swamp where the mushrooms are taller than houses and glow like lanterns.', vi: 'ĐẦM LẦY NẤM PHÁT QUANG. Sau núi lửa, con đường chìm vào một đầm lầy nơi nấm cao hơn nhà và phát sáng như đèn lồng.' },
-        { en: 'Their light is not warm. It is the cold glow of the Spore Queen, who promised Quoc to smother the Seventh Tower in her roots.', vi: 'Thứ ánh sáng ấy không ấm. Đó là ánh lạnh của Nữ Hoàng Bào Tử, kẻ đã hứa với Quốc sẽ bóp nghẹt Tháp Đèn Thứ Bảy trong rễ của mình.' },
+        { en: 'Their light is not warm. It is the cold glow of Morvella, who promised Quoc to smother the Seventh Tower in her roots.', vi: 'Thứ ánh sáng ấy không ấm. Đó là ánh lạnh của Morvella, kẻ đã hứa với Quốc sẽ bóp nghẹt Tháp Đèn Thứ Bảy trong rễ của mình.' },
         { en: 'Watch your step. Breathe through your scarf. And never trust a mushroom that smiles.', vi: 'Nhìn kỹ đường đi. Thở qua khăn quàng. Và đừng bao giờ tin một cây nấm biết cười.' }],
     8: [{ en: 'SUNKEN DEEP. The swamp drains into the sea, and the sea swallows the road. The Lanternbearer takes a deep breath... and dives.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Đầm lầy đổ ra biển, và biển nuốt mất con đường. Người Giữ Đèn hít một hơi thật sâu... rồi lặn xuống.' },
         { en: 'Down here you swim: press jump again and again to rise, and let the water carry you down gently.', vi: 'Dưới này bạn phải bơi: nhấn nhảy liên tục để ngoi lên, và để nước nhẹ nhàng đưa bạn xuống.' },
         { en: 'Somewhere in the dark below, something with eight arms is hugging the drowned Eighth Tower like a toy.', vi: 'Đâu đó trong bóng tối bên dưới, một thứ có tám cánh tay đang ôm Tháp Đèn Thứ Tám bị nhấn chìm như ôm một món đồ chơi.' }],
     9: [{ en: 'DEEPDIG TUNNELS. The last road to the Citadel goes under the earth, through tunnels the old miners dug and then ran away from.', vi: 'ĐƯỜNG HẦM SÂU. Con đường cuối cùng tới Thành Trì đi xuyên lòng đất, qua những đường hầm thợ mỏ xưa đã đào rồi bỏ chạy.' },
-        { en: 'They ran because of Gravemaw, a worm so big it swims through rock like water. When the ground shakes under your feet - jump away!', vi: 'Họ bỏ chạy vì Gravemaw, một con sâu to đến mức bơi trong đá như bơi trong nước. Khi mặt đất rung dưới chân - hãy nhảy tránh!' }]
+        { en: 'They ran because of Vorgrub, a worm so big it swims through rock like water. When the ground shakes under your feet - jump away!', vi: 'Họ bỏ chạy vì Vorgrub, một con sâu to đến mức bơi trong đá như bơi trong nước. Khi mặt đất rung dưới chân - hãy nhảy tránh!' }]
   });
   Object.assign(MID_STORY, {
     7: [{ w: 'ember', en: 'Everything glows here... and everything is watching me.', vi: 'Mọi thứ ở đây đều phát sáng... và đều đang nhìn mình.' },
@@ -6500,36 +6512,36 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     8: { pre: [{ en: 'GLUB... SHINY... MINE... ALL EIGHT ARMS SAY MINE!', vi: 'ỌC... LẤP LÁNH... CỦA TA... CẢ TÁM CÁNH TAY ĐỀU NÓI CỦA TA!' },
         { w: 'ember', en: 'You have eight arms and you still cannot share?', vi: 'Có tám cánh tay mà vẫn không biết chia sẻ à?' }],
       post: [{ en: 'Glub... the light... tickles...', vi: 'Ọc... ánh sáng... nhột quá...' },
-        { w: 'narr', en: 'The Kraken lets go and sinks into the deep, almost smiling. Lyra sings, and the Eighth Tower shines up through the water.', vi: 'Kraken buông ra và chìm xuống đáy sâu, gần như mỉm cười. Lyra cất tiếng hát, và Tháp Đèn Thứ Tám chiếu sáng xuyên qua làn nước.' }] },
+        { w: 'narr', en: 'Oktavor lets go and sinks into the deep, almost smiling. Lyra sings, and the Eighth Tower shines up through the water.', vi: 'Oktavor buông ra và chìm xuống đáy sâu, gần như mỉm cười. Lyra cất tiếng hát, và Tháp Đèn Thứ Tám chiếu sáng xuyên qua làn nước.' }] },
     9: { pre: [{ en: 'RRRRUMBLE... I TASTE LIGHT ABOVE ME. I WILL SWALLOW IT WHOLE.', vi: 'GRỪỪỪ... TA NẾM THẤY ÁNH SÁNG Ở TRÊN. TA SẼ NUỐT CHỬNG NÓ.' },
         { w: 'ember', en: 'Everyone said this would be the easy part. Everyone lied.', vi: 'Ai cũng bảo đoạn này dễ. Ai cũng nói dối.' }],
       post: [{ en: 'Too... bright... back to... the deep...', vi: 'Sáng... quá... trở về... lòng đất...' },
-        { w: 'narr', en: 'Gravemaw burrows away for good. The Ninth Tower blazes in the dark, and above the tunnels the black towers of the Shadow Citadel are waiting.', vi: 'Gravemaw đào sâu xuống và không bao giờ quay lại. Tháp Đèn Thứ Chín bừng cháy trong bóng tối, và phía trên những đường hầm, các tòa tháp đen của Thành Trì Bóng Tối đang chờ.' }] }
+        { w: 'narr', en: 'Vorgrub burrows away for good. The Ninth Tower blazes in the dark, and above the tunnels the black towers of the Shadow Citadel are waiting.', vi: 'Vorgrub đào sâu xuống và không bao giờ quay lại. Tháp Đèn Thứ Chín bừng cháy trong bóng tối, và phía trên những đường hầm, các tòa tháp đen của Thành Trì Bóng Tối đang chờ.' }] }
   });
   // devil cutscenes: the old "after the volcano" scene now plays after the tunnels, right before the Citadel
   CUT[9] = CUT[5];
   CUT[5] = [
         { w: 'quoc', en: 'The Titan is ash. Six towers.', vi: 'Titan thành tro rồi. Sáu tháp.' },
         { w: 'shorty', en: 'Master, the lantern now walks toward the Glowcap Swamp...', vi: 'Thưa thầy, cây đèn đang đi về phía Đầm Lầy Nấm...' },
-        { w: 'quoc', en: 'Good. The Spore Queen will fill its little lungs with sleep.', vi: 'Tốt. Nữ Hoàng Bào Tử sẽ lấp đầy hai lá phổi nhỏ của nó bằng giấc ngủ.' }
+        { w: 'quoc', en: 'Good. Morvella will fill its little lungs with sleep.', vi: 'Tốt. Morvella sẽ lấp đầy hai lá phổi nhỏ của nó bằng giấc ngủ.' }
   ];
   CUT[7] = [
-        { w: 'shorty', en: 'The Spore Queen... is compost now, master.', vi: 'Nữ Hoàng Bào Tử... thành phân bón rồi, thưa thầy.' },
+        { w: 'shorty', en: 'Morvella... is compost now, master.', vi: 'Morvella... thành phân bón rồi, thưa thầy.' },
         { w: 'sy', en: 'My lord, the road goes under the sea now. No flame survives the deep.', vi: 'Thưa chủ nhân, con đường giờ đi xuống dưới biển. Không ngọn lửa nào sống sót dưới đáy sâu.' },
-        { w: 'quoc', en: 'Mine did. That was the worst part. ...Wake the Kraken.', vi: 'Ngọn lửa của ta đã sống sót. Đó mới là phần tệ nhất. ...Đánh thức Kraken.' }
+        { w: 'quoc', en: 'Mine did. That was the worst part. ...Wake Oktavor.', vi: 'Ngọn lửa của ta đã sống sót. Đó mới là phần tệ nhất. ...Đánh thức Oktavor.' }
   ];
   CUT[8] = [
-        { w: 'shorty', en: 'It swims, master! And it tickled the Kraken. He looked happy.', vi: 'Nó biết bơi, thưa thầy! Còn cù lét con Kraken nữa. Trông nó vui lắm.' },
-        { w: 'quoc', shout: 1, en: 'Happy. Nobody is supposed to be happy down there. Gravemaw... swallow the road.', vi: 'Vui. Dưới đó lẽ ra không ai được vui cả. Gravemaw... nuốt chửng con đường đi.' }
+        { w: 'shorty', en: 'It swims, master! And it tickled Oktavor. He looked happy.', vi: 'Nó biết bơi, thưa thầy! Còn cù lét Oktavor nữa. Trông nó vui lắm.' },
+        { w: 'quoc', shout: 1, en: 'Happy. Nobody is supposed to be happy down there. Vorgrub... swallow the road.', vi: 'Vui. Dưới đó lẽ ra không ai được vui cả. Vorgrub... nuốt chửng con đường đi.' }
   ];
   Object.assign(COOP_MAP, {
-    7: [L2('narr', 'Glowcap Swamp. The mushrooms here are taller than houses, and the Spore Queen rules them all.', 'Đầm Lầy Nấm Phát Quang. Nấm ở đây cao hơn nhà, và Nữ Hoàng Bào Tử cai trị tất cả.'),
+    7: [L2('narr', 'Glowcap Swamp. The mushrooms here are taller than houses, and Morvella rules them all.', 'Đầm Lầy Nấm Phát Quang. Nấm ở đây cao hơn nhà, và Morvella cai trị tất cả.'),
         L2('{p1}', 'Nobody eat anything here. I mean it.', 'Không ai được ăn gì ở đây nhé. Nói thật đó.'),
         L2('{p0}', 'Not even the glowing one? It looks delicious.', 'Kể cả cây phát sáng kia à? Nhìn ngon mà.')],
     8: [L2('narr', 'The Sunken Deep. The road dives under the sea. Press jump again and again to swim up.', 'Đại Dương Sâu Thẳm. Con đường lặn xuống biển. Nhấn nhảy liên tục để bơi lên.'),
         L2('{p0}', 'Can everyone swim? ...Can everyone swim WITH armour?', 'Mọi người biết bơi chứ? ...Biết bơi khi đang mặc giáp chứ?'),
         L2('{p1}', 'Guess we are about to find out!', 'Chắc sắp biết ngay thôi!')],
-    9: [L2('narr', 'The Deepdig Tunnels. Gravemaw the Great Worm swims through rock like water.', 'Đường Hầm Sâu. Sâu Khổng Lồ Gravemaw bơi trong đá như bơi trong nước.'),
+    9: [L2('narr', 'The Deepdig Tunnels. Vorgrub, the great worm, swims through rock like water.', 'Đường Hầm Sâu. Vorgrub, con sâu khổng lồ, bơi trong đá như bơi trong nước.'),
         L2('{p1}', 'If the ground shakes under you, jump. Do not ask questions, just jump.', 'Đất rung dưới chân thì nhảy. Đừng hỏi, cứ nhảy.'),
         L2('{p0}', 'Last land before the Citadel. Let us finish this together.', 'Vùng đất cuối trước Thành Trì. Cùng nhau kết thúc nào.')]
   });
@@ -6543,15 +6555,15 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       { en: 'Take these. Bombs for mushrooms, flasks for anything that bites. Now shoo!', vi: 'Cầm lấy. Bom cho lũ nấm, bình lửa cho bất cứ thứ gì biết cắn. Giờ thì đi đi!' }] },
     mermaid: { spr: 'npc_mermaid', name: { en: 'Nami the Mermaid', vi: 'Nàng Tiên Cá Nami' }, generic: [
       { en: 'A land-walker with a little sun! The fish told me you were coming.', vi: 'Một người trên cạn mang theo mặt trời nhỏ! Lũ cá đã kể với tôi bạn sắp tới.' },
-      { en: 'The Kraken is not evil, just lonely and greedy. Hit it when it opens its arms wide!', vi: 'Thủy Quái không ác đâu, chỉ cô đơn và tham lam thôi. Đánh nó khi nó dang rộng tay nhé!' }] },
+      { en: 'Oktavor is not evil, just lonely and greedy. Hit it when it opens its arms wide!', vi: 'Oktavor không ác đâu, chỉ cô đơn và tham lam thôi. Đánh nó khi nó dang rộng tay nhé!' }] },
     pirate: { spr: 'npc_pirate', name: { en: 'Captain Redbeard', vi: 'Thuyền Trưởng Râu Đỏ' }, gift: { dagger: 6, bomb: 1, flask: 1 }, generic: [
-      { en: 'Arr! My ship sank chasing that Kraken. Now I live here. The rent is cheap.', vi: 'Arr! Tàu ta chìm vì đuổi theo con Thủy Quái. Giờ ta sống ở đây. Tiền thuê rẻ lắm.' },
+      { en: 'Arr! My ship sank chasing Oktavor. Now I live here. The rent is cheap.', vi: 'Arr! Tàu ta chìm vì đuổi theo Oktavor. Giờ ta sống ở đây. Tiền thuê rẻ lắm.' },
       { en: 'Take my daggers, matey. They fly straight even underwater. Mostly.', vi: 'Cầm dao của ta đi nhóc. Chúng bay thẳng kể cả dưới nước. Phần lớn là vậy.' }] },
     fisher: { spr: 'npc_fisher', name: { en: 'Old Tu the Fisherman', vi: 'Ông Tư Đánh Cá' }, generic: [
       { en: 'Forty years I fished these waters and never caught anything like you.', vi: 'Bốn mươi năm ông câu ở vùng nước này, chưa bao giờ câu được thứ gì như cháu.' },
       { en: 'Star Gems glitter on the coral, high up. Swim up and look around, child.', vi: 'Ngọc Sao lấp lánh trên rạn san hô, ở chỗ cao. Bơi lên mà nhìn quanh nhé cháu.' }] },
     miner: { spr: 'npc_miner', name: { en: 'Bay the Miner', vi: 'Thợ Mỏ Bảy Búa' }, gift: { dagger: 0, bomb: 4, flask: 0 }, generic: [
-      { en: 'You hear that rumble? That is Gravemaw. He ate my cart. And my lunch. And my other cart.', vi: 'Nghe tiếng ầm ầm không? Đó là Gravemaw. Nó ăn mất xe của tôi. Cả bữa trưa. Cả cái xe kia nữa.' },
+      { en: 'You hear that rumble? That is Vorgrub. He ate my cart. And my lunch. And my other cart.', vi: 'Nghe tiếng ầm ầm không? Đó là Vorgrub. Nó ăn mất xe của tôi. Cả bữa trưa. Cả cái xe kia nữa.' },
       { en: 'Here, take some bombs. Cracked walls hide shortcuts down here.', vi: 'Đây, cầm ít bom. Dưới này tường nứt hay giấu lối tắt lắm.' }] },
     mole: { spr: 'npc_mole', name: { en: 'Grandpa Mole', vi: 'Ông Chuột Chũi' }, generic: [
       { en: 'Eh? Speak up, I cannot see you. I cannot see anyone. I am a mole.', vi: 'Hả? Nói to lên, ông không thấy cháu. Ông chẳng thấy ai cả. Ông là chuột chũi mà.' },
@@ -7308,14 +7320,14 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   const QUEST8 = [
     { w: 'narr', en: 'The end of the land. Beyond the cliff the sea falls away into darkness, and somewhere far below, the Eighth Tower lies drowned.', vi: 'Tận cùng của đất liền. Sau vách đá, biển khơi đổ xuống bóng tối, và đâu đó rất sâu bên dưới, Tháp Đèn Thứ Tám đang chìm.' },
     { w: 'mermaid', en: 'Lanternbearer! You came! My village at the bottom of the sea has been dark for three months.', vi: 'Người Giữ Đèn! Bạn đã tới! Làng của tôi dưới đáy biển đã tối suốt ba tháng.' },
-    { w: 'mermaid', en: 'The Kraken guards the drowned tower in the deepest cavern and locks it with the Tide Door. The door opens only for three Sea Pearls.', vi: 'Kraken canh giữ ngọn tháp chìm trong hang sâu nhất và khóa nó bằng Cửa Thủy Triều. Cửa chỉ mở khi có đủ ba Ngọc Trai Biển.' },
+    { w: 'mermaid', en: 'Oktavor guards the drowned tower in the deepest cavern and locks it with the Tide Door. The door opens only for three Sea Pearls.', vi: 'Oktavor canh giữ ngọn tháp chìm trong hang sâu nhất và khóa nó bằng Cửa Thủy Triều. Cửa chỉ mở khi có đủ ba Ngọc Trai Biển.' },
     { w: 'ember', en: 'And where are the pearls?', vi: 'Vậy ngọc trai ở đâu?' },
     { w: 'mermaid', en: 'Its fish hid them in three rock pockets carved into the walls, on the way down. Swim into the side caves and search!', vi: 'Lũ cá của nó giấu chúng trong ba hốc đá khoét vào vách, trên đường đi xuống. Hãy bơi vào các hang bên và tìm!' },
     { w: 'pirate', en: 'Arr, listen, matey. Hammer the Jump button again and again to swim up, let yourself sink to go down. The deeper you go, the darker and the stronger the currents.', vi: 'Arr, nghe này nhóc. Nhấn Nhảy liên tục để bơi lên, thả người ra để chìm xuống. Càng xuống sâu càng tối và dòng nước càng mạnh.' },
     { w: 'pirate', en: 'Every stone shelf has a lamp post: that is a safe spot to rest. And swing your sword while you swim, the fish will not wait for you!', vi: 'Mỗi bệ đá đều có cột đèn: đó là chỗ nghỉ an toàn. Và cứ vung kiếm khi đang bơi, bọn cá không chờ bạn đâu!' },
     { w: 'ember', en: 'Three pearls, one door and one giant octopus. A normal day, then.', vi: 'Ba viên ngọc, một cánh cửa và một con bạch tuộc khổng lồ. Một ngày bình thường thôi mà.' },
     { w: 'mermaid', en: 'Swim fast, {hero}. The sea is very deep... and the fish are hungry.', vi: 'Bơi nhanh nhé, {hero}. Biển rất sâu... và lũ cá đang đói.' },
-    { w: 'narr', en: 'QUEST: find the 3 Sea Pearls in the side caves, open the Tide Door at the bottom, and face the Kraken.', vi: 'NHIỆM VỤ: tìm 3 Ngọc Trai Biển trong các hang bên, mở Cánh Cửa Thủy Triều ở đáy và đối đầu Thủy Quái.' }
+    { w: 'narr', en: 'QUEST: find the 3 Sea Pearls in the side caves, open the Tide Door at the bottom, and face Oktavor.', vi: 'NHIỆM VỤ: tìm 3 Ngọc Trai Biển trong các hang bên, mở Cánh Cửa Thủy Triều ở đáy và đối đầu Oktavor.' }
   ];
   DLG[8] = {
     mermaid: [
@@ -7332,11 +7344,11 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       { en: 'Hm? A mole in the sea? Do not ask. I followed a worm and got a bit lost.', vi: 'Hử? Chuột chũi ở biển ư? Đừng hỏi. Ông theo một con sâu rồi hơi bị lạc.' }]
   };
   MAP_STORY[8] = [
-    { en: 'SUNKEN DEEP. The road ends at a cliff above the sea. Far below, the Kraken sleeps wrapped around the Eighth Tower.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Con đường dừng lại ở vách đá phía trên biển. Rất sâu bên dưới, Kraken ngủ quấn quanh Tháp Đèn Thứ Tám.' },
-    { en: 'A mermaid waits on the shore. She needs help: the Kraken locked its cave with a Tide Door that opens only for three Sea Pearls.', vi: 'Một nàng tiên cá đang đợi trên bờ. Cô cần giúp đỡ: Thủy Quái đã khóa hang bằng Cánh Cửa Thủy Triều chỉ mở cho ba Ngọc Trai Biển.' },
+    { en: 'SUNKEN DEEP. The road ends at a cliff above the sea. Far below, Oktavor sleeps wrapped around the Eighth Tower.', vi: 'ĐẠI DƯƠNG SÂU THẲM. Con đường dừng lại ở vách đá phía trên biển. Rất sâu bên dưới, Oktavor ngủ quấn quanh Tháp Đèn Thứ Tám.' },
+    { en: 'A mermaid waits on the shore. She needs help: Oktavor locked its cave with a Tide Door that opens only for three Sea Pearls.', vi: 'Một nàng tiên cá đang đợi trên bờ. Cô cần giúp đỡ: Oktavor đã khóa hang bằng Cánh Cửa Thủy Triều chỉ mở cho ba Ngọc Trai Biển.' },
     { en: 'You will dive from the surface into the deep: swim down through six dark zones, fight what lives there and search the side caves. The deeper you go, the stronger the currents.', vi: 'Bạn sẽ lặn từ mặt biển xuống vực sâu: bơi qua sáu tầng tối, chiến đấu với những gì sống ở đó và tìm trong các hang bên. Càng sâu, dòng nước càng mạnh.' }
   ];
-  COOP_MAP[8] = [L2('narr', 'The Sunken Deep. A mermaid begs for help: three Sea Pearls open the Tide Door above the Kraken.', 'Đại Dương Sâu Thẳm. Một nàng tiên cá cầu xin giúp đỡ: ba Ngọc Trai Biển mở Cánh Cửa Thủy Triều trên đầu Thủy Quái.'),
+  COOP_MAP[8] = [L2('narr', 'The Sunken Deep. A mermaid begs for help: three Sea Pearls open the Tide Door above Oktavor.', 'Đại Dương Sâu Thẳm. Một nàng tiên cá cầu xin giúp đỡ: ba Ngọc Trai Biển mở Cánh Cửa Thủy Triều trên đầu Oktavor.'),
     L2('{p0}', 'Swim into the side caves and look for the pearls. Stay close and shout if you get swept away.', 'Bơi vào các hang bên và tìm ngọc trai. Đi sát nhau và hét lên nếu bị cuốn đi.'),
     L2('{p1}', 'I will take the left caves. Whoever finds a pearl, yell!', 'Mình lo mấy hang bên trái. Ai thấy ngọc trai thì hét lên nhé!')];
   const depthM = y => Math.max(0, Math.round((y / TS - Q.L.waterY) * 2));
@@ -7345,7 +7357,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     pg.open = true; for (let y = pg.y0; y <= pg.y1; y++) for (let x = pg.x0; x <= pg.x1; x++) Q.L.grid[y][x] = ' ';
     Snd.play('gate'); Snd.play('boom'); Q.shake = 0.6; const cx = (pg.x0 + pg.x1) / 2 * TS, cy = pg.y0 * TS;
     for (let i = 0; i < 40; i++) emit(cx + rr(-150, 150), cy + rr(0, 30), 1, { col: ['#bfeaff', '#fff', '#6ee7f2'], sp0: 20, sp1: 120, vy: 60 });
-    addRing(cx, cy, '#6ee7f2', 120, 0.8); Q.msg = save.lang === 'vi' ? 'Cánh Cửa Thủy Triều đã mở! Kraken đang đợi bên dưới...' : 'The Tide Door opens! The Kraken waits below...'; Q.msgT = 5;
+    addRing(cx, cy, '#6ee7f2', 120, 0.8); Q.msg = save.lang === 'vi' ? 'Cánh Cửa Thủy Triều đã mở! Oktavor đang đợi bên dưới...' : 'The Tide Door opens! Oktavor waits below...'; Q.msgT = 5;
   }
   function updateOcean(dt) {
     const L = Q.L;
@@ -7886,7 +7898,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (glow > 0) mfGlow(x, by - h * 0.5, h * 1.1, 0.35 * glow, c1);
   }
   // ---------- map 3: the Crystal Caverns ----------
-  MF_WHO.y = [['MR SY', 'MR SY'], '#7ed957', 'sy'];
+  MF_WHO.y = [['DOCTOR SY', 'THẦY SY'], '#7ed957', 'sy'];
   MFILM[2] = {
     len: 29, card: ['The Third Tower', 'Tháp Đèn Thứ Ba'],
     snd: [[0.6, 'chime'], [6.4, 'music:title'], [13.2, 'relic'], [13.4, 'chime'], [18.6, 'crumble'], [22.6, 'music:devil'], [23.0, 'zap'], [27.4, 'poof'], [28.0, 'rumble']],
@@ -7940,7 +7952,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         const lift = walk ? 0 : ez(seg(t, 12.6, 13.2)) * 8;
         opHero(hx, hb, 1.5, false, walk, t * (walk ? 0.55 : 1)); opLantern(hx + 10, hb - 16 - lift, 1, 1, Math.sin(t * 5) * 0.12); mfGlow(hx + 6, hb - 16 - lift, 64, 0.38);
         mfFade(t, 6.4, 7.2); mfFade(t, 22.0, 22.6, true);
-      } else {   // a green glint in the dark: Mr Sy
+      } else {   // a green glint in the dark: Sy
         const gy = drawBgOnly(2, 300, t);
         g.globalAlpha = 0.86; g.fillStyle = '#020308'; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1;
         const hx = 120, hb = gy + 2, sx = 290, show = ez(seg(t, 22.9, 24.2)) * (t > 27.4 ? 0 : 1);
@@ -7948,7 +7960,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         if (show > 0) { g.globalAlpha = show * 0.85; drawSpr(g, npcSpr('npc_sy'), sx, Math.round(hb + Math.sin(t * 2) * 1.5), true, false, 1.3, 1.3); g.globalAlpha = 1; mfGlow(sx, hb - 30, 26, 0.35 * show, '#7ed957'); }
         if (t > 22.7 && t < 23.6) { g.fillStyle = '#7ed957'; g.fillRect(sx - 6, hb - 34, 3, 1); g.fillRect(sx + 3, hb - 34, 3, 1); }   // the glint before he steps out
         opBurst(sx, hb - 18, 27.4, t, 24, 6, 70, 0.8, ['#7ed957', '#2a3a1a', '#c8ff8a'], 0);
-        if (t > 27.8) opBurst(VW / 2, gy - 60, 27.8, t, 16, 9, 20, 1.2, ['#3a3454', '#5a5478'], 160);   // dust falls as the Golem wakes
+        if (t > 27.8) opBurst(VW / 2, gy - 60, 27.8, t, 16, 9, 20, 1.2, ['#3a3454', '#5a5478'], 160);   // dust falls as Prismor wakes
         mfFade(t, 22.6, 23.2); mfFade(t, 28.4, 29, true);
       }
     },
@@ -7968,7 +7980,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (door > 0) { const bl = Math.sin(t * 1.4) > 0.96 ? 0.2 : 1; g.fillStyle = '#ffd34e'; g.fillRect(x - 4, by - 13, 2, Math.max(1, Math.round(2 * door * bl))); g.fillRect(x + 2, by - 13, 2, Math.max(1, Math.round(2 * door * bl))); mfGlow(x, by - 12, 18, 0.35 * door, '#ffb04a'); }
   }
   // ---------- map 4: the Sunscorch Desert ----------
-  MF_WHO.p = [['SAND PHARAOH', 'PHARAOH CÁT'], '#ffd34e', 'bram'];
+  MF_WHO.p = [['KHEPSAR', 'KHEPSAR'], '#ffd34e', 'bram'];
   MFILM[3] = {
     len: 28, card: ['The Fourth Tower', 'Tháp Đèn Thứ Tư'],
     snd: [[0.6, 'chime'], [6.4, 'music:title'], [14.4, 'rune'], [15.2, 'relic'], [21.8, 'music:devil'], [22.4, 'rumble'], [24.0, 'crumble']],
@@ -7976,8 +7988,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       [0.6, 6.0, 'n', 'The third thread of light runs across the desert and dives into the sand: the Fourth Tower sleeps under a pyramid.', 'Sợi ánh sáng thứ ba chạy ngang sa mạc rồi lao xuống cát: Tháp Đèn Thứ Tư đang ngủ dưới một kim tự tháp.'],
       [7.0, 10.2, 'l', 'It is so hot... and yet I feel cold. Strange.', 'Nóng quá... vậy mà mình lại thấy lạnh. Lạ thật.'],
       [10.4, 13.8, 'e', 'Me too. The more towers we light... the colder it gets.', 'Mình cũng vậy. Càng thắp nhiều tháp... càng lạnh hơn.'],
-      [15.0, 18.4, 'k', 'This carving tells of Quoc here. The Pharaoh begged him to let the tower sleep... and he refused.', 'Bức khắc này kể về Quốc ở đây. Pharaoh đã xin anh để ngọn tháp ngủ yên... và anh từ chối.'],
-      [18.6, 21.8, 'n', 'A hundred years later, the Pharaoh sold his loyalty for another promise: a sleep that never ends.', 'Trăm năm sau, Pharaoh đổi lòng trung thành lấy một lời hứa khác: giấc ngủ không bao giờ dứt.'],
+      [15.0, 18.4, 'k', 'This carving tells of Quoc here. Khepsar, the pharaoh, begged him to let the tower sleep... and he refused.', 'Bức khắc này kể về Quốc ở đây. Pharaoh Khepsar đã xin anh để ngọn tháp ngủ yên... và anh từ chối.'],
+      [18.6, 21.8, 'n', 'A hundred years later, Khepsar sold his loyalty for another promise: a sleep that never ends.', 'Trăm năm sau, Khepsar đổi lòng trung thành lấy một lời hứa khác: giấc ngủ không bao giờ dứt.'],
       [23.6, 27.2, 'p', 'Another lantern... come to break my sleep. You will lie in the sand with the others.', 'Lại một ngọn đèn... đến phá giấc ngủ của ta. Ngươi sẽ nằm lại trong cát như những kẻ khác.']
     ],
     draw(t) {
@@ -8004,7 +8016,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
           g.beginPath(); g.arc(wx + 20, wy + 36, 3, 0, 7); g.stroke(); g.strokeRect(wx + 26, wy + 42, 4, 5);   // head and lantern
           g.beginPath(); g.moveTo(wx + 52, wy + 64); g.lineTo(wx + 74, wy + 30); g.lineTo(wx + 96, wy + 64); g.closePath(); g.stroke();   // the pyramid
           g.beginPath(); g.moveTo(wx + 74, wy + 30); g.lineTo(wx + 74, wy + 14); g.stroke(); g.strokeRect(wx + 71, wy + 9, 6, 5);   // its tower
-          g.beginPath(); g.arc(wx + 100, wy + 42, 4, 0, 7); g.moveTo(wx + 100, wy + 46); g.lineTo(wx + 100, wy + 62); g.moveTo(wx + 94, wy + 50); g.lineTo(wx + 106, wy + 50); g.stroke();   // the Pharaoh, begging
+          g.beginPath(); g.arc(wx + 100, wy + 42, 4, 0, 7); g.moveTo(wx + 100, wy + 46); g.lineTo(wx + 100, wy + 62); g.moveTo(wx + 94, wy + 50); g.lineTo(wx + 106, wy + 50); g.stroke();   // Khepsar, begging
           g.globalAlpha = 1; if (k > 0) { mfGlow(wx + 60, wy + 40, 70, 0.25 * k, '#ffd890'); if (t > 18.6) mfGlow(wx + 74, wy + 11, 14, 0.5 * Math.min(1, (t - 18.6) / 0.6), '#ffd34e'); }
         }
         drawSpr(g, npcSpr('npc_quan'), hx - 54, Math.round(hb - (walk ? Math.abs(Math.sin(t * 6 + 1)) * 1.5 : 0)), false, false, 1.1, 1.1);
@@ -8024,7 +8036,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       }
     },
     open: [
-      { w: 'narr', en: 'SUNSCORCH DESERT. The sand burns like coal, though no sun has ever shone on it. The Fourth Tower lies under the pyramid, where the Sand Pharaoh sleeps.', vi: 'SA MẠC CHÁY NẮNG. Cát nóng như than dù chưa từng có mặt trời nào chiếu xuống. Tháp Đèn Thứ Tư nằm dưới kim tự tháp, nơi Pharaoh Cát đang ngủ.' },
+      { w: 'narr', en: 'SUNSCORCH DESERT. The sand burns like coal, though no sun has ever shone on it. The Fourth Tower lies under the pyramid, where the pharaoh Khepsar sleeps.', vi: 'SA MẠC CHÁY NẮNG. Cát nóng như than dù chưa từng có mặt trời nào chiếu xuống. Tháp Đèn Thứ Tư nằm dưới kim tự tháp, nơi Pharaoh Khepsar đang ngủ.' },
       { w: 'lyra', en: 'He begged Quoc to let the tower sleep. Maybe he was just tired, like everyone here.', vi: 'Ông ấy đã xin Quốc để ngọn tháp ngủ yên. Có lẽ ông ấy chỉ mệt mỏi, như mọi người ở đây.' },
       { w: 'ember', en: 'Then we will wake it gently. But we will wake it.', vi: 'Vậy mình sẽ đánh thức nó thật nhẹ nhàng. Nhưng vẫn phải đánh thức.' },
       { w: 'quan', en: 'Chapter nine: "The farther a Lanternbearer walks, the less warmth is left." I hate this chapter.', vi: 'Chương chín: "Người Giữ Đèn càng đi xa, hơi ấm càng vơi." Mình ghét chương này.' },
@@ -8062,7 +8074,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     snd: [[0.6, 'chime'], [6.4, 'music:title'], [13.0, 'zap'], [15.2, 'chime'], [17.6, 'crumble'], [20.6, 'music:devil'], [21.0, 'clang']],
     caps: [
       [0.6, 6.0, 'n', 'The fourth thread climbs the frozen peaks. On the summit, the Fifth Tower is locked inside a block of ice.', 'Sợi sáng thứ tư leo lên những đỉnh núi băng. Trên đỉnh, Tháp Đèn Thứ Năm bị nhốt trong một khối băng.'],
-      [7.0, 10.0, 'k', 'Chapter ten: the Frost King was Quoc\'s friend. He gave him a warm cloak, once.', 'Chương mười: Vua Băng từng là bạn của Quốc. Có lần ông ấy tặng anh một tấm áo choàng ấm.'],
+      [7.0, 10.0, 'k', 'Chapter ten: Rimvald was Quoc\'s friend. He gave him a warm cloak, once.', 'Chương mười: Rimvald từng là bạn của Quốc. Có lần ông ấy tặng anh một tấm áo choàng ấm.'],
       [10.2, 12.8, 'e', 'Then why is everything frozen now?', 'Vậy sao giờ mọi thứ lại đóng băng hết?'],
       [13.4, 16.8, 'l', 'Let me sing to it... the tower is shivering. Can you hear it?', 'Để mình hát cho nó nghe... ngọn tháp đang run. Bạn có nghe thấy không?'],
       [17.0, 20.2, 'a', 'I fell from the sky when this tower went out. The king froze his own heart that night.', 'Ta rơi khỏi bầu trời khi ngọn tháp này tắt. Đêm đó, nhà vua đã tự đóng băng trái tim mình.'],
@@ -8113,7 +8125,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       [7.2, 10.6, 'l', 'The ground is breathing... like the mountain is alive.', 'Mặt đất đang thở... như thể ngọn núi còn sống vậy.'],
       [13.8, 17.2, 'k', 'Glass from an old lantern. Chapter eleven: here, Quoc\'s lantern cracked for the first time.', 'Mảnh kính của một cây đèn cũ. Chương mười một: ở đây, đèn của Quốc nứt lần đầu tiên.'],
       [17.4, 20.2, 'e', 'And he kept walking with a cracked lantern. All the way to the tenth tower.', 'Và anh ấy vẫn đi tiếp với cây đèn nứt. Đi mãi tới tháp thứ mười.'],
-      [21.0, 25.0, 'n', 'Above the smoke, huge wings beat. Ignarok has grown up, and he remembers the little flame from the meadow.', 'Phía trên làn khói, đôi cánh khổng lồ vỗ mạnh. Ignarok đã lớn, và nó vẫn nhớ ngọn lửa nhỏ ở đồng cỏ.']
+      [21.0, 25.0, 'n', 'Above the smoke, huge wings beat. Little Ignar has grown up: now he is Ignarok, and he remembers the little flame from the meadow.', 'Phía trên làn khói, đôi cánh khổng lồ vỗ mạnh. Rồng con Ignar đã lớn: giờ nó là Ignarok, và nó vẫn nhớ ngọn lửa nhỏ ở đồng cỏ.']
     ],
     draw(t) {
       if (t < 6.4) {
@@ -8131,7 +8143,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         }
         mfTeam(hx, hb, t, walk, true);
         mfFade(t, 6.4, 7.2); mfFade(t, 19.8, 20.4, true);
-      } else {   // Ignarok's shadow over the lava
+      } else {   // Ignarok's shadow over the lava (the grown-up Ignar)
         const gy = drawBgOnly(5, 360, t); mfNight(0.65);
         const ds = dragonSprite(1, Math.floor(t * 6) % 2), dx = VW + 60 - (t - 20.4) * 100, dy = 18 + Math.sin(t * 2) * 5, k = 0.9;
         g.globalAlpha = 0.85; drawSpr(g, ds, Math.round(dx), Math.round(dy + ds.h * k), true, false, k, k); g.globalAlpha = 1;   // high above the smoke
@@ -8164,7 +8176,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       [7.0, 10.4, 'k', 'Mushrooms remember dreams. Quoc slept here once, on his way to the tenth tower.', 'Nấm nhớ được những giấc mơ. Quốc từng ngủ ở đây một lần, trên đường tới tháp thứ mười.'],
       [14.0, 17.6, 'n', 'The mushrooms whisper the last thing he said in his sleep:', 'Những cây nấm thì thầm điều cuối cùng anh nói trong giấc ngủ:'],
       [17.8, 20.2, 'q', '"I am so tired... I wish someone would walk with me."', '"Mình mệt quá... Giá mà có ai đi cùng mình."'],
-      [21.0, 25.0, 'n', 'Deep in the swamp, a great mushroom opens her eyes. The Spore Queen promised him that sleep would be kinder.', 'Sâu trong đầm, một cây nấm khổng lồ mở mắt. Nữ Hoàng Bào Tử đã hứa với anh rằng giấc ngủ sẽ dịu dàng hơn.']
+      [21.0, 25.0, 'n', 'Deep in the swamp, a great mushroom opens her eyes. Morvella promised him that sleep would be kinder.', 'Sâu trong đầm, một cây nấm khổng lồ mở mắt. Morvella đã hứa với anh rằng giấc ngủ sẽ dịu dàng hơn.']
     ],
     draw(t) {
       if (t < 6.4) {
@@ -8181,7 +8193,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         }
         mfTeam(hx, hb, t, walk, true);
         mfFade(t, 6.4, 7.2); mfFade(t, 19.8, 20.4, true);
-      } else {   // the Spore Queen opens her eyes
+      } else {   // Morvella opens her eyes
         const gy = drawBgOnly(7, 360, t); mfNight(0.7);
         mfShroom(280, gy + 2, 90, '#c070ff', 0.45, t, 0);
         const ok = ez(seg(t, 21.2, 22.2)); for (const ex of [266, 294]) { g.fillStyle = '#14101e'; g.fillRect(ex - 4, gy - 98, 8, 5); if (ok > 0) { g.fillStyle = '#c8ff8a'; g.fillRect(ex - 3, gy - 97, 6, Math.max(1, Math.round(3 * ok))); mfGlow(ex, gy - 96, 14, 0.4 * ok, '#c8ff8a'); } }
@@ -8205,7 +8217,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       [0.6, 6.0, 'n', 'The seventh thread dives off a cliff into the sea. Far below, the Eighth Tower lies drowned.', 'Sợi sáng thứ bảy lao từ vách đá xuống biển. Rất sâu bên dưới, Tháp Đèn Thứ Tám đang chìm.'],
       [7.0, 10.4, 'e', 'The lantern still burns underwater... and something huge is swimming towards it.', 'Đèn vẫn cháy dưới nước... và có thứ gì đó rất lớn đang bơi về phía nó.'],
       [11.6, 15.2, 'l', 'A whale of light! It is showing us the way down.', 'Một con cá voi ánh sáng! Nó đang chỉ đường xuống cho mình.'],
-      [19.0, 23.0, 'n', 'At the bottom, eight arms are wrapped around the drowned tower. The Kraken does not want to let go.', 'Dưới đáy, tám cánh tay quấn quanh ngọn tháp chìm. Kraken không muốn buông ra.']
+      [19.0, 23.0, 'n', 'At the bottom, eight arms are wrapped around the drowned tower. Oktavor does not want to let go.', 'Dưới đáy, tám cánh tay quấn quanh ngọn tháp chìm. Oktavor không muốn buông ra.']
     ],
     draw(t) {
       if (t < 6.4) {
@@ -8238,7 +8250,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       [13.4, 16.6, 's', 'Do not shout. I am not here to fight. ...Master has not smiled since the tenth tower.', 'Đừng la. Ta không tới để đánh nhau. ...Từ tháp thứ mười, thầy chưa cười lần nào.'],
       [16.8, 19.8, 's', 'I only wanted him to be happy. Tall hats, trials, all of it. Was I wrong, little lantern?', 'Ta chỉ muốn thầy vui. Mũ cao, thử thách, tất cả. Ta sai sao, đèn nhỏ?'],
       [20.0, 22.0, 'e', 'Then help us bring him home.', 'Vậy giúp tụi mình đưa anh ấy về nhà.'],
-      [22.4, 25.4, 'n', 'Shorty has no time to answer. The tunnel shakes: Gravemaw is coming up through the rock.', 'Shorty không kịp trả lời. Đường hầm rung chuyển: Gravemaw đang trồi lên xuyên qua đá.']
+      [22.4, 25.4, 'n', 'Shorty has no time to answer. The tunnel shakes: Vorgrub is coming up through the rock.', 'Shorty không kịp trả lời. Đường hầm rung chuyển: Vorgrub đang trồi lên xuyên qua đá.']
     ],
     draw(t) {
       if (t < 6.4) {
@@ -8255,7 +8267,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       }
     },
     open: [
-      { w: 'narr', en: 'DEEPDIG TUNNELS. The last road to the Citadel goes under the earth. The old miners ran from here, because of Gravemaw.', vi: 'ĐƯỜNG HẦM SÂU. Con đường cuối cùng tới Thành Trì đi dưới lòng đất. Thợ mỏ xưa bỏ chạy khỏi đây, vì Gravemaw.' },
+      { w: 'narr', en: 'DEEPDIG TUNNELS. The last road to the Citadel goes under the earth. The old miners ran from here, because of Vorgrub.', vi: 'ĐƯỜNG HẦM SÂU. Con đường cuối cùng tới Thành Trì đi dưới lòng đất. Thợ mỏ xưa bỏ chạy khỏi đây, vì Vorgrub.' },
       { w: 'lyra', en: 'Shorty only wanted his master to smile. Maybe nobody here is truly bad.', vi: 'Shorty chỉ muốn thầy mình cười. Có lẽ ở đây chẳng ai thật sự xấu cả.' },
       { w: 'ember', en: 'Just tired, and alone. One more tower, then the last one.', vi: 'Chỉ là mệt mỏi, và cô đơn. Thêm một tháp nữa, rồi tới tháp cuối.' },
       { w: 'narr', en: 'When the ground shakes under your feet, jump away. The worm swims through rock like water.', vi: 'Khi mặt đất rung dưới chân, hãy nhảy tránh. Con sâu bơi trong đá như bơi trong nước.' }
@@ -8827,7 +8839,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   // ?quoc=N jumps straight into the final fight at Quoc's form N (0-7) - handy for checking the boss
   // ?level=N (0-9) starts that map from its beginning, handy for testing a map without unlocking it
   { const m = location.search.match(/[?&]level=(\d)/); if (m) setTimeout(() => { startLevel(+m[1]); }, 400); }
-  // ?boss=7|8|9 jumps straight into the Spore Queen / Kraken / Gravemaw fight (click or press a key once so the browser allows sound)
+  // ?boss=7|8|9 jumps straight into the Morvella / Oktavor / Vorgrub fight (click or press a key once so the browser allows sound)
   { const m = location.search.match(/[?&]boss=(\d)/);
     if (m && [7, 8, 9].indexOf(+m[1]) >= 0) setTimeout(() => {
       startLevel(+m[1]); Q.state = 'play'; const ar = Q.L.arena; Q.P.x = (ar.x0 + 8) * TS; Q.P.y = (ar.gy - 2) * TS; Q.P.inv = 3; Q.zoom = Q.B.zoom || 1; snapCam(); Q.msg = 'Click once to turn the sound on'; Q.msgT = 5;

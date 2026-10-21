@@ -703,7 +703,7 @@ function paint(w, h, fn, outline) {
 }
 
 const BOSS_PAINT = [
-  // 0 King Slime
+  // 0 Gulgor
   P => {
     P.ell(23, 25, 21, 11, 'G'); P.ell(23, 23, 20, 10, 'g'); P.ell(23, 19, 17, 7, 'g');
     P.ell(13, 14, 6, 3, 't'); P.ell(12, 14, 3, 1, 'w');
@@ -715,7 +715,7 @@ const BOSS_PAINT = [
     P.tri(11, 6, 17, 6, 13, 1, 'y'); P.tri(18, 6, 28, 6, 23, 0, 'y'); P.tri(29, 6, 35, 6, 33, 1, 'y');
     P.px(23, 8, 'r'); P.px(15, 8, 'c'); P.px(31, 8, 'c');
   },
-  // 1 Spider Queen
+  // 1 Veylith
   P => {
     P.both(() => {
       P.poly([[19, 16], [10, 4], [4, 10], [3, 22]], 'D', 2); P.poly([[17, 20], [6, 12], [1, 18], [1, 30]], 'D', 2);
@@ -728,7 +728,7 @@ const BOSS_PAINT = [
     P.both(() => { P.ell(21, 12, 2, 2, 'r'); P.px(21, 12, 'w'); P.ell(18, 14, 1, 1, 'r'); P.px(22, 9, 'r'); P.px(19, 11, 'r'); P.tri(22, 18, 24, 18, 23, 24, 'w'); P.line(20, 19, 18, 22, 'D', 1); });
     P.tri(19, 8, 22, 8, 20, 2, 'y'); P.tri(22, 8, 28, 8, 25, 0, 'y'); P.tri(28, 8, 31, 8, 30, 2, 'y'); P.px(25, 6, 'r');
   },
-  // 2 Crystal Golem
+  // 2 Prismor
   P => {
     P.both(() => { P.rect(14, 38, 9, 11, 'd'); P.rect(13, 48, 10, 4, 'D'); P.rect(14, 38, 3, 11, 'l'); });
     P.ell(24, 27, 16, 14, 'd'); P.ell(19, 21, 9, 6, 'l'); P.ell(24, 33, 13, 6, 'D');
@@ -738,7 +738,7 @@ const BOSS_PAINT = [
     P.tri(21, 3, 27, 3, 24, 0, 'c'); P.rect(21, 14, 6, 2, 'D');
     P.ell(24, 29, 5, 6, 'c'); P.ell(24, 29, 3, 4, 'w'); P.line(24, 35, 24, 39, 'D', 1);
   },
-  // 3 Sand Pharaoh
+  // 3 Khepsar
   P => {
     P.rect(12, 28, 20, 20, 'e'); for (let y = 30; y < 48; y += 3) P.rect(12, y, 20, 1, 'E');
     P.rect(13, 46, 8, 6, 'E'); P.rect(23, 46, 8, 6, 'E'); P.rect(12, 51, 10, 2, 'N'); P.rect(22, 51, 10, 2, 'N');
@@ -752,7 +752,7 @@ const BOSS_PAINT = [
     P.rect(20, 2, 4, 6, 'g'); P.px(21, 3, 'k'); P.px(22, 2, 'y');
     P.line(38, 14, 38, 50, 'Y', 2); P.poly([[38, 14], [41, 10], [36, 8], [35, 12]], 'Y', 2);
   },
-  // 4 Frost King
+  // 4 Rimvald
   P => {
     P.rect(6, 26, 36, 26, 'B'); P.tri(6, 26, 2, 52, 14, 52, 'B'); P.tri(42, 26, 46, 52, 34, 52, 'B');
     P.ell(24, 40, 17, 13, 'w'); P.ell(30, 44, 12, 8, 'l'); P.ell(24, 21, 12, 11, 'w'); P.ell(29, 25, 7, 6, 'l'); P.ell(20, 16, 6, 3, 'w');
@@ -764,7 +764,7 @@ const BOSS_PAINT = [
     P.ell(24, 38, 2, 2, 'k'); P.ell(24, 45, 2, 2, 'k');
     P.both(() => { P.tri(8, 52, 12, 52, 10, 47, 'c'); P.tri(15, 52, 19, 52, 17, 46, 'C'); });
   },
-  // 5 Magma Titan
+  // 5 Kaldrok
   P => {
     P.both(() => { P.rect(18, 47, 10, 9, 'D'); P.rect(18, 47, 3, 9, 'd'); P.rect(20, 52, 3, 1, 'o'); });
     P.ell(28, 32, 18, 16, 'D'); P.ell(22, 24, 9, 7, 'd'); P.ell(28, 38, 14, 7, 'k');
@@ -775,7 +775,7 @@ const BOSS_PAINT = [
     P.ell(28, 32, 6, 7, 'o'); P.ell(28, 32, 4, 5, 'y'); P.ell(28, 32, 2, 2, 'w');
     P.line(20, 28, 14, 36, 'o', 1); P.line(36, 26, 42, 34, 'o', 1); P.px(14, 38, 'o'); P.px(30, 48, 'o');
   },
-  // 6 The Eclipse
+  // 6 Quoc, King of the Eclipse (not used in the fight: map 10 uses Quoc's 8 forms)
   P => {
     P.ell(30, 21, 22, 22, 'h'); P.ell(30, 21, 20, 20, 'p'); P.ell(30, 21, 18, 18, 'z');
     for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2, r0 = 22, r1 = i % 2 ? 26 : 29; P.line(Math.round(30 + Math.cos(a) * r0), Math.round(21 + Math.sin(a) * r0), Math.round(30 + Math.cos(a) * r1), Math.round(21 + Math.sin(a) * r1), 'h', 1); }
@@ -785,7 +785,7 @@ const BOSS_PAINT = [
     P.both(() => { P.rect(24, 22, 4, 2, 'w'); P.px(25, 22, 'm'); P.line(22, 19, 28, 22, 'k', 1); P.tri(13, 14, 16, 12, 9, 2, 'h'); P.tri(8, 22, 11, 20, 3, 14, 'h'); P.line(14, 40, 4, 54, 'P', 2); P.ell(14, 46, 3, 3, 'w'); });
     P.ell(30, 49, 6, 6, 'p'); P.ell(30, 49, 4, 4, 'h'); P.ell(30, 49, 2, 2, 'w');
   },
-  // 7 Spore Queen: a towering glowcap with a crown of smaller mushrooms, glowing eyes in the gills and root arms
+  // 7 Morvella: a towering glowcap with a crown of smaller mushrooms, glowing eyes in the gills and root arms
   P => {
     P.both(() => { P.line(14, 30, 4, 40, '#5a3a22', 3); P.line(4, 40, 2, 47, '#5a3a22', 2); P.ell(3, 47, 2, 1, '#3a2a14'); P.ell(8, 26, 4, 3, '#c070ff'); P.px(7, 25, '#fff'); });
     P.rect(17, 24, 14, 22, '#e8dcc0'); P.rect(17, 24, 3, 22, '#fff6e0'); P.rect(28, 24, 3, 22, '#c8b898');
@@ -797,7 +797,7 @@ const BOSS_PAINT = [
     P.rect(21, 35, 6, 2, '#3a1040'); P.px(22, 36, '#c8f0a0'); P.px(25, 36, '#c8f0a0');
     P.ell(14, 2, 4, 3, '#ff9fd0'); P.rect(13, 4, 2, 3, '#e8dcc0'); P.ell(24, 0 + 1, 5, 3, '#c8f0a0'); P.rect(23, 3, 2, 3, '#e8dcc0'); P.ell(34, 2, 4, 3, '#6ee7f2'); P.rect(33, 4, 2, 3, '#e8dcc0');
   },
-  // 8 Abyssal Kraken: a huge octopus head with a beak, glowing eyes, and eight curling tentacles
+  // 8 Oktavor: a huge octopus head with a beak, glowing eyes, and eight curling tentacles
   P => {
     P.both(() => {
       P.line(20, 34, 6, 40, '#7a2a5a', 4); P.line(6, 40, 2, 34, '#7a2a5a', 3); P.ell(2, 32, 2, 2, '#7a2a5a');
@@ -812,7 +812,7 @@ const BOSS_PAINT = [
     P.both(() => { P.ell(23, 22, 5, 5, '#ffd34e'); P.ell(23, 22, 4, 4, '#fff6c0'); P.rect(22, 19, 2, 7, 'k'); });
     P.tri(26, 30, 34, 30, 30, 37, '#3a1a2a'); P.tri(27, 30, 33, 30, 30, 34, '#e8dcc0');
   },
-  // 9 Gravemaw the Great Worm: a segmented worm bursting from the ground, ringed mouth full of teeth
+  // 9 Vorgrub: a segmented worm bursting from the ground, ringed mouth full of teeth
   P => {
     P.ell(25, 46, 24, 4, '#3a2a1c'); P.both(() => { P.ell(4, 44, 4, 3, '#5a4430'); P.ell(10, 46, 3, 2, '#8a6a4a'); });
     for (let i = 0; i < 5; i++) { const y = 42 - i * 7, r = 12 - i; P.ell(25, y, r + 2, 5, '#7a4a3a'); P.ell(25, y - 1, r + 1, 4, '#c87a6a'); P.rect(25 - r, y - 1, r * 2, 1, '#e8a090'); }
@@ -1094,7 +1094,7 @@ function dragonSprite(form, wing) {
 
 const BOSS_SIZES = [[46, 36], [50, 38], [48, 52], [44, 54], [48, 54], [56, 56], [60, 66], [48, 50], [60, 50], [50, 50]];
 function bossSprite(i) {
-  if (typeof BOSS_IMG !== 'undefined' && BOSS_IMG[i]) return BOSS_IMG[i];   // the artist's pictures of the Spore Queen, Kraken and Gravemaw
+  if (typeof BOSS_IMG !== 'undefined' && BOSS_IMG[i]) return BOSS_IMG[i];   // the artist's pictures of Morvella, Oktavor and Vorgrub
   const key = 'boss' + i;
   if (!_cache[key]) _cache[key] = paint(BOSS_SIZES[i][0], BOSS_SIZES[i][1], BOSS_PAINT[i], i === 6 ? '#d58bff' : (i === 5 ? '#ff9a2a' : null));
   return _cache[key];

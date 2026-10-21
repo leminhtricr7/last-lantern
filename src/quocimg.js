@@ -35,7 +35,7 @@ loadQuocArt();
   devilSprite = function (roar) { const s = QUOC_IMG[roar ? 'portrait_roar' : 'portrait_smirk']; return s || painted(roar); };
 }
 
-// the Spore Queen, the Kraken and Gravemaw from the artist's sheet (cut by tools/cut_bosses.py), keyed by map index
+// Morvella, Oktavor and Vorgrub from the artist's sheet (cut by tools/cut_bosses.py), keyed by map index
 const BOSS_IMG = {};
 (function () {
   const L = { 7: 'sporequeen', 8: 'kraken', 9: 'gravemaw' };

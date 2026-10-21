@@ -227,7 +227,7 @@ const Snd = (() => {
     mk('sawtooth', f, f * 0.72, 0.5, 6, 9); mk('sawtooth', f * 2.02, f * 1.5, 0.28, 14, 13); mk('square', f * 0.5, f * 0.38, 0.4, 0, 0);
     noise(dur, 0.1 * (vol || 1), 250, t, sfxG);
   }
-  // horror voices for the deep bosses: 7 Spore Queen (wet hiss + gurgle), 8 Kraken (abyssal growl + bubbles), 9 Gravemaw (grinding rumble + screech)
+  // horror voices for the deep bosses: 7 Morvella (wet hiss + gurgle), 8 Oktavor (abyssal growl + bubbles), 9 Vorgrub (grinding rumble + screech)
   function monster(kind, evt, volf) {
     if (!ac) return; const t = ac.currentTime, v = volf === undefined ? 1 : volf, long = evt === 'alert' || evt === 'roar', ws = getDevilFx();
     const dur = long ? 1.6 : (evt === 'attack' ? 0.7 : (evt === 'hurt' ? 0.22 : 0.5));
@@ -249,6 +249,7 @@ const Snd = (() => {
   function blip(who) {
     if (!ac) return;
     if (who && who.indexOf('h_') === 0) who = 'ember';
+    if (who === 'dragon_young') who = 'dragon';   // the young dragon on the meadow speaks with the dragon's voice
     if (who === 'quoc') { devilVoice(0.15, 0.85 + Math.random() * 0.5, 0.55); return; }
     const v = NV[who] || NV.lila, f = v[1] + Math.random() * (v[2] - v[1]);
     voice({ f0: f, f1: f * (0.92 + Math.random() * 0.2), type: v[0], dur: 0.07, vol: v[3], wob: who === 'wizard' ? 30 : 0, wobHz: 14, noise: who === 'gob' ? 0.04 : 0, nHP: 2000 });
