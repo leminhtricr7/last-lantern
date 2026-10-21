@@ -53,6 +53,7 @@
   if (!save.quests || typeof save.quests !== 'object') save.quests = {};   // phase 5 (E): side quests and the Lantern of Nine Towers
   save.lantern9 = !!save.lantern9;
   if (!Array.isArray(save.fishLog)) save.fishLog = [];   // phase 5 (A4): the species you have caught
+  save.fishBank = save.fishBank | 0; save.fishTot = save.fishTot | 0; if (!save.fishCnt || typeof save.fishCnt !== 'object') save.fishCnt = {};   // phase 6: fish stock to spend, fish caught for good, per species
   save.rare = save.rare | 0; if (!save.rareGot || typeof save.rareGot !== 'object') save.rareGot = {};
   save.bonusHP = save.bonusHP | 0; save.bonusDmg = save.bonusDmg | 0; if (!save.cos || typeof save.cos !== 'object') save.cos = {};
   if (!Array.isArray(save.heroUnlock)) save.heroUnlock = [];
@@ -998,8 +999,8 @@
   function newPlayer() {
     return { isPlayer: true, x: 0, y: 0, w: 8, h: 14, vx: 0, vy: 0, face: 1, onGround: false, coyote: 0, jumpBuf: 0, jumps: 0, atk: 0, atkCd: 0, atkHit: null, atkDown: false, dash: 0, dashCd: 0, inv: 0, hp: maxHP(), anim: 0, drop: 0, riding: null, safeT: 0, wasGround: false, lastVy: 0, ammo: save.ammo, sel: 0, keys: 0, throwCd: 0, shield: false, sw: null, wcd: [0, 0], wmax: [1, 1] };
   }
-  function startLevel(li) {
-    const L = genLevel(li);
+  function startLevel(li, v) {
+    const L = genLevel(li, v);
     const P = newPlayer();
     P.x = L.start.x; P.y = L.start.y - P.h;
     Q = {
@@ -1007,7 +1008,7 @@
       ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), brokenB: new Set(), brk: [], cpSeen: new Set(), fishLeft: {}, boat: null, beast: null, beastCd: 0, trials: [], trialsDone: new Set(), rings: [], ghosts: [], corpses: [], zones: [], tmpCells: [], dragon: null, dragons: [], dragonsDone: new Set(), tmpCells2: 0, windT: 0, windDir: 1, darkBoost: 0, darkBoostT: 0, nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
       cam: { x: 0, y: 0 }, coinsRun: 0, time: 0, safe: { x: P.x, y: P.y }, menu: 0,
       dj: true, dashAb: li >= 3 || save.cleared.indexOf(2) >= 0,
-      arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0, minisDone: new Set(), mainBoss: null, mainArena: null, syFig: null
+      arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0, minisDone: new Set(), mainBoss: null, mainArena: null, syFig: null, v: v || null
     };
     if (!save.shards[li]) save.shards[li] = [0, 0, 0];
     Q.pearls = 0; Q.questShown = false; Q.qT = 0;
@@ -1033,7 +1034,7 @@
     Q.minis = (L.minis || []).map(m => Object.assign({}, m, { state: Q.minisDone.has(m.id) ? 'done' : 'idle' })); Q.syFig = null;
     Q.brk = (L.brk || []).filter(b => !Q.brokenB.has(b.id)).map(b => Object.assign({}, b, { hitT: 0 }));   // phase 5: pots and bushes
     for (const r of L.crateRooms || []) resetCrate(r, true);   // phase 5: crates start at their start tile
-    Q.boat = L.sea ? newBoat() : null; Q.beast = null; Q.beastCd = 0;   // phase 5 (A4): the boat and the sea beast
+    Q.boat = L.sea ? newBoat() : null; if (Q.boat) Q.boat.hold = {}; Q.beast = null; Q.beastCd = 0;   // phase 5 (A4): the boat and the sea beast
     for (const gd of L.gates) { const open = Q.solved.has(gd.id); if (gd.bridge) { for (const t of gd.bridge) L.grid[t[1]][t[0]] = open ? '=' : ' '; continue; } for (let y = gd.y0; y <= gd.y1; y++) L.grid[y][gd.x] = open ? ' ' : 'G'; }
     for (const w of L.xwalls) for (const t of w.tiles) L.grid[t[1]][t[0]] = Q.brokenX.has(t[0] + ',' + t[1]) ? ' ' : 'X';
     for (const c of L.covers || []) L.grid[c.y][c.x] = Q.brokenX.has(c.x + ',' + c.y) ? ' ' : c.c;   // phase 5: secret-room covers
@@ -2545,7 +2546,7 @@
     if ((Q.players || [Q.P]).some(p => (p.keys || 0) > 0)) return sv('Carry the key to its gate first.', 'Hãy mang chìa khóa tới cổng trước đã.');
     return '';
   }
-  const vertMap = () => !!Q.B.water && !!Q.L.waterY && Q.L.H > 60;   // the Sunken Deep is a dive, not a walk: order by depth
+  const vertMap = () => !!Q.B.water && !!Q.L.waterY && Q.L.H > 60 && !Q.L.open;   // the Sunken Deep is a dive, not a walk: order by depth
   const TRAV_Y = 110, travX = k => { const n = Q.trav.list.length; return Math.round(VW / 2 - 140 + (n > 1 ? 280 * k / (n - 1) : 140)); };
   function openTravel() {
     const list = Q.L.checkpoints.filter(c => Q.cpSeen.has(c.id)).map(c => ({ x: c.x, y: c.y, id: c.id }));
@@ -2839,28 +2840,30 @@
   const needleAt = (t, sp) => 1 - Math.abs(((t * (sp || 1.1)) % 2) - 1);
   const boardSpotNear = P => { const sea = Q.L.sea; return !!(sea && Q.boat && P.onGround && !P.boat && !P.fish && Math.abs(P.x + P.w / 2 - sea.pierEnd * TS) < 12 && Math.abs(P.y + P.h - sea.surface) < 6); };
   function boatSpot(P) {
-    const b = Q.boat, tx = b.x / TS, tier = tx >= Q.L.sea.trigX ? 2 : (tx >= 40 ? 1 : 0), zone = Math.floor(tx / 10);
+    const b = Q.boat, tx = b.x / TS, op = Q.L.open, tier = op ? (tx >= op.zones[1] ? 2 : (tx >= op.zones[0] ? 1 : 0)) : (tx >= Q.L.sea.trigX ? 2 : (tx >= 40 ? 1 : 0)), zone = Math.floor(tx / 10);
     return { id: 'boat' + zone, bx: Math.round(tx + 4 * (P.face || 1)), by: Q.L.sea.surface / TS, tier };
   }
   function updateFishing() {
     const me = Q.me || Q.P; const ok = me && !me.fish && Q.state === 'play';
     Q.nearFish = ok ? fishSpotNear(me) : null; Q.nearBoard = ok && boardSpotNear(me);
+    const op = Q.L.open; Q.nearGate = !!(ok && op && !me.boat && me.onGround && Math.abs(me.x + me.w / 2 - op.gateX * TS) < 18 && Math.abs(me.y + me.h - op.gateY * TS) < 6);
   }
   function startFish(P, sp) {
     if (P.fish || P.fishCool > 0 || !P.onGround || (coop && coop.role === 'client')) return;
     if (Q.beast && Q.beast.st !== 'gone' && P.boat) { if (isMe(P)) { Q.msg = sv('Not now, the beast is near!', 'Lúc này không được, quái vật ở gần!'); Q.msgT = 2; } return; }
     if (Q.ents.some(e => !e.dead && !e.hid && Math.abs(e.x - P.x) < 130 && Math.abs(e.y - P.y) < 60)) { if (isMe(P)) { Q.msg = sv('Not with monsters so close!', 'Quái ở gần quá, không câu được!'); Q.msgT = 2; } return; }
-    const left = Q.fishLeft[sp.id] === undefined ? FISH_CASTS : Q.fishLeft[sp.id];
+    if (Q.L.open && holdTotal() >= holdCap()) { if (isMe(P)) { Q.msg = sv('The hold is full! Sail back to the harbour to unload.', 'Khoang đầy rồi! Quay về cảng dỡ cá.'); Q.msgT = 3; } return; }
+    const left = Q.L.open ? FISH_CASTS : (Q.fishLeft[sp.id] === undefined ? FISH_CASTS : Q.fishLeft[sp.id]);
     if (left <= 0) { if (isMe(P)) { Q.msg = sv('The fish have stopped biting here.', 'Cá không còn cắn ở đây nữa.'); Q.msgT = 2.5; } Snd.play('select'); return; }
-    Q.fishLeft[sp.id] = left - 1;
+    if (!Q.L.open) Q.fishLeft[sp.id] = left - 1;
     P.face = sp.bx * TS + 8 > P.x ? 1 : -1; P.vx = 0;
     P.fish = { sp: sp.id, ph: 'wait', t: 0, tw: 2 + Math.random() * 4, bx: sp.bx * TS + 8, by: sp.by * TS + 3, bt: 0, ct: 0, zc: 0.5, zw: 0.3, speed: 1.1, tier: sp.tier || 0, fid: null, hp0: P.hp };
     Snd.play('whoosh'); emit(P.fish.bx, P.fish.by, 8, { col: ['#bfeaff', '#fff'], sp0: 15, sp1: 50, vy: -40 });
-    if (isMe(P)) { Q.msg = sv('Cast! Wait for the bite... (' + (left - 1) + ' casts left)', 'Thả câu! Chờ cá cắn... (còn ' + (left - 1) + ' lần)'); Q.msgT = 2.5; }
+    if (isMe(P)) { Q.msg = Q.L.open ? sv('Cast! Wait for the bite...', 'Thả câu! Chờ cá cắn...') : sv('Cast! Wait for the bite... (' + (left - 1) + ' casts left)', 'Thả câu! Chờ cá cắn... (còn ' + (left - 1) + ' lần)'); Q.msgT = 2.5; }
   }
   function endFish(P, why, refund) {
     const f = P.fish; P.fish = null; P.fishCool = 0.5;
-    if (f && refund && Q.fishLeft[f.sp] !== undefined) Q.fishLeft[f.sp]++;
+    if (f && refund && !Q.L.open && Q.fishLeft[f.sp] !== undefined) Q.fishLeft[f.sp]++;
     if (why && isMe(P)) { Q.msg = why; Q.msgT = 2.2; }
   }
   function fishStep(P, dt) {
@@ -2893,6 +2896,14 @@
     const drop = (kind, ex) => Q.items.push(Object.assign({ kind, x, y, id: -1, vy: -rr(80, 140), vx: rr(-25, 25), ph: 0, drop: true }, ex || {}));
     const coins = n => { for (let i = 0; i < n; i++) drop('coin'); };
     const ammo = n => { const w = ['dagger', 'dagger', 'bomb', 'flask'][(Math.random() * 4) | 0]; drop('pk', { what: w, amt: w === 'dagger' ? n + 2 : n, keep: false }); };
+    if (Q.L.open && Q.boat) {   // phase 6: on the open sea a catch goes into the boat's hold (it counts as 1 fish when traded); a few coins by rank
+      const hd = Q.boat.hold[P.slot || 0] || (Q.boat.hold[P.slot || 0] = { n: 0, sp: {} }); hd.n++; hd.sp[spec.id] = (hd.sp[spec.id] | 0) + 1;
+      coins(Math.max(0, [0, 1, 1, 2, 3, 5][spec.r | 0] || 0));
+      if (mine && spec.r > 0 && save.fishLog.indexOf(spec.id) < 0) { save.fishLog.push(spec.id); if (!DEMO) writeSave(); fishCardOf(P, spec, true); } else if (mine) fishCardOf(P, spec, false);
+      questFish(P, spec);
+      if (mine) { Q.msg = sv('Caught: ' + spec.en + '!  Hold ' + holdTotal() + '/' + holdCap(), 'Câu được: ' + spec.vi + '!  Khoang ' + holdTotal() + '/' + holdCap()); Q.msgT = 3; } else pop(P.x + 4, P.y - 22, sv(spec.en + '!', spec.vi + '!'), '#9fe8ff');
+      return;
+    }
     const maxh = P.mhp || maxHP(), heal = h => { P.hp = Math.min(maxh, P.hp + h); emit(P.x + 4, P.y + 4, 10, { col: ['#ff7fb0', '#fff'], sp0: 10, sp1: 40 }); Snd.play('heart'); };
     switch (spec.id) {
       case 'minnow': coins(2 + ((Math.random() * 3) | 0)); break;
@@ -2923,6 +2934,36 @@
 
   // ---------- the boat ----------
   const BOAT_SPD = 70, BEAST_SPD = 52;
+  // ---------- phase 6: the hold, the harbour and the fish stock ----------
+  // Fish go into the boat's hold (one bin per player, a shared capacity). At the harbour the host unloads each bin into its owner's save
+  // (`save.fishBank` = fish to spend, `save.fishCnt` = per species, `save.fishTot` = all time). A guest's bin is sent to the guest ('fishin').
+  const holdCap = () => 30;
+  const holdTotal = () => { let n = 0; const h = Q.boat && Q.boat.hold; if (h) for (const k in h) n += h[k].n | 0; return n; };
+  const holdOf = P => (Q.boat && Q.boat.hold && Q.boat.hold[P.slot || 0]) || { n: 0, sp: {} };
+  function bankFish(sp) {   // add a species map to my own save
+    let n = 0; for (const id in sp) { const c = sp[id] | 0; if (c <= 0) continue; n += c; save.fishCnt[id] = (save.fishCnt[id] | 0) + c; }
+    save.fishBank += n; save.fishTot += n; if (!DEMO) writeSave(); return n;
+  }
+  function unloadHold() {
+    const b = Q.boat; if (!b || !b.hold) return;
+    for (const k in b.hold) {
+      const hd = b.hold[k]; if (!hd || hd.n <= 0) { delete b.hold[k]; continue; }
+      const p = (Q.players || [Q.P]).find(q => (q.slot || 0) === +k); delete b.hold[k]; if (!p) continue;
+      if (isMe(p)) { const n = bankFish(hd.sp); Q.msg = sv('Unloaded ' + n + ' fish. Fish stock: ' + save.fishBank, 'Dỡ ' + n + ' con cá. Kho cá: ' + save.fishBank); Q.msgT = 4; Snd.play('chime'); }
+      else coopGive(p, { t: 'fishin', sp: hd.sp });
+      emit(b.x, b.y - 8, 12, { col: ['#bfeaff', '#fff', '#ffd34e'], sp0: 20, sp1: 80, vy: -70 });
+    }
+  }
+  function loseHold(frac) {   // a wrecked boat loses part of every bin (the lifebuoy upgrade will stop this later)
+    const b = Q.boat; if (!b || !b.hold) return;
+    for (const k in b.hold) { const hd = b.hold[k]; let lose = Math.ceil(hd.n * frac); const ids = Object.keys(hd.sp); while (lose > 0 && ids.length) { const id = ids[(Math.random() * ids.length) | 0]; hd.sp[id]--; hd.n--; lose--; if (hd.sp[id] <= 0) ids.splice(ids.indexOf(id), 1); } }
+  }
+  function seaTravel(to) {   // sail from the Sunken Deep into the open sea, or back from the harbour gate
+    if (!Q || Q.state !== 'play' || (coop && coop.role === 'client')) return;
+    Snd.play('rune');
+    if (coop) { coopStart(8, to === 'khoi' ? 'khoi' : undefined); return; }
+    fadeTo = to === 'khoi' ? 'play:8:khoi' : 'play:8'; fade = 0;
+  }
   function newBoat() { const sea = Q.L.sea; return { x: sea.moor * TS, y: sea.surface - 4, vx: 0, face: -1, hp: 3, max: 3, rider: -1, wreck: 0, hitT: 0 }; }
   function boardBoat(P) {
     const b = Q.boat; if (!b || b.hp <= 0 || b.rider >= 0 || (coop && coop.role === 'client')) { if (isMe(P)) { Q.msg = b && b.hp <= 0 ? sv('The boat is wrecked. It will be mended soon.', 'Thuyền hỏng rồi. Sẽ sớm được sửa.') : sv('Someone is already aboard.', 'Có người đang ở trên thuyền rồi.'); Q.msgT = 2.5; } return; }
@@ -2946,6 +2987,7 @@
     if (dir) { b.face = dir; P.face = dir; }
     b.vx += (dir * BOAT_SPD - b.vx) * Math.min(1, 3 * dt); b.x = clamp(b.x + b.vx * dt, sea.minX * TS, sea.maxX * TS);
     if (b.x <= sea.minX * TS || b.x >= sea.maxX * TS) b.vx = 0;
+    if (sea.toOpen && b.x >= sea.maxX * TS - 2 && dir > 0) { b.edgeT = (b.edgeT || 0) + dt; if (b.edgeT > 1.2) { b.edgeT = 0; seaTravel('khoi'); return true; } } else b.edgeT = 0;
     P.x = b.x - P.w / 2; P.y = b.y + Math.sin(Q.t * 1.8 + b.x * 0.02) * 1.2 - P.h;
     if (!wasFish && act.jumpP) { leaveBoat(P, b.x < (sea.pierEnd + 8) * TS); return true; }
     if (Math.abs(b.vx) > 20 && Math.random() < 0.15) emit(b.x - b.face * 24, b.y + 6, 1, { col: ['#bfeaff', '#fff'], sp0: 3, sp1: 14, vy: -8 });
@@ -2953,7 +2995,7 @@
   }
   function wreckBoat() {
     const b = Q.boat; if (!b) return;
-    b.hp = 0; b.wreck = 25; b.hitT = 1; b.rider = -1; Snd.play('explode'); Q.shake = Math.max(Q.shake, 0.5);
+    b.hp = 0; b.wreck = 25; b.hitT = 1; b.rider = -1; if (Q.L.open) loseHold(0.25); Snd.play('explode'); Q.shake = Math.max(Q.shake, 0.5);
     emit(b.x, b.y, 40, { col: ['#8a5a2a', '#c08a4a', '#5e3b1a', '#bfeaff'], sp0: 40, sp1: 140, vy: -70 });
     for (const p of Q.players || [Q.P]) if (p.boat) { p.boat = false; p.fish = null; p.y = Q.L.sea.surface - 6; p.vy = 40; p.vx = 0; if (isMe(p)) { Q.msg = sv('The boat is wrecked! Swim back to the pier!', 'Thuyền vỡ rồi! Bơi về cầu tàu đi!'); Q.msgT = 4; } }
   }
@@ -2964,6 +3006,7 @@
     const b = Q.boat;
     if (b) { if (b.hitT > 0) b.hitT -= dt; if (b.hp <= 0) { b.wreck -= dt; if (b.wreck <= 0) { Object.assign(b, newBoat()); Snd.play('chime'); emit(b.x, b.y, 12, { col: ['#ffd34e', '#fff'], sp0: 20, sp1: 60 }); } } }
     Q.beastCd = Math.max(0, (Q.beastCd || 0) - dt);
+    if (L.open && b && b.hp > 0 && b.x <= L.open.portX * TS) unloadHold();
     const alive = (Q.players || [Q.P]).filter(p => !p.down && p.hp > 0), tgts = alive.filter(p => beastBand(p) && p.x >= sea.safeX * TS);
     let be = Q.beast;
     if (!be) {
@@ -3026,7 +3069,15 @@
   }
   function drawSea(camX, camY) {
     const sea = Q.L.sea; if (!sea) return;
-    const b = Q.boat;
+    const b = Q.boat, op = Q.L.open;
+    if (op) {   // the harbour gate: an arch with a lantern. E here sails back to the Sunken Deep
+      const gx = Math.round((op.gateX + 0.5) * TS - camX), gy = Math.round(op.gateY * TS - camY);
+      if (gx > -30 && gx < VW + 30) {
+        g.fillStyle = '#14101c'; g.fillRect(gx - 14, gy - 34, 28, 34); g.fillStyle = '#6a5a4a'; g.fillRect(gx - 13, gy - 33, 5, 33); g.fillRect(gx + 8, gy - 33, 5, 33); g.fillRect(gx - 13, gy - 33, 26, 5); g.fillStyle = '#8a7a66'; g.fillRect(gx - 13, gy - 33, 26, 1);
+        g.fillStyle = '#0a2a44'; g.fillRect(gx - 8, gy - 28, 16, 28); g.fillStyle = '#2a7aa8'; g.fillRect(gx - 8, gy - 12, 16, 12);
+        if (Q.nearGate && Q.state === 'play') txt(sv('E: Back to the Sunken Deep', 'E: Về Đại Dương Sâu Thẳm'), gx, gy - 42, { al: 'center', size: 6, col: '#9fe8ff', world: true });
+      }
+    } else if (sea.toOpen && b && b.hp > 0 && b.rider >= 0 && b.x > (sea.maxX - 8) * TS) txt(sv('Hold RIGHT: sail into the open sea', 'Giữ PHẢI: ra Biển Khơi'), Math.round(b.x - camX), Math.round(b.y - camY) - 38, { al: 'center', size: 6, col: '#ffd34e', world: true });
     if (b && b.hp > 0 && b.x > camX - 60 && b.x < camX + VW + 60) {
       const bob = Math.sin(Q.t * 1.8 + b.x * 0.02) * 1.2, x = b.x - camX, y = b.y + 4 + bob - camY, hurt = b.hp < b.max;
       drawBoatShape(x, y, b.face, (b.hp === 1 ? 0.06 : 0) + b.vx * 0.0004, hurt);
@@ -3478,7 +3529,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   }
 
   function saveResume() {
-    if (coop || DEMO) return;
+    if (coop || DEMO || Q.L.open) return;
     save.resume = { li: Q.li, pearls: Q.pearls || 0, cp: Q.cp, taken: [...Q.taken], solved: [...Q.solved], brokenX: [...Q.brokenX], brokenB: [...Q.brokenB], cpSeen: [...Q.cpSeen], trialsDone: [...Q.trialsDone], dragonsDone: [...Q.dragonsDone], minisDone: [...Q.minisDone], coinsRun: Q.coinsRun, time: Q.time, cpCount: Q.cpCount || 0, midDone: !!Q.midDone, ammo: save.ammo };
     writeSave();
   }
@@ -4348,7 +4399,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       if (act.pauseP) { Q.state = 'play'; return; }
       if (act.okP) {
         Snd.play('ok');
-        if (Q.menu === 0) Q.state = 'play'; else if (Q.menu === 1) startLevel(Q.li); else if (Q.menu === 4) openHelp(false); else if (coop) coopBackToLobby(); else if (Q.menu === 2) { toScene('map'); } else toScene('title');
+        if (Q.menu === 0) Q.state = 'play'; else if (Q.menu === 1) startLevel(Q.li, Q.v); else if (Q.menu === 4) openHelp(false); else if (coop) coopBackToLobby(); else if (Q.menu === 2) { toScene('map'); } else toScene('title');
       }
       return;
     }
@@ -4371,6 +4422,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && !Q.nearCp && Q.nearPost) { resetCrate(Q.nearPost); return; }
     if (st === 'play' && act.talkP && Q.P.boat && !Q.P.fish) { startFish(Q.P, boatSpot(Q.P)); return; }
     if (st === 'play' && act.talkP && !Q.P.boat && Q.nearBoard) { boardBoat(Q.P); return; }
+    if (st === 'play' && act.talkP && !Q.P.boat && Q.nearGate && !Q.nearNpc && !Q.nearPz) { seaTravel('deep'); return; }
     if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && (!Q.nearCp || travelBlock() === null) && !Q.nearPost && Q.nearFish && !Q.P.fish) { startFish(Q.P, Q.nearFish); return; }
     if (st === 'travel') { updateTravel(); return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
@@ -4937,6 +4989,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const hdy = (Math.ceil(mh / 8) - 1) * 10;
     g.fillStyle = '#ffd34e'; g.fillRect(8, 20 + hdy, 5, 5); g.fillStyle = '#c89a1c'; g.fillRect(12, 21 + hdy, 1, 3);
     txt('x' + Q.coinsRun + '   (' + save.coins + ')', 16, 23 + hdy, { size: 7 });
+    if (Q.L.open) { const hd = holdOf(Q.me || P); txt(sv('Hold ', 'Khoang ') + hd.n + '/' + holdCap() + '   ' + sv('Fish stock ', 'Kho cá ') + save.fishBank, 12, 34 + hdy, { size: 6, col: '#9fe8ff' }); }
     if (Q.B.water && Q.L.waterY !== undefined && P.y > Q.L.waterY * TS) txt(sv('Depth ', 'Độ sâu ') + depthM(P.y) + ' m', VW / 2, 8, { al: 'center', size: 6, col: '#bfeaff' });
     drawRareIc(78, 22 + hdy, 0.8); txt('x' + save.rare, 84, 23 + hdy, { size: 7, col: '#d8b8ff' }); txt(sv('B: bag/shop', 'B: túi đồ/shop'), 104, 23 + hdy, { size: 5, col: '#8892aa' });
     if (P.shield) { g.fillStyle = '#6ee7f2'; g.fillRect(12 + 3 * 11 + 6, 38 + hdy, 6, 7); g.fillStyle = '#fff'; g.fillRect(12 + 3 * 11 + 8, 40 + hdy, 2, 3); }
@@ -4991,9 +5044,11 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (st === 'intro') {
       const a = Q.stateT < 0.4 ? Q.stateT / 0.4 : (Q.stateT > 2.1 ? Math.max(0, (2.6 - Q.stateT) / 0.5) : 1);
       g.globalAlpha = 0.55 * a; g.fillStyle = '#000'; g.fillRect(0, 70, VW, 66); g.globalAlpha = 1;
+      if (Q.L.open) { txt(sv('THE OPEN SEA', 'BIỂN KHƠI'), VW / 2, 88, { al: 'center', size: 8, col: '#ffd34e', alpha: a }); txt(sv('Open Sea', 'Biển Khơi'), VW / 2, 104, { al: 'center', size: 16, alpha: a, bold: true }); txt(sv('Sail out, fish, and bring the catch home', 'Ra khơi, câu cá, mang chiến lợi phẩm về cảng'), VW / 2, 122, { al: 'center', size: 7, col: '#cfd6e6', alpha: a }); }
+      else {
       txt((save.lang === 'vi' ? 'MÀN ' : 'LEVEL ') + (LPOS(Q.li) + 1), VW / 2, 88, { al: 'center', size: 8, col: '#ffd34e', alpha: a });
       txt(LN(Q.B.name), VW / 2, 104, { al: 'center', size: 16, alpha: a, bold: true });
-      txt(LN(Q.B.sub), VW / 2, 122, { al: 'center', size: 7, col: '#cfd6e6', alpha: a });
+      txt(LN(Q.B.sub), VW / 2, 122, { al: 'center', size: 7, col: '#cfd6e6', alpha: a }); }
     } else if (st === 'travel' && Q.trav) { drawTravel();
     } else if (st === 'pause') {
       g.fillStyle = 'rgba(5,3,15,.7)'; g.fillRect(0, 0, VW, VH);
@@ -7024,8 +7079,9 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       if (d.t === 'gift') { save.leek = true; grantLeek(); grantLyraGifts(); writeSave(); NET.send({ t: 'inv', inv: { w: save.inv.w.slice(), armor: save.inv.armor, pet: save.inv.pet, own: save.inv.own.slice() } }); if (Q) { Q.msg = save.lang === 'vi' ? 'Lyra tặng bạn Kiếm Hành, Giáp Hành và Cây Hành Bay! Mở túi (B) để trang bị.' : 'Lyra gave you the Leek Blade, Leek Armor and Flying Leek! Open your bag (B) to equip.'; Q.msgT = 6; } Snd.play('relic'); }
       else if (d.t === 'welcome') { coop.me = d.slot; coopUI.ph = 'lobby'; coopUI.msg = ''; }
       else if (d.t === 'lobby') { coopUI.slots = d.slots; coopUI.li = d.li; coopUI.code = d.code; if (scene === 'play') { coopUI.ph = 'lobby'; toScene('coop'); } }
-      else if (d.t === 'start') { coopUI.li = LPOS(d.li); coop.objs.clear(); startLevel(d.li); Q.client = true; Q.players = []; Q.state = 'intro'; scene = 'play'; }
+      else if (d.t === 'start') { coopUI.li = LPOS(d.li); coop.objs.clear(); startLevel(d.li, d.v); Q.client = true; Q.players = []; Q.state = 'intro'; scene = 'play'; }
       else if (d.t === 's') { if ((scene === 'play' || scene === 'shop') && Q) coopApply(d); }
+      else if (d.t === 'fishin') { const n = bankFish(d.sp || {}); if (Q) { Q.msg = cvs('Unloaded ' + n + ' fish. Fish stock: ' + save.fishBank, 'Dỡ ' + n + ' con cá. Kho cá: ' + save.fishBank); Q.msgT = 4; } Snd.play('chime'); }
       else if (d.t === 'rare') { save.rare++; writeSave(); if (Q) { Q.msg = cvs('Star Gem! You have ', 'Ngọc Sao! Bạn có ') + save.rare + cvs('.', ' viên.'); Q.msgT = 3; } }
       else if (d.t === 'full') coopLeave(cvs('The room is full (5 players).', 'Phòng đã đủ 5 người.'));
       else if (d.t === 'busy') coopLeave(cvs('That room is already playing. Try again later.', 'Phòng đang chơi. Hãy thử lại sau.'));
@@ -7106,8 +7162,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }
     return out;
   }
-  function coopStart() {
-    const li = LORDER[coopUI.li] === undefined ? 0 : LORDER[coopUI.li]; startLevel(li); Q.state = 'intro';
+  function coopStart(li0, v) {   // (from the lobby; or with a map, when the host sails to another sea in the middle of a game)
+    const li = li0 !== undefined ? li0 : (LORDER[coopUI.li] === undefined ? 0 : LORDER[coopUI.li]); startLevel(li, v); Q.state = 'intro';
     coop.seen = {}; coop.last = new Map(); coop.vlast = {}; coop.grid = []; coop.nid = 0;
     const P = Q.P; P.slot = 0; setHero(P, myHero()); Q.me = P; Q.players = [P];
     for (const [id, pr] of coop.peers) {
@@ -7118,7 +7174,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       setHero(p, pr.hero); pr.pl = p; Q.players.push(p);
     }
     Q.players.sort((a, b) => a.slot - b.slot);
-    NET.send({ t: 'start', li });
+    NET.send({ t: 'start', li, v });
+    if (li0 !== undefined) return;
     const intro = !coop.introDone; coop.introDone = true;
     startScripted('narr', (intro ? COOP_INTRO : []).concat(COOP_MAP[li] || []), null);
   }
@@ -9663,7 +9720,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       fade += dt / 0.25;
       if (fade >= 1) {
         const f = fadeTo; fadeTo = null; fade = 1; fadeIn = 1;
-        if (f.indexOf('play:') === 0) startLevel(parseInt(f.substr(5), 10)); else enterScene(f);
+        if (f.indexOf('play:') === 0) { const pr = f.substr(5).split(':'); startLevel(parseInt(pr[0], 10), pr[1] || null); } else enterScene(f);
       }
       clearPressed();
     } else {

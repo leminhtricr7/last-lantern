@@ -363,12 +363,65 @@ function genOcean(B, li) {
   L.endX = W * TS;
   for (let xx = 22; xx <= 27; xx++) set(xx, WY, '=');   // phase 5 (A4): a little wooden pier past the shore's NPCs, to fish from and to board the boat
   L.fishSpots = [{ id: L.id++, x: 25, y: WY, bx: 30, by: WY }];
-  L.sea = { surface: WY * TS, moor: 34, minX: 33, maxX: 71, trigX: 52, safeX: 44, band0: WY - 4, band1: 25, pierEnd: 27.5 };   // the boat's mooring and range; the sea beast's trigger and the safe distance (in tiles)
+  L.sea = { surface: WY * TS, moor: 34, minX: 33, maxX: 71, trigX: 52, safeX: 44, band0: WY - 4, band1: 25, pierEnd: 27.5, toOpen: true };   // the boat's mooring and range; the sea beast's trigger and the safe distance (in tiles)
   addBreakables(L, li);
   return L;
 }
 
-function genLevel(li) {
+// ============ THE OPEN SEA (phase 6): a very wide sea map you sail across. Same ocean biome, but its own level: the Sunken Deep above stays as it was ============
+// A harbour in the west (land + a long pier), then three zones by distance: the Bay (safe, small fish), the Windy Sea (monsters) and the Far Deep
+// (rare fish, the boss later). Islands are arches: you can walk on top, and the boat sails through the water under them.
+function genKhoi(B, li) {
+  const rnd = mulberry32(6060 + li), R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+  const W = 720, H = 96, WY = 14, ZONES = [160, 440];
+  const grid = []; for (let y = 0; y < H; y++) grid.push(new Array(W).fill(' '));
+  const L = { B, li, W, H, grid, vines: [], spawns: [], plats: [], decor: [], checkpoints: [], gates: [], xwalls: [], trials: [], dragons: [], minis: [], dark: [], creep: [], id: 0, waterY: WY, currents: [], nooks: [] };
+  const set = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) grid[y][x] = c; };
+  const rect = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) set(x, y, c); };
+  const spawn = (type, tx, ty, ex) => { L.spawns.push(Object.assign({ id: L.id++, type, x: tx * TS + TS / 2, y: ty * TS }, ex)); };
+  const cp = (tx, ty) => L.checkpoints.push({ x: tx * TS + TS / 2, y: ty * TS, id: L.id++ });
+  // the seabed profile: shallow in the harbour and the Bay, deeper out to sea, a trench near the end
+  const ANCH = [[45, 20], [80, 44], [160, 52], [220, 64], [440, 74], [520, 82], [600, 84], [640, 92], [690, 92], [715, 80]];
+  const base = x => { for (let i = 1; i < ANCH.length; i++) if (x <= ANCH[i][0]) { const a = ANCH[i - 1], b = ANCH[i], t = (x - a[0]) / (b[0] - a[0]); return a[1] + (b[1] - a[1]) * t; } return 80; };
+  const bed = []; for (let x = 0; x < W; x++) bed.push(x <= 44 ? WY : Math.min(H - 3, Math.round(base(x) + 2.2 * Math.sin(x * 0.11) + 1.6 * Math.sin(x * 0.037 + 2))));
+  for (let x = 0; x < W; x++) rect(x, bed[x], x, H - 1, '#');
+  rect(0, 0, 2, H - 1, '#'); rect(W - 3, 0, W - 1, H - 1, '#');
+  // the harbour: land, a long pier, a lamp-lit quay
+  rect(3, WY, 44, H - 1, '#'); for (let x = 45; x <= 58; x++) set(x, WY, '=');
+  cp(20, WY); spawn('heart', 24, WY - 2); for (let i = 0; i < 5; i++) spawn('coin', 12 + i * 2, WY - 2);
+  for (let i = 0; i < 6; i++) L.decor.push({ x: (6 + i * 6) * TS + R(0, 8), y: WY * TS, k: R(0, B.decor.length - 1) });
+  L.start = { x: 14 * TS, y: WY * TS };
+  L.fishSpots = [{ id: L.id++, x: 55, y: WY, bx: 60, by: WY }];
+  // islands: an arch you can climb over, with the lagoon passage for the boat underneath and a ledge ladder at both ends
+  const ISL = [[128, 7], [214, 8], [304, 9], [398, 8], [508, 9], [622, 10]], ISL_CP = { 1: 1, 3: 1, 5: 1 };
+  ISL.forEach((s, k) => {
+    const c = s[0], hw = s[1], top = WY - 7;
+    for (let x = c - hw; x <= c + hw; x++) {
+      rect(x, top, x, WY - 4, '#');
+      rect(x, WY - 3, x, WY + 3, ' ');                      // the passage under the arch
+      const cw = hw - 2; for (let y = WY + 4; y < bed[x]; y++) { const w = Math.max(2, cw - Math.floor((y - WY - 4) * 0.4)); if (Math.abs(x - c) <= w) set(x, y, '#'); }   // the rock stalk below
+    }
+    for (const sd of [-1, 1]) for (const [row, o] of [[WY - 2, hw + 2], [WY - 4, hw + 1], [WY - 6, hw + 1]]) { set(c + sd * o, row, '='); set(c + sd * (o + 1), row, '='); }   // a ledge ladder at both ends (about 2 tiles per step)
+    for (let x = c - hw + 1; x <= c + hw - 1; x++) if (rnd() < 0.35) L.decor.push({ x: x * TS + R(0, 8), y: (top) * TS, k: R(0, B.decor.length - 1) });
+    for (let i = 0; i < 6; i++) spawn('coin', c - 5 + i * 2, top - 2);
+    if (ISL_CP[k]) cp(c, top); else spawn('heart', c, top - 2);
+  });
+  // creatures: the Bay is empty on purpose; swimmers and bottom crawlers get thicker with distance
+  const put = (type, x0, x1, n, y0, y1) => { for (let i = 0; i < n; i++) for (let t = 0; t < 16; t++) { const x = R(x0, x1), y = R(y0, y1); if (grid[y] && grid[y][x] === ' ' && (!grid[y + 1] || grid[y + 1][x] === ' ')) { spawn(type, x, y); break; } } };
+  const crawl = (type, x0, x1, n) => { for (let i = 0; i < n; i++) { const x = R(x0, x1); if (grid[bed[x] - 1][x] === ' ') spawn(type, x, bed[x] - 1); } };
+  put('jelly', ZONES[0], ZONES[1], 10, WY + 6, 50); put('piranha', ZONES[0] + 10, ZONES[1], 8, WY + 6, 50); crawl('crab', 90, ZONES[1], 10);
+  put('jelly', ZONES[1], W - 20, 10, WY + 6, 70); put('piranha', ZONES[1], W - 20, 8, WY + 8, 70); put('eel', ZONES[1] + 10, W - 20, 12, WY + 10, 80); crawl('crab', ZONES[1], W - 20, 8); crawl('seaslime', ZONES[1], W - 20, 6);
+  // plants on the seabed; the buoys (checkpoints) sit on the islands
+  for (let x = 60; x < W - 30; x += 3) if (rnd() < 0.12 && grid[bed[x] - 1][x] === ' ') L.decor.push({ x: x * TS + R(0, 8), y: bed[x] * TS, k: R(0, B.decor.length - 1) });
+  L.arena = { x0: W - 2, x1: W - 1, gy: H - 2, y0: H - 8 };   // never reachable: the open sea has no boss arena yet, but the rest of the game expects one
+  L.endX = W * TS;
+  L.sea = { surface: WY * TS, moor: 64, minX: 60, maxX: W - 8, trigX: 200, safeX: 165, band0: WY - 4, band1: 40, pierEnd: 58.5 };
+  L.open = { id: 'khoi', portX: 72, zones: ZONES, gateX: 8, gateY: WY };
+  return L;
+}
+
+function genLevel(li, sea) {
+  if (li === 8 && sea === 'khoi') return genKhoi(BIOMES[li], li);
   if (li === 8) return genOcean(BIOMES[li], li);
   const B = BIOMES[li], rnd = mulberry32(9001 + li * 7919), lv = LDIFF(li);
   const R = (a, b) => a + Math.floor(rnd() * (b - a + 1));

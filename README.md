@@ -687,3 +687,17 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   back to the ground. Measured on the real physics and re-checked on every map (`tools/bot2.js` is an assisted autoplayer that
   tags any stall inside a side room). The "unlock by a skill picked up later, with a return trip to an old map" kinds were not
   built, on purpose: they would change the story order and the co-op join rules.
+
+## The Open Sea (phase 6, step 1: foundation)
+A new, very wide sea map (`genKhoi` in `src/levels.js`, 720 x 96 tiles) that uses the ocean's look but is its own level
+(`startLevel(8, 'khoi')`, `L.open`): the Sunken Deep and Oktavor are untouched. You reach it by sailing east in the Sunken Deep
+(hold RIGHT at the edge of the boat's range for 1.2 s); the arch at the harbour's west end (E) sails back. The harbour is in the
+west (land, a long pier, a checkpoint), then three zones by distance: the Bay (x < 160, empty), the Windy Sea (160-440) and the
+Far Deep (440+). Six islands are arches you can climb over (ledge ladders at both ends) while the boat sails through the water
+under them; three of them carry a checkpoint (buoy). The old sea beast still lurks from x 200 on (zones get their own monsters in
+a later step).
+Catches on the open sea go into the boat's hold (30 fish, one bin per player), not into the pockets: sail back to the harbour
+(x <= 72) and the host unloads each bin into its owner's save (`save.fishBank` = fish to spend later, `save.fishCnt` = per species,
+`save.fishTot`); a guest's bin is sent to the guest. A full hold blocks casting. A wrecked boat loses 25% of the hold.
+Old saves just get the three new fields at 0. Nothing in the Sunken Deep's fishing or rewards changed. Exchange shops, new fish,
+fishing minigames, upgrades, boss etc. come in the next steps (see `De_xuat_dai_duong_GD6.docx`).
