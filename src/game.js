@@ -2842,7 +2842,7 @@
   function giveCatch(P, f) {
     const x = P.x + 4 + P.face * 8, y = P.y, r = Math.random(), mine = isMe(P);
     const drop = (kind, ex) => Q.items.push(Object.assign({ kind, x, y, id: -1, vy: -rr(80, 140), vx: rr(-25, 25), ph: 0, drop: true }, ex || {}));
-    const say = (en, vi, col) => { pop(P.x + 4, P.y - 22, sv(en, vi), col || '#9fe8ff'); if (mine) { Q.msg = sv(en, vi); Q.msgT = 3; } };
+    const say = (en, vi, col) => { if (mine) { Q.msg = sv(en, vi); Q.msgT = 3; } else pop(P.x + 4, P.y - 22, sv(en, vi), col || '#9fe8ff'); };   // you read it in the message bar; your friends see it floating over your head
     const maxh = P.mhp || maxHP();
     if (r < 0.42) { const n = 3 + ((Math.random() * 4) | 0); for (let i = 0; i < n; i++) drop('coin'); say('A fat fish! Sold for ' + n + ' coins.', 'Cá to! Bán được ' + n + ' xu.'); }
     else if (r < 0.52) { drop('coin'); say('An old boot... and a coin inside!', 'Một chiếc ủng cũ... có một đồng xu bên trong!'); }
