@@ -679,3 +679,11 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   your lantern. No stats. The generator only marks bushes, jars and chests (`addQuestSources`, `q = k`), so maps are the same
   whatever the save says. Progress is `save.quests[li] = { s, n, got }` (optional; old saves have none) and `save.lantern9`;
   in co-op the host's save keeps it. The pause menu shows the ember count.
+- Skill rooms (phase 5, G, the light kind): bonus chests you can SEE from the path but only reach with a skill you already
+  have, placed on the generator's reserved flat stretches (`extraRoom`, kinds `hop` and `dashgap`). Hop ledge (every land map):
+  a chest on a ledge 5 tiles up: a single jump reaches 52 px, a double jump 93 px. Dash gap (from the Sunscorch Desert on,
+  where dash is unlocked): a launch platform 3 tiles up (one jump from the ground) and an island with a chest across 9 tiles
+  of air, with a coin trail showing the way: a double jump covers 6 tiles, a dash after it reaches 11. Falling just drops you
+  back to the ground. Measured on the real physics and re-checked on every map (`tools/bot2.js` is an assisted autoplayer that
+  tags any stall inside a side room). The "unlock by a skill picked up later, with a return trip to an old map" kinds were not
+  built, on purpose: they would change the story order and the co-op join rules.

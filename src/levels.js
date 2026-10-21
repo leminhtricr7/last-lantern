@@ -201,7 +201,7 @@ function addSecretRooms(L, li) {
   const busy = x => L.spawns.some(sp => KEEP.has(sp.type) && Math.abs(sp.x / TS - x) < 6) || L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 7)
     || (L.nooks || []).some(n => Math.abs(n.x - x) < 10) || L.gates.some(gd => Math.abs(gd.x - x) < 8) || (L.secretRooms || []).some(r => Math.abs(r.x - x) < 14)
     || [].concat(L.trials || [], L.minis || [], L.dragons || []).some(t => x > t.lw - 8 && x < t.rw + 8)   // never inside a sealed trial or duel arena
-    || (L.crateRooms || []).some(r => x > r.x0 - 8 && x < r.x0 + 20) || (L.stairs || []).some(r => x > r.x0 - 8 && x < r.x0 + 22) || (L.ponds || []).some(r => x > r.x0 - 10 && x < r.x1 + 8);
+    || (L.crateRooms || []).some(r => x > r.x0 - 8 && x < r.x0 + 20) || (L.stairs || []).some(r => x > r.x0 - 8 && x < r.x0 + 22) || (L.ponds || []).some(r => x > r.x0 - 10 && x < r.x1 + 8) || (L.skill || []).some(r => x > r.x0 - 8 && x < r.x1 + 8);
   L.secretRooms = []; L.covers = L.covers || [];
   const done = [false, false, false];
   for (let pass = 0; pass < 2; pass++) for (let k = 0; k < 3; k++) {
@@ -236,7 +236,10 @@ function addSecretRooms(L, li) {
 //  - lever stair: a chest sits on a ledge too high to jump to (128 px; a double jump reaches 93); the lever on the ground
 //    builds a staircase up to it.
 const CRATE_MAPS = { 2: 1, 3: 1, 4: 1, 9: 1, 6: 2 }, STAIR_MAPS = { 3: 1, 4: 1, 5: 1, 7: 1, 9: 1, 6: 2 };
-const POND_MAPS = { 7: 2 };   // phase 5 (A4): two small ponds to fish in on the swamp (the Sunken Deep has its shore)
+const POND_MAPS = { 7: 2 };
+// phase 5 (G, the light kind): bonus rooms you can SEE from the path but only enter with a skill you already have. Measured on the
+// real physics: a double jump reaches 93 px (single 52) and 6 tiles of flat gap; a dash after it reaches 11 tiles.
+const HOP_MAPS = { 0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 7: 1, 9: 1, 6: 1 }, DASH_MAPS = { 3: 1, 4: 1, 5: 1, 7: 1, 9: 1, 6: 1 };   // dash is unlocked from the Sunscorch Desert on   // phase 5 (A4): two small ponds to fish in on the swamp (the Sunken Deep has its shore)
 
 // ============ phase 5 (E): where each map's side-quest items hide ============
 // Marks existing objects (bushes, pots, chests) with `q = k`; the game turns them into quest items only while that quest is
@@ -707,15 +710,24 @@ function genLevel(li) {
   }
 
   // phase 5 (A2, A5): a reserved flat stretch with a crate vault or a lever stair (see the comment above CRATE_MAPS)
-  L.crateRooms = []; L.stairs = []; L.ponds = []; L.fishSpots = [];
+  L.crateRooms = []; L.stairs = []; L.ponds = []; L.fishSpots = []; L.skill = [];
   function extraRoom(kind) {
     if (kind === 'stair' && gy < 10) gy = 10;   // the ledge is 8 tiles up and needs a tile of headroom
-    const x0 = x, W = kind === 'crate' ? 18 : (kind === 'pond' ? 17 : 19);
+    const x0 = x, W = kind === 'crate' ? 18 : (kind === 'pond' ? 17 : (kind === 'hop' ? 16 : (kind === 'dashgap' ? 25 : 19)));
     flat(W, { safe: true });
     L.spawns = L.spawns.filter(sp => !((sp.type === 'coin' || sp.type === 'heart' || sp.type === 'pk') && sp.x / TS >= x0 - 1 && sp.x / TS <= x0 + W));
     L.decor = L.decor.filter(d => !(d.x / TS >= x0 - 1 && d.x / TS <= x0 + W));
     const y = gy, chest = (k, tx, ty) => L.spawns.push({ id: L.id++, type: 'chest', k, x: tx * TS + TS / 2, y: ty * TS });
-    if (kind === 'pond') {   // a pond one tile deep (walkable, just wet-looking) with a fishing post at its edge
+    if (kind === 'hop') {   // a chest on a ledge 5 tiles up: out of reach of a single jump (52 px), within a double jump (93 px)
+      for (let i = 5; i <= 10; i++) set(x0 + i, y - 5, '=');
+      chest(6, x0 + 8, y - 5); for (let i = 0; i < 3; i++) spawn('coin', x0 + 7 + i, y - 7);
+      L.skill.push({ x0, x1: x0 + W, k: 'hop' });
+    } else if (kind === 'dashgap') {   // a chest on an island across 9 tiles of air: a double jump covers 6, a dash after it reaches 11
+      for (let i = 3; i <= 6; i++) set(x0 + i, y - 3, '=');
+      for (let i = 16; i <= 20; i++) set(x0 + i, y - 3, '=');
+      chest(7, x0 + 18, y - 3); for (let i = 0; i < 5; i++) spawn('coin', x0 + 8 + i * 2, y - 6 - (i === 2 ? 1 : 0));   // a trail of coins across the gap
+      L.skill.push({ x0, x1: x0 + W, k: 'dash' });
+    } else if (kind === 'pond') {   // a pond one tile deep (walkable, just wet-looking) with a fishing post at its edge
       for (let i = 6; i <= 11; i++) set(x0 + i, y, ' ');
       L.ponds.push({ x0: x0 + 6, x1: x0 + 11, y });
       L.fishSpots.push({ id: L.id++, x: x0 + 3, y, bx: x0 + 8, by: y });
@@ -746,7 +758,7 @@ function genLevel(li) {
   const pzAt = pzList.map((t, i) => (t === 'dragon' && li === 0) ? 70 : Math.floor(B.len * (0.14 + 0.7 * (i + 0.5) / pzList.length)));
   let nextCp = 42, placed = 0, tierN = 0, vineN = 0;
   const shardAt = [0.2, 0.5, 0.76].map(f => Math.floor(B.len * f));
-  const exList = [].concat(Array(CRATE_MAPS[li] || 0).fill('crate'), Array(STAIR_MAPS[li] || 0).fill('stair'), Array(POND_MAPS[li] || 0).fill('pond')).sort((p, q) => (p < q ? 1 : -1)).map((k, i, arr) => ({ k, at: Math.floor(B.len * (0.3 + 0.4 * (i + 0.5) / arr.length)) })); let exIdx = 0;   // phase 5
+  const exList = [].concat(Array(CRATE_MAPS[li] || 0).fill('crate'), Array(STAIR_MAPS[li] || 0).fill('stair'), Array(POND_MAPS[li] || 0).fill('pond'), Array(HOP_MAPS[li] || 0).fill('hop'), Array(DASH_MAPS[li] || 0).fill('dashgap')).sort((p, q) => (p < q ? 1 : -1)).map((k, i, arr) => ({ k, at: Math.floor(B.len * (0.3 + 0.4 * (i + 0.5) / arr.length)) })); let exIdx = 0;   // phase 5
   while (x < B.len - 16) {
     if (x > nextCp) { const ax = x; flat(6, { safe: true, cp: true, heart: rnd() < 0.5 }); if (plan.cps && cpNpcIdx < plan.cps.length) { spawn('npc', ax + 4, gy, { who: plan.cps[cpNpcIdx++] }); } nextCp = x + R(38, 52); continue; }
     if (li === 7 && vineN < 5 && x > B.len * (0.08 + 0.15 * vineN)) { vineGap(); vineN++; continue; }   // at least five vine crossings in the swamp
@@ -827,10 +839,10 @@ function genLevel(li) {
   { const rn = mulberry32(777 + li * 131), endX = (L.arena ? L.arena.x0 : W) - 8, nooks = [];
     const SOL = c => c === '#' || c === 'I', topOf = x => { for (let y = 3; y < H - 1; y++) if (SOL(L.grid[y][x])) return L.grid[y - 1][x] === ' ' ? y : -1; return -1; };
     const busy = x => L.spawns.some(sp => Math.abs(sp.x / TS - x) < 4) || L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 5)
-      || L.crateRooms.some(r => x > r.x0 - 9 && x < r.x0 + 19) || L.stairs.some(r => x > r.x0 - 4 && x < r.x0 + 21) || L.ponds.some(r => x > r.x0 - 10 && x < r.x1 + 8);   // phase 5: never dig a fake floor under a crate vault or a stair
+      || L.crateRooms.some(r => x > r.x0 - 9 && x < r.x0 + 19) || L.stairs.some(r => x > r.x0 - 4 && x < r.x0 + 21) || L.ponds.some(r => x > r.x0 - 10 && x < r.x1 + 8) || L.skill.some(r => x > r.x0 - 9 && x < r.x1 + 8);   // phase 5: never dig a fake floor under a crate vault or a stair
     for (let part = 0; part < 3; part++) {
       const a = Math.floor(20 + (endX - 20) * part / 3), b = Math.floor(20 + (endX - 20) * (part + 1) / 3);
-      for (let tries = 0; tries < 400; tries++) {   // phase 5 (C): 40 tries left four maps with only two nooks
+      for (let tries = 0; tries < 2500; tries++) {   // phase 5 (C): 40 tries left four maps with only two nooks; the extra rooms of phase 5 use flat ground too
         const x0 = a + Math.floor(rn() * Math.max(1, b - a - 6)), y = topOf(x0); if (y < 0 || y + 3 > H - 1) continue;
         let ok = true; for (let i = 0; i < 5 && ok; i++) { if (topOf(x0 + i) !== y) ok = false; for (let k = 0; k < 4 && ok; k++) if (!SOL(L.grid[y + k][x0 + i])) ok = false; }
         if (!ok || busy(x0 + 2)) continue;
