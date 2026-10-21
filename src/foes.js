@@ -213,3 +213,35 @@ NPC_PAINT.npc_bard = [20, 28, P => { // Lirio the wandering bard
   P.rect(5, 12, 10, 10, '#3a8a5a'); P.rect(5, 12, 10, 2, '#ffd34e'); P.ell(15, 17, 4, 3, '#c8844a'); P.ell(15, 17, 2, 1, '#5a3a22'); P.line(15, 15, 19, 10, '#8a6a44', 1);
   P.rect(6, 22, 3, 6, '#5a3a22'); P.rect(11, 22, 3, 6, '#5a3a22');
 }];
+
+// ---------------- the Harbour of the Open Sea (phase 6): a smith, a gunsmith, a mount trainer and the harbourmaster ----------------
+NPC_PAINT.npc_neo = [22, 30, P => { // Old Anchor: a one-armed old sailor who forges blades from fish bones
+  P.rect(5, 1, 12, 3, '#1e2a4a'); P.rect(4, 4, 14, 1, '#8a7a5a'); P.px(11, 2, '#ffd34e');
+  P.ell(11, 9, 5, 4, '#e8b088'); P.px(9, 8, 'k'); P.px(13, 8, 'k'); P.rect(10, 10, 3, 1, '#c07a6a');
+  P.ell(11, 13, 5, 4, '#d8dce8'); P.rect(8, 11, 7, 3, '#d8dce8'); P.px(10, 12, '#a8aec0');
+  P.rect(5, 16, 12, 10, '#2a4a7a'); P.rect(5, 16, 12, 2, '#4a6a9a'); P.px(11, 19, '#ffd34e'); P.px(11, 22, '#ffd34e'); P.rect(5, 23, 12, 1, '#14203a');
+  P.rect(17, 17, 3, 8, '#2a4a7a'); P.rect(18, 24, 2, 2, '#e8b088'); P.rect(3, 18, 2, 6, '#2a4a7a'); P.px(4, 18, '#ffd34e');
+  P.rect(1, 21, 1, 7, '#cfd6e6'); P.rect(0, 20, 3, 1, '#8a6a44'); P.rect(7, 26, 3, 4, '#3a2a1a'); P.rect(12, 26, 3, 4, '#3a2a1a');
+}];
+NPC_PAINT.npc_nong = [20, 26, P => { // Little Barrel: a twelve-year-old gunsmith with goggles and soot on her cheek
+  P.rect(3, 6, 2, 8, '#6a3a1a'); P.rect(15, 6, 2, 8, '#6a3a1a'); P.ell(10, 7, 6, 5, '#7a4a22');
+  P.ell(10, 10, 4, 4, '#f2c394'); P.px(8, 10, 'k'); P.px(12, 10, 'k'); P.rect(9, 12, 3, 1, '#c8584e'); P.px(13, 12, '#4a4a4a'); P.px(14, 11, '#4a4a4a');
+  P.rect(5, 4, 10, 3, '#4a4a58'); P.ell(7, 5, 2, 2, '#6ee7f2'); P.ell(13, 5, 2, 2, '#6ee7f2'); P.px(6, 4, '#fff');
+  P.rect(4, 14, 12, 8, '#e8782a'); P.rect(4, 14, 12, 2, '#ffa04a'); P.rect(9, 15, 2, 7, '#8a3a10'); P.rect(2, 16, 2, 5, '#e8782a'); P.rect(16, 16, 2, 5, '#e8782a');
+  P.rect(16, 19, 4, 2, '#5a5a6a'); P.rect(19, 18, 1, 2, '#ffd34e'); P.rect(6, 22, 3, 4, '#3a2a1a'); P.rect(11, 22, 3, 4, '#3a2a1a');
+}];
+NPC_PAINT.npc_vay = [22, 30, P => { // Old Scale: a gentle half-fish man who talks to sea beasts like friends
+  P.tri(5, 7, 2, 4, 6, 3, '#3a9aa8'); P.tri(17, 7, 20, 4, 16, 3, '#3a9aa8');
+  P.ell(11, 9, 5, 5, '#4ab0b8'); P.ell(11, 10, 4, 4, '#7ad0c8'); P.px(9, 9, 'k'); P.px(13, 9, 'k'); P.px(9, 9, '#14101c'); P.rect(10, 12, 3, 1, '#2a6a78');
+  P.px(8, 7, '#a8f0e0'); P.px(12, 6, '#a8f0e0'); P.px(14, 8, '#a8f0e0');
+  P.rect(5, 15, 12, 11, '#5a4a7a'); P.rect(5, 15, 12, 2, '#7a6a9a'); P.rect(9, 15, 4, 11, '#e8d8a0'); P.px(11, 18, '#8a6a44'); P.px(11, 21, '#8a6a44');
+  P.rect(2, 17, 3, 7, '#4ab0b8'); P.rect(17, 17, 3, 7, '#4ab0b8'); P.rect(1, 23, 4, 2, '#7ad0c8'); P.rect(17, 23, 4, 2, '#7ad0c8');
+  P.rect(7, 26, 3, 4, '#3a2a4a'); P.rect(12, 26, 3, 4, '#3a2a4a'); P.rect(6, 29, 5, 1, '#4ab0b8'); P.rect(11, 29, 5, 1, '#4ab0b8');
+}];
+NPC_PAINT.npc_beacon = [22, 30, P => { // Harbourmaster Beacon: a lantern-yellow cloak, a lamp on her hat and the harbour's logbook
+  P.rect(8, 0, 6, 2, '#ffd34e'); P.rect(9, 1, 4, 1, '#fff6c0'); P.rect(5, 2, 12, 3, '#2a3a5a'); P.rect(4, 4, 14, 1, '#14203a');
+  P.ell(11, 9, 5, 4, '#f2c394'); P.px(9, 9, 'k'); P.px(13, 9, 'k'); P.rect(10, 11, 3, 1, '#c8584e');
+  P.ell(11, 5, 6, 2, '#e8e8f0'); P.ell(17, 8, 2, 3, '#e8e8f0'); P.ell(5, 8, 2, 3, '#e8e8f0');
+  P.rect(4, 14, 14, 12, '#e8b82a'); P.rect(4, 14, 14, 2, '#ffd34e'); P.rect(10, 14, 2, 12, '#a87a10'); P.rect(2, 16, 3, 8, '#e8b82a'); P.rect(17, 16, 3, 8, '#e8b82a');
+  P.rect(16, 20, 5, 4, '#6a3a22'); P.rect(17, 21, 3, 2, '#f6f3e9'); P.rect(6, 26, 4, 4, '#2a3a5a'); P.rect(12, 26, 4, 4, '#2a3a5a');
+}];

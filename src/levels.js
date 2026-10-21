@@ -388,7 +388,7 @@ function genKhoi(B, li) {
   rect(0, 0, 2, H - 1, '#'); rect(W - 3, 0, W - 1, H - 1, '#');
   // the harbour: land, a long pier, a lamp-lit quay
   rect(3, WY, 44, H - 1, '#'); for (let x = 45; x <= 58; x++) set(x, WY, '=');
-  cp(20, WY); spawn('heart', 24, WY - 2); for (let i = 0; i < 5; i++) spawn('coin', 12 + i * 2, WY - 2);
+  cp(20, WY); spawn('heart', 22, WY - 2); spawn('npc', 27, WY, { who: 'neo' }); spawn('npc', 31, WY, { who: 'nong' }); spawn('npc', 35, WY, { who: 'vay' }); spawn('npc', 39, WY, { who: 'beacon' }); for (let i = 0; i < 5; i++) spawn('coin', 12 + i * 2, WY - 2);
   for (let i = 0; i < 6; i++) L.decor.push({ x: (6 + i * 6) * TS + R(0, 8), y: WY * TS, k: R(0, B.decor.length - 1) });
   L.start = { x: 14 * TS, y: WY * TS };
   L.fishSpots = [{ id: L.id++, x: 55, y: WY, bx: 60, by: WY }];

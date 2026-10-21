@@ -730,3 +730,16 @@ need weather) are colour variants that count as 1 fish: +3 coins per rank for Sh
 minigame, count and mutants.
 Honest note: these are template-made sprites (consistent style, but less hand-finished than an artist's work); rays, the wyrm and
 a few small shells are the weakest. Loop seams of a few idle cycles are slightly uneven.
+
+## The harbour people and the fish exchange (phase 6, step 4)
+Four people stand on the Open Sea's quay (`genKhoi`): **Old Anchor** (Ông Neo, a one-armed sailor who forges swords), **Little Barrel**
+(Cô Nòng, a twelve-year-old gunsmith), **Old Scale** (Bác Vảy, a half-fish man who keeps the sea mounts) and **Harbourmaster Beacon**
+(Cảng trưởng Hải Đăng, who keeps the fish book). Each has a painted sprite that is also their dialogue portrait, and bilingual dialogue that
+changes with your progress (`harborLines`). After talking, the first three open the **exchange counter** (`EXCH` in `src/game.js`: ranked
+rows with price, description and OWNED / SOON / not-enough states); Beacon opens the fish book. Any fish counts as 1: prices are the
+approved ones (swords 100, 300, 800, 800, 1000; guns 5 x 100 and 5 x 1000; mounts 4 x 800 and 900 = 12,600). A purchase takes fish from
+`save.fishBank` and adds the id to `save.inv.own`. The gear is built in steps 5-7: until an item exists its row says "coming soon" (the row
+ids are already reserved: bonefin, spikejaw, squallbrand, anchorblade, rimetide; harpoon, inkshot, bubblegun, clawcannon, brinescatter,
+tidewarden, typhoon, mirrorfin, warpgill, stillwater; m_warseahorse, m_galeray, m_bulwark, m_voltdolphin, m_wyrmfin).
+Co-op: only the player who talks (solo or the host) trades, because a guest's fish stock lives in their own save; a guest who talks just hears
+the dialogue. While the host browses the book or the counter the world waits, as with the other shops.

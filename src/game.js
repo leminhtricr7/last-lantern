@@ -197,6 +197,10 @@
     bram: { spr: 'npc_bram', name: { en: 'Captain Bram', vi: 'Đội trưởng Bram' } },
     gob: { spr: 'npc_gob', name: { en: 'Gob the Swamp Goblin', vi: 'Gob Yêu Tinh Đầm Lầy' }, shop: true },
     angel: { spr: 'npc_angel', name: { en: 'Seraph', vi: 'Thiên thần Seraph' }, bless: true },
+    neo: { spr: 'npc_neo', name: { en: 'Old Anchor', vi: 'Ông Neo' }, xshop: 'neo', dyn: 'neo' },
+    nong: { spr: 'npc_nong', name: { en: 'Little Barrel', vi: 'Cô Nòng' }, xshop: 'nong', dyn: 'nong' },
+    vay: { spr: 'npc_vay', name: { en: 'Old Scale', vi: 'Bác Vảy' }, xshop: 'vay', dyn: 'vay' },
+    beacon: { spr: 'npc_beacon', name: { en: 'Harbourmaster Beacon', vi: 'Cảng trưởng Hải Đăng' }, book: true, dyn: 'beacon' },
     trader: { spr: 'npc_trader', name: { en: 'Mira the Gem Trader', vi: 'Mira - Thương Nhân Ngọc' }, trade: true, generic: [{ en: 'Oh! A lantern-bearer! I trade in Star Gems - four of them hide in every land, usually somewhere high.', vi: 'Ô! Người mang đèn đây rồi! Tôi buôn Ngọc Sao - mỗi vùng đất giấu bốn viên, thường ở chỗ cao.' }, { en: 'Bring me gems and I will give you treasures you cannot buy anywhere else. Even secret heroes!', vi: 'Mang ngọc tới đây, tôi sẽ đổi cho bạn những báu vật không đâu bán. Cả hero bí mật nữa!' }] }
   };
   const DLG = {
@@ -645,6 +649,7 @@
     } else if (inPlay) {
       const st = Q.state;
       if (st === 'travel' && Q.trav) { const i = Q.trav.list.findIndex((c, k) => near(gx, gy, travX(k), TRAV_Y, 9, 12)); if (i >= 0) { if (i === Q.trav.sel) pressed.Enter = true; else { Q.trav.sel = i; Snd.play('select'); } } else pressed.Escape = true; return; }
+      if (st === 'xshop') { const i = xHit(gx, gy); if (i >= 0) { if (Q.xs.sel === i) pressed.Enter = true; else { Q.xs.sel = i; Snd.play('select'); } } else pressed.Escape = true; return; }
       if (st === 'fishbook') { const c = fishBookCell(gx, gy); if (c >= 0) { Q.book.sel = c; Snd.play('select'); } else pressed.Escape = true; return; }
       if (st === 'play' && Q.L.open && near(gx, gy, 76, 37, 66, 6) && (save.fishLog.length || Q.L.open)) { pressed.KeyH = true; return; }
       if (st === 'pause') { const i = menuHit(gx, gy, 7, VW / 2, 76, 13, 80); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
@@ -820,7 +825,7 @@
   };
   // every boss can roar
   [].concat(BOSS, FORMS.shorty, FORMS.sy, FORMS.quoc).forEach(c => { if (c.skills.indexOf('roar') < 0) c.skills.push('roar'); });
-  const SPEAKER_COL = { quoc: '#ff5a4a', sy: '#7ed957', ember: '#ff9a4a', lyra: '#6ee7f2', shorty: '#ffd34e', quan: '#a98bff', hoang: '#e0453a', duong: '#c0304a', santree: '#5fcf5a', narr: '#a8b0d0', dragon: '#ff8a2a', dragon_young: '#ffb04a', lila: '#a4e86b', bram: '#cfd6e6', angel: '#fff6c0', wizard: '#a98bff', fairy: '#ff9fd0', gob: '#9be564', smith: '#ff9a4a' };
+  const SPEAKER_COL = { quoc: '#ff5a4a', sy: '#7ed957', ember: '#ff9a4a', lyra: '#6ee7f2', shorty: '#ffd34e', quan: '#a98bff', hoang: '#e0453a', duong: '#c0304a', santree: '#5fcf5a', narr: '#a8b0d0', dragon: '#ff8a2a', dragon_young: '#ffb04a', lila: '#a4e86b', bram: '#cfd6e6', angel: '#fff6c0', wizard: '#a98bff', fairy: '#ff9fd0', gob: '#9be564', smith: '#ff9a4a', neo: '#8ab4ff', nong: '#ffa04a', vay: '#7ad0c8', beacon: '#ffd34e' };
   const bpc = () => (Q && Q.boss && Q.boss.cfg && Q.boss.cfg.proj) || Q.B.proj;
 
   // ---------- the movie: every boss speaks before and after its fight, and every map has a mid-way story beat ----------
@@ -3096,6 +3101,96 @@
     g.globalAlpha = 1;
   }
 
+  // ---------- the harbour people and the fish exchange (phase 6, step 4) ----------
+  // Each counter takes ANY fish by count (`save.fishBank`, filled when the hold is unloaded) and gives a piece of gear that is not for sale anywhere
+  // else. The gear itself arrives in the next steps; until an item exists its row says "coming soon". Only the person who talks to them
+  // (solo or the host) trades: a guest's own stock lives in their own save, so guests only hear the dialogue for now.
+  const XL = (a, b) => ({ en: a, vi: b });
+  const EXCH = {
+    neo: { title: XL('Old Anchor: swords for fish', 'Ông Neo: kiếm đổi cá'), rows: [
+      ['bonefin', 'B', 100, XL('Bonefin Blade', 'Kiếm Xương Cá'), XL('Every 4th swing throws a wide wave that pierces 2 foes.', 'Cứ 4 nhát tung một vệt nước xuyên 2 quái.')],
+      ['spikejaw', 'B', 300, XL('Spikejaw Saber', 'Kiếm Răng Nhồng'), XL('Every 3rd swing bites: 1 extra damage a second for 3 s.', 'Nhát thứ 3 cắn: mất thêm 1 máu mỗi giây trong 3 giây.')],
+      ['squallbrand', 'S', 800, XL('Squallbrand', 'Kiếm Chớp Biển'), XL('Skill: three lightning strikes and a pool of sparks.', 'Kỹ năng: 3 tia sét giáng xuống và để lại vũng điện.')],
+      ['anchorblade', 'S', 800, XL('Anchorblade', 'Kiếm Neo Tàu'), XL('Skill: slam that stuns everything within 5 tiles.', 'Kỹ năng: đập nền làm choáng mọi quái trong 5 ô.')],
+      ['rimetide', 'SSS', 1000, XL('Rimetide', 'Kiếm Triều Băng'), XL('Skill: freezes foes and lays an ice path over water.', 'Kỹ năng: đóng băng quái và tạo đường băng trên mặt nước.')] ] },
+    nong: { title: XL('Little Barrel: guns for fish', 'Cô Nòng: súng đổi cá'), rows: [
+      ['harpoon', 'A', 100, XL('Harpoon Gun', 'Súng Phóng Lao'), XL('Skill: a harpoon that pulls foes (or fish) to you.', 'Kỹ năng: lao kéo quái (hoặc cá) về phía bạn.')],
+      ['inkshot', 'A', 100, XL('Inkshot', 'Súng Tia Mực'), XL('Every 5th shot blinds foes for 3 s.', 'Mỗi 5 phát làm quái mù 3 giây.')],
+      ['bubblegun', 'A', 100, XL('Bubble Rifle', 'Súng Bọt'), XL('Shots trap a foe in a bubble for 2 s.', 'Đạn nhốt quái trong bong bóng 2 giây.')],
+      ['clawcannon', 'A', 100, XL('Claw Cannon', 'Súng Càng Cua'), XL('Shots bounce through up to 3 foes.', 'Đạn nảy qua tối đa 3 quái.')],
+      ['brinescatter', 'A', 100, XL('Brine Scatter', 'Súng Muối Rơi'), XL('Every 6th shot calls a rain of shots.', 'Mỗi 6 phát gọi một trận mưa đạn.')],
+      ['tidewarden', 'SSS', 1000, XL('Tidewarden Revolver', 'Súng Quay Triều'), XL('Skill: rewind your position and health by 5 s.', 'Kỹ năng: quay vị trí và máu của bạn về 5 giây trước.')],
+      ['typhoon', 'SSS', 1000, XL('Typhoon Repeater', 'Súng Bão Liên'), XL('Skill: 5 s of triple-speed fire, no ammo used.', 'Kỹ năng: 5 giây bắn gấp 3, không tốn đạn.')],
+      ['mirrorfin', 'SSS', 1000, XL('Mirrorfin', 'Súng Gương Vây'), XL('Shots split in two; the skill splits them in three.', 'Đạn tách đôi; kỹ năng tách ba.')],
+      ['warpgill', 'SSS', 1000, XL('Warpgill', 'Súng Dịch Mang'), XL('Skill: teleport to where your shot landed.', 'Kỹ năng: dịch chuyển tới chỗ đạn rơi.')],
+      ['stillwater', 'SSS', 1000, XL('Stillwater Pistol', 'Súng Đứng Nước'), XL('Skill: stop time for 2.5 s (bosses only 1.2 s).', 'Kỹ năng: dừng thời gian 2,5 giây (boss 1,2 giây).')] ] },
+    vay: { title: XL('Old Scale: sea mounts for fish', 'Bác Vảy: thú cưỡi biển đổi cá'), rows: [
+      ['m_warseahorse', 'S', 800, XL('Warseahorse', 'Hải Mã Chiến'), XL('Fastest swimmer; dash like a spear.', 'Bơi nhanh nhất; lao mũi giáo.')],
+      ['m_galeray', 'S', 800, XL('Galeray', 'Cá Đuối Gió'), XL('Glides over the surface and leaps the waves.', 'Lướt trên mặt nước và nhảy qua sóng.')],
+      ['m_bulwark', 'S', 800, XL('Bulwark Turtle', 'Rùa Giáp Biển'), XL('Slow, takes 3 hits, carries 25 more fish.', 'Chậm, chịu 3 cú đánh, chở thêm 25 cá.')],
+      ['m_voltdolphin', 'S', 800, XL('Voltdolphin', 'Cá Heo Sét'), XL('Dash that stuns small foes; leaps high.', 'Dash làm choáng quái nhỏ; nhảy cao.')],
+      ['m_wyrmfin', 'SS', 900, XL('Azure Wyrmfin', 'Giao Long Xanh'), XL('Short flight; water-column attack; carries 15 more fish.', 'Bay ngắn; phun cột nước; chở thêm 15 cá.')] ] }
+  };
+  const EXCH_WHO = { neo: 'neo', nong: 'nong', vay: 'vay' };
+  function harborLines(w) {   // dialogue that changes with what you have done (a few lines each, English and Vietnamese)
+    const tot = save.fishTot | 0, bank = save.fishBank | 0, rows = (EXCH[w] || { rows: [] }).rows, mine = rows.filter(r => owned(r[0])).length, d = [];
+    const A = (a, b) => d.push({ en: a, vi: b });
+    if (w === 'neo') {
+      A("A sword cannot swim. Hold it tight, do not let it sink.", "Kiếm không biết bơi. Cầm chắc nó, đừng làm nó chìm.");
+      if (!mine) { A("I forge blades from fish bones and pieces of old anchors. I take no gold: bring me fish, any fish, and I will count them.", "Ta rèn kiếm từ xương cá và mảnh neo cũ. Ta không lấy vàng: mang cá tới, loài nào cũng được, ta sẽ đếm."); A("The Eighth Tower stood on this coast. The sea took it, and my arm. It did not take my hammer.", "Tháp thứ tám từng đứng ở bờ này. Biển lấy nó, và lấy cả cánh tay ta. Nó không lấy được cái búa."); }
+      else A("That blade has seen the deep now. Good. A sword that has never been wet is only an ornament.", "Lưỡi kiếm đó đã thấy đáy biển rồi. Tốt. Kiếm chưa từng ướt thì chỉ là đồ trang trí.");
+      A(bank >= 100 ? "Your hold has been busy. Come, see what the fish can buy." : "Your stock is thin, lantern-bearer. Go and fish; I will be here.", bank >= 100 ? "Khoang của bạn bận rộn đấy. Lại đây, xem cá đổi được gì." : "Kho của bạn còn mỏng, người giữ đèn. Đi câu đi; ta ở đây.");
+    } else if (w === 'nong') {
+      A("Hi hi! You are the lantern-bearer! I am Nong! Everyone calls me Little Barrel because I like things that go BOOM.", "Hi hi! Bạn là người giữ đèn! Tôi là Nòng! Ai cũng gọi tôi là Cô Nòng vì tôi mê mấy thứ nổ ĐÙNG.");
+      if (!mine) A("Every gun has a mood. This one sulks, that one sings. I trade them for fish, but only if you promise to be nice to them!", "Súng nào cũng có tính riêng. Cây này hay dỗi, cây kia hay hát. Tôi đổi chúng lấy cá, nhưng bạn phải hứa đối xử tốt với chúng nhé!");
+      else A("You are using my gun? It is purring! Do not tell the others, but it is my favourite.", "Bạn đang dùng súng của tôi à? Nó đang kêu rù rù đó! Đừng nói với mấy cây khác, nhưng nó là cây tôi mê nhất.");
+      A(tot >= 100 ? "Ooh, you smell of fish! That is a good smell. Look, look at the shelf!" : "No fish? Come back with fish! Many fish! The big ones go BOOM louder.", tot >= 100 ? "Ồ, bạn toàn mùi cá! Mùi đó tốt lắm. Xem này, xem cái kệ đi!" : "Chưa có cá hả? Mang cá tới! Nhiều cá! Mấy cây lớn nổ to hơn nhiều.");
+    } else if (w === 'vay') {
+      A("They are not for riding. They let you come along.", "Chúng không phải để cưỡi. Chúng cho ta đi cùng.");
+      if (!mine) { A("Long ago the Lantern Keepers crossed the sea on the backs of friends like these. When the towers went dark, the friends went quiet.", "Ngày xưa những Người Giữ Đèn vượt biển trên lưng những người bạn như thế này. Khi các tháp tắt, những người bạn cũng im lặng."); A("They will carry you if you bring fish for the keeping of the stable. Do not hurry them. Do not shout.", "Chúng sẽ chở bạn nếu bạn mang cá để nuôi chuồng. Đừng giục chúng. Đừng la hét."); }
+      else A("Hear that? It already knows your step. Speak softly and it will go where you look.", "Nghe không? Nó đã quen bước chân bạn rồi. Nói nhỏ thôi, nó sẽ đi tới chỗ bạn nhìn.");
+      A(bank >= 800 ? "You have enough fish to choose one. Take your time." : "A friend costs many fish. Come back when your hold is heavy.", bank >= 800 ? "Bạn đủ cá để chọn một người bạn rồi. Cứ từ từ." : "Một người bạn tốn nhiều cá lắm. Quay lại khi khoang bạn nặng.");
+    } else {
+      A("Every fish is logged. The sea remembers what is taken.", "Mỗi con cá đều được ghi sổ. Biển nhớ những gì bị lấy đi.");
+      A("The hold is unloaded by itself when your boat reaches the quay: " + (save.fishBank | 0) + " fish in stock now, " + (save.fishTot | 0) + " brought home in all.", "Khoang cá tự dỡ khi thuyền cập bến: hiện có " + (save.fishBank | 0) + " con trong kho, tổng cộng đã mang về " + (save.fishTot | 0) + " con.");
+      A("My grandmother kept the lamp of the Eighth Tower. I keep this book. Look: every kind you catch is written here.", "Bà tôi giữ ngọn đèn của Tháp thứ tám. Tôi giữ cuốn sổ này. Xem này: mỗi loài bạn câu được đều được ghi vào đây.");
+    }
+    return d;
+  }
+  function openXShop(k, who) { Q.xs = { k, who, sel: 0, msg: '' }; Q.state = 'xshop'; Snd.play('select'); }
+  function xRows() { return EXCH[Q.xs.k].rows; }
+  function updateXShop() {
+    const X = Q.xs; if (!X) { Q.state = 'play'; return; } const rows = xRows(), n = rows.length + 1;
+    if (act.upP) { X.sel = (X.sel + n - 1) % n; X.msg = ''; Snd.play('select'); } if (act.downP) { X.sel = (X.sel + 1) % n; X.msg = ''; Snd.play('select'); }
+    if (act.backP || act.pauseP) { Q.state = 'play'; Q.xs = null; return; }
+    if (act.okP || act.talkP) {
+      if (X.sel === rows.length) { Q.state = 'play'; Q.xs = null; return; }
+      const r = rows[X.sel];
+      if (!ITEM[r[0]]) { X.msg = sv('Not in stock yet: the smiths are still working on it.', 'Chưa có hàng: thợ vẫn đang làm.'); Snd.play('hurt'); return; }
+      if (owned(r[0])) { X.msg = sv('You already have it.', 'Bạn đã có món này rồi.'); Snd.play('select'); return; }
+      if ((save.fishBank | 0) < r[2]) { X.msg = sv('Not enough fish: ' + r[2] + ' needed, you have ' + (save.fishBank | 0) + '.', 'Chưa đủ cá: cần ' + r[2] + ', bạn có ' + (save.fishBank | 0) + '.'); Snd.play('hurt'); return; }
+      save.fishBank -= r[2]; save.inv.own.push(r[0]); writeSave(); Snd.play('relic'); X.msg = sv('Traded ' + r[2] + ' fish! Open the bag (B) to equip it.', 'Đã đổi ' + r[2] + ' cá! Mở túi (B) để trang bị.');
+    }
+  }
+  const xRowY = i => 52 + i * 13;
+  function xHit(gx, gy) { const X = Q.xs; if (!X) return -1; const n = xRows().length + 1; for (let i = 0; i < n; i++) if (gx > 14 && gx < VW - 14 && gy >= xRowY(i) - 2 && gy < xRowY(i) + 11) return i; return -1; }
+  function drawXShop() {
+    const X = Q.xs; if (!X) return; const E = EXCH[X.k], rows = E.rows, n = NPCS[X.who];
+    g.fillStyle = 'rgba(5,3,15,.9)'; g.fillRect(0, 0, VW, VH); g.fillStyle = '#c89a1c'; g.fillRect(8, 8, VW - 16, 1); g.fillRect(8, VH - 9, VW - 16, 1);
+    const sp = npcSpr(n.spr); drawSpr(g, sp, 30, 44, false, false, 1.6, 1.6);
+    txt(LN(E.title), 58, 12, { size: 9, bold: true, col: '#ffd34e' }); txt(sv('Fish stock: ', 'Kho cá: ') + (save.fishBank | 0) + '   ' + sv('(any fish counts as 1)', '(mọi con cá tính 1)'), 58, 26, { size: 6.5, col: '#9fe8ff' });
+    for (let i = 0; i <= rows.length; i++) {
+      const y = xRowY(i), on = i === X.sel;
+      if (on) { g.fillStyle = 'rgba(255,211,78,.16)'; g.fillRect(14, y - 2, VW - 28, 12); }
+      if (i === rows.length) { txt((on ? '> ' : '  ') + sv('Leave', 'Rời quầy'), 20, y, { size: 7, col: on ? '#ffd34e' : '#cfd6e6' }); continue; }
+      const r = rows[i], have = ITEM[r[0]], own = have && owned(r[0]), afford = (save.fishBank | 0) >= r[2];
+      txt((on ? '> ' : '  ') + '[' + r[1] + '] ' + LN(r[3]), 20, y, { size: 7, col: on ? '#ffd34e' : (own ? '#7a8aa8' : '#e8eaf5') });
+      txt(own ? sv('OWNED', 'ĐÃ CÓ') : (have ? r[2] + ' ' + sv('fish', 'cá') : sv('SOON', 'SẮP CÓ')), VW - 20, y, { al: 'right', size: 7, col: own ? '#6ee89a' : (!have ? '#8892aa' : (afford ? '#9fff9f' : '#ff8a7a')) });
+    }
+    if (X.sel < rows.length) txt(LN(rows[X.sel][4]), VW / 2, VH - 40, { al: 'center', size: 6.5, col: '#cfd6e6' });
+    if (X.msg) txt(X.msg, VW / 2, VH - 26, { al: 'center', size: 7, col: '#ffd0a0' });
+    txt(sv('Up / Down: choose   ·   Enter: trade   ·   Esc: leave', 'Lên / Xuống: chọn   ·   Enter: đổi   ·   Esc: rời'), VW / 2, VH - 16, { al: 'center', size: 5.5, col: '#8892aa' });
+  }
   // ---------- the fish book (H, or tap the fish stock line): the 45 species, silhouettes until you catch them ----------
   const BOOK_C = 9, BOOK_X = 22, BOOK_Y = 34, BOOK_W = 30, BOOK_H = 19;
   const fishBookCell = (gx, gy) => { const cx = Math.floor((gx - BOOK_X) / BOOK_W), cy = Math.floor((gy - BOOK_Y) / BOOK_H); if (gx < BOOK_X || gy < BOOK_Y || cx < 0 || cx >= BOOK_C || cy < 0 || cy >= 5) return -1; const i = cy * BOOK_C + cx; return i < FISH_OPEN.length ? i : -1; };
@@ -3530,10 +3625,10 @@
     if (Math.random() < 0.35) for (const c of Q.L.covers || []) if (Math.abs(c.x * TS + 8 - px) < 40 && Math.abs(c.y * TS - py) < 36 && ch(c.x, c.y) === c.c) { Snd.near('draught'); break; }
   }
   // ----- NPC dialogue & shop -----
-  function startTalk(it) {
-    let d = (DLG[Q.li] || {})[it.who] || NPCS[it.who].generic || [{ en: '...', vi: '...' }], onEnd = null;
+  function startTalk(it, byGuest) {
+    let d = (DLG[Q.li] || {})[it.who] || (NPCS[it.who].dyn && harborLines(NPCS[it.who].dyn)) || NPCS[it.who].generic || [{ en: '...', vi: '...' }], onEnd = null;
     const qt = questTalk(it.who); if (qt) { d = qt.prefix ? qt.lines.concat(d) : qt.lines; onEnd = qt.end; }   // phase 5 (E): the side quest
-    Q.talk = { it, npc: NPCS[it.who], lines: d, i: 0, t: 0, onEnd }; Q.state = 'talk'; Snd.blip(it.who); Q.P.vx = 0;
+    Q.talk = { it, npc: NPCS[it.who], lines: d, i: 0, t: 0, onEnd, byGuest: !!byGuest }; Q.state = 'talk'; Snd.blip(it.who); Q.P.vx = 0;
   }
   function startScripted(who, lines, after) {
     if (coop && coop.role === 'host') { lines = teamLines(lines, who); if (who === 'ember' && lines[0]) who = lines[0].w; }
@@ -3549,6 +3644,8 @@
     const tk = Q.talk, n = tk.npc, it = tk.it; Q.talk = null;
     if (tk.onEnd) tk.onEnd();
     if (tk.after) { Q.state = 'play'; tk.after(); return; }
+    if (n.xshop && !tk.byGuest) { Q.state = 'play'; openXShop(n.xshop, it.who); return; }
+    if (n.book && !tk.byGuest) { Q.state = 'play'; openFishBook(); return; }
     if (n.trade) { Q.state = 'play'; openShopInGame('trade'); return; }
     if (n.shop) { Q.state = 'shop'; Q.menu = 0; Q.shopMsg = ''; Q.shopWho = it.who; return; }
     Q.state = 'play';
@@ -4654,6 +4751,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && (!Q.nearCp || travelBlock() === null) && !Q.nearPost && Q.nearFish && !Q.P.fish) { startFish(Q.P, Q.nearFish); return; }
     if (st === 'travel') { updateTravel(); return; }
     if (st === 'fishbook') { updateFishBook(); return; }
+    if (st === 'xshop') { updateXShop(); return; }
     if (st === 'play' && act.bookP && (Q.L.open || save.fishLog.length)) { openFishBook(); return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
     if (Q.freeze > 0) { Q.freeze -= dt; updateParticles(dt); return; }
@@ -5267,7 +5365,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (!hiOn) drawPlayOver();   // with hi-res sprites on screen the HUD comes later, in its own pass above them
   }
   function drawPlayOver() {
-    if (Q.state !== 'talk' && Q.state !== 'fishbook') drawHUD();
+    if (Q.state !== 'talk' && Q.state !== 'fishbook' && Q.state !== 'xshop') drawHUD();
     drawBossCard();
     if (coop && Q.state !== 'talk') drawCoopHUD();
     const st = Q.state;
@@ -5281,6 +5379,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       txt(LN(Q.B.sub), VW / 2, 122, { al: 'center', size: 7, col: '#cfd6e6', alpha: a }); }
     } else if (st === 'travel' && Q.trav) { drawTravel();
     } else if (st === 'fishbook' && Q.book) { drawFishBook();
+    } else if (st === 'xshop' && Q.xs) { drawXShop();
+    } else if ((st === 'fishbook' || st === 'xshop') && !(Q.book || Q.xs)) { g.fillStyle = 'rgba(5,3,15,.6)'; g.fillRect(0, 0, VW, VH); txt(sv('The host is browsing...', 'Chủ phòng đang xem...'), VW / 2, VH / 2, { al: 'center', size: 8, col: '#cfd6e6' });
     } else if (st === 'pause') {
       g.fillStyle = 'rgba(5,3,15,.7)'; g.fillRect(0, 0, VW, VH);
       txt(T('paused'), VW / 2, 52, { al: 'center', size: 16, bold: true });
@@ -6995,7 +7095,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   // teammates use levers, torches, the cage and can talk to people too (not only the room's host)
   function guestInteract(P) {
     if (!(act.talkP && Q.state === 'play')) return;
-    const npc = nearNpcFor(P); if (npc) { startTalk(npc); return; }
+    const npc = nearNpcFor(P); if (npc) { startTalk(npc, true); return; }
     const pz = nearPzFor(P); if (pz) { usePz(pz); return; }
     for (const r of Q.L.crateRooms || []) if (Math.abs(P.x + P.w / 2 - (r.postX + 0.5) * TS) < 20 && Math.abs(P.y + P.h - r.y * TS) < 10) { resetCrate(r); return; }   // a guest can reset a crate too
     if (!P.fish) { if (P.boat) startFish(P, boatSpot(P)); else if (boardSpotNear(P)) boardBoat(P); else { const sp = fishSpotNear(P); if (sp) startFish(P, sp); } }   // ... and fish or sail
