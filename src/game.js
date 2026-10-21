@@ -1100,7 +1100,7 @@
     for (let i = 0; i < 16; i++) Q.fog.push({ x: Math.random() * VW, y: rr(90, 200), r: rr(40, 90), vx: rr(-6, 6), ph: rr(0, 6) });
   }
   function darkAt(wx) {
-    let d = Q.B.dark;
+    let d = Q.B.dark + nightDarkAt(wx);   // phase 5 (B): the night adds to the map's own darkness, but never on top of a dark zone
     for (const z of Q.L.dark) { const tx = wx / TS, edge = Math.min(tx - z.x0, z.x1 - tx); if (edge > 0) d = Math.max(d, z.a * Math.min(1, edge / 6)); }
     return d + (Q.darkBoost || 0);
   }
@@ -2743,6 +2743,51 @@
       if (hurt && Math.random() < 0.04) drop('heart');
     }
   }
+  // ===================== phase 5 (B): day to dusk to night along the way, on the five outdoor maps =====================
+  // The hour depends on how far along the map you are (camera x against the boss arena), so it needs no timer, no save and no
+  // co-op sync: every player sees the hour of the place they stand in. The sky, the stars, the moon, the fireflies and the
+  // sounds change; the only gameplay effect is a little extra darkness (at most +0.25 on top of the map's own, fading out
+  // before the boss arena so fights are never harder to see).
+  const DAYNIGHT = { meadow: 1, forest: 1, desert: 1, frost: 1, swamp: 1 };
+  const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  function dayPhase(wx) {
+    if (!DAYNIGHT[Q.B.id] || !Q.L.arena) return null;
+    const t = clamp(wx / Math.max(1, Q.L.arena.x0 * TS), 0, 1);
+    return { t, dusk: sstep(0.26, 0.5, t) * (1 - sstep(0.62, 0.86, t)), night: sstep(0.55, 0.88, t) };
+  }
+  function nightDarkAt(wx) { const ph = dayPhase(wx); if (!ph) return 0; return 0.25 * ph.night * clamp((Q.L.arena.x0 - 2 - wx / TS) / 8, 0, 1); }
+  function drawNightSky(camX) {   // stars and a moon, drawn behind the hills
+    const ph = dayPhase(camX + VW / 2); if (!ph || ph.night < 0.05) return;
+    const n = ph.night;
+    g.fillStyle = 'rgba(6,10,44,' + (0.4 * n).toFixed(3) + ')'; g.fillRect(0, 0, VW, VH);   // the sky goes dark first, so the stars and moon stay bright
+    for (let i = 0; i < 46; i++) {
+      const x = (i * 97 + 13) % VW, y = 6 + ((i * 53) % 96), tw = 0.55 + 0.45 * Math.sin(Q.t * (1.2 + (i % 5) * 0.4) + i);
+      g.globalAlpha = n * tw; g.fillStyle = i % 7 === 0 ? '#ffe9a0' : '#ffffff'; g.fillRect(x, y, i % 5 === 0 ? 2 : 1, i % 5 === 0 ? 2 : 1);
+    }
+    const mx = Math.round(VW * 0.74 - camX * 0.01), my = 40;
+    g.globalAlpha = n * 0.22; disc(g, mx, my, 16, '#cfe0ff'); g.globalAlpha = n; disc(g, mx, my, 9, '#eef4ff'); g.globalAlpha = n * 0.85; disc(g, mx + 3, my - 1, 7.5, '#8e9bbf'); g.globalAlpha = n; disc(g, mx - 2, my + 1, 6, '#f7faff');
+    g.globalAlpha = 1;
+  }
+  function drawDayTint(camX) {   // after the backdrop, before the ground: a warm dusk, then a cool dark blue; fireflies at night
+    const ph = dayPhase(camX + VW / 2); if (!ph) return;
+    if (ph.dusk > 0.01) {
+      const gr = g.createLinearGradient(0, 0, 0, VH); gr.addColorStop(0, 'rgba(70,30,100,' + (0.3 * ph.dusk).toFixed(3) + ')'); gr.addColorStop(0.55, 'rgba(255,110,60,' + (0.3 * ph.dusk).toFixed(3) + ')'); gr.addColorStop(1, 'rgba(255,170,90,' + (0.12 * ph.dusk).toFixed(3) + ')');
+      g.fillStyle = gr; g.fillRect(0, 0, VW, VH);
+    }
+    if (ph.night > 0.01) { g.fillStyle = 'rgba(6,10,44,' + (0.3 * ph.night).toFixed(3) + ')'; g.fillRect(0, 0, VW, VH); }
+    if (ph.night > 0.3 && Q.B.id !== 'frost' && Q.B.id !== 'desert') {   // fireflies drift low over the ground
+      g.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 18; i++) {
+        const x = (((i * 61 + 7) % VW) + Math.sin(Q.t * 0.4 + i * 1.7) * 14 - camX * 0.3 % VW + VW * 2) % VW, y = VH * 0.55 + ((i * 37) % 70) + Math.sin(Q.t * 0.7 + i) * 6, a = (0.5 + 0.5 * Math.sin(Q.t * 2.1 + i * 2.3)) * ph.night;
+        g.globalAlpha = 0.22 * a; g.fillStyle = '#c8ff7a'; g.fillRect(Math.round(x) - 1, Math.round(y) - 1, 3, 3); g.globalAlpha = 0.9 * a; g.fillStyle = '#f4ffb0'; g.fillRect(Math.round(x), Math.round(y), 1, 1);
+      }
+      g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+    }
+  }
+  function updateDayNight(dt) {   // the sounds follow the hour of the hero's place (host and guests alike)
+    Q.dnT = (Q.dnT || 0) - dt; if (Q.dnT > 0) return; Q.dnT = 0.5;
+    const me = Q.me || Q.P, ph = me && dayPhase(me.x); Snd.ambNight(ph ? ph.night : 0);
+  }
   // phase 5 (D): what the hero is standing on decides the footstep: the map's ground, its floating ledges, ice, a moving
   // platform, or water
   const GROUND_SURF = { meadow: 'grass', forest: 'grass', caves: 'stone', desert: 'sand', frost: 'snow', volcano: 'stone', citadel: 'stone', swamp: 'mud', ocean: 'sand', tunnels: 'dirt' };
@@ -3884,7 +3929,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (Q.shake > 0) Q.shake -= dt;
     if (Q.msgT > 0) Q.msgT -= dt;
     if (Q.wishT > 0) Q.wishT -= dt;
-    updatePlats(dt); updateCrumble(dt); nearSounds(dt); updateCrates(dt); if (Q.brk.some(b => b.dead)) Q.brk = Q.brk.filter(b => !b.dead);
+    updatePlats(dt); updateCrumble(dt); nearSounds(dt); updateCrates(dt); updateDayNight(dt); if (Q.brk.some(b => b.dead)) Q.brk = Q.brk.filter(b => !b.dead);
     if (st === 'bossintro' && !(Q.boss && Q.boss.st === 'intro')) Q.state = 'play'; // never get stuck in the intro
     if (st === 'bossintro') { asP(coop ? bossTgt(dt) : Q.P, () => updateBoss(dt)); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
     if (!Q.P.down) updatePlayer(dt);
@@ -3913,7 +3958,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const L = Q.L, B = Q.B, cam = Q.cam, ts = Q.ts;
     const camX = Math.round(cam.x), camY = Math.round(cam.y);
     g.drawImage(Q.bg.sky, 0, 0, VW, VH);
-    drawSun();
+    { const ph0 = dayPhase(camX + VW / 2); if (ph0) { g.globalAlpha = 1 - 0.95 * ph0.night; drawSun(); g.globalAlpha = 1; } else drawSun(); }
+    drawNightSky(camX);
     drawSkyLife(camX, camY);
     if (Q.wishT > 0) drawLightCrane();
     for (const ly of Q.bg.layers) {
@@ -3927,6 +3973,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       if (B.id === 'ocean') { g.fillStyle = 'rgba(0,4,16,' + (dp * 0.62).toFixed(3) + ')'; g.fillRect(0, 0, VW, VH); }
       else { const gr = g.createLinearGradient(0, VH * 0.3, 0, VH); gr.addColorStop(0, 'rgba(255,90,20,0)'); gr.addColorStop(1, 'rgba(255,90,20,' + (dp * 0.35).toFixed(3) + ')'); g.fillStyle = gr; g.fillRect(0, 0, VW, VH); } }
     { const hz = g.createLinearGradient(0, VH * 0.42, 0, VH); hz.addColorStop(0, hexA(B.sky[2], 0)); hz.addColorStop(1, hexA(B.sky[2], B.dark > 0.5 ? 0.1 : 0.22)); g.fillStyle = hz; g.fillRect(0, VH * 0.42, VW, VH * 0.58); }
+    drawDayTint(camX);
     if (Q.li === 6 && Q.boss && Q.boss.id === 'quoc' && Q.arenaSealed && Q.boss.fi > 0) drawFormScene(Q.boss.fi);
     const tx0 = Math.floor(camX / TS), tx1 = Math.floor((camX + VW) / TS), ty0 = Math.floor(camY / TS), ty1 = Math.floor((camY + VH) / TS);
     const lf = Math.floor(Q.t * 6 + (Q.time || 0) * 0) % 4;
@@ -6429,6 +6476,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (edge || key !== coop.lastIn || (coop.inT -= 1 / 60) <= 0) { coop.lastIn = key; coop.inT = 0.25; NET.send(m); }
   }
   function coopClientTick(dt) {
+    updateDayNight(dt);
     { const P = Q && Q.me; if (P && Q.state === 'play') { P.stepT = (P.stepT || 0) - dt; if (P.onGround && Math.abs(P.vx) > 45 && P.stepT <= 0) { P.stepT = 0.27; Snd.surf(surfUnder(P)); } nearSounds(dt); } }   // a guest hears its own footsteps and nearby sounds
     if (!Q) return;
     coop.since += dt; Q.t += dt; sceneT += dt;

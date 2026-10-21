@@ -332,6 +332,11 @@ const Snd = (() => {
     sonar() { tone(1100, 0.5, 'sine', 0.035, 0, 0, ambG); tone(1100, 0.5, 'sine', 0.012, 0, ac.currentTime + 0.35, ambG); },
     creak() { tone(95, 0.7, 'sawtooth', 0.04, -22, 0, ambG); noise(0.5, 0.025, 300, 0, ambG); }
   };
+  // phase 5 (B): birds and hawks by day; crickets, owls, frogs and wolves by night (ambNightK goes 0 to 1 with the hour)
+  let ambNightK = 0;
+  const AMB_DAY = { bird: 1, hawk: 1 }, AMB_NIGHT = { cricket: 1, owl: 1, frog: 1, wolf: 1 };
+  const ambMul = n => AMB_DAY[n] ? 1.15 - 1.05 * ambNightK : (AMB_NIGHT[n] ? 0.45 + 1.6 * ambNightK : 1);
+  function ambNight(k) { ambNightK = Math.max(0, Math.min(1, k)); }
   function stopAmb() { if (!amb) return; clearInterval(amb.timer); for (const n of amb.nodes) try { n.stop(); } catch (e) { } try { amb.g.disconnect(); } catch (e) { } amb = null; }
   function ambience(kind) {
     ambKind = kind || null; if (!ac || !ambG) return; stopAmb(); const A = kind && AMB[kind]; if (!A) return;
@@ -341,7 +346,7 @@ const Snd = (() => {
     const lfo = ac.createOscillator(), lg = ac.createGain(); lfo.frequency.value = A.bed[4]; lg.gain.value = A.bed[5]; lfo.connect(lg); lg.connect(f.frequency);
     src.connect(f); f.connect(g); g.connect(ambG); src.start(); lfo.start(); const nodes = [src, lfo];
     if (A.drone) for (const fr of [55, 55.7, 82.4]) { const o = ac.createOscillator(), og = ac.createGain(); o.type = 'sine'; o.frequency.value = fr; og.gain.value = 0.02; o.connect(og); og.connect(ambG); o.start(); nodes.push(o); }
-    amb = { nodes, g, timer: setInterval(() => { for (const e of A.ev) if (Math.random() < e[1] * 0.4) AV[e[0]](); }, 400) };
+    amb = { nodes, g, timer: setInterval(() => { for (const e of A.ev) if (Math.random() < e[1] * 0.4 * ambMul(e[0])) AV[e[0]](); }, 400) };
   }
   function ambVol(v) { ambBase = v; if (ambG && ac) ambG.gain.setTargetAtTime(v * sVol, ac.currentTime, 0.5); }
   // footsteps that sound like the ground you run on
@@ -795,5 +800,5 @@ const Snd = (() => {
     });
   }
   function setBal(id, g, role) { if (role) (KG[id] = KG[id] || {})[role] = g; else BAL[id] = g; for (const k in busC) if (k === id || k.indexOf(id + ':') === 0) busC[k].gain.value = busGain(k); }
-  return { init, play, surf, near, boss, bossSkill, bossStep, dragon, summon, meter, setBal, BAL, KG, creature, monster, ambience, ambVol, step: foot, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, cine, cineHit, setVol, setMusicVol, setSfxVol, setMuted, get mVol() { return mVol; }, get sVol() { return sVol; }, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
+  return { init, play, surf, near, ambNight, boss, bossSkill, bossStep, dragon, summon, meter, setBal, BAL, KG, creature, monster, ambience, ambVol, step: foot, devilRoar, devilVoice, hero, blip, whisper, sting, music, stop, cine, cineHit, setVol, setMusicVol, setSfxVol, setMuted, get mVol() { return mVol; }, get sVol() { return sVol; }, toggleMute, get vol() { return vol; }, get muted() { return muted; } };
 })();

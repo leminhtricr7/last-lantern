@@ -649,3 +649,10 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   fake-floor nook or secret room is dug under them. Solved vaults and stairs stay solved (`Q.solved`, checkpoint save);
   crates always start at their start tile. Secret rooms now also fit thin ground (2 tiles deep, no ledge needed), so every
   land map has 3 of them (the Caverns had none after the layout changed).
+- Day and night (phase 5, B): on the five outdoor maps (Meadow, Forest, Desert, Frost, Swamp) the hour depends on how far
+  along the map you are (camera x against the boss arena; `dayPhase` in game.js): day, then a warm dusk from 26% to 62% of
+  the way, then night from 55% on. The sky tints, stars and a moon come out behind the hills, the sun fades, fireflies drift
+  over meadow, forest and swamp, and the ambience swaps birds and hawks for crickets, owls, frogs and wolves (`Snd.ambNight`).
+  No timer, no save and no co-op sync are needed: each player sees the hour of the place they stand in. Gameplay effect:
+  up to +0.25 darkness on top of the map's own (lantern light still works), never on top of a dark zone, and none inside the
+  boss arena. Caves, Volcano, Tunnels, the Deep and the Citadel have no cycle.
