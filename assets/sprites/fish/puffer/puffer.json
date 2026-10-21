@@ -1,0 +1,65 @@
+{
+ "name": "puffer",
+ "cell": [
+  44,
+  40
+ ],
+ "anchor": [
+  22,
+  20
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#2a2410",
+  "#90732e",
+  "#a79041",
+  "#c8a040",
+  "#d5b76e",
+  "#e5d1a3",
+  "#e8c85a",
+  "#eed582",
+  "#f4e5b0",
+  "#f8eece",
+  "#ffe8a0"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "puffer_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "puffer_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "puffer_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "puffer_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "puffer_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "puffer_death.png"
+  }
+ }
+}

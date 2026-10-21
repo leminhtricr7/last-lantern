@@ -1,0 +1,65 @@
+{
+ "name": "stormeel",
+ "cell": [
+  76,
+  40
+ ],
+ "anchor": [
+  38,
+  20
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a0d13",
+  "#14101c",
+  "#1e263a",
+  "#2a354c",
+  "#2a3550",
+  "#3a4a6a",
+  "#5d657a",
+  "#69758e",
+  "#999eab",
+  "#a0a8b7",
+  "#c4c9d2",
+  "#ffe44e"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "stormeel_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "stormeel_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "stormeel_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "stormeel_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "stormeel_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "stormeel_death.png"
+  }
+ }
+}

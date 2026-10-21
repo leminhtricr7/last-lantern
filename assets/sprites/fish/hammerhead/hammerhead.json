@@ -1,0 +1,64 @@
+{
+ "name": "hammerhead",
+ "cell": [
+  92,
+  72
+ ],
+ "anchor": [
+  46,
+  36
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#241e0a",
+  "#6f5b1a",
+  "#907928",
+  "#9a7e24",
+  "#b29d59",
+  "#c8a838",
+  "#cfc196",
+  "#d5bd68",
+  "#e5d59f",
+  "#eee5c3"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "hammerhead_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "hammerhead_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "hammerhead_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "hammerhead_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "hammerhead_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "hammerhead_death.png"
+  }
+ }
+}

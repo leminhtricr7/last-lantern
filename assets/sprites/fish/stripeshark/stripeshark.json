@@ -1,0 +1,65 @@
+{
+ "name": "stripeshark",
+ "cell": [
+  96,
+  72
+ ],
+ "anchor": [
+  48,
+  36
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#16191c",
+  "#1a2430",
+  "#3f4b56",
+  "#58636f",
+  "#586878",
+  "#7a8a9a",
+  "#808c98",
+  "#9aa6b2",
+  "#afb7be",
+  "#bfc7cf",
+  "#d7dce1"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "stripeshark_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "stripeshark_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "stripeshark_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "stripeshark_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "stripeshark_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "stripeshark_death.png"
+  }
+ }
+}

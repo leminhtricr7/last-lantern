@@ -1,0 +1,64 @@
+{
+ "name": "sardine",
+ "cell": [
+  32,
+  36
+ ],
+ "anchor": [
+  16,
+  18
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#212428",
+  "#50637f",
+  "#6f8ab0",
+  "#8490a1",
+  "#92a6c3",
+  "#b8c8e0",
+  "#bac7d9",
+  "#c9d5e7",
+  "#dde5f0",
+  "#eaeef6"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "sardine_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "sardine_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "sardine_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "sardine_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "sardine_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "sardine_death.png"
+  }
+ }
+}

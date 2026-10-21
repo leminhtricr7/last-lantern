@@ -1,0 +1,64 @@
+{
+ "name": "anemone",
+ "cell": [
+  32,
+  28
+ ],
+ "anchor": [
+  16,
+  14
+ ],
+ "facing": "right",
+ "palette": [
+  "#102416",
+  "#2a7a40",
+  "#2d7342",
+  "#3ea05c",
+  "#3f9056",
+  "#58c878",
+  "#6cb783",
+  "#80d598",
+  "#a2d1b1",
+  "#afe5be",
+  "#e8ffd0"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "anemone_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "anemone_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "anemone_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "anemone_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "anemone_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "anemone_death.png"
+  }
+ }
+}

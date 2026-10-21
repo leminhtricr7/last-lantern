@@ -1,0 +1,64 @@
+{
+ "name": "devilray",
+ "cell": [
+  100,
+  56
+ ],
+ "anchor": [
+  50,
+  28
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#19131c",
+  "#4c3558",
+  "#634c6f",
+  "#6a4a7a",
+  "#8a6a9a",
+  "#8e759a",
+  "#a68eb2",
+  "#b7a8bf",
+  "#c7b7cf",
+  "#dcd2e1"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "devilray_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "devilray_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "devilray_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "devilray_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "devilray_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "devilray_death.png"
+  }
+ }
+}

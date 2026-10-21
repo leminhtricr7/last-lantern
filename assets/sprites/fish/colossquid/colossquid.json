@@ -1,0 +1,64 @@
+{
+ "name": "colossquid",
+ "cell": [
+  100,
+  60
+ ],
+ "anchor": [
+  50,
+  30
+ ],
+ "facing": "right",
+ "palette": [
+  "#080a19",
+  "#14101c",
+  "#141d49",
+  "#1c2866",
+  "#1e2a63",
+  "#2a3a8a",
+  "#525c8b",
+  "#5d69a6",
+  "#9298b6",
+  "#99a0c7",
+  "#9fe8ff"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "colossquid_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "colossquid_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "colossquid_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "colossquid_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "colossquid_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "colossquid_death.png"
+  }
+ }
+}

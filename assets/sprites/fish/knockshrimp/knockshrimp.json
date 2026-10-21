@@ -1,0 +1,64 @@
+{
+ "name": "knockshrimp",
+ "cell": [
+  36,
+  28
+ ],
+ "anchor": [
+  18,
+  14
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#281513",
+  "#8a3028",
+  "#903f38",
+  "#a1544c",
+  "#c8584e",
+  "#d58078",
+  "#e0746a",
+  "#e5afaa",
+  "#e7958e",
+  "#f0bcb7"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "knockshrimp_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "knockshrimp_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "knockshrimp_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "knockshrimp_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "knockshrimp_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "knockshrimp_death.png"
+  }
+ }
+}

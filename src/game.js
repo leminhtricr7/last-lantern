@@ -53,7 +53,7 @@
   if (!save.quests || typeof save.quests !== 'object') save.quests = {};   // phase 5 (E): side quests and the Lantern of Nine Towers
   save.lantern9 = !!save.lantern9;
   if (!Array.isArray(save.fishLog)) save.fishLog = [];   // phase 5 (A4): the species you have caught
-  save.fishBank = save.fishBank | 0; save.fishTot = save.fishTot | 0; if (!save.fishCnt || typeof save.fishCnt !== 'object') save.fishCnt = {};   // phase 6: fish stock to spend, fish caught for good, per species
+  if (!save.fishMut || typeof save.fishMut !== 'object') save.fishMut = {}; save.fishBank = save.fishBank | 0; save.fishTot = save.fishTot | 0; if (!save.fishCnt || typeof save.fishCnt !== 'object') save.fishCnt = {};   // phase 6: fish stock to spend, fish caught for good, per species
   if (!save.baits || typeof save.baits !== 'object') save.baits = {}; if (!save.baitSel) save.baitSel = 'worm'; if (!save.baitSel2) save.baitSel2 = null;   // phase 6: baits you carry
   save.rare = save.rare | 0; if (!save.rareGot || typeof save.rareGot !== 'object') save.rareGot = {};
   save.bonusHP = save.bonusHP | 0; save.bonusDmg = save.bonusDmg | 0; if (!save.cos || typeof save.cos !== 'object') save.cos = {};
@@ -550,7 +550,7 @@
     act.backP = pressed.Escape || gpP('b');
     act.leftP = any(pressed, ['ArrowLeft', 'KeyA']) || gpP('l'); act.rightP = any(pressed, ['ArrowRight', 'KeyD']) || gpP('r');
     act.upP = any(pressed, ['ArrowUp', 'KeyW']) || gpP('u'); act.downP = any(pressed, ['ArrowDown', 'KeyS']) || gpP('d');
-    act.talkP = pressed.KeyE || gpP('y'); act.talkH = !!(keys.KeyE || gb.y);
+    act.talkP = pressed.KeyE || gpP('y'); act.talkH = !!(keys.KeyE || gb.y); act.bookP = pressed.KeyH;
     act.skillP = any(pressed, ['KeyR']) || gpP('rb');
     act.shopP = any(pressed, ['KeyB']) || gpP('back');
     act.sumP = pressed.TouchSum || gpP('r3');   // touch star / gamepad R3: the first charged skill
@@ -559,7 +559,7 @@
     act.muteP = pressed.KeyM; act.fullP = pressed.F11;   // F is the guard; fullscreen is F11 (or the title menu)
     gpPrev = gb;
   }
-  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.atk2P = act.throwP = act.swapP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = act.skillP = act.shopP = act.sumP = act.parryP = act.wswapP = act.sk1P = act.sk2P = act.sk3P = act.sk4P = false; }
+  function clearPressed() { for (const k in pressed) pressed[k] = false; act.jumpP = act.atkP = act.atk2P = act.throwP = act.swapP = act.dashP = act.pauseP = act.talkP = act.okP = act.backP = act.leftP = act.rightP = act.upP = act.downP = act.skillP = act.shopP = act.sumP = act.parryP = act.wswapP = act.sk1P = act.sk2P = act.sk3P = act.sk4P = act.bookP = false; }
   function toggleFull() {
     try { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch (e) { }
   }
@@ -645,6 +645,8 @@
     } else if (inPlay) {
       const st = Q.state;
       if (st === 'travel' && Q.trav) { const i = Q.trav.list.findIndex((c, k) => near(gx, gy, travX(k), TRAV_Y, 9, 12)); if (i >= 0) { if (i === Q.trav.sel) pressed.Enter = true; else { Q.trav.sel = i; Snd.play('select'); } } else pressed.Escape = true; return; }
+      if (st === 'fishbook') { const c = fishBookCell(gx, gy); if (c >= 0) { Q.book.sel = c; Snd.play('select'); } else pressed.Escape = true; return; }
+      if (st === 'play' && Q.L.open && near(gx, gy, 76, 37, 66, 6) && (save.fishLog.length || Q.L.open)) { pressed.KeyH = true; return; }
       if (st === 'pause') { const i = menuHit(gx, gy, 7, VW / 2, 76, 13, 80); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
       else if (st === 'shop') { const n = (SHOPS[Q.shopWho] || []).length + 1, i = menuHit(gx, gy, n, VW / 2, 96, 14, 110); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
       else if (st === 'play') {
@@ -2826,20 +2828,82 @@
   const FISH_X = { minnow: { kind: 'needle', tags: ['small'] }, carp: { kind: 'needle', tags: ['small'] }, perch: { kind: 'needle', tags: ['predator'] }, glowfin: { kind: 'hold', dur: 6, tags: ['light'] },
     moon: { kind: 'hold', dur: 8, tags: ['eel'] }, golden: { kind: 'duel', dur: 13, pw: 0.7, tags: ['legend'] }, boot: { kind: 'needle', tags: ['junk'] } };
   FISH.forEach(f => Object.assign(f, FISH_X[f.id] || { kind: 'needle', tags: [] }));
+  FISH.forEach(f => { f.legacy = true; });   // the 7 fish of the Sunken Deep keep their old rewards and odds there
   const FISH_BY = {}; FISH.forEach(f => { FISH_BY[f.id] = f; });
+  // phase 6 (3): the 45 fish of the Open Sea. Row: id, en, vi, rank (1 B .. 5 SSS), kind, dur, pull, tags, weight in Bay / Windy Sea / Far Deep,
+  // zone en/vi, conditions en/vi, description en/vi, condition key (needs Q.env.<key>; until the weather step exists they are rare). spr = sprite id.
+  const FISH_ROWS = [
+    ['minnow', 'Silver Minnow', 'Cá Tép Bạc', 1, 'needle', 0, 0, 'small', 40, 22, 8, 'Bay', 'Vịnh Neo', 'Any time; in schools', 'Mọi lúc; theo bầy', 'A small fish that glitters like broken mirror.', 'Con cá nhỏ lấp lánh như mảnh gương vụn.', ''],
+    ['carp', 'Lantern Carp', 'Cá Chép Đèn', 1, 'needle', 0, 0, 'small', 26, 20, 10, 'Bay', 'Vịnh Neo', 'Day and dusk', 'Ngày, hoàng hôn', 'Orange scales glow like a tiny paper lantern.', 'Vảy cam sáng như đèn lồng nhỏ.', ''],
+    ['pebblecrab', 'Pebble Crab', 'Cua Đá', 1, 'needle', 0, 0, 'armor', 14, 6, 0, 'Bay, reef', 'Vịnh Neo, rạn', 'Day; worm bait', 'Ngày; mồi giun', 'Its grey shell looks like a pebble: only the eyes give it away.', 'Mai xám giống hòn cuội, chỉ lộ đôi mắt.', ''],
+    ['knockshrimp', 'Knocker Shrimp', 'Tôm Gõ', 1, 'needle', 0, 0, 'small', 6, 10, 2, 'Reef', 'Rạn san hô', 'Day; shrimp bait', 'Ngày; mồi tôm', 'Its claw is huge: it taps on rocks like a secret code.', 'Càng to bất thường, gõ như đang gửi mật mã.', ''],
+    ['emberstar', 'Ember Starfish', 'Sao Biển Cam', 1, 'needle', 0, 0, 'small', 10, 6, 0, 'Bay, reef', 'Vịnh Neo, rạn', 'Day', 'Ngày', 'Five arms of an orange like warm coals.', 'Năm cánh cam đỏ như than còn ấm.', ''],
+    ['conch', 'Trumpet Conch', 'Ốc Tù Và', 1, 'needle', 0, 0, 'armor', 12, 4, 0, 'Bay', 'Vịnh Neo', 'Any time', 'Mọi lúc', 'Hold it to your ear and you hear the sea.', 'Đưa tai vào nghe được tiếng biển.', ''],
+    ['bubblejelly', 'Bubble Jelly', 'Sứa Bóng', 1, 'needle', 0, 0, 'light', 12, 8, 2, 'Bay', 'Vịnh Neo', 'Night (glows faintly)', 'Đêm (phát sáng nhẹ)', 'Clear as a soap bubble with a dim lamp inside.', 'Trong như bong bóng xà phòng, đèn mờ ở giữa.', ''],
+    ['seahorse', 'Thread Seahorse', 'Cá Ngựa Chỉ', 1, 'needle', 0, 0, 'small', 8, 6, 0, 'Bay (seaweed)', 'Vịnh Neo (rong biển)', 'Day; shrimp bait', 'Ngày; mồi tôm', 'Thin as a thread, its tail curls round the weeds.', 'Mảnh như sợi chỉ, đuôi cuộn tròn.', ''],
+    ['urchin', 'Violet Urchin', 'Nhím Biển Tím', 1, 'needle', 0, 0, 'small', 10, 6, 2, 'Bay, reef', 'Vịnh Neo, rạn', 'Any time', 'Mọi lúc', 'Violet spines, and a small mouth in the middle.', 'Gai tím nhọn, giữa là cái miệng nhỏ.', ''],
+    ['sardine', 'Shore Sardine', 'Cá Mòi Bờ', 1, 'needle', 0, 0, 'small', 20, 14, 4, 'Bay', 'Vịnh Neo', 'Dawn and dusk; big schools', 'Bình minh, hoàng hôn; bầy lớn', 'A school of silver makes a bright stream.', 'Bầy cá bạc tạo thành dòng suối sáng.', ''],
+    ['anemone', 'Greenbloom Anemone', 'Hải Quỳ Lục', 1, 'needle', 0, 0, 'small', 6, 6, 2, 'Reef', 'Rạn san hô', 'Day', 'Ngày', 'Like a bunch of green flowers; it shrinks when touched.', 'Như bó hoa xanh, chạm vào thì co lại.', ''],
+    ['mudskipper', 'Mud Skipper', 'Cá Thòi Lòi', 1, 'needle', 0, 0, 'small', 8, 2, 0, 'Bay (mud)', 'Vịnh Neo (bãi bùn)', 'Low tide', 'Triều thấp', 'A fish that walks, with bulging eyes watching everything.', 'Cá biết đi, mắt lồi nhìn khắp nơi.', ''],
+    ['perch', 'Spiny Perch', 'Cá Rô Gai', 2, 'needle', 0, 0, 'predator', 14, 18, 14, 'Bay, Windy Sea', 'Vịnh Neo, Biển Gió', 'Day; shrimp bait', 'Ngày; mồi tôm', 'Its back is covered in green spines.', 'Lưng đầy gai xanh.', ''],
+    ['glowfin', 'Glowfin', 'Cá Vây Sáng', 2, 'hold', 6, 0, 'light', 8, 16, 16, 'Bay, Windy Sea', 'Vịnh Neo, Biển Gió', 'Night; follows lights', 'Đêm; đi theo ánh sáng', 'Cyan fins that glow; it follows lamps.', 'Vây cyan phát sáng, hay đi theo đèn pha.', ''],
+    ['puffer', 'Puffball Fish', 'Cá Nóc Phồng', 2, 'needle', 0, 0, 'small', 6, 14, 10, 'Bay, Windy Sea', 'Vịnh Neo, Biển Gió', 'Rain; worm bait', 'Mưa; mồi giun', 'It puffs into a ball of spines, and looks a little angry.', 'Phồng thành quả bóng gai, trông hơi giận.', ''],
+    ['rosesquid', 'Rose Squid', 'Mực Ống Hồng', 2, 'hold', 6, 0, 'squid', 0, 12, 12, 'Windy Sea', 'Biển Gió', 'Dusk and night; shrimp bait', 'Hoàng hôn, đêm; mồi tôm', 'It changes shade with its mood.', 'Đổi sắc hồng theo cảm xúc.', ''],
+    ['sandray', 'Sandwing Ray', 'Cá Đuối Cát', 2, 'hold', 7, 0, 'small', 4, 14, 6, 'Windy Sea (sandy floor)', 'Biển Gió (đáy cát)', 'Day', 'Ngày', 'A flat wing the colour of sand, melting into the floor.', 'Cánh phẳng màu cát, hòa vào đáy.', ''],
+    ['youngsword', 'Young Swordfish', 'Cá Kiếm Non', 2, 'hold', 7, 0, 'predator', 0, 12, 10, 'Windy Sea', 'Biển Gió', 'Day; blood bait', 'Ngày; mồi máu', 'A snout sharp as a spear tip.', 'Mõm nhọn như mũi giáo.', ''],
+    ['seaturtle', 'Green Sea Turtle', 'Rùa Biển Xanh', 2, 'hold', 8, 0, 'armor', 4, 10, 4, 'Windy Sea, reef', 'Biển Gió, rạn', 'Day', 'Ngày', 'A mossy shell carrying a small garden.', 'Mai xanh rêu, mang cả một vườn rêu nhỏ.', ''],
+    ['armorlobster', 'Armor Lobster', 'Tôm Hùm Giáp', 2, 'hold', 7, 0, 'armor', 2, 8, 4, 'Reef', 'Rạn san hô', 'Day; armor bait', 'Ngày; mồi giáp', 'Dark blue armour and claws like small hammers.', 'Giáp xanh sẫm, càng như búa nhỏ.', ''],
+    ['jadeknife', 'Jadeknife Fish', 'Cá Dao Ngọc', 2, 'needle', 0, 0, 'predator', 0, 10, 10, 'Windy Sea', 'Biển Gió', 'Dusk', 'Hoàng hôn', 'Flat as a blade, with a jade glint.', 'Dẹt như lưỡi dao, ánh xanh ngọc.', ''],
+    ['flowerocto', 'Flower Octopus', 'Bạch Tuộc Hoa', 2, 'hold', 7, 0, 'squid', 0, 10, 8, 'Reef, Windy Sea', 'Rạn, Biển Gió', 'Day; shrimp bait', 'Ngày; mồi tôm', 'Its skin blooms with flower patterns.', 'Da nở hoa văn như bó hoa.', ''],
+    ['lilangler', 'Little Lantern Angler', 'Cá Đèn Lồng Con', 2, 'hold', 7, 0, 'light', 0, 8, 14, 'Windy Sea', 'Biển Gió', 'Night; glowing bait', 'Đêm; mồi sáng', 'A small lamp that lures other fish.', 'Bóng đèn nhỏ dụ cả cá khác.', ''],
+    ['sparkjelly', 'Sparkbox Jelly', 'Sứa Hộp Điện', 2, 'hold', 6, 0, 'eel', 0, 6, 12, 'Windy Sea', 'Biển Gió', 'Rain and storm', 'Mưa, bão', 'Box-shaped, with sparks running like lace.', 'Hình hộp, các tia điện chạy như ren.', ''],
+    ['moon', 'Moon Eel', 'Lươn Trăng', 3, 'hold', 8, 0, 'eel', 0, 6, 22, 'Windy Sea, Far Deep', 'Biển Gió, Vực Xa', 'Moonlit night', 'Đêm trăng', 'Silver bands like moonlight.', 'Vằn bạc như ánh trăng.', ''],
+    ['stripeshark', 'Striped Shiver Shark', 'Cá Mập Vằn Ngầm', 3, 'hold', 9, 0, 'predator', 0, 10, 12, 'Windy Sea', 'Biển Gió', 'Day; blood bait', 'Ngày; mồi máu', 'Black stripes on grey, teeth sticking out.', 'Vằn đen trên nền xám, răng chìa ra.', ''],
+    ['devilray', 'Sea Devil Ray', 'Cá Đuối Quỷ', 3, 'hold', 10, 0, 'armor', 0, 6, 12, 'Windy Sea', 'Biển Gió', 'Dusk; armor bait', 'Hoàng hôn; mồi giáp', 'Two horns on its head and a red belly.', 'Hai sừng ở đầu, bụng đỏ.', ''],
+    ['stormeel', 'Stormeel', 'Lươn Bão', 3, 'hold', 10, 0, 'eel', 0, 4, 14, 'Windy Sea, Far Deep', 'Biển Gió, Vực Xa', 'Storm; shock bait', 'Bão; mồi điện', 'A black body, lightning running down its back.', 'Thân đen, tia điện chạy dọc lưng.', 'storm'],
+    ['ghostsquid', 'Ghost Squid', 'Mực Ma', 3, 'hold', 9, 0, 'squid', 0, 0, 12, 'Far Deep', 'Vực Xa', 'Fog; squid bait', 'Sương mù; mồi mực', 'Almost invisible: only its eyes show.', 'Gần như vô hình, chỉ có đôi mắt.', 'fog'],
+    ['sailfish', 'Crimson Sailfish', 'Cá Cờ Đỏ', 3, 'hold', 10, 0, 'predator', 0, 8, 12, 'Windy Sea, Far Deep', 'Biển Gió, Vực Xa', 'Day; blood bait', 'Ngày; mồi máu', 'A red dorsal fin like a sail.', 'Vây lưng đỏ như cánh buồm.', ''],
+    ['emperorcrab', 'Emperor Plate Crab', 'Cua Hoàng Giáp', 3, 'hold', 9, 0, 'armor', 2, 6, 6, 'Reef, Windy Sea', 'Rạn, Biển Gió', 'Day; armor bait', 'Ngày; mồi giáp', 'A shell like armour, with seashells as medals.', 'Mai như bộ giáp, gắn vỏ sò làm huân chương.', ''],
+    ['stoneturtle', 'Old Stone Turtle', 'Rùa Đá Cổ', 3, 'hold', 12, 0, 'armor', 0, 4, 4, 'Around the islands', 'Quanh các đảo', 'Day', 'Ngày', 'Moss on its shell, and even a small tree.', 'Mai mọc rêu và cả một cây nhỏ.', ''],
+    ['hammerhead', 'Gold Hammerhead', 'Cá Búa Vàng', 3, 'hold', 10, 0, 'predator', 0, 6, 12, 'Windy Sea, Far Deep', 'Biển Gió, Vực Xa', 'Dusk', 'Hoàng hôn', 'A head like a golden metal bar.', 'Đầu búa ánh vàng như thỏi kim loại.', ''],
+    ['parasoljelly', 'Radiant Parasol Jelly', 'Sứa Dù Rực', 3, 'hold', 9, 0, 'light', 0, 4, 10, 'Windy Sea, Far Deep', 'Biển Gió, Vực Xa', 'Night', 'Đêm', 'A glowing umbrella like a paper lantern.', 'Tán dù tỏa sáng như đèn lồng giấy.', ''],
+    ['moonfish', 'Giant Moonfish', 'Cá Mặt Trăng Khổng', 4, 'duel', 12, 0.7, 'light', 0, 0, 10, 'Far Deep', 'Vực Xa', 'Moonlit night', 'Đêm trăng', 'Round as a second moon.', 'Tròn vành vạnh như mặt trăng thứ hai.', ''],
+    ['ironshark', 'Ironsnout Shark', 'Cá Mập Mõm Sắt', 4, 'duel', 13, 0.8, 'predator', 0, 0, 8, 'Far Deep', 'Vực Xa', 'Red tide; blood bait', 'Thủy triều đỏ; mồi máu', 'A snout plated in rusty iron.', 'Mõm bọc giáp sắt rỉ.', 'redtide'],
+    ['elderocto', 'Elder Reef Octopus', 'Bạch Tuộc Rạn Cổ', 4, 'duel', 12, 0.75, 'squid', 0, 0, 6, 'Whirlpool cave', 'Hang Xoáy', 'Squid bait', 'Mồi mực', 'So old that coral grows on its head.', 'Già đến mức san hô mọc trên đầu.', ''],
+    ['abysslantern', 'Abyss Lantern Angler', 'Cá Đèn Lồng Vực', 4, 'duel', 13, 0.72, 'light', 0, 0, 8, 'Far Deep', 'Vực Xa', 'Night; glowing bait', 'Đêm; mồi sáng', 'A lure as big as a ball, and teeth like needles.', 'Đèn trên trán to như quả cầu, răng như kim.', ''],
+    ['bonewhale', 'Bonewhale Calf', 'Cá Voi Xương Non', 4, 'duel', 14, 0.8, 'predator', 0, 0, 5, 'Far Deep', 'Vực Xa', 'Fog', 'Sương mù', 'A whale skeleton that still seems alive.', 'Bộ xương cá voi còn mang bóng dáng sống.', ''],
+    ['dragonmoray', 'Dragonscale Moray', 'Lươn Giáp Rồng', 4, 'duel', 13, 0.8, 'armor', 0, 0, 6, 'Shipwrecks', 'Xác tàu', 'Night; armor bait', 'Đêm; mồi giáp', 'Scales arranged like a dragon\'s.', 'Vảy xếp như vảy rồng.', ''],
+    ['golden', 'Golden Fish', 'Cá Vàng', 5, 'duel', 13, 0.7, 'legend', 2, 3, 8, 'Everywhere (rare)', 'Khắp nơi (hiếm)', 'Any time; very rare', 'Mọi lúc; rất hiếm', 'Real gold scales.', 'Vảy vàng thật.', ''],
+    ['wyrm', 'Elder Sea Wyrm', 'Hải Long Cổ', 5, 'duel', 16, 0.9, 'legend', 0, 0, 3, 'Far Deep', 'Vực Xa', 'Big storm; rare bait', 'Bão lớn; mồi hiếm', 'An old sea dragon with a pearl on its brow.', 'Rồng biển già, trán có hòn ngọc.', 'storm'],
+    ['colossquid', 'Midnight Colossal Squid', 'Mực Khổng Nửa Đêm', 5, 'duel', 17, 0.9, 'squid', 0, 0, 3, 'Far Deep', 'Vực Xa', 'Moonlit night; squid bait', 'Đêm trăng; mồi thịt Mực Bóng', 'Night-blue, with spots like a starry sky.', 'Màu xanh đêm, đốm sáng như bầu trời sao.', 'moon'],
+    ['crystalfish', 'Thousand-Eye Crystalfish', 'Cá Pha Lê Ngàn Mắt', 5, 'duel', 15, 0.8, 'legend', 0, 0, 3, 'Far Deep', 'Vực Xa', 'Red tide; crystal bait', 'Thủy triều đỏ; mồi pha lê', 'A crystal body with hundreds of eye-like dots.', 'Thân pha lê, hàng trăm chấm như mắt.', 'redtide'],
+    ['islandturtle', 'Island Turtle', 'Rùa Đảo Cổ', 5, 'duel', 16, 0.6, 'armor', 0, 0, 0, 'Island event', 'Sự kiện đảo hoang', 'Event only', 'Chỉ trong sự kiện', 'An island on its back, with trees and a chest. It breathes.', 'Đảo nhỏ có cây, có rương, nhưng bạn biết nó biết thở.', 'event']
+  ];
+  const RANK_L = ['', 'B', 'A', 'S', 'SS', 'SSS'];
+  for (const r of FISH_ROWS) {
+    const o = { id: r[0], en: r[1], vi: r[2], r: r[3], kind: r[4], dur: r[5], pw: r[6], tags: r[7].split(' '), w: [r[8], r[9], r[10]], zen: r[11], zvi: r[12], cen: r[13], cvi: r[14], den: r[15], dvi: r[16], cond: r[17] };
+    let f = FISH_BY[o.id];
+    if (!f) { f = { zw: [0, .34, .28, .22, .18, .15][o.r], sp: [0, 1.0, 1.25, 1.5, 1.6, 1.7][o.r], col: ['#aab4cc', '#667088', '#cfd6e6'], rew: { en: 'into the hold', vi: 'vào khoang' } }; FISH.push(f); FISH_BY[o.id] = f; }
+    const keep = f.legacy ? { r: o.r, w: f.w, kind: f.kind, dur: f.dur || o.dur, pw: f.pw || o.pw, tags: f.tags } : {};
+    Object.assign(f, o, keep); f.spr = o.id === 'moon' ? 'mooneel' : o.id;
+  }
+  FISH_BY.boot.spr = null;
+  const FISH_OPEN = FISH.filter(f => f.id !== 'boot'), ENV_RARE = 0.12;   // (until the weather step, fish that need a weather get only a small chance)
   // baits: `m` = how much more likely the tagged fish bite. Worms are free and never run out; the others come from the sea's creatures.
   const BAITS = {
     worm: { en: 'Worm', vi: 'Giun', col: '#d89a8a', m: { small: 1.3 } },
-    shrimp: { en: 'Shrimp bait', vi: 'Mồi tôm', col: '#ff9a6a', m: { predator: 2.5, light: 1.5 } },
+    shrimp: { en: 'Shrimp bait', vi: 'Mồi tôm', col: '#ff9a6a', m: { predator: 2.5, light: 1.5, squid: 2, small: 1.2 } },
     blood: { en: 'Blood bait', vi: 'Mồi máu', col: '#e0453a', m: { predator: 3, eel: 2 }, beast: true },
-    squid: { en: 'Squid bait', vi: 'Mồi mực', col: '#b8a0ff', m: { eel: 3, light: 2 } },
+    squid: { en: 'Squid bait', vi: 'Mồi mực', col: '#b8a0ff', m: { eel: 3, light: 2, squid: 3 } },
     shock: { en: 'Shock bait', vi: 'Mồi điện', col: '#ffe44e', m: { eel: 3, light: 2, small: 0.6 }, zap: true },
     armor: { en: 'Armor bait', vi: 'Mồi giáp', col: '#8fa8c8', m: { armor: 3 } },
     crystal: { en: 'Crystal bait', vi: 'Mồi pha lê', col: '#9fe8ff', m: { legend: 4 } }
   };
+  const MUT = { shine: { en: 'Shiny', vi: 'Lấp Lánh', filter: 'brightness(1.3) saturate(1.5)' }, blood: { en: 'Blood', vi: 'Đỏ Máu', filter: 'hue-rotate(-35deg) saturate(1.7) brightness(.9)' }, shadow: { en: 'Shadow', vi: 'Bóng Đêm', filter: 'brightness(.5) contrast(1.4)' } };
   const BAIT_DROP = { piranha: ['blood', 0.3], jelly: ['shock', 0.3], crab: ['armor', 0.3], eel: ['squid', 0.4], seaslime: ['shrimp', 0.4] };   // the open sea's creatures drop baits
   const baitHave = id => id === 'worm' ? 1e9 : (save.baits[id] | 0);
   function addBait(id, n) { if (!BAITS[id] || id === 'worm') return; save.baits[id] = (save.baits[id] | 0) + (n || 1); if (!DEMO) writeSave(); if (Q) { Q.msg = sv('Got ' + BAITS[id].en + '!  (Q: change bait)', 'Nhặt được ' + BAITS[id].vi + '!  (Q: đổi mồi)'); Q.msgT = 3; } }
+  const addBaitFor = (P, id) => { if (isMe(P)) addBait(id, 1); else coopGive(P, { t: 'bait', id, n: 1 }); };
   function cycleBait(second) {
     const ids = Object.keys(BAITS).filter(id => baitHave(id) > 0), key = second ? 'baitSel2' : 'baitSel', list = second ? [null].concat(ids) : ids, cur = list.indexOf(save[key]);
     save[key] = list[(cur + 1) % list.length]; if (!second && !save[key]) save[key] = 'worm'; if (!DEMO) writeSave(); Snd.play('select');
@@ -2853,13 +2917,39 @@
   const lvOf = P => isMe(P) ? fishLv() : Math.max(1, Math.min(20, (P.inp && P.inp.fl) | 0));
   const FISH_TOTAL = FISH.filter(f => f.r > 0).length;
   function pickFish(tier, baits) {
-    const wt = f => { let w = f.w[tier] || 0; for (const b of baits || []) for (const tg of f.tags || []) if (BAITS[b] && BAITS[b].m[tg]) w *= BAITS[b].m[tg]; return w; };
+    const op = !!(Q && Q.L && Q.L.open);
+    const wt = f => {
+      if (!op) return f.legacy ? (f.w[tier] || 0) : 0;
+      if (f.id === 'boot') return 0;
+      let w = f.w[tier] || 0; if (f.cond && !(Q.env && Q.env[f.cond])) w *= f.cond === 'event' ? 0 : ENV_RARE;
+      for (const b of baits || []) for (const tg of f.tags || []) if (BAITS[b] && BAITS[b].m[tg]) w *= BAITS[b].m[tg];
+      return w;
+    };
     let tot = 0; for (const f of FISH) tot += wt(f); let r = Math.random() * tot; for (const f of FISH) { r -= wt(f); if (r <= 0) return f; } return FISH[0];
   }
+  // the atlas of fish sheets (assets/sprites/fish/fish.png + fish.json from tools/pixel/fish2.py), loaded once; frames are cut on first use
+  const FART = { meta: null, img: null, frames: {}, started: false };
+  function fishArtLoad() {
+    if (FART.started) return; FART.started = true;
+    fetch('assets/sprites/fish/fish.json').then(r => r.json()).then(m => { FART.meta = m; const im = new Image(); im.onload = () => { FART.img = im; }; im.src = 'assets/sprites/fish/' + m.file; }).catch(() => { FART.failed = true; });
+  }
+  function fishFrames(spr, state) {   // [{c, f, w, h, cw, fw}] facing right (f = mirrored), anchor = the centre of the cell; null until loaded
+    if (!FART.started) fishArtLoad(); if (!FART.img || !FART.meta) return null; const e = FART.meta.fish[spr]; if (!e) return null;
+    const key = spr + '/' + state; if (FART.frames[key]) return FART.frames[key];
+    const st = e.states[state]; if (!st) return null; const fr = [];
+    for (let i = 0; i < st.n; i++) fr.push(imgSprite(FART.img, st.x + i * e.cell[0], st.y, e.cell[0], e.cell[1]));
+    return (FART.frames[key] = { fr, fps: st.fps, loop: st.loop, w: e.cell[0], h: e.cell[1] });
+  }
+  function fishAnim(spr, state, t) { const A = fishFrames(spr, state); if (!A) return null; const n = A.fr.length, i = A.loop ? Math.floor(t * A.fps) % n : Math.min(n - 1, Math.floor(t * A.fps)); return { s: A.fr[i], w: A.w, h: A.h }; }
+  function fishSprite(id) {   // a still picture for cards: the idle frame of the sheet, or the old painted fish until it has loaded
+    const sp = FISH_BY[id] && FISH_BY[id].spr; fishArtLoad();
+    if (sp) { const a = fishAnim(sp, 'idle', 0); if (a) return { c: a.s.c, w: a.w, h: a.h, art: true }; }
+    return fishSpritePaint(id);
+  }
   const fishSpr = {};
-  function fishSprite(id) {
+  function fishSpritePaint(id) {
     if (fishSpr[id]) return fishSpr[id];
-    const [a, b, c] = FISH_BY[id].col;
+    const [a, b, c] = FISH_BY[id].col; if (!FISH_BY[id].legacy) { return (fishSpr[id] = paint(18, 10, P => { P.ell(8, 5, 6, 3, a); P.tri(13, 5, 17, 1, 17, 9, b); P.px(4, 4, '#14101c'); }, '#14101c')); }
     const F = {
       boot: P => { P.rect(2, 1, 5, 7, a); P.rect(2, 7, 11, 3, b); P.rect(7, 6, 6, 2, a); P.rect(2, 1, 5, 1, c); P.px(4, 4, c); P.px(4, 5, c); },
       moon: P => { P.ell(9, 5, 8, 2, a); P.ell(8, 4, 6, 1, c); P.tri(15, 5, 17, 2, 17, 8, b); P.px(3, 4, '#14101c'); P.px(2, 4, '#fff'); for (let i = 0; i < 5; i++) P.px(4 + i * 2, 6, c); },
@@ -2868,7 +2958,7 @@
     const extra = { carp: P => { P.px(9, 4, '#fff6c0'); P.px(11, 5, '#fff6c0'); }, glowfin: P => { P.px(8, 3, '#fff'); P.px(10, 6, '#fff'); P.px(12, 4, '#fff'); }, perch: P => { for (let i = 0; i < 4; i++) P.px(6 + i * 2, 2, '#14101c'); }, golden: P => { P.px(7, 4, '#fff'); P.px(9, 6, '#fff'); P.px(11, 3, '#fff'); } };
     return (fishSpr[id] = paint(18, 10, P => { if (F[id]) F[id](P); else { body(P); if (extra[id]) extra[id](P); } }, '#14101c'));
   }
-  function fishCardOf(P, spec, isNew) { if (!isMe(P)) return; Q.fishCard = { id: spec.id, t: 0, isNew, n: save.fishLog.length }; }
+  function fishCardOf(P, spec, isNew, mut) { if (!isMe(P)) return; Q.fishCard = { id: spec.id, t: 0, isNew, n: Q.L.open ? FISH_OPEN.filter(f => save.fishLog.indexOf(f.id) >= 0).length : save.fishLog.length, mut: mut || null }; }
   const fishSpotNear = P => { for (const sp of Q.L.fishSpots || []) if (P.onGround && !P.boat && Math.abs(P.x + P.w / 2 - (sp.x + 0.5) * TS) < 14 && Math.abs(P.y + P.h - sp.y * TS) < 6) return sp; return null; };
   const needleAt = (t, sp) => 1 - Math.abs(((t * (sp || 1.1)) % 2) - 1);
   const boardSpotNear = P => { const sea = Q.L.sea; return !!(sea && Q.boat && P.onGround && !P.boat && !P.fish && Math.abs(P.x + P.w / 2 - sea.pierEnd * TS) < 12 && Math.abs(P.y + P.h - sea.surface) < 6); };
@@ -2967,9 +3057,12 @@
     const coins = n => { for (let i = 0; i < n; i++) drop('coin'); };
     const ammo = n => { const w = ['dagger', 'dagger', 'bomb', 'flask'][(Math.random() * 4) | 0]; drop('pk', { what: w, amt: w === 'dagger' ? n + 2 : n, keep: false }); };
     if (Q.L.open && Q.boat) {   // phase 6: on the open sea a catch goes into the boat's hold (it counts as 1 fish when traded); a few coins by rank
-      const hd = Q.boat.hold[P.slot || 0] || (Q.boat.hold[P.slot || 0] = { n: 0, sp: {} }); hd.n++; hd.sp[spec.id] = (hd.sp[spec.id] | 0) + 1;
-      coins(Math.max(0, [0, 1, 1, 2, 3, 5][spec.r | 0] || 0));
-      if (mine && spec.r > 0 && save.fishLog.indexOf(spec.id) < 0) { save.fishLog.push(spec.id); if (!DEMO) writeSave(); fishCardOf(P, spec, true); } else if (mine) fishCardOf(P, spec, false);
+      let mut = null; const lvm = lvOf(P) >= 16 ? 1.25 : 1, env = Q.env || {};   // a mutant: a rare colour variant that still counts as 1 fish
+      if (Math.random() < lvm / 60) mut = 'shine'; else if (env.redtide && Math.random() < lvm / 90) mut = 'blood'; else if ((env.fog || env.darkNight) && Math.random() < lvm / 90) mut = 'shadow';
+      const hd = Q.boat.hold[P.slot || 0] || (Q.boat.hold[P.slot || 0] = { n: 0, sp: {} }); hd.n++; const hk = spec.id + (mut ? '#' + mut : ''); hd.sp[hk] = (hd.sp[hk] | 0) + 1;
+      coins(Math.max(0, [0, 1, 1, 2, 3, 5][spec.r | 0] || 0) + (mut === 'shine' ? 3 * spec.r : 0));
+      if (mut === 'blood') addBaitFor(P, 'blood'); else if (mut === 'shadow') addBaitFor(P, 'squid');
+      if (mine && spec.r > 0 && save.fishLog.indexOf(spec.id) < 0) { save.fishLog.push(spec.id); if (!DEMO) writeSave(); fishCardOf(P, spec, true, mut); } else if (mine) fishCardOf(P, spec, false, mut);
       questFish(P, spec);
       if (mine) { Q.msg = sv('Caught: ' + spec.en + '!  Hold ' + holdTotal() + '/' + holdCap(), 'Câu được: ' + spec.vi + '!  Khoang ' + holdTotal() + '/' + holdCap()); Q.msgT = 3; } else pop(P.x + 4, P.y - 22, sv(spec.en + '!', spec.vi + '!'), '#9fe8ff');
       return;
@@ -2994,14 +3087,55 @@
     const c = Q.fishCard; if (!c) return; c.t += 1 / 60; if (c.t > 4) { Q.fishCard = null; return; }
     const spec = FISH_BY[c.id], a = Math.min(1, (4 - c.t) * 2, c.t * 4), sp = fishSprite(c.id), x = Math.round(VW / 2 - 70), y = 22 - Math.round((1 - Math.min(1, c.t * 5)) * 20);
     g.globalAlpha = a; g.fillStyle = '#14101c'; g.fillRect(x, y, 140, 38); g.fillStyle = spec.r >= 4 ? '#ffd34e' : (spec.r >= 3 ? '#c8b8ff' : '#3a3450'); g.fillRect(x + 1, y + 1, 138, 1); g.fillRect(x + 1, y + 36, 138, 1);
-    g.fillStyle = '#221d2e'; g.fillRect(x + 2, y + 2, 38, 34); g.drawImage(sp.c, x + 4, y + 8, sp.w * 2, sp.h * 2);
+    g.fillStyle = '#221d2e'; g.fillRect(x + 2, y + 2, 38, 34);
+    { const k = sp.art ? Math.min(1, 34 / sp.w, 30 / sp.h) : 2, dw = Math.round(sp.w * k), dh = Math.round(sp.h * k), m = c.mut && MUT[c.mut]; g.save(); if (m && 'filter' in g) g.filter = m.filter; g.drawImage(sp.c, x + 21 - (dw >> 1), y + 19 - (dh >> 1), dw, dh); g.restore(); }
     txt(sv(spec.en, spec.vi), x + 46, y + 6, { size: 7, bold: true, col: '#ffffff' });
-    txt(spec.r > 0 ? '*'.repeat(spec.r) : sv('Junk', 'Đồ bỏ'), x + 46, y + 16, { size: 6, col: spec.r >= 3 ? '#ffd34e' : '#9fe8ff' });
+    txt(spec.r > 0 ? (RANK_L[spec.r] || '') + ' ' + '*'.repeat(Math.min(5, spec.r)) + (c.mut ? '  ' + sv(MUT[c.mut].en, MUT[c.mut].vi) + '!' : '') : sv('Junk', 'Đồ bỏ'), x + 46, y + 16, { size: 6, col: c.mut ? '#ff9ad8' : (spec.r >= 3 ? '#ffd34e' : '#9fe8ff') });
     txt(sv('You got ', 'Nhận: ') + sv(spec.rew.en, spec.rew.vi), x + 46, y + 25, { size: 5, col: '#cfd6e6' });
-    if (c.isNew) txt(sv('NEW! ', 'MỚI! ') + c.n + '/' + FISH_TOTAL, x + 136, y + 6, { al: 'right', size: 6, bold: true, col: '#9fff9f' });
+    if (c.isNew) txt(sv('NEW! ', 'MỚI! ') + c.n + '/' + (Q.L.open ? FISH_OPEN.length : FISH_TOTAL), x + 136, y + 6, { al: 'right', size: 6, bold: true, col: '#9fff9f' });
     g.globalAlpha = 1;
   }
 
+  // ---------- the fish book (H, or tap the fish stock line): the 45 species, silhouettes until you catch them ----------
+  const BOOK_C = 9, BOOK_X = 22, BOOK_Y = 34, BOOK_W = 30, BOOK_H = 19;
+  const fishBookCell = (gx, gy) => { const cx = Math.floor((gx - BOOK_X) / BOOK_W), cy = Math.floor((gy - BOOK_Y) / BOOK_H); if (gx < BOOK_X || gy < BOOK_Y || cx < 0 || cx >= BOOK_C || cy < 0 || cy >= 5) return -1; const i = cy * BOOK_C + cx; return i < FISH_OPEN.length ? i : -1; };
+  function openFishBook() { fishArtLoad(); Q.book = { sel: 0, t: 0 }; Q.state = 'fishbook'; Snd.play('select'); }
+  function updateFishBook() {
+    const B = Q.book; if (!B) { Q.state = 'play'; return; } B.t += 1 / 60; const n = FISH_OPEN.length;
+    if (act.backP || act.pauseP || act.bookP || act.talkP) { Q.state = 'play'; Q.book = null; Snd.play('select'); return; }
+    let d = 0; if (act.leftP) d = -1; else if (act.rightP) d = 1; else if (act.upP) d = -BOOK_C; else if (act.downP) d = BOOK_C;
+    if (d) { B.sel = clamp(B.sel + d, 0, n - 1); Snd.play('select'); }
+  }
+  function drawFishBook() {
+    const B = Q.book, n = FISH_OPEN.length; g.fillStyle = 'rgba(5,3,15,.88)'; g.fillRect(0, 0, VW, VH);
+    const got = FISH_OPEN.filter(f => save.fishLog.indexOf(f.id) >= 0).length;
+    txt(sv('FISH BOOK', 'SỔ CÁ') + '   ' + got + ' / ' + n, VW / 2, 8, { al: 'center', size: 9, bold: true, col: '#9fe8ff' });
+    txt(sv('Fish stock ', 'Kho cá ') + save.fishBank + '    ' + sv('caught for good ', 'đã mang về ') + save.fishTot + '    ' + sv('Fishing Lv ', 'Câu Lv ') + fishLv(), VW / 2, 22, { al: 'center', size: 6, col: '#cfd6e6' });
+    for (let i = 0; i < n; i++) {
+      const f = FISH_OPEN[i], x = BOOK_X + (i % BOOK_C) * BOOK_W, y = BOOK_Y + Math.floor(i / BOOK_C) * BOOK_H, seen = save.fishLog.indexOf(f.id) >= 0, sel = i === B.sel;
+      g.fillStyle = sel ? '#3a3260' : '#1b1626'; g.fillRect(x + 1, y + 1, BOOK_W - 2, BOOK_H - 2); g.fillStyle = sel ? '#ffd34e' : (f.r >= 4 ? '#6a5a2a' : '#3a3450'); g.fillRect(x + 1, y + 1, BOOK_W - 2, 1); g.fillRect(x + 1, y + BOOK_H - 2, BOOK_W - 2, 1);
+      const sp = f.spr && fishSprite(f.id);
+      if (sp && sp.art) { const k = Math.min(1, (BOOK_W - 6) / sp.w, (BOOK_H - 6) / sp.h), dw = Math.max(1, Math.round(sp.w * k)), dh = Math.max(1, Math.round(sp.h * k)); g.save(); if (!seen && 'filter' in g) { g.filter = 'brightness(0)'; g.globalAlpha = 0.55; } g.drawImage(sp.c, x + (BOOK_W >> 1) - (dw >> 1), y + (BOOK_H >> 1) - (dh >> 1), dw, dh); g.restore(); }
+      txt(RANK_L[f.r], x + 3, y + 2, { size: 4, col: seen ? ['', '#9aa4b8', '#6ee89a', '#6ec8ff', '#c8b8ff', '#ffd34e'][f.r] : '#5a5470' });
+      if (seen && (save.fishMut[f.id] || []).length) txt('*', x + BOOK_W - 6, y + 2, { size: 5, col: '#ff9ad8' });
+    }
+    const f = FISH_OPEN[B.sel], seen = save.fishLog.indexOf(f.id) >= 0, y0 = 134;
+    g.fillStyle = '#1b1626'; g.fillRect(8, y0, VW - 16, 100); g.fillStyle = '#3a3450'; g.fillRect(8, y0, VW - 16, 1);
+    g.fillStyle = '#221d2e'; g.fillRect(12, y0 + 4, 76, 92);
+    const an = f.spr && fishAnim(f.spr, 'idle', B.t);
+    if (an) { const k = Math.min(an.w > 40 || an.h > 40 ? 1 : 2, 72 / an.w, 88 / an.h), dw = Math.round(an.w * k), dh = Math.round(an.h * k); g.save(); if (!seen && 'filter' in g) { g.filter = 'brightness(0)'; g.globalAlpha = 0.5; } g.drawImage(an.s.c, 50 - (dw >> 1), y0 + 50 - (dh >> 1), dw, dh); g.restore(); }
+    const KIND = { needle: sv('Needle gauge', 'Kim chạy'), hold: sv('Hold the line', 'Giữ dây'), duel: sv('Duel', 'Đấu sức') };
+    txt(seen ? sv(f.en, f.vi) : '???', 96, y0 + 6, { size: 9, bold: true, col: seen ? '#fff' : '#8892aa' });
+    txt(RANK_L[f.r] + ' ' + '*'.repeat(f.r) + '    ' + (KIND[f.kind] || ''), 96, y0 + 19, { size: 6, col: '#ffd34e' });
+    txt(sv('Where: ', 'Nơi: ') + sv(f.zen, f.zvi), 96, y0 + 30, { size: 6, col: '#9fe8ff' });
+    txt(sv('When: ', 'Khi: ') + sv(f.cen, f.cvi), 96, y0 + 40, { size: 6, col: '#cfd6e6' });
+    if (seen) {
+      txt(sv(f.den, f.dvi), 96, y0 + 53, { size: 6, col: '#e8eaf5' });
+      txt(sv('Caught: ', 'Đã câu: ') + (save.fishCnt[f.id] | 0), 96, y0 + 68, { size: 6, col: '#9fff9f' });
+      const ms = save.fishMut[f.id] || []; if (ms.length) txt(sv('Mutants: ', 'Đột biến: ') + ms.map(m => sv(MUT[m].en, MUT[m].vi)).join(', '), 96, y0 + 79, { size: 6, col: '#ff9ad8' });
+    } else txt(sv('Catch it to learn more.', 'Câu được để biết thêm.'), 96, y0 + 53, { size: 6, col: '#8892aa' });
+    txt(sv('Arrows: choose   ·   H / Esc: close', 'Mũi tên: chọn   ·   H / Esc: đóng'), VW / 2, VH - 4, { al: 'center', size: 5, col: '#8892aa' });
+  }
   // ---------- the boat ----------
   const BOAT_SPD = 70, BEAST_SPD = 52;
   // ---------- phase 6: the hold, the harbour and the fish stock ----------
@@ -3011,7 +3145,7 @@
   const holdTotal = () => { let n = 0; const h = Q.boat && Q.boat.hold; if (h) for (const k in h) n += h[k].n | 0; return n; };
   const holdOf = P => (Q.boat && Q.boat.hold && Q.boat.hold[P.slot || 0]) || { n: 0, sp: {} };
   function bankFish(sp) {   // add a species map to my own save
-    let n = 0; for (const id in sp) { const c = sp[id] | 0; if (c <= 0) continue; n += c; save.fishCnt[id] = (save.fishCnt[id] | 0) + c; }
+    let n = 0; for (const key in sp) { const c = sp[key] | 0; if (c <= 0) continue; const pr = key.split('#'), id = pr[0]; n += c; save.fishCnt[id] = (save.fishCnt[id] | 0) + c; if (pr[1]) { const a = save.fishMut[id] || (save.fishMut[id] = []); if (a.indexOf(pr[1]) < 0) a.push(pr[1]); } }
     save.fishBank += n; save.fishTot += n; if (!DEMO) writeSave(); return n;
   }
   function unloadHold() {
@@ -3204,6 +3338,11 @@
       g.fillStyle = '#f0f4ff'; g.fillRect(Math.round(bx) - 1, Math.round(by) - 2, 3, 2); g.fillStyle = '#e0453a'; g.fillRect(Math.round(bx) - 1, Math.round(by) - 4, 3, 2);
       g.strokeStyle = 'rgba(200,235,255,' + (0.5 - 0.2 * Math.sin(Q.t * 3)).toFixed(2) + ')'; g.beginPath(); g.ellipse(bx, by + 1, 4 + Math.sin(Q.t * 3 + f.t) * 1.2, 1.4, 0, 0, Math.PI * 2); g.stroke();
       const gx = Math.round(p.x + 4 - camX), gyy = Math.round(p.y - 14 - camY);
+      if (f.ph !== 'wait' && FISH_BY[f.fid] && FISH_BY[f.fid].spr) {   // the fish itself, under the bobber: calm = hooked, fighting = thrash, caught = rising
+        const fb = FISH_BY[f.fid], ang = f.ph === 'catch' || (f.ph === 'hold' && f.h.mode === 'thrash') || (f.ph === 'duel' && f.d.burst > 0);
+        const an = fishAnim(fb.spr, f.ph === 'catch' ? 'swim' : (f.ph === 'bite' ? 'hooked' : (ang ? 'thrash' : 'hooked')), Q.t + (f.t || 0));
+        if (an) { const k = Math.max(an.w, an.h) > 60 ? 0.5 : 1; g.globalAlpha = f.ph === 'catch' ? 1 : 0.92; g.drawImage(an.s.c, Math.round(bx - an.w * k / 2), Math.round(by + 3 - (f.ph === 'catch' ? f.ct * 40 : 0)), Math.round(an.w * k), Math.round(an.h * k)); g.globalAlpha = 1; } else fishArtLoad();
+      }
       if (f.ph === 'wait' && f.lv >= 6 && f.tw - f.t < 1.6 && FISH_BY[f.fid]) { const sp2 = fishSprite(f.fid); g.globalAlpha = 0.3 + 0.2 * Math.sin(Q.t * 6); g.drawImage(sp2.c, Math.round(bx - sp2.w / 2), Math.round(by + 6)); g.globalAlpha = 1; }   // fishing level 6: you see its shadow before the bite
       if (f.ph === 'hold' && f.h) {
         const h = f.h; g.fillStyle = '#14101c'; g.fillRect(gx - 22, (gyy - 17) - 2, 44, 14);
@@ -4514,6 +4653,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (st === 'play' && act.talkP && !Q.P.boat && Q.nearGate && !Q.nearNpc && !Q.nearPz) { seaTravel('deep'); return; }
     if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && (!Q.nearCp || travelBlock() === null) && !Q.nearPost && Q.nearFish && !Q.P.fish) { startFish(Q.P, Q.nearFish); return; }
     if (st === 'travel') { updateTravel(); return; }
+    if (st === 'fishbook') { updateFishBook(); return; }
+    if (st === 'play' && act.bookP && (Q.L.open || save.fishLog.length)) { openFishBook(); return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
     if (Q.freeze > 0) { Q.freeze -= dt; updateParticles(dt); return; }
     Q.t += dt; Q.time += dt;
@@ -5126,7 +5267,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (!hiOn) drawPlayOver();   // with hi-res sprites on screen the HUD comes later, in its own pass above them
   }
   function drawPlayOver() {
-    if (Q.state !== 'talk') drawHUD();
+    if (Q.state !== 'talk' && Q.state !== 'fishbook') drawHUD();
     drawBossCard();
     if (coop && Q.state !== 'talk') drawCoopHUD();
     const st = Q.state;
@@ -5139,6 +5280,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       txt(LN(Q.B.name), VW / 2, 104, { al: 'center', size: 16, alpha: a, bold: true });
       txt(LN(Q.B.sub), VW / 2, 122, { al: 'center', size: 7, col: '#cfd6e6', alpha: a }); }
     } else if (st === 'travel' && Q.trav) { drawTravel();
+    } else if (st === 'fishbook' && Q.book) { drawFishBook();
     } else if (st === 'pause') {
       g.fillStyle = 'rgba(5,3,15,.7)'; g.fillRect(0, 0, VW, VH);
       txt(T('paused'), VW / 2, 52, { al: 'center', size: 16, bold: true });
@@ -9899,5 +10041,5 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }, 400); }
   }
   { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
-  if (!RELEASE && location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, giveCatch: (P, r) => { const o = Math.random; Math.random = () => r; try { giveCatch(P || Q.P, {}); } finally { Math.random = o; } }, spawnSummon: (k, o) => spawnSummon(k, 30, Q.P, true, o), evolveSummon: s => evolveSummon(s), bossSprite: li => bossSprite(li), formSprite: k => formSprite(k), npcSpr: k => npcSpr(k), pump: (n, ms) => { let t = Math.max(performance.now(), frame.last || 0); for (let i = 0; i < n; i++) { t += ms || 16; step(t); } }, mfGo: (li, v, hold) => { startMapFilm(li); mf.t = v || 0; mf.hold = !!hold; }, mfT: v => { mf.t = v; }, opSeek: (v, play) => { if (!op) startOpening(); op.t = v; op.hold = !play; }, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (!RELEASE && location.search.indexOf('debug') >= 0) window.LL = { fishAnim, FART, FISH_BY, getCtx: () => g, giveCatch: (P, r) => { const o = Math.random; Math.random = () => r; try { giveCatch(P || Q.P, {}); } finally { Math.random = o; } }, spawnSummon: (k, o) => spawnSummon(k, 30, Q.P, true, o), evolveSummon: s => evolveSummon(s), bossSprite: li => bossSprite(li), formSprite: k => formSprite(k), npcSpr: k => npcSpr(k), pump: (n, ms) => { let t = Math.max(performance.now(), frame.last || 0); for (let i = 0; i < n; i++) { t += ms || 16; step(t); } }, mfGo: (li, v, hold) => { startMapFilm(li); mf.t = v || 0; mf.hold = !!hold; }, mfT: v => { mf.t = v; }, opSeek: (v, play) => { if (!op) startOpening(); op.t = v; op.hold = !play; }, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();

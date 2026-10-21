@@ -1,0 +1,64 @@
+{
+ "name": "youngsword",
+ "cell": [
+  76,
+  52
+ ],
+ "anchor": [
+  38,
+  26
+ ],
+ "facing": "right",
+ "palette": [
+  "#101724",
+  "#14101c",
+  "#2a4173",
+  "#3a5aa0",
+  "#415c90",
+  "#5a80c8",
+  "#6982b7",
+  "#829ed5",
+  "#a0b0d1",
+  "#b0c2e5",
+  "#ced9ee"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "youngsword_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "youngsword_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "youngsword_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "youngsword_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "youngsword_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "youngsword_death.png"
+  }
+ }
+}

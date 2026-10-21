@@ -1,0 +1,64 @@
+{
+ "name": "seaturtle",
+ "cell": [
+  52,
+  44
+ ],
+ "anchor": [
+  26,
+  22
+ ],
+ "facing": "right",
+ "palette": [
+  "#101d11",
+  "#14101c",
+  "#285a34",
+  "#2a5834",
+  "#3a7a48",
+  "#3f7345",
+  "#58a060",
+  "#699a74",
+  "#80b786",
+  "#a0bfa7",
+  "#afd1b3"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "seaturtle_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "seaturtle_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "seaturtle_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "seaturtle_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "seaturtle_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "seaturtle_death.png"
+  }
+ }
+}

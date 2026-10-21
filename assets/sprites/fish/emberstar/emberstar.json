@@ -1,0 +1,60 @@
+{
+ "name": "emberstar",
+ "cell": [
+  32,
+  28
+ ],
+ "anchor": [
+  16,
+  14
+ ],
+ "facing": "right",
+ "palette": [
+  "#2a1108",
+  "#8a2810",
+  "#a7451e",
+  "#e8602a",
+  "#ee865d",
+  "#f4b399",
+  "#ffd34e"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "emberstar_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "emberstar_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "emberstar_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "emberstar_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "emberstar_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "emberstar_death.png"
+  }
+ }
+}

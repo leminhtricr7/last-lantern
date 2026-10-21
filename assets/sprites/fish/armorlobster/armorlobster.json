@@ -1,0 +1,64 @@
+{
+ "name": "armorlobster",
+ "cell": [
+  52,
+  36
+ ],
+ "anchor": [
+  26,
+  18
+ ],
+ "facing": "right",
+ "palette": [
+  "#0d191c",
+  "#14101c",
+  "#1e4858",
+  "#214c59",
+  "#2e6a7c",
+  "#35636f",
+  "#4a8a9a",
+  "#608e9b",
+  "#75a6b2",
+  "#9bb7c0",
+  "#a8c7cf"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "armorlobster_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "armorlobster_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "armorlobster_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "armorlobster_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "armorlobster_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "armorlobster_death.png"
+  }
+ }
+}

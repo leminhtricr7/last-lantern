@@ -1,0 +1,64 @@
+{
+ "name": "dragonmoray",
+ "cell": [
+  80,
+  40
+ ],
+ "anchor": [
+  40,
+  20
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#19080d",
+  "#451427",
+  "#601c36",
+  "#631e35",
+  "#865266",
+  "#8a2a4a",
+  "#a65d75",
+  "#b3929f",
+  "#c799a8",
+  "#dcbfc9"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "dragonmoray_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "dragonmoray_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "dragonmoray_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "dragonmoray_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "dragonmoray_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "dragonmoray_death.png"
+  }
+ }
+}

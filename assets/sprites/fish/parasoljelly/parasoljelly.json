@@ -1,0 +1,64 @@
+{
+ "name": "parasoljelly",
+ "cell": [
+  64,
+  104
+ ],
+ "anchor": [
+  32,
+  52
+ ],
+ "facing": "right",
+ "palette": [
+  "#2b1d25",
+  "#9c5c7f",
+  "#ad7396",
+  "#d880b0",
+  "#e19ec3",
+  "#ecc2d9",
+  "#f0a0d0",
+  "#f4b7db",
+  "#f8d1e8",
+  "#ffe8a0",
+  "#fff0c0"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "parasoljelly_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "parasoljelly_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "parasoljelly_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "parasoljelly_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "parasoljelly_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "parasoljelly_death.png"
+  }
+ }
+}

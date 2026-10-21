@@ -1,0 +1,66 @@
+{
+ "name": "wyrm",
+ "cell": [
+  116,
+  40
+ ],
+ "anchor": [
+  58,
+  20
+ ],
+ "facing": "right",
+ "palette": [
+  "#081921",
+  "#0e3c58",
+  "#14101c",
+  "#144c68",
+  "#1c6a90",
+  "#1e6384",
+  "#2a8ab8",
+  "#528eab",
+  "#5da6c9",
+  "#92b7ca",
+  "#99c7dd",
+  "#bfdcea",
+  "#ffd34e"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "wyrm_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "wyrm_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "wyrm_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "wyrm_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "wyrm_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "wyrm_death.png"
+  }
+ }
+}

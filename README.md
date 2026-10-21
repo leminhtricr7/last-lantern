@@ -714,3 +714,19 @@ tags more likely. Q cycles the bait on the boat (Down cycles the second slot at 
 see the fish's shadow before the bite, Lv8 more forgiving tension, Lv10 two baits, Lv13 an extra rest in duels. (Lv16 mutants and
 Lv20 title come with the fish catalogue.) In co-op the host runs a guest's fishing using the guest's chosen baits and level (sent
 with their input); bait use and drops are sent back to the guest.
+
+## The 45 fish and the fish book (phase 6, step 3)
+`tools/pixel/fish2.py` draws all 45 species from a few templates (spine fish, eel, ray, jelly, squid/octopus, crab/lobster, turtle,
+seahorse, puffer, shrimp, starfish, conch, urchin, anemone, angler) with the six states of the approved samples (idle, swim, hooked,
+thrash, hurt, death); each species has its own folder in `assets/sprites/fish/<id>/` (one strip per state + `<id>.json`, cell = tightest
+box, anchor = cell centre, faces right) and everything is packed into one atlas, `assets/sprites/fish/fish.png` + `fish.json`, which the
+game loads once on first use. Ranks B..SSS are gear ranks, so they show as letters on the card.
+In the game the `FISH_ROWS` table (zones, conditions, minigame, descriptions in both languages) extends the 7 old fish; the Sunken Deep
+still fishes only those 7 with its old rewards. On the open sea the zone sets the odds (Bay / Windy Sea / Far Deep), baits shift them by
+tag, and fish that need a weather (storm, fog, red tide, moonlit night) are rare until the weather step adds `Q.env`. The fish you hook
+is drawn under the bobber (hooked / thrash / rising when caught). **Mutants** (Shiny 1 in 60, more with fishing Lv16; Blood and Shadow
+need weather) are colour variants that count as 1 fish: +3 coins per rank for Shiny, a bait for the others; they are recorded in
+`save.fishMut`. **Fish book**: H (or tap the "Fish stock" line) shows the 45 species as silhouettes until caught, with where/when,
+minigame, count and mutants.
+Honest note: these are template-made sprites (consistent style, but less hand-finished than an artist's work); rays, the wyrm and
+a few small shells are the weakest. Loop seams of a few idle cycles are slightly uneven.

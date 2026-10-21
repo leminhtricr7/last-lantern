@@ -1,0 +1,64 @@
+{
+ "name": "urchin",
+ "cell": [
+  28,
+  28
+ ],
+ "anchor": [
+  14,
+  14
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#190e23",
+  "#4c2873",
+  "#633a8a",
+  "#6a38a0",
+  "#8a50c0",
+  "#8e68b7",
+  "#a67acf",
+  "#b79fd1",
+  "#c7abe1",
+  "#e0c0ff"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "urchin_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "urchin_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "urchin_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "urchin_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "urchin_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "urchin_death.png"
+  }
+ }
+}

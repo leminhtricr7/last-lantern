@@ -1,0 +1,63 @@
+{
+ "name": "moonfish",
+ "cell": [
+  84,
+  80
+ ],
+ "anchor": [
+  42,
+  40
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#24272a",
+  "#637384",
+  "#8aa0b8",
+  "#909ca7",
+  "#a6b7c9",
+  "#c7d1dd",
+  "#c8d8e8",
+  "#d5e1ee",
+  "#e5ecf4"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "moonfish_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "moonfish_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "moonfish_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "moonfish_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "moonfish_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "moonfish_death.png"
+  }
+ }
+}

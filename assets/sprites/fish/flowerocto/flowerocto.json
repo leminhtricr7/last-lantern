@@ -1,0 +1,60 @@
+{
+ "name": "flowerocto",
+ "cell": [
+  56,
+  48
+ ],
+ "anchor": [
+  28,
+  24
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#251423",
+  "#96518a",
+  "#d070c0",
+  "#db92cf",
+  "#e8bae1",
+  "#ffd8f0"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "flowerocto_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "flowerocto_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "flowerocto_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "flowerocto_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "flowerocto_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "flowerocto_death.png"
+  }
+ }
+}

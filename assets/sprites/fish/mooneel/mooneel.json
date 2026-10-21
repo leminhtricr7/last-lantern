@@ -1,0 +1,65 @@
+{
+ "name": "mooneel",
+ "cell": [
+  68,
+  40
+ ],
+ "anchor": [
+  34,
+  20
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#212028",
+  "#4a3a88",
+  "#584c84",
+  "#7a6ab8",
+  "#847fa1",
+  "#9a8ec9",
+  "#b8b0e0",
+  "#bfb7dd",
+  "#c9c3e7",
+  "#ddd9f0",
+  "#eae7f6"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "mooneel_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "mooneel_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "mooneel_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "mooneel_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "mooneel_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "mooneel_death.png"
+  }
+ }
+}

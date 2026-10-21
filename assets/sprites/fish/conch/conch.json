@@ -1,0 +1,63 @@
+{
+ "name": "conch",
+ "cell": [
+  32,
+  28
+ ],
+ "anchor": [
+  16,
+  14
+ ],
+ "facing": "right",
+ "palette": [
+  "#2a241d",
+  "#907356",
+  "#a79073",
+  "#a8784a",
+  "#c8a078",
+  "#d5b798",
+  "#e8c8a0",
+  "#eed5b7",
+  "#f0a0a0",
+  "#f4e5d1"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "conch_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "conch_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "conch_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "conch_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "conch_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "conch_death.png"
+  }
+ }
+}

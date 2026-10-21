@@ -1,0 +1,60 @@
+{
+ "name": "elderocto",
+ "cell": [
+  80,
+  76
+ ],
+ "anchor": [
+  40,
+  38
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#1e0e0c",
+  "#70d0a0",
+  "#793a2e",
+  "#a85040",
+  "#bd7a6e",
+  "#d5aba3"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "elderocto_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "elderocto_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "elderocto_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "elderocto_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "elderocto_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "elderocto_death.png"
+  }
+ }
+}

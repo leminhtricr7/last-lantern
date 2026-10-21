@@ -1,0 +1,64 @@
+{
+ "name": "carp",
+ "cell": [
+  48,
+  36
+ ],
+ "anchor": [
+  24,
+  18
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#2a1208",
+  "#a8461a",
+  "#b8501c",
+  "#e0702a",
+  "#f08a3a",
+  "#ff9a3a",
+  "#ffc27a",
+  "#ffc878",
+  "#ffe6a8",
+  "#fff6c0"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "carp_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "carp_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "carp_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "carp_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "carp_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "carp_death.png"
+  }
+ }
+}

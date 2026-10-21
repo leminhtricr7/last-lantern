@@ -1,0 +1,68 @@
+{
+ "name": "islandturtle",
+ "cell": [
+  116,
+  92
+ ],
+ "anchor": [
+  58,
+  46
+ ],
+ "facing": "right",
+ "palette": [
+  "#131910",
+  "#14101c",
+  "#2e5a2e",
+  "#354c2e",
+  "#4a6a40",
+  "#4c633f",
+  "#60b050",
+  "#6a8a58",
+  "#758e6e",
+  "#8ea680",
+  "#a8b7a3",
+  "#b0a070",
+  "#b7c7af",
+  "#d8c890",
+  "#f0e0a8"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "islandturtle_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "islandturtle_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "islandturtle_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "islandturtle_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "islandturtle_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "islandturtle_death.png"
+  }
+ }
+}

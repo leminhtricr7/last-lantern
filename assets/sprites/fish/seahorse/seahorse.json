@@ -1,0 +1,64 @@
+{
+ "name": "seahorse",
+ "cell": [
+  28,
+  40
+ ],
+ "anchor": [
+  14,
+  20
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#2a230c",
+  "#8a6a10",
+  "#906f1d",
+  "#a78a2e",
+  "#c89a28",
+  "#d5b25c",
+  "#e5cf98",
+  "#e8c040",
+  "#eecf6e",
+  "#f4e1a3"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "seahorse_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "seahorse_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "seahorse_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "seahorse_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "seahorse_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "seahorse_death.png"
+  }
+ }
+}

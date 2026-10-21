@@ -1,0 +1,63 @@
+{
+ "name": "bubblejelly",
+ "cell": [
+  40,
+  44
+ ],
+ "anchor": [
+  20,
+  22
+ ],
+ "facing": "right",
+ "palette": [
+  "#1e282b",
+  "#5c8a9c",
+  "#79a1ad",
+  "#80c0d8",
+  "#9ecfe1",
+  "#a8e0f0",
+  "#bde7f4",
+  "#c2e1ec",
+  "#d5f0f8",
+  "#e8fcff"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "bubblejelly_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "bubblejelly_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "bubblejelly_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "bubblejelly_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "bubblejelly_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "bubblejelly_death.png"
+  }
+ }
+}

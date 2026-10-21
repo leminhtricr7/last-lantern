@@ -1,0 +1,65 @@
+{
+ "name": "glowfin",
+ "cell": [
+  56,
+  36
+ ],
+ "anchor": [
+  28,
+  18
+ ],
+ "facing": "right",
+ "palette": [
+  "#0c2127",
+  "#14101c",
+  "#1e6884",
+  "#2a90b8",
+  "#2e849c",
+  "#40b8d8",
+  "#5dabc9",
+  "#6ec9e1",
+  "#99cadd",
+  "#a3ddec",
+  "#bff8ff",
+  "#c6eaf3"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "glowfin_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "glowfin_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "glowfin_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "glowfin_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "glowfin_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "glowfin_death.png"
+  }
+ }
+}

@@ -1,0 +1,65 @@
+{
+ "name": "stoneturtle",
+ "cell": [
+  76,
+  60
+ ],
+ "anchor": [
+  38,
+  30
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#191916",
+  "#4a6a38",
+  "#4b4b3f",
+  "#636356",
+  "#686858",
+  "#70a050",
+  "#8a8a78",
+  "#8c8c80",
+  "#a6a698",
+  "#b7b7af",
+  "#c7c7be"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "stoneturtle_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "stoneturtle_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "stoneturtle_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "stoneturtle_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "stoneturtle_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "stoneturtle_death.png"
+  }
+ }
+}

@@ -1,0 +1,64 @@
+{
+ "name": "crystalfish",
+ "cell": [
+  84,
+  56
+ ],
+ "anchor": [
+  42,
+  28
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#222d2e",
+  "#5b96a7",
+  "#7ed0e8",
+  "#8ab3b8",
+  "#9ddbee",
+  "#bff8ff",
+  "#c1e8f4",
+  "#cefaff",
+  "#e0fcff",
+  "#ecfdff"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "crystalfish_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "crystalfish_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "crystalfish_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "crystalfish_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "crystalfish_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "crystalfish_death.png"
+  }
+ }
+}

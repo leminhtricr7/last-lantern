@@ -1,0 +1,64 @@
+{
+ "name": "pebblecrab",
+ "cell": [
+  40,
+  36
+ ],
+ "anchor": [
+  20,
+  18
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#19191b",
+  "#4a4a58",
+  "#4c4c56",
+  "#63636c",
+  "#6a6a78",
+  "#8a8a96",
+  "#8e8e98",
+  "#a6a6af",
+  "#b7b7be",
+  "#c7c7cd"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "pebblecrab_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "pebblecrab_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "pebblecrab_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "pebblecrab_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "pebblecrab_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "pebblecrab_death.png"
+  }
+ }
+}

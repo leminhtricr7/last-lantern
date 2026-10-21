@@ -1,0 +1,64 @@
+{
+ "name": "emperorcrab",
+ "cell": [
+  80,
+  56
+ ],
+ "anchor": [
+  40,
+  28
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#24110a",
+  "#6a2a14",
+  "#73321a",
+  "#90452a",
+  "#a04624",
+  "#b77259",
+  "#c8603a",
+  "#d1a696",
+  "#d58669",
+  "#e5b3a0"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "emperorcrab_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "emperorcrab_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "emperorcrab_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "emperorcrab_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "emperorcrab_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "emperorcrab_death.png"
+  }
+ }
+}

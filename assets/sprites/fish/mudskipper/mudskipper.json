@@ -1,0 +1,64 @@
+{
+ "name": "mudskipper",
+ "cell": [
+  40,
+  32
+ ],
+ "anchor": [
+  20,
+  16
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#191910",
+  "#4c4c2e",
+  "#63633f",
+  "#6a6a40",
+  "#8a8a58",
+  "#8e8e6e",
+  "#a6a680",
+  "#b7b7a3",
+  "#c7c7af",
+  "#d8e890"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "mudskipper_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "mudskipper_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "mudskipper_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "mudskipper_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "mudskipper_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "mudskipper_death.png"
+  }
+ }
+}

@@ -1,0 +1,64 @@
+{
+ "name": "rosesquid",
+ "cell": [
+  48,
+  32
+ ],
+ "anchor": [
+  24,
+  16
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#2b191e",
+  "#9c4c68",
+  "#ad6379",
+  "#d86a90",
+  "#e18eab",
+  "#ecb7ca",
+  "#f08aa8",
+  "#f4a6bd",
+  "#f8c7d5",
+  "#ffd0e0"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "rosesquid_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "rosesquid_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "rosesquid_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "rosesquid_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "rosesquid_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "rosesquid_death.png"
+  }
+ }
+}

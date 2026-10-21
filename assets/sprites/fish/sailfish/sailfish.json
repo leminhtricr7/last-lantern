@@ -1,0 +1,64 @@
+{
+ "name": "sailfish",
+ "cell": [
+  104,
+  64
+ ],
+ "anchor": [
+  52,
+  32
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#270d0a",
+  "#79211a",
+  "#9c342a",
+  "#a82e24",
+  "#bd6059",
+  "#d59b96",
+  "#d8483a",
+  "#e17469",
+  "#eca7a0",
+  "#f3c8c4"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "sailfish_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "sailfish_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "sailfish_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "sailfish_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "sailfish_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "sailfish_death.png"
+  }
+ }
+}

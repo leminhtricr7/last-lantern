@@ -1,0 +1,64 @@
+{
+ "name": "bonewhale",
+ "cell": [
+  100,
+  68
+ ],
+ "anchor": [
+  50,
+  34
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#272523",
+  "#797368",
+  "#9c968a",
+  "#a8a090",
+  "#bdb7ab",
+  "#bff8ff",
+  "#d5d1ca",
+  "#d8d0c0",
+  "#e1dbcf",
+  "#ece8e1"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "bonewhale_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "bonewhale_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "bonewhale_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "bonewhale_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "bonewhale_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "bonewhale_death.png"
+  }
+ }
+}

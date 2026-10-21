@@ -1,0 +1,65 @@
+{
+ "name": "perch",
+ "cell": [
+  56,
+  36
+ ],
+ "anchor": [
+  28,
+  18
+ ],
+ "facing": "right",
+ "palette": [
+  "#102113",
+  "#14101c",
+  "#285a34",
+  "#2a633a",
+  "#3a8a50",
+  "#3f844b",
+  "#58b868",
+  "#69a67a",
+  "#80c98c",
+  "#a0c7ab",
+  "#afddb7",
+  "#cdead2"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "perch_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "perch_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "perch_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "perch_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "perch_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "perch_death.png"
+  }
+ }
+}

@@ -1,0 +1,65 @@
+{
+ "name": "sandray",
+ "cell": [
+  76,
+  44
+ ],
+ "anchor": [
+  38,
+  22
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#272319",
+  "#846f48",
+  "#9c8a63",
+  "#b89a64",
+  "#c9b289",
+  "#d8c08a",
+  "#ddcfb5",
+  "#e1cfa6",
+  "#ece1c7",
+  "#f3ecdc",
+  "#f8e8b8"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "sandray_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "sandray_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "sandray_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "sandray_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "sandray_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "sandray_death.png"
+  }
+ }
+}

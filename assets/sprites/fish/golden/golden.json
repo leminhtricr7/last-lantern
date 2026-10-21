@@ -1,0 +1,64 @@
+{
+ "name": "golden",
+ "cell": [
+  60,
+  44
+ ],
+ "anchor": [
+  30,
+  22
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#2e260e",
+  "#9c731a",
+  "#b89838",
+  "#d8a024",
+  "#e1b759",
+  "#ecd196",
+  "#ffd34e",
+  "#ffde78",
+  "#ffeaaa",
+  "#fff2ca"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "golden_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "golden_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "golden_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "golden_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "golden_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "golden_death.png"
+  }
+ }
+}

@@ -1,0 +1,67 @@
+{
+ "name": "lilangler",
+ "cell": [
+  56,
+  40
+ ],
+ "anchor": [
+  28,
+  20
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a1019",
+  "#14101c",
+  "#1e2e51",
+  "#2a2050",
+  "#2a4070",
+  "#2a4163",
+  "#3a5a8a",
+  "#5d6e92",
+  "#6982a6",
+  "#7ef0ff",
+  "#99a3ba",
+  "#a0b0c7",
+  "#ffd34e",
+  "#ffe88a"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "lilangler_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "lilangler_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "lilangler_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "lilangler_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "lilangler_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "lilangler_death.png"
+  }
+ }
+}

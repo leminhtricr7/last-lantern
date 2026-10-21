@@ -1,0 +1,63 @@
+{
+ "name": "sparkjelly",
+ "cell": [
+  44,
+  52
+ ],
+ "anchor": [
+  22,
+  26
+ ],
+ "facing": "right",
+ "palette": [
+  "#211e2b",
+  "#685c9c",
+  "#8479ad",
+  "#9080d8",
+  "#ab9ee1",
+  "#b8a8f0",
+  "#c9bdf4",
+  "#cac2ec",
+  "#ddd5f8",
+  "#fff6a0"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "sparkjelly_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "sparkjelly_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "sparkjelly_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "sparkjelly_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "sparkjelly_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "sparkjelly_death.png"
+  }
+ }
+}

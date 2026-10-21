@@ -1,0 +1,64 @@
+{
+ "name": "ironshark",
+ "cell": [
+  108,
+  84
+ ],
+ "anchor": [
+  54,
+  42
+ ],
+ "facing": "right",
+ "palette": [
+  "#131416",
+  "#14101c",
+  "#32373c",
+  "#464c54",
+  "#4c5156",
+  "#6a7078",
+  "#72777d",
+  "#8e9298",
+  "#a6a9ad",
+  "#b7babe",
+  "#d2d4d6"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "ironshark_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "ironshark_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "ironshark_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "ironshark_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "ironshark_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "ironshark_death.png"
+  }
+ }
+}

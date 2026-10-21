@@ -1,0 +1,64 @@
+{
+ "name": "ghostsquid",
+ "cell": [
+  64,
+  44
+ ],
+ "anchor": [
+  32,
+  22
+ ],
+ "facing": "right",
+ "palette": [
+  "#14101c",
+  "#252a2b",
+  "#79909c",
+  "#96a7ad",
+  "#a8c8d8",
+  "#bdd5e1",
+  "#bff8ff",
+  "#d0e8f0",
+  "#d5e5ec",
+  "#dbeef4",
+  "#e8f4f8"
+ ],
+ "notes": "faces right; anchor = body centre (cell centre); flip around the anchor; fish rank sample set",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "ghostsquid_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "ghostsquid_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "ghostsquid_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "ghostsquid_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "ghostsquid_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "ghostsquid_death.png"
+  }
+ }
+}
