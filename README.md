@@ -635,3 +635,8 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   Chests give 8-14 coins, ammo and a heart if someone is hurt; the first chest of each map holds a page of the Lantern
   Keeper's story (`SECRET_LORE`). Opened covers and chests stay open after a death and in the checkpoint save. The Sunken
   Deep keeps its six wall pockets.
+- Fast travel (phase 5, F): on the long maps (Crystal Caverns on, and the Sunken Deep by depth), stand at a checkpoint
+  you have touched and press E (gamepad Y, or tap it): a bar shows every checkpoint reached in this map; choose with
+  left/right (or tap a point), Enter / A goes, Esc / B cancels. Locked during a boss, dragon, trial or duel, while a timed
+  gate runs and while anyone carries a key, so no gate can be skipped. In co-op only the host opens it and the whole group
+  travels. The reached checkpoints (`Q.cpSeen`) are kept through deaths and in the checkpoint save.

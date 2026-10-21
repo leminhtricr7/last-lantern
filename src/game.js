@@ -569,7 +569,7 @@
       { k: 'KeyK', x: w - s * 1.5, y: h - s * 1.9, r: r * 0.85, l: '»' }, { k: 'Escape', x: w - s * 0.5, y: s * 0.5, r: r * 0.7, l: 'II' },
       { k: 'KeyL', x: w - s * 2.9, y: h - s * 1.5, r: r * 0.8, l: '●' }, { k: 'KeyT', x: w - s * 2.3, y: h - s * 2.7, r: r * 0.85, l: '⇆' }, { k: 'KeyQ', x: w - s * 3.3, y: h - s * 0.5, r: r * 0.6, l: '⇄' }, { k: 'KeyF', x: w - s * 3.5, y: h - s * 2.4, r: r * 0.8, l: '◆' }, { k: 'TouchSum', x: w - s * 2.3, y: h - s * 2.9, r: r * 0.75, l: '★' }
     ];
-    if (scene === 'play' && Q && (Q.nearNpc || Q.nearPz) && Q.state === 'play') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '...' });
+    if (scene === 'play' && Q && (Q.nearNpc || Q.nearPz || (Q.nearCp && travelBlock() === '')) && Q.state === 'play') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '...' });
     if (scene === 'shop') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '→' });
     if (scene !== 'play' || (Q && (Q.state === 'pause' || Q.state === 'shop'))) { b.push({ k: 'ArrowUp', x: s * 1.4, y: h - s * 2.0, r, l: '▲' }); b.push({ k: 'ArrowDown', x: s * 1.4, y: h - s * 0.2 - s * 0.0, r: 0.01, l: '' }); b[b.length - 1] = { k: 'ArrowDown', x: s * 2.7, y: h - s * 2.0, r, l: '▼' }; }
     return b;
@@ -639,13 +639,15 @@
       if (near(gx, gy, VW / 2, 195, 150, 20)) pressed.Enter = true;
     } else if (inPlay) {
       const st = Q.state;
+      if (st === 'travel' && Q.trav) { const i = Q.trav.list.findIndex((c, k) => near(gx, gy, travX(k), TRAV_Y, 9, 12)); if (i >= 0) { if (i === Q.trav.sel) pressed.Enter = true; else { Q.trav.sel = i; Snd.play('select'); } } else pressed.Escape = true; return; }
       if (st === 'pause') { const i = menuHit(gx, gy, 7, VW / 2, 76, 13, 80); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
       else if (st === 'shop') { const n = (SHOPS[Q.shopWho] || []).length + 1, i = menuHit(gx, gy, n, VW / 2, 96, 14, 110); if (i >= 0) { Q.menu = i; pressed.Enter = true; } else pressed.Escape = true; }
       else if (st === 'play') {
         const wx = gx + Q.cam.x, wy = gy + Q.cam.y;
         const npc = Q.nearNpc && near(wx, wy, Q.nearNpc.x, Q.nearNpc.y - 14, 16, 20);
         const pz = Q.nearPz && near(wx, wy, Q.nearPz.x, Q.nearPz.y - 10, 16, 20);
-        if (npc || pz) pressed.KeyE = true; else { faceMouse(gx); pressed.KeyJ = true; }
+        const cpT = Q.nearCp && near(wx, wy, Q.nearCp.x, Q.nearCp.y - 24, 12, 14) && travelBlock() === '';
+        if (npc || pz || cpT) pressed.KeyE = true; else { faceMouse(gx); pressed.KeyJ = true; }
       } else pressed.Enter = true; // intro, talk, tablet, dead, complete
     }
   }
@@ -998,7 +1000,7 @@
     P.x = L.start.x; P.y = L.start.y - P.h;
     Q = {
       li, L, P, B: L.B, bg: bgs(li), ts: tiles(li), crum: new Map(), taken: new Set(), cp: null, cpIdx: -1,
-      ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), brokenB: new Set(), brk: [], trials: [], trialsDone: new Set(), rings: [], ghosts: [], corpses: [], zones: [], tmpCells: [], dragon: null, dragons: [], dragonsDone: new Set(), tmpCells2: 0, windT: 0, windDir: 1, darkBoost: 0, darkBoostT: 0, nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
+      ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), brokenB: new Set(), brk: [], cpSeen: new Set(), trials: [], trialsDone: new Set(), rings: [], ghosts: [], corpses: [], zones: [], tmpCells: [], dragon: null, dragons: [], dragonsDone: new Set(), tmpCells2: 0, windT: 0, windDir: 1, darkBoost: 0, darkBoostT: 0, nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
       cam: { x: 0, y: 0 }, coinsRun: 0, time: 0, safe: { x: P.x, y: P.y }, menu: 0,
       dj: true, dashAb: li >= 3 || save.cleared.indexOf(2) >= 0,
       arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0, minisDone: new Set(), mainBoss: null, mainArena: null, syFig: null
@@ -2516,6 +2518,61 @@
     Q.projs = Q.projs.filter(p => !p.dead);
   }
 
+  // ===================== phase 5 (F): fast travel between the checkpoints you touched in this map =====================
+  // Only on the long maps (from the Crystal Caverns on). Locked while a fight or a timed task is running, or while you
+  // carry a key, so it never skips a gate: you can only go to checkpoints you already reached. Co-op: the host opens it
+  // and the whole group travels together. Nothing new is written to the save except the list of touched checkpoints.
+  function travelBlock() {
+    if (LPOS(Q.li) < 2 || Q.state !== 'play') return null;   // null = no menu at all (short maps), '' = allowed, text = why not
+    if ((Q.cpSeen ? Q.cpSeen.size : 0) < 2) return null;
+    if (coop && coop.role === 'client') return sv('Only the host can open fast travel.', 'Chỉ chủ phòng mới mở được dịch chuyển.');
+    if (Q.arenaSealed || (Q.dragon && !Q.dragon.dead) || (Q.trials || []).some(t => t.state === 'active' || t.state === 'intro') || (Q.minis || []).some(m => m.state === 'active'))
+      return sv('Not during a fight!', 'Không thể dịch chuyển khi đang đánh nhau!');
+    if ((Q.gates || []).some(gd => gd.need === 'timed' && !gd.open && gd.timer > 0 && gd.timer < 1e8)) return sv('Not while the timer is running!', 'Không thể khi đang đếm giờ!');
+    if ((Q.players || [Q.P]).some(p => (p.keys || 0) > 0)) return sv('Carry the key to its gate first.', 'Hãy mang chìa khóa tới cổng trước đã.');
+    return '';
+  }
+  const vertMap = () => !!Q.B.water && !!Q.L.waterY && Q.L.H > 60;   // the Sunken Deep is a dive, not a walk: order by depth
+  const TRAV_Y = 110, travX = k => { const n = Q.trav.list.length; return Math.round(VW / 2 - 140 + (n > 1 ? 280 * k / (n - 1) : 140)); };
+  function openTravel() {
+    const list = Q.L.checkpoints.filter(c => Q.cpSeen.has(c.id)).map(c => ({ x: c.x, y: c.y, id: c.id }));
+    list.sort((a, b) => vertMap() ? a.y - b.y : a.x - b.x);
+    const here = Q.nearCp ? list.findIndex(c => c.id === Q.nearCp.id) : 0;
+    Q.trav = { list, sel: Math.max(0, here), here: Math.max(0, here) }; Q.state = 'travel'; Snd.play('rune');
+  }
+  function updateTravel() {
+    const T2 = Q.trav; if (!T2) { Q.state = 'play'; return; }
+    if (act.leftP || act.upP) { T2.sel = (T2.sel + T2.list.length - 1) % T2.list.length; Snd.play('select'); }
+    if (act.rightP || act.downP) { T2.sel = (T2.sel + 1) % T2.list.length; Snd.play('select'); }
+    if (act.backP || act.pauseP || act.talkP) { Q.state = 'play'; Q.trav = null; return; }
+    if (act.okP || act.jumpP) {
+      Q.state = 'play'; const c = T2.list[T2.sel]; Q.trav = null;
+      if (T2.sel === T2.here || travelBlock() !== '') return;
+      const P = Q.P; emit(P.x + 4, P.y + 7, 24, { col: ['#9fe8ff', '#fff', '#ffd34e'], sp0: 20, sp1: 110 });
+      P.x = c.x - P.w / 2; P.y = c.y - P.h; P.vx = P.vy = 0; P.inv = Math.max(P.inv, 1); P.safe = { x: P.x, y: P.y }; Q.safe = { x: P.x, y: P.y };
+      Q.cp = { x: c.x, y: c.y, id: c.id }; Q.items.forEach(o => { if (o.kind === 'cp') o.lit = o.id === c.id; });
+      if (coop) coopGather(true, P, { x0: Math.floor(c.x / TS) - 6, x1: Math.floor(c.x / TS) + 6 });
+      snapCam(); emit(P.x + 4, P.y + 7, 30, { col: ['#9fe8ff', '#fff', '#ffd34e'], sp0: 20, sp1: 120 }); addRing(P.x + 4, P.y + 7, '#9fe8ff', 40, 0.5);
+      Snd.play('relic'); Q.msg = sv('Fast travel!', 'Dịch chuyển!'); Q.msgT = 1.5;
+    }
+  }
+  function drawTravel() {
+    const T2 = Q.trav, n = T2.list.length, end = vertMap() ? Q.L.H * TS : ((Q.L.arena ? Q.L.arena.x0 : Q.L.W) * TS);
+    g.fillStyle = 'rgba(5,3,15,.78)'; g.fillRect(0, 0, VW, VH);
+    txt(sv('FAST TRAVEL', 'DỊCH CHUYỂN NHANH'), VW / 2, 54, { al: 'center', size: 14, bold: true, col: '#9fe8ff' });
+    txt(sv('Checkpoints you have reached in this map', 'Các checkpoint bạn đã tới trong map này'), VW / 2, 72, { al: 'center', size: 6, col: '#cfd6e6' });
+    g.fillStyle = '#3a3450'; g.fillRect(VW / 2 - 144, TRAV_Y - 1, 288, 3);
+    for (let k = 0; k < n; k++) {
+      const x = travX(k), on = k === T2.sel, c = T2.list[k];
+      g.fillStyle = '#1b1626'; g.fillRect(x - 5, TRAV_Y - 6, 10, 12);
+      g.fillStyle = k === T2.here ? '#ffd34e' : (on ? '#9fe8ff' : '#6a7090'); g.fillRect(x - 4, TRAV_Y - 5, 8, 10);
+      if (on) { g.fillStyle = '#fff'; g.fillRect(x - 1, TRAV_Y - 12, 2, 4); }
+      txt(String(k + 1), x, TRAV_Y + 9, { al: 'center', size: 6, col: on ? '#fff' : '#8892aa' });
+    }
+    const c = T2.list[T2.sel], pct = Math.round(100 * clamp((vertMap() ? c.y : c.x) / end, 0, 1));
+    txt((T2.sel === T2.here ? sv('You are here', 'Bạn đang ở đây') : sv('Checkpoint ', 'Checkpoint ') + (T2.sel + 1) + ' / ' + n) + '  ·  ' + (vertMap() ? sv('depth ', 'độ sâu ') : sv('way to the boss ', 'đường tới boss ')) + pct + '%', VW / 2, 136, { al: 'center', size: 8, col: '#ffd34e' });
+    txt(sv('Left / right: choose   ·   Enter / A: go   ·   Esc / B: cancel', 'Trái / phải: chọn   ·   Enter / A: đi   ·   Esc / B: thôi'), VW / 2, 168, { al: 'center', size: 6, col: '#8892aa' });
+  }
   // ===================== phase 5 (C): secret rooms: covers, chests and their stories =====================
   function breakCover(tx, ty) {
     if (coop && coop.role === 'client') return;
@@ -2804,7 +2861,7 @@
 
   function updateItems(dt) {
     const P = Q.P;
-    Q.nearNpc = null;
+    Q.nearNpc = null; Q.nearCp = null;
     for (const it of Q.items) {
       if (it.dead) continue;
       it.ph += dt;
@@ -2864,6 +2921,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       } else if (it.kind === 'npc') {
         if (Math.abs(it.x - pc.x) < 26 && Math.abs(it.y - pc.y) < 30) Q.nearNpc = it;
       } else if (it.kind === 'cp') {
+        if ((!coop || P === Q.me) && Math.abs(it.x - pc.x) < 16 && Math.abs(it.y - pc.y) < 30) { Q.cpSeen.add(it.id); Q.nearCp = it; }   // phase 5 (F)
         if (!it.lit && Math.abs(it.x - pc.x) < 14 && Math.abs(it.y - pc.y) < 30) {
           Q.items.forEach(o => { if (o.kind === 'cp') o.lit = false; }); it.lit = true; Q.cpCount = (Q.cpCount || 0) + 1; if (Q.cpCount === 2 && MID_STORY[Q.li] && !Q.midDone) { Q.midDone = true; later(0.6, () => { if (Q.state === 'play') startScripted('ember', MID_STORY[Q.li], null); }); } Q.cp = { x: it.x, y: it.y, id: it.id }; Snd.play('checkpoint'); saveResume(); pop(it.x, it.y - 34, sv('Progress saved', 'Đã lưu tiến trình'), '#a4ffc0'); emit(it.x, it.y - 12, 16, { col: ['#ffd34e', '#fff'], sp0: 15, sp1: 70 });
           if (P.hp < maxHP()) { P.hp = maxHP(); }
@@ -2877,13 +2935,13 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
 
   function saveResume() {
     if (coop || DEMO) return;
-    save.resume = { li: Q.li, pearls: Q.pearls || 0, cp: Q.cp, taken: [...Q.taken], solved: [...Q.solved], brokenX: [...Q.brokenX], brokenB: [...Q.brokenB], trialsDone: [...Q.trialsDone], dragonsDone: [...Q.dragonsDone], minisDone: [...Q.minisDone], coinsRun: Q.coinsRun, time: Q.time, cpCount: Q.cpCount || 0, midDone: !!Q.midDone, ammo: save.ammo };
+    save.resume = { li: Q.li, pearls: Q.pearls || 0, cp: Q.cp, taken: [...Q.taken], solved: [...Q.solved], brokenX: [...Q.brokenX], brokenB: [...Q.brokenB], cpSeen: [...Q.cpSeen], trialsDone: [...Q.trialsDone], dragonsDone: [...Q.dragonsDone], minisDone: [...Q.minisDone], coinsRun: Q.coinsRun, time: Q.time, cpCount: Q.cpCount || 0, midDone: !!Q.midDone, ammo: save.ammo };
     writeSave();
   }
   function resumeLevel() {
     const r = save.resume; if (!r || !BIOMES[r.li]) return;
     startLevel(r.li);
-    Q.taken = new Set(r.taken || []); Q.solved = new Set(r.solved || []); Q.brokenX = new Set(r.brokenX || []); Q.brokenB = new Set(r.brokenB || []); Q.trialsDone = new Set(r.trialsDone || []); Q.dragonsDone = new Set(r.dragonsDone || []); Q.minisDone = new Set(r.minisDone || []);
+    Q.taken = new Set(r.taken || []); Q.solved = new Set(r.solved || []); Q.brokenX = new Set(r.brokenX || []); Q.brokenB = new Set(r.brokenB || []); Q.cpSeen = new Set(r.cpSeen || (r.cp ? [r.cp.id] : [])); Q.trialsDone = new Set(r.trialsDone || []); Q.dragonsDone = new Set(r.dragonsDone || []); Q.minisDone = new Set(r.minisDone || []);
     Q.cp = r.cp; Q.cpCount = r.cpCount; Q.midDone = r.midDone; Q.coinsRun = r.coinsRun || 0; Q.time = r.time || 0;
     Q.pearls = r.pearls || 0; Q.questShown = true; if (Q.L.pearlGate && Q.pearls >= 3) { const pg = Q.L.pearlGate; pg.open = true; for (let y = pg.y0; y <= pg.y1; y++) for (let x = pg.x0; x <= pg.x1; x++) Q.L.grid[y][x] = ' '; }
     initEntities(); Q.scn = buildScene();
@@ -3764,6 +3822,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (st === 'play' && !save.ctrlSeen && !coop) { openHelp(true); return; }   // first play: show the controls once
     if (act.pauseP && st === 'play') { Q.state = 'pause'; Q.menu = 0; return; }
     if (act.shopP && st === 'play') { openShopInGame(); return; }
+    if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && Q.nearCp) { const why = travelBlock(); if (why === '') { openTravel(); return; } if (why) { Q.msg = why; Q.msgT = 2.5; Snd.play('select'); } }
+    if (st === 'travel') { updateTravel(); return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
     if (Q.freeze > 0) { Q.freeze -= dt; updateParticles(dt); return; }
     Q.t += dt; Q.time += dt;
@@ -3930,6 +3990,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         if ((Q.nearNpc === it || (coop && Q.me && Q.me !== Q.P && nearNpcFor(Q.me) === it)) && Q.state === 'play') { txt(T('talk'), x, by - 4, { al: 'center', size: 6, col: '#ffd34e', world: true }); }
         else if (Q.nearNpc !== it && !(coop && Q.me && Q.me !== Q.P && nearNpcFor(Q.me) === it)) { g.fillStyle = '#1b1626'; g.fillRect(x - 4, by - 5, 9, 7); g.fillStyle = '#fff'; g.fillRect(x - 3, by - 4, 7, 5); g.fillStyle = '#1b1626'; g.fillRect(x - 2, by - 2, 1, 1); g.fillRect(x, by - 2, 1, 1); g.fillRect(x + 2, by - 2, 1, 1); }
       } else if (it.kind === 'cp') {
+        if (Q.nearCp === it && Q.state === 'play' && travelBlock() === '') txt(sv('E: Fast travel', 'E: Dịch chuyển'), x, y - 38, { al: 'center', size: 6, col: '#9fe8ff', world: true });
         g.fillStyle = '#1b1626'; g.fillRect(x - 2, y - 22, 4, 22); g.fillStyle = '#5a3a22'; g.fillRect(x - 1, y - 21, 2, 21);
         g.fillStyle = '#1b1626'; g.fillRect(x - 5, y - 30, 10, 10);
         g.fillStyle = it.lit ? '#ffd34e' : '#6a7090'; g.fillRect(x - 4, y - 29, 8, 8);
@@ -4377,6 +4438,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       txt((save.lang === 'vi' ? 'MÀN ' : 'LEVEL ') + (LPOS(Q.li) + 1), VW / 2, 88, { al: 'center', size: 8, col: '#ffd34e', alpha: a });
       txt(LN(Q.B.name), VW / 2, 104, { al: 'center', size: 16, alpha: a, bold: true });
       txt(LN(Q.B.sub), VW / 2, 122, { al: 'center', size: 7, col: '#cfd6e6', alpha: a });
+    } else if (st === 'travel' && Q.trav) { drawTravel();
     } else if (st === 'pause') {
       g.fillStyle = 'rgba(5,3,15,.7)'; g.fillRect(0, 0, VW, VH);
       txt(T('paused'), VW / 2, 52, { al: 'center', size: 16, bold: true });
@@ -5100,7 +5162,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     ['Next throwing item', 'Đổi đồ ném', ['Q / mouse wheel', 'Q / lăn chuột'], ['L3 (press left stick)', 'L3 (bấm cần trái)']],
     ['Swap weapon', 'Đổi vũ khí', ['T / middle click', 'T / chuột giữa'], 'LT'],
     ['g', 'OTHER', 'KHÁC', '#c8a0ff'],
-    ['Talk / use (people, levers, signs)', 'Nói chuyện / dùng (người, cần gạt, bảng)', 'E', 'Y'],
+    ['Talk / use (people, levers, signs; at a checkpoint: fast travel)', 'Nói chuyện / dùng (người, cần gạt, bảng; ở checkpoint: dịch chuyển)', 'E', 'Y'],
     ['Shop & bag', 'Cửa hàng & túi đồ', 'B', 'Back'],
     ['Pause menu', 'Tạm dừng', 'Esc', 'Start'],
     ['Sound on / off  ·  fullscreen', 'Tắt / bật tiếng  ·  toàn màn hình', 'M  ·  F11', '-'],
@@ -6205,7 +6267,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   const QONE = ['boss', 'dragon', 'syFig', 'mainBoss'];
   const GLISTS = ['allies', 'pops', 'bolts', 'holes', 'torn', 'sums', 'slashes', 'mtraps'];
   const GONE = ['god', 'dr', 'lyra'];
-  const QVALS = ['state', 'stateT', 'time', 'shake', 'arenaSealed', 'bossDead', 'msg', 'msgT', 'banner', 'cp', 'talk', 'darkBoost', 'darkBoostT', 'windT', 'windDir', 'shardFlash', 'coinsRun', 'pearls', 'dj', 'dashAb', 'btSlot'];
+  const QVALS = ['state', 'trav', 'stateT', 'time', 'shake', 'arenaSealed', 'bossDead', 'msg', 'msgT', 'banner', 'cp', 'talk', 'darkBoost', 'darkBoostT', 'windT', 'windDir', 'shardFlash', 'coinsRun', 'pearls', 'dj', 'dashAb', 'btSlot'];
   const GVALS = ['slowT', 'powerT', 'flash', 'tsT'];
   function inRange(o) { if (typeof o.x !== 'number') return true; for (const p of Q.players) if (Math.abs(o.x - p.x) < 340 && Math.abs((o.y || 0) - p.y) < 300) return true; return false; }
   function packList(arr, tag) {
