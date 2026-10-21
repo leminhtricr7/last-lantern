@@ -1,0 +1,88 @@
+{
+ "name": "quoc_wings",
+ "cell": [
+  113,
+  98
+ ],
+ "anchor": [
+  57,
+  91
+ ],
+ "facing": "right",
+ "palette": [
+  "#08040c",
+  "#140e1c",
+  "#2a2036",
+  "#463a56",
+  "#6a5a7e",
+  "#6a0e1a",
+  "#c0202a",
+  "#ff5a4a",
+  "#3a1a6a",
+  "#7a3ad0",
+  "#c08aff",
+  "#d8d0c0",
+  "#ffb04a",
+  "#ffe8a0",
+  "#ff2a6a",
+  "#ffd0e0",
+  "#ff3aff",
+  "#bfefff",
+  "#1a1414",
+  "#2e2626",
+  "#463c3a",
+  "#6a5e5a",
+  "#8a7e78"
+ ],
+ "notes": "Quoc · Wings That Fell Short (form 6)",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "quoc_wings_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "quoc_wings_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "quoc_wings_tele.png"
+  },
+  "slam": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "quoc_wings_slam.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 10,
+   "loop": false,
+   "file": "quoc_wings_cast.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "quoc_wings_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "quoc_wings_death.png"
+  },
+  "rage": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "quoc_wings_rage.png"
+  }
+ }
+}

@@ -584,3 +584,6 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
 - In the game: all nine main bosses (maps 1-9). Oktavor is drawn at 1.5x (`SHEET_SCALE`) to fill its big hitbox.
 - Each boss: 8 states, 49 frames. Rebuild with `python tools/pixel/gulgor.py`, `veylith.py`, `giants.py`, `deep.py`.
   Previews in `docs/sprites_3B/`.
+- Quoc's 8 forms (`tools/pixel/quoc.py`) and the gatekeepers Shorty and Sy, 2 forms each (`tools/pixel/gatekeepers.py`)
+  use their own sheets too (`sheet:` on each form in `FORMS`); the form change shrinks and regrows the new art.
+  Cells are fitted automatically to the widest pose (`fit_states`).

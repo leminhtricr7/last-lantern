@@ -200,3 +200,21 @@ def build(name, draw_states, cell, anchor, palette, notes, ground_check=True, sk
     issues = [i for i in check(name, {k: v for k, v in draw_states.items() if k not in skip}, cell, anchor, palette, ground=ground_check)]
     for i in issues: print('CHECK', i)
     print(name, 'ok', sum(len(v[0]) for v in draw_states.values()), 'frames')
+
+def fit_states(states, cell, anchor, margin=2):
+    """grows the cell (never shrinks) so every frame keeps a free border of `margin` px; the anchor moves with the
+    padding, so the figure stays exactly where it was relative to its feet"""
+    W, H = cell; L = T = R = B = 0
+    for frames, fps, loop in states.values():
+        for f in frames:
+            bb = f.getbbox()
+            if not bb: continue
+            L = max(L, margin - bb[0]); T = max(T, margin - bb[1]); R = max(R, bb[2] + margin - W); B = max(B, bb[3] + margin - H)
+    if not (L or T or R or B): return states, cell, anchor
+    NW, NH = W + L + R, H + T + B; out = {}
+    for st, (frames, fps, loop) in states.items():
+        nf = []
+        for f in frames:
+            c = Image.new('RGBA', (NW, NH), (0, 0, 0, 0)); c.paste(f, (L, T)); nf.append(c)
+        out[st] = (nf, fps, loop)
+    return out, (NW, NH), (anchor[0] + L, anchor[1] + T)

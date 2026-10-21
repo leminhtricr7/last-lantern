@@ -1,0 +1,102 @@
+{
+ "name": "sy_wyrm",
+ "cell": [
+  113,
+  100
+ ],
+ "anchor": [
+  57,
+  97
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a0612",
+  "#2a0e3a",
+  "#4a1a6a",
+  "#7a3aa8",
+  "#a86ad8",
+  "#c8906a",
+  "#f2c394",
+  "#f6f3e9",
+  "#c89a1c",
+  "#ffd34e",
+  "#e0453a",
+  "#10281a",
+  "#1c4a30",
+  "#2f7a4a",
+  "#5aa86a",
+  "#7ed957",
+  "#d8ffb0",
+  "#d8d0b0",
+  "#14120e",
+  "#14121f",
+  "#2a2836",
+  "#3a3846",
+  "#2a2620",
+  "#3a3630",
+  "#3a2a1a",
+  "#5a3a22",
+  "#7a5a3a",
+  "#d8f0ff",
+  "#8a8aa0",
+  "#cfd6e6",
+  "#ffffff",
+  "#3a0e10",
+  "#c8e8a0",
+  "#f0ead8",
+  "#3a2a10",
+  "#7a5a14",
+  "#ffb02a"
+ ],
+ "notes": "Sy, the Venom Wyrm (gatekeeper, form 2).",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "sy_wyrm_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "sy_wyrm_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "sy_wyrm_tele.png"
+  },
+  "slam": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "sy_wyrm_slam.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 10,
+   "loop": false,
+   "file": "sy_wyrm_cast.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "sy_wyrm_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "sy_wyrm_death.png"
+  },
+  "rage": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "sy_wyrm_rage.png"
+  }
+ }
+}
