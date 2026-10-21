@@ -54,6 +54,7 @@
   save.lantern9 = !!save.lantern9;
   if (!Array.isArray(save.fishLog)) save.fishLog = [];   // phase 5 (A4): the species you have caught
   save.fishBank = save.fishBank | 0; save.fishTot = save.fishTot | 0; if (!save.fishCnt || typeof save.fishCnt !== 'object') save.fishCnt = {};   // phase 6: fish stock to spend, fish caught for good, per species
+  if (!save.baits || typeof save.baits !== 'object') save.baits = {}; if (!save.baitSel) save.baitSel = 'worm'; if (!save.baitSel2) save.baitSel2 = null;   // phase 6: baits you carry
   save.rare = save.rare | 0; if (!save.rareGot || typeof save.rareGot !== 'object') save.rareGot = {};
   save.bonusHP = save.bonusHP | 0; save.bonusDmg = save.bonusDmg | 0; if (!save.cos || typeof save.cos !== 'object') save.cos = {};
   if (!Array.isArray(save.heroUnlock)) save.heroUnlock = [];
@@ -549,7 +550,7 @@
     act.backP = pressed.Escape || gpP('b');
     act.leftP = any(pressed, ['ArrowLeft', 'KeyA']) || gpP('l'); act.rightP = any(pressed, ['ArrowRight', 'KeyD']) || gpP('r');
     act.upP = any(pressed, ['ArrowUp', 'KeyW']) || gpP('u'); act.downP = any(pressed, ['ArrowDown', 'KeyS']) || gpP('d');
-    act.talkP = pressed.KeyE || gpP('y');
+    act.talkP = pressed.KeyE || gpP('y'); act.talkH = !!(keys.KeyE || gb.y);
     act.skillP = any(pressed, ['KeyR']) || gpP('rb');
     act.shopP = any(pressed, ['KeyB']) || gpP('back');
     act.sumP = pressed.TouchSum || gpP('r3');   // touch star / gamepad R3: the first charged skill
@@ -2820,9 +2821,41 @@
     { id: 'golden', en: 'Golden Fish', vi: 'Cá Vàng', r: 4, zw: 0.17, sp: 1.7, w: [2, 3, 8], col: ['#ffd34e', '#c8901e', '#fff6c0'], rew: { en: 'full health and coins', vi: 'đầy máu và xu' } },
     { id: 'boot', en: 'Old Boot', vi: 'Ủng Cũ', r: 0, zw: 0.4, sp: 0.9, w: [10, 6, 4], col: ['#6a4a2a', '#3a2a1a', '#8a6a4a'], rew: { en: 'a coin inside', vi: 'một đồng xu bên trong' } }
   ];
+  // phase 6: `kind` = the minigame (needle: a gauge, hold: keep E down and let go when it thrashes, duel: left/right against its pull),
+  // `dur` = seconds of reeling for hold/duel, `pw` = the pull of a duel fish, `tags` = what baits can lure
+  const FISH_X = { minnow: { kind: 'needle', tags: ['small'] }, carp: { kind: 'needle', tags: ['small'] }, perch: { kind: 'needle', tags: ['predator'] }, glowfin: { kind: 'hold', dur: 6, tags: ['light'] },
+    moon: { kind: 'hold', dur: 8, tags: ['eel'] }, golden: { kind: 'duel', dur: 13, pw: 0.7, tags: ['legend'] }, boot: { kind: 'needle', tags: ['junk'] } };
+  FISH.forEach(f => Object.assign(f, FISH_X[f.id] || { kind: 'needle', tags: [] }));
   const FISH_BY = {}; FISH.forEach(f => { FISH_BY[f.id] = f; });
+  // baits: `m` = how much more likely the tagged fish bite. Worms are free and never run out; the others come from the sea's creatures.
+  const BAITS = {
+    worm: { en: 'Worm', vi: 'Giun', col: '#d89a8a', m: { small: 1.3 } },
+    shrimp: { en: 'Shrimp bait', vi: 'Mồi tôm', col: '#ff9a6a', m: { predator: 2.5, light: 1.5 } },
+    blood: { en: 'Blood bait', vi: 'Mồi máu', col: '#e0453a', m: { predator: 3, eel: 2 }, beast: true },
+    squid: { en: 'Squid bait', vi: 'Mồi mực', col: '#b8a0ff', m: { eel: 3, light: 2 } },
+    shock: { en: 'Shock bait', vi: 'Mồi điện', col: '#ffe44e', m: { eel: 3, light: 2, small: 0.6 }, zap: true },
+    armor: { en: 'Armor bait', vi: 'Mồi giáp', col: '#8fa8c8', m: { armor: 3 } },
+    crystal: { en: 'Crystal bait', vi: 'Mồi pha lê', col: '#9fe8ff', m: { legend: 4 } }
+  };
+  const BAIT_DROP = { piranha: ['blood', 0.3], jelly: ['shock', 0.3], crab: ['armor', 0.3], eel: ['squid', 0.4], seaslime: ['shrimp', 0.4] };   // the open sea's creatures drop baits
+  const baitHave = id => id === 'worm' ? 1e9 : (save.baits[id] | 0);
+  function addBait(id, n) { if (!BAITS[id] || id === 'worm') return; save.baits[id] = (save.baits[id] | 0) + (n || 1); if (!DEMO) writeSave(); if (Q) { Q.msg = sv('Got ' + BAITS[id].en + '!  (Q: change bait)', 'Nhặt được ' + BAITS[id].vi + '!  (Q: đổi mồi)'); Q.msgT = 3; } }
+  function cycleBait(second) {
+    const ids = Object.keys(BAITS).filter(id => baitHave(id) > 0), key = second ? 'baitSel2' : 'baitSel', list = second ? [null].concat(ids) : ids, cur = list.indexOf(save[key]);
+    save[key] = list[(cur + 1) % list.length]; if (!second && !save[key]) save[key] = 'worm'; if (!DEMO) writeSave(); Snd.play('select');
+    Q.msg = sv('Bait: ', 'Mồi: ') + baitName(); Q.msgT = 2;
+  }
+  const baitName = () => { const a = BAITS[save.baitSel] || BAITS.worm, b = fishLv() >= 10 && save.baitSel2 && BAITS[save.baitSel2]; return sv(a.en, a.vi) + (b ? ' + ' + sv(b.en, b.vi) : '') + (save.baitSel !== 'worm' ? ' x' + baitHave(save.baitSel) : ''); };
+  // fishing skill (level 1-20) grows with the fish you have brought home
+  const FSK_AT = [0, 25, 60, 100, 170, 250, 400, 600, 900, 1200, 1700, 2100, 2500, 3300, 4200, 5000, 6500, 8000, 9000, 10000];
+  const fishLvOf = n => { let l = 1; for (let i = 1; i < 20; i++) if (n >= FSK_AT[i]) l = i + 1; return l; };
+  const fishLv = () => fishLvOf(save.fishTot | 0);
+  const lvOf = P => isMe(P) ? fishLv() : Math.max(1, Math.min(20, (P.inp && P.inp.fl) | 0));
   const FISH_TOTAL = FISH.filter(f => f.r > 0).length;
-  function pickFish(tier) { let tot = 0; for (const f of FISH) tot += f.w[tier] || 0; let r = Math.random() * tot; for (const f of FISH) { r -= f.w[tier] || 0; if (r <= 0) return f; } return FISH[0]; }
+  function pickFish(tier, baits) {
+    const wt = f => { let w = f.w[tier] || 0; for (const b of baits || []) for (const tg of f.tags || []) if (BAITS[b] && BAITS[b].m[tg]) w *= BAITS[b].m[tg]; return w; };
+    let tot = 0; for (const f of FISH) tot += wt(f); let r = Math.random() * tot; for (const f of FISH) { r -= wt(f); if (r <= 0) return f; } return FISH[0];
+  }
   const fishSpr = {};
   function fishSprite(id) {
     if (fishSpr[id]) return fishSpr[id];
@@ -2857,27 +2890,42 @@
     if (left <= 0) { if (isMe(P)) { Q.msg = sv('The fish have stopped biting here.', 'Cá không còn cắn ở đây nữa.'); Q.msgT = 2.5; } Snd.play('select'); return; }
     if (!Q.L.open) Q.fishLeft[sp.id] = left - 1;
     P.face = sp.bx * TS + 8 > P.x ? 1 : -1; P.vx = 0;
-    P.fish = { sp: sp.id, ph: 'wait', t: 0, tw: 2 + Math.random() * 4, bx: sp.bx * TS + 8, by: sp.by * TS + 3, bt: 0, ct: 0, zc: 0.5, zw: 0.3, speed: 1.1, tier: sp.tier || 0, fid: null, hp0: P.hp };
+    const used = [], lvP = lvOf(P);   // baits only on the open sea; the second slot opens at fishing level 10
+    if (Q.L.open) {
+      const want = isMe(P) ? [save.baitSel, lvP >= 10 ? save.baitSel2 : null] : [P.inp && P.inp.b1, lvP >= 10 ? (P.inp && P.inp.b2) : null];
+      want.forEach((id, i) => { if (!id || id === 'worm' || !BAITS[id] || used.indexOf(id) >= 0) return; if (isMe(P)) { if (baitHave(id) <= 0) return; save.baits[id]--; if (save.baits[id] <= 0 && save[i ? 'baitSel2' : 'baitSel'] === id) save[i ? 'baitSel2' : 'baitSel'] = i ? null : 'worm'; if (!DEMO) writeSave(); } used.push(id); });
+      if (!used.length) used.push('worm');
+      if (!isMe(P)) coopGive(P, { t: 'baituse', ids: used.filter(id => id !== 'worm') });
+      if (used.indexOf('blood') >= 0 && Q.beastCd > 2) Q.beastCd = Math.max(2, Q.beastCd - 8);   // blood in the water: the beast comes back sooner
+    }
+    const pre = pickFish(sp.tier || 0, used);
+    P.fish = { sp: sp.id, ph: 'wait', t: 0, tw: 2 + Math.random() * 4 - Math.min(1.5, lvP * 0.07), bx: sp.bx * TS + 8, by: sp.by * TS + 3, bt: 0, ct: 0, zc: 0.5, zw: 0.3, speed: 1.1, tier: sp.tier || 0, fid: pre.id, hp0: P.hp, used, lv: lvP };
     Snd.play('whoosh'); emit(P.fish.bx, P.fish.by, 8, { col: ['#bfeaff', '#fff'], sp0: 15, sp1: 50, vy: -40 });
     if (isMe(P)) { Q.msg = Q.L.open ? sv('Cast! Wait for the bite...', 'Thả câu! Chờ cá cắn...') : sv('Cast! Wait for the bite... (' + (left - 1) + ' casts left)', 'Thả câu! Chờ cá cắn... (còn ' + (left - 1) + ' lần)'); Q.msgT = 2.5; }
   }
   function endFish(P, why, refund) {
     const f = P.fish; P.fish = null; P.fishCool = 0.5;
     if (f && refund && !Q.L.open && Q.fishLeft[f.sp] !== undefined) Q.fishLeft[f.sp]++;
+    if (f && refund && f.used) for (const id of f.used) if (id !== 'worm') { if (isMe(P)) { save.baits[id] = (save.baits[id] | 0) + 1; if (!DEMO) writeSave(); } else coopGive(P, { t: 'bait', id, n: 1, quiet: 1 }); }   // an unused bait comes back
     if (why && isMe(P)) { Q.msg = why; Q.msgT = 2.2; }
   }
   function fishStep(P, dt) {
     const f = P.fish; if (!f) return false;
     if (Q.state !== 'play' || !P.onGround || P.down || P.hp < f.hp0) { endFish(P, P.hp < f.hp0 ? sv('Ouch! The line snapped.', 'Ái! Dây câu đứt rồi.') : null, false); return false; }
-    if (act.left || act.right || act.jumpP || act.atkP || act.dashP || act.backP) { endFish(P, sv('You reeled in.', 'Bạn thu dây câu về.'), f.ph === 'wait'); return false; }
+    if (f.ph === 'hold' || f.ph === 'duel') { if (act.jumpP || act.backP) { endFish(P, sv('You let go. It got away.', 'Bạn buông dây. Cá thoát mất.'), false); return false; } }
+    else if (act.left || act.right || act.jumpP || act.atkP || act.dashP || act.backP) { endFish(P, sv('You reeled in.', 'Bạn thu dây câu về.'), f.ph === 'wait'); return false; }
     if (Q.ents.some(e => !e.dead && !e.hid && Math.abs(e.x - P.x) < 70 && Math.abs(e.y - P.y) < 40)) { endFish(P, sv('Something is coming!', 'Có thứ gì đang tới!'), true); return false; }
     f.t += dt; P.vx = 0;
     if (f.ph === 'wait') {
       if (act.talkP && f.t > 0.35) { endFish(P, sv('Nothing bit yet. Reeled in.', 'Chưa có cá cắn. Thu dây về.'), true); return true; }
       if (f.t >= f.tw) {
-        const spec = pickFish(f.tier); f.fid = spec.id; f.zw = spec.zw; f.speed = spec.sp; f.zc = spec.zw / 2 + 0.08 + Math.random() * (1 - spec.zw - 0.16);
-        f.ph = 'bite'; f.bt = 0; Snd.play('splash'); emit(f.bx, f.by, 12, { col: ['#bfeaff', '#fff'], sp0: 20, sp1: 70, vy: -60 });
-        if (isMe(P)) { Q.msg = sv('A bite! Press E when the needle is in the green!', 'Cá cắn câu! Nhấn E khi kim nằm trong vùng xanh!'); Q.msgT = 2.6; }
+        const spec = FISH_BY[f.fid] || pickFish(f.tier); f.fid = spec.id; f.zw = Math.min(0.6, spec.zw * (f.lv >= 2 ? 1.1 : 1)); f.speed = spec.sp; f.zc = f.zw / 2 + 0.08 + Math.random() * (1 - f.zw - 0.16);
+        Snd.play('splash'); emit(f.bx, f.by, 12, { col: ['#bfeaff', '#fff'], sp0: 20, sp1: 70, vy: -60 });
+        if (f.used && f.used.indexOf('shock') >= 0 && Math.random() < 0.2) { hurtPlayer(1, P.x + (P.face || 1) * 30); return false; }   // shock bait bites back
+        if (spec.kind === 'hold') { f.ph = 'hold'; f.h = { prog: 0, ten: 0, mode: 'calm', tt: 1.2 + Math.random(), age: 0 }; if (isMe(P)) { Q.msg = sv('It is big! Hold E to reel in, let go when it thrashes!', 'Cá lớn! Giữ E để cuộn, nhả E khi nó giật!'); Q.msgT = 3.5; } }
+        else if (spec.kind === 'duel') { f.ph = 'duel'; f.d = { pos: 0, dir: 1, ndir: 1, tele: false, tt: 1.3, prog: 0, stam: 1, burst: 0, snapT: 0, rest: f.lv >= 13 ? 2 : 1, restDone: 0, b1: false, b2: false, age: 0 }; if (isMe(P)) { Q.msg = sv('A giant! Push LEFT / RIGHT against its pull. E: catch your breath.', 'Cá khổng lồ! Bấm TRÁI / PHẢI chống lại lực kéo. E: lấy hơi.'); Q.msgT = 4; } }
+        else if (f.lv >= 4 && spec.r <= 1) { f.ph = 'catch'; f.ct = 0; Snd.play('chime'); if (isMe(P)) { Q.msg = sv('Hooked by itself!', 'Cá tự mắc câu!'); Q.msgT = 1.5; } }
+        else { f.ph = 'bite'; f.bt = 0; if (isMe(P)) { Q.msg = sv('A bite! Press E when the needle is in the green!', 'Cá cắn câu! Nhấn E khi kim nằm trong vùng xanh!'); Q.msgT = 2.6; } }
       }
     } else if (f.ph === 'bite') {
       f.bt += dt;
@@ -2885,6 +2933,28 @@
         if (Math.abs(needleAt(f.bt, f.speed) - f.zc) < f.zw / 2) { f.ph = 'catch'; f.ct = 0; Snd.play('chime'); emit(f.bx, f.by, 14, { col: ['#bfeaff', '#fff', '#ffd34e'], sp0: 30, sp1: 90, vy: -80 }); }
         else { endFish(P, sv('Too early! It got away.', 'Hụt rồi! Cá thoát mất.'), false); return true; }
       } else if (f.bt > 2.6) { endFish(P, sv('It got away...', 'Cá thoát mất...'), false); return true; }
+    } else if (f.ph === 'hold') {
+      const h = f.h, spec = FISH_BY[f.fid], held = !!act.talkH, thr = h.mode === 'thrash', tol = f.lv >= 8 ? 0.75 : 1; h.age += dt; h.tt -= dt;
+      if (h.tt <= 0) { if (h.mode === 'calm') { h.mode = 'tele'; h.tt = 0.5; Snd.play('rumble'); } else if (h.mode === 'tele') { h.mode = 'thrash'; h.tt = 0.8 + Math.random() * 0.5; Snd.play('splash'); emit(f.bx, f.by, 8, { col: ['#bfeaff', '#fff'], sp0: 20, sp1: 70, vy: -50 }); } else { h.mode = 'calm'; h.tt = 1 + Math.random(); } }
+      if (held) { h.prog += dt / (spec.dur || 9) * (thr ? 0.35 : 1); h.ten += thr ? 1.7 * tol * dt : -0.25 * dt; } else { h.prog -= 0.06 * dt; h.ten -= 1.2 * dt; }
+      h.prog = clamp(h.prog, 0, 1); h.ten = clamp(h.ten, 0, 1.05);
+      if (h.ten >= 1) { endFish(P, sv('The line snapped! It got away.', 'Dây đứt! Cá thoát mất.'), false); return true; }
+      if (h.prog >= 1) { f.ph = 'catch'; f.ct = 0; Snd.play('chime'); emit(f.bx, f.by, 14, { col: ['#bfeaff', '#fff', '#ffd34e'], sp0: 30, sp1: 90, vy: -80 }); }
+      else if (h.age > 40) { endFish(P, sv('It got away...', 'Cá thoát mất...'), false); return true; }
+    } else if (f.ph === 'duel') {
+      const d = f.d, spec = FISH_BY[f.fid]; d.age += dt; d.tt -= dt; d.burst -= dt;
+      if (d.tt <= 0) { if (!d.tele) { d.tele = true; d.tt = 0.4; d.ndir = Math.random() < 0.5 ? -1 : 1; Snd.play('rumble'); } else { d.tele = false; d.dir = d.ndir; d.tt = 1 + Math.random() * 1.2; } }
+      d.pos += d.dir * (spec.pw || 0.7) * (d.burst > 0 ? 1.7 : 1) * 0.55 * dt;
+      const push = (act.right ? 1 : 0) - (act.left ? 1 : 0);
+      if (push) { d.pos += push * (d.stam > 0 ? 1.15 : 0.4) * dt; d.stam = Math.max(0, d.stam - 0.22 * dt); } else d.stam = Math.min(1, d.stam + 0.14 * dt);
+      if (act.talkP && d.restDone < d.rest) { d.restDone++; d.stam = Math.min(1, d.stam + 0.5); Snd.play('heart'); }
+      d.pos = clamp(d.pos, -1.1, 1.1);
+      if (Math.abs(d.pos) < 0.6) d.prog += dt / (spec.dur || 13);
+      if (Math.abs(d.pos) >= 1) d.snapT += dt; else d.snapT = Math.max(0, d.snapT - dt * 0.5);
+      if (!d.b1 && d.prog > 0.33) { d.b1 = true; d.burst = 1.4; Snd.play('boom'); } if (!d.b2 && d.prog > 0.66) { d.b2 = true; d.burst = 1.4; Snd.play('boom'); }
+      if (d.snapT > 0.7) { endFish(P, sv('The line snapped! It got away.', 'Dây đứt! Cá thoát mất.'), false); return true; }
+      if (d.prog >= 1) { f.ph = 'catch'; f.ct = 0; Snd.play('chime'); emit(f.bx, f.by, 20, { col: ['#bfeaff', '#fff', '#ffd34e'], sp0: 30, sp1: 110, vy: -90 }); }
+      else if (d.age > 60) { endFish(P, sv('It got away...', 'Cá thoát mất...'), false); return true; }
     } else if (f.ph === 'catch') {
       f.ct += dt;
       if (f.ct > 0.5) { giveCatch(P, f); endFish(P, null, false); }
@@ -2983,6 +3053,7 @@
     const wasFish = !!P.fish;
     P.onGround = true; P.vx = 0; P.vy = 0; P.jumps = 0;
     if (wasFish && fishStep(P, dt)) { P.x = b.x - P.w / 2; P.y = b.y + Math.sin(Q.t * 1.8 + b.x * 0.02) * 1.2 - P.h; return true; }
+    if (Q.L.open && isMe(P)) { if (act.swapP) cycleBait(false); else if (act.downP && fishLv() >= 10) cycleBait(true); }
     const dir = (act.right ? 1 : 0) - (act.left ? 1 : 0);
     if (dir) { b.face = dir; P.face = dir; }
     b.vx += (dir * BOAT_SPD - b.vx) * Math.min(1, 3 * dt); b.x = clamp(b.x + b.vx * dt, sea.minX * TS, sea.maxX * TS);
@@ -3133,7 +3204,23 @@
       g.fillStyle = '#f0f4ff'; g.fillRect(Math.round(bx) - 1, Math.round(by) - 2, 3, 2); g.fillStyle = '#e0453a'; g.fillRect(Math.round(bx) - 1, Math.round(by) - 4, 3, 2);
       g.strokeStyle = 'rgba(200,235,255,' + (0.5 - 0.2 * Math.sin(Q.t * 3)).toFixed(2) + ')'; g.beginPath(); g.ellipse(bx, by + 1, 4 + Math.sin(Q.t * 3 + f.t) * 1.2, 1.4, 0, 0, Math.PI * 2); g.stroke();
       const gx = Math.round(p.x + 4 - camX), gyy = Math.round(p.y - 14 - camY);
-      if (f.ph === 'bite') {   // the needle gauge
+      if (f.ph === 'wait' && f.lv >= 6 && f.tw - f.t < 1.6 && FISH_BY[f.fid]) { const sp2 = fishSprite(f.fid); g.globalAlpha = 0.3 + 0.2 * Math.sin(Q.t * 6); g.drawImage(sp2.c, Math.round(bx - sp2.w / 2), Math.round(by + 6)); g.globalAlpha = 1; }   // fishing level 6: you see its shadow before the bite
+      if (f.ph === 'hold' && f.h) {
+        const h = f.h; g.fillStyle = '#14101c'; g.fillRect(gx - 22, (gyy - 17) - 2, 44, 14);
+        g.fillStyle = '#3a3450'; g.fillRect(gx - 20, (gyy - 17), 40, 4); g.fillStyle = '#5ad87a'; g.fillRect(gx - 20, (gyy - 17), Math.round(40 * h.prog), 4);
+        g.fillStyle = '#3a3450'; g.fillRect(gx - 20, (gyy - 17) + 6, 40, 4); g.fillStyle = h.ten > 0.75 ? '#e0453a' : (h.ten > 0.45 ? '#ffd34e' : '#6ec8ff'); g.fillRect(gx - 20, (gyy - 17) + 6, Math.round(40 * Math.min(1, h.ten)), 4);
+        if (h.mode === 'tele') txt('!', gx, (gyy - 17) - 10, { al: 'center', size: 9, bold: true, col: '#ffd34e', world: true });
+        else if (h.mode === 'thrash') txt(sv('LET GO!', 'NHẢ RA!'), gx, (gyy - 17) - 10, { al: 'center', size: 7, bold: true, col: '#ff6a5a', world: true });
+        else txt(sv('HOLD E', 'GIỮ E'), gx, (gyy - 17) - 10, { al: 'center', size: 6, col: '#9fff9f', world: true });
+      } else if (f.ph === 'duel' && f.d) {
+        const d = f.d; g.fillStyle = '#14101c'; g.fillRect(gx - 32, (gyy - 17) - 2, 64, 21);
+        g.fillStyle = '#6a2a2a'; g.fillRect(gx - 30, (gyy - 17), 60, 6); g.fillStyle = '#ffd34e'; g.fillRect(gx - 30 + 60 * 0.2, (gyy - 17), 60 * 0.6, 6); g.fillStyle = '#5ad87a'; g.fillRect(gx - 30 + 60 * 0.2 + 5, (gyy - 17), 60 * 0.6 - 10, 6);
+        g.fillStyle = '#fff'; g.fillRect(Math.round(gx + d.pos * 28.5) - 1, (gyy - 17) - 2, 3, 10);
+        g.fillStyle = '#3a3450'; g.fillRect(gx - 30, (gyy - 17) + 9, 60, 3); g.fillStyle = '#5ad87a'; g.fillRect(gx - 30, (gyy - 17) + 9, Math.round(60 * d.prog), 3);
+        g.fillStyle = '#6ec8ff'; g.fillRect(gx - 30, (gyy - 17) + 13, Math.round(60 * d.stam), 2);
+        const ad = d.tele ? d.ndir : d.dir; txt(d.tele ? (ad < 0 ? '<<' : '>>') : (d.burst > 0 ? (ad < 0 ? '<<<' : '>>>') : (ad < 0 ? '<' : '>')), gx + ad * 24, (gyy - 17) - 10, { al: 'center', size: 8, bold: true, col: d.tele ? '#ffd34e' : '#ff6a5a', world: true });
+        txt(sv('E: rest ', 'E: lấy hơi ') + Math.max(0, d.rest - d.restDone), gx, (gyy - 17) + 22, { al: 'center', size: 5, col: '#9fe8ff', world: true });
+      } else if (f.ph === 'bite') {   // the needle gauge
         g.fillStyle = '#14101c'; g.fillRect(gx - 19, gyy - 1, 38, 7); g.fillStyle = '#3a3450'; g.fillRect(gx - 18, gyy, 36, 5);
         g.fillStyle = '#5ad87a'; g.fillRect(Math.round(gx - 18 + 36 * (f.zc - f.zw / 2)), gyy, Math.round(36 * f.zw), 5);
         g.fillStyle = '#fff'; g.fillRect(Math.round(gx - 18 + 35 * needleAt(f.bt, f.speed)), gyy - 2, 2, 9);
@@ -3668,6 +3755,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }
   }
   function onKill(e) {
+    const bd = Q.L.open && BAIT_DROP[e.type];
+    if (bd && Math.random() < bd[1]) for (const p of (Q.players || [Q.P])) if (Math.abs(p.x - e.x) < 220) { if (isMe(p)) addBait(bd[0], 1); else coopGive(p, { t: 'bait', id: bd[0], n: 1 }); }
     const G = Q.G, N = aSt('killHeal');
     if (N) { G.kills++; if (G.kills % N === 0 && Q.P.hp < maxHP()) { Q.P.hp++; Snd.play('heart'); emit(Q.P.x + 4, Q.P.y + 4, 8, { col: ['#e0453a', '#ff7fb0'], sp0: 10, sp1: 50 }); } }
     if (curHit && curHit.voidk) G.holes.push({ x: e.x + e.w / 2, y: e.y + e.h / 2, life: 1.6, r: 56, tick: 0.2 });
@@ -4989,7 +5078,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const hdy = (Math.ceil(mh / 8) - 1) * 10;
     g.fillStyle = '#ffd34e'; g.fillRect(8, 20 + hdy, 5, 5); g.fillStyle = '#c89a1c'; g.fillRect(12, 21 + hdy, 1, 3);
     txt('x' + Q.coinsRun + '   (' + save.coins + ')', 16, 23 + hdy, { size: 7 });
-    if (Q.L.open) { const hd = holdOf(Q.me || P); txt(sv('Hold ', 'Khoang ') + hd.n + '/' + holdCap() + '   ' + sv('Fish stock ', 'Kho cá ') + save.fishBank, 12, 34 + hdy, { size: 6, col: '#9fe8ff' }); }
+    if (Q.L.open) { const hd = holdOf(Q.me || P); txt(sv('Hold ', 'Khoang ') + hd.n + '/' + holdCap() + '   ' + sv('Fish stock ', 'Kho cá ') + save.fishBank + '   ' + sv('Fishing Lv ', 'Câu Lv ') + fishLv(), 12, 34 + hdy, { size: 6, col: '#9fe8ff' }); if (P.boat || P.fish) txt(sv('Bait: ', 'Mồi: ') + baitName() + sv('   (Q: change', '   (Q: đổi') + (fishLv() >= 10 ? sv(', Down: 2nd)', ', Xuống: mồi 2)') : ')'), VW - 8, VH - 26, { al: 'right', size: 6, col: '#ffd0a0' }); }
     if (Q.B.water && Q.L.waterY !== undefined && P.y > Q.L.waterY * TS) txt(sv('Depth ', 'Độ sâu ') + depthM(P.y) + ' m', VW / 2, 8, { al: 'center', size: 6, col: '#bfeaff' });
     drawRareIc(78, 22 + hdy, 0.8); txt('x' + save.rare, 84, 23 + hdy, { size: 7, col: '#d8b8ff' }); txt(sv('B: bag/shop', 'B: túi đồ/shop'), 104, 23 + hdy, { size: 5, col: '#8892aa' });
     if (P.shield) { g.fillStyle = '#6ee7f2'; g.fillRect(12 + 3 * 11 + 6, 38 + hdy, 6, 7); g.fillStyle = '#fff'; g.fillRect(12 + 3 * 11 + 8, 40 + hdy, 2, 3); }
@@ -6738,7 +6827,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   }
   // ---------- host: guests' heroes ----------
   const EDGE = ['jumpP', 'atkP', 'atk2P', 'dashP', 'throwP', 'swapP', 'skillP', 'talkP', 'sumP', 'parryP', 'wswapP', 'sk1P', 'sk2P', 'sk3P', 'sk4P'];
-  const LVL = ['left', 'right', 'up', 'down', 'jump', 'atkH', 'atk2H'];
+  const LVL = ['left', 'right', 'up', 'down', 'jump', 'atkH', 'atk2H', 'talkH'];
   function withAct(p, fn) {
     const keep = {}; for (const k of LVL.concat(EDGE)) { keep[k] = act[k]; act[k] = false; }
     const inp = p.inp || {}; for (const k of LVL) act[k] = !!inp[k]; for (const k of EDGE) act[k] = !!(p.edge && p.edge[k]);
@@ -6982,6 +7071,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (!coop || coop.role !== 'client' || scene !== 'play') return;
     const m = { t: 'i' }; let edge = false;
     for (const k of LVL) m[k] = act[k] ? 1 : 0;
+    m.b1 = save.baitSel; m.b2 = save.baitSel2; m.fl = fishLv();   // phase 6: the host needs my baits and fishing level to run my fishing
     for (const k of EDGE) if (act[k]) { m[k] = 1; edge = true; }
     if (act.okP) { m.okP = 1; edge = true; }
     const key = LVL.map(k => m[k]).join('');
@@ -7081,6 +7171,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       else if (d.t === 'lobby') { coopUI.slots = d.slots; coopUI.li = d.li; coopUI.code = d.code; if (scene === 'play') { coopUI.ph = 'lobby'; toScene('coop'); } }
       else if (d.t === 'start') { coopUI.li = LPOS(d.li); coop.objs.clear(); startLevel(d.li, d.v); Q.client = true; Q.players = []; Q.state = 'intro'; scene = 'play'; }
       else if (d.t === 's') { if ((scene === 'play' || scene === 'shop') && Q) coopApply(d); }
+      else if (d.t === 'bait') { if (d.quiet) { save.baits[d.id] = (save.baits[d.id] | 0) + (d.n | 0); writeSave(); } else addBait(d.id, d.n); }
+      else if (d.t === 'baituse') { for (const id of d.ids || []) if (save.baits[id] > 0) { save.baits[id]--; if (save.baits[id] <= 0) { if (save.baitSel === id) save.baitSel = 'worm'; if (save.baitSel2 === id) save.baitSel2 = null; } } writeSave(); }
       else if (d.t === 'fishin') { const n = bankFish(d.sp || {}); if (Q) { Q.msg = cvs('Unloaded ' + n + ' fish. Fish stock: ' + save.fishBank, 'Dỡ ' + n + ' con cá. Kho cá: ' + save.fishBank); Q.msgT = 4; } Snd.play('chime'); }
       else if (d.t === 'rare') { save.rare++; writeSave(); if (Q) { Q.msg = cvs('Star Gem! You have ', 'Ngọc Sao! Bạn có ') + save.rare + cvs('.', ' viên.'); Q.msgT = 3; } }
       else if (d.t === 'full') coopLeave(cvs('The room is full (5 players).', 'Phòng đã đủ 5 người.'));

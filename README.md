@@ -701,3 +701,16 @@ Catches on the open sea go into the boat's hold (30 fish, one bin per player), n
 `save.fishTot`); a guest's bin is sent to the guest. A full hold blocks casting. A wrecked boat loses 25% of the hold.
 Old saves just get the three new fields at 0. Nothing in the Sunken Deep's fishing or rewards changed. Exchange shops, new fish,
 fishing minigames, upgrades, boss etc. come in the next steps (see `De_xuat_dai_duong_GD6.docx`).
+
+## Fishing on the open sea (phase 6, step 2)
+Three minigames, chosen by the fish (`kind` in the `FISH` table): **needle** (small fish, the old gauge), **hold** (bigger fish: keep E
+down to reel, let go when it thrashes: a "!" warns first; holding through a thrash snaps the line) and **duel** (giants: push
+LEFT/RIGHT against its pull to keep the marker in the green; E catches your breath, stamina drains as you push; two stronger bursts
+at 1/3 and 2/3). Jump/Esc lets go. The fish is now chosen when you cast, so baits can change the odds.
+**Baits** (open sea only; worms are free and endless): shrimp, blood, squid, shock, armor, crystal, each making fish with certain
+tags more likely. Q cycles the bait on the boat (Down cycles the second slot at fishing level 10). The sea's creatures drop them
+(`BAIT_DROP`). Blood bait wakes the beast sooner; shock bait sometimes bites back (1 heart). An unused bait is refunded when you reel in.
+**Fishing level 1-20** grows with the fish brought home (`save.fishTot`): Lv2 wider green, Lv4 small fish hook themselves, Lv6 you
+see the fish's shadow before the bite, Lv8 more forgiving tension, Lv10 two baits, Lv13 an extra rest in duels. (Lv16 mutants and
+Lv20 title come with the fish catalogue.) In co-op the host runs a guest's fishing using the guest's chosen baits and level (sent
+with their input); bait use and drops are sent back to the guest.
