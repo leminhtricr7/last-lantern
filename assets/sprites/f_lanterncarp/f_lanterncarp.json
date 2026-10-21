@@ -1,0 +1,65 @@
+{
+ "name": "f_lanterncarp",
+ "cell": [
+  48,
+  32
+ ],
+ "anchor": [
+  24,
+  16
+ ],
+ "facing": "right",
+ "palette": [
+  "#2a1208",
+  "#a8461a",
+  "#e0702a",
+  "#ff9a3a",
+  "#ffc878",
+  "#b8501c",
+  "#f08a3a",
+  "#ffc27a",
+  "#fff6c0",
+  "#14101c",
+  "#ffffff",
+  "#ffe6a8"
+ ],
+ "notes": "Lantern Carp (rank B). Faces right; anchor = body centre; flip around the anchor.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "f_lanterncarp_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "f_lanterncarp_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "f_lanterncarp_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "f_lanterncarp_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "f_lanterncarp_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "f_lanterncarp_death.png"
+  }
+ }
+}

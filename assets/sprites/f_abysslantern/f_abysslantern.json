@@ -1,0 +1,69 @@
+{
+ "name": "f_abysslantern",
+ "cell": [
+  96,
+  72
+ ],
+ "anchor": [
+  48,
+  36
+ ],
+ "facing": "right",
+ "palette": [
+  "#0a0812",
+  "#1a1c3a",
+  "#2c2f62",
+  "#454a8c",
+  "#6a70b8",
+  "#2a1e52",
+  "#4a3a8a",
+  "#7a66c0",
+  "#eef0f8",
+  "#ffd34e",
+  "#14101c",
+  "#ffe88a",
+  "#fff8d0",
+  "#7ef0ff",
+  "#3a2a6a",
+  "#5a1428"
+ ],
+ "notes": "Abyss Lantern Angler (rank SS). Faces right; anchor = body centre; flip around the anchor.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "file": "f_abysslantern_idle.png"
+  },
+  "swim": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "f_abysslantern_swim.png"
+  },
+  "hooked": {
+   "frames": 3,
+   "fps": 10,
+   "loop": false,
+   "file": "f_abysslantern_hooked.png"
+  },
+  "thrash": {
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "file": "f_abysslantern_thrash.png"
+  },
+  "hurt": {
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "file": "f_abysslantern_hurt.png"
+  },
+  "death": {
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "file": "f_abysslantern_death.png"
+  }
+ }
+}
