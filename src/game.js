@@ -400,7 +400,7 @@
   NPCS.dragon = { spr: 'dragon_head', name: { en: 'Ignarok', vi: 'Ignarok' } };
   NPCS.dragon_young = { spr: 'dragon_head', name: { en: 'Ignar', vi: 'Ignar' } };   // the same dragon on the meadow, before it grew up
   NPCS.dragon.generic = [{ en: 'ROAAAR!', vi: 'GÀOOO!' }];
-  // ---------- the new cast: Mr Sy, Quoc, and the four helpers who appear on maps 2-5 ----------
+  // ---------- the new cast: Sy, Quoc, and the four helpers who appear on maps 2-5 ----------
   Object.assign(NPCS, {
     sy: { spr: 'npc_sy', name: { en: 'Doctor Sy', vi: 'Thầy Sy' } },
     quoc: { spr: 'npc_quoc', name: { en: 'Quoc, King of the Eclipse', vi: 'Quốc, Vua Nhật Thực' } },
@@ -6218,7 +6218,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     2: [L2('narr', 'The Crystal Caverns. Down here, the only light is the light you carry with you.', 'Hang Pha Lê. Dưới này, ánh sáng duy nhất là thứ các bạn tự mang theo.'),
         L2('{p0}', 'Stay near the lanterns. If you get lost, shout my name.', 'Đi gần đèn nhé. Ai lạc thì hét tên tôi.'),
         L2('{p1}', 'If I get lost, I am blaming the bats.', 'Nếu tôi lạc thì là tại lũ dơi.')],
-    3: [L2('narr', 'The Endless Desert. Under the sand, an old Pharaoh sleeps on the Fourth Tower like his last treasure.', 'Sa Mạc Bất Tận. Dưới lớp cát, một Pharaoh già ngủ trên Tháp Đèn Thứ Tư như ôm báu vật cuối cùng.'),
+    3: [L2('narr', 'The Endless Desert. Under the sand, the old pharaoh Khepsar sleeps on the Fourth Tower like his last treasure.', 'Sa Mạc Bất Tận. Dưới lớp cát, Pharaoh già Khepsar ngủ trên Tháp Đèn Thứ Tư như ôm báu vật cuối cùng.'),
         L2('{p1}', 'So hot... whose idea was it to wear armour in a desert?', 'Nóng quá... ai bày ra vụ mặc giáp đi sa mạc vậy?'),
         L2('{p0}', 'Drink water, dodge the mummies, win. Simple plan.', 'Uống nước, né xác ướp, thắng. Kế hoạch đơn giản.')],
     4: [L2('narr', 'The Frozen Peaks. A king made of ice has forgotten what warmth feels like.', 'Đỉnh Núi Băng Giá. Một vị vua bằng băng đã quên mất hơi ấm là gì.'),
@@ -8249,7 +8249,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
           g.globalAlpha = 0.85 * wk; g.fillStyle = '#2a6aa0'; g.beginPath(); g.ellipse(wx, wy, 70, 20, 0.05, 0, 7); g.fill(); g.beginPath(); g.moveTo(wx + 64, wy); g.lineTo(wx + 96, wy - 16); g.lineTo(wx + 92, wy + 14); g.closePath(); g.fill();
           g.fillStyle = '#e8fbff'; for (let i = 0; i < 12; i++) g.fillRect(Math.round(wx - 50 + i * 9), Math.round(wy - 6 + Math.sin(i) * 4), 2, 2); g.globalAlpha = 1; mfGlow(wx, wy, 90, 0.3 * wk, '#9fe8ff');
         }
-        if (t > 15) { const k = ez(seg(t, 15, 18)); opTower(VW / 2 + 60, VH + 40 - 60 * k, 70, 0.08, t, 7); for (let a = 0; a < 6; a++) { g.strokeStyle = '#4a1a3a'; g.lineWidth = 4; g.beginPath(); const bx = VW / 2 + 60 + (a - 2.5) * 16, by = VH + 10 - 40 * k; g.moveTo(bx, VH); g.quadraticCurveTo(bx + Math.sin(t * 2 + a) * 20, by - 30, VW / 2 + 60 + Math.sin(t + a) * 6, by - 50 + a * 4); g.stroke(); } g.lineWidth = 1; }   // the Kraken's arms round the tower
+        if (t > 15) { const k = ez(seg(t, 15, 18)); opTower(VW / 2 + 60, VH + 40 - 60 * k, 70, 0.08, t, 7); for (let a = 0; a < 6; a++) { g.strokeStyle = '#4a1a3a'; g.lineWidth = 4; g.beginPath(); const bx = VW / 2 + 60 + (a - 2.5) * 16, by = VH + 10 - 40 * k; g.moveTo(bx, VH); g.quadraticCurveTo(bx + Math.sin(t * 2 + a) * 20, by - 30, VW / 2 + 60 + Math.sin(t + a) * 6, by - 50 + a * 4); g.stroke(); } g.lineWidth = 1; }   // Oktavor's arms round the tower
         drawSpr(g, npcSpr('npc_lyra'), Math.round(hx - 24), Math.round(hy + 6), false, false, 1.2, 1.2); opHero(hx, hy, 1.4, false, false, t); opLantern(hx + 10, hy - 15, 1, 1, Math.sin(t * 3) * 0.2); mfGlow(hx + 6, hy - 15, 50, 0.4);
         mfFade(t, 6.4, 7.0); mfFade(t, 23.4, 24, true);
       }

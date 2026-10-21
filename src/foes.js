@@ -1,5 +1,5 @@
 'use strict';
-// ============ NEW CHARACTERS: Mr Shorty (human + monster), Mr Sy (human + monster), Quoc's 7 forms, the four helpers ============
+// ============ NEW CHARACTERS: Shorty (human + monster), Sy (human + monster), Quoc's 7 forms, the four helpers ============
 // All sprites face RIGHT. boss sprites: formSprite(id); small NPC portraits are registered in NPC_PAINT.
 const FOE_PAINT = {};
 const FOE_SIZE = {};
@@ -33,7 +33,7 @@ FOE_PAINT.shorty_m = [60, 70, P => {
   P.rect(18, 64, 8, 6, 'k'); P.rect(34, 64, 8, 6, 'k');
 }, '#0a0612'];
 
-// ---------------- Mr Sy ----------------
+// ---------------- Sy ----------------
 FOE_PAINT.sy_h = [34, 54, P => {
   const COAT = '#1c4a30', COL = '#2f7a4a', HAT = '#10100c';
   P.ell(17, 5, 15, 3, HAT); P.rect(10, 0, 14, 6, HAT); P.rect(10, 4, 14, 2, '#7ed957');

@@ -42,13 +42,13 @@ The in-game guide (title menu or pause menu > Controls) shows the same list.
 
 | # | Biome | Enemies | Boss | Mechanics |
 |---|---|---|---|---|
-| 1 | Verdant Meadow | slimes, bees | King Slime | spikes, tutorial pacing |
-| 2 | Whispering Forest | spiders, bats, slimes | Spider Queen | crumble platforms, double jump |
-| 3 | Crystal Caverns | cave spiders, bats, crystal slimes | Crystal Golem | darkness — lantern lights the way |
-| 4 | Sunscorch Desert | scorpions, vultures, mummies | Sand Pharaoh | dash ability |
-| 5 | Frostbite Peaks | ice slimes, snowmen (shooters), ice bats | Frost King | slippery ice |
-| 6 | Ember Volcano | lava slimes, fire sprites, lava blobs | Magma Titan | lava pits, moving platforms |
-| 7 | Shadow Citadel | knights, ghosts, shadow skeletons | THE ECLIPSE | everything, hardest |
+| 1 | Verdant Meadow | slimes, bees | Gulgor | spikes, tutorial pacing |
+| 2 | Whispering Forest | spiders, bats, slimes | Veylith | crumble platforms, double jump |
+| 3 | Crystal Caverns | cave spiders, bats, crystal slimes | Prismor | darkness — lantern lights the way |
+| 4 | Sunscorch Desert | scorpions, vultures, mummies | Khepsar | dash ability |
+| 5 | Frostbite Peaks | ice slimes, snowmen (shooters), ice bats | Rimvald | slippery ice |
+| 6 | Ember Volcano | lava slimes, fire sprites, lava blobs | Kaldrok | lava pits, moving platforms |
+| 7 | Shadow Citadel | knights, ghosts, shadow skeletons | Quoc (8 forms) | everything, hardest |
 
 Each level also hides 3 **Sun Shards** (21 total): every 3 shards = +1 max heart, every 7 = stronger sword.
 Languages: Vietnamese + English (switch on the title screen). Progress is saved automatically.
@@ -95,12 +95,12 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 
 ## The final story (maps 3-7)
 
-- **Mr Sy** (Quoc's second minion) shows up on maps 3 and 5: he wakes the boss for you, then speaks when it falls and vanishes. He also joins Quoc's angry cutscenes.
+- **Doctor Sy** (Quoc's second minion) shows up on maps 3 and 5: he wakes the boss for you, then speaks when it falls and vanishes. He also joins Quoc's angry cutscenes.
 - **The four helpers** are met by chance on maps 2-5: **QuanSadBoy** (map 2), **HoangKiller** (map 3), **DuongDracular** (map 4), **Santree** (map 5). Each has heard of the lantern boy and promises to help.
 - **Map 7 (Shadow Citadel)** is longer and full of monsters, traps and new back-and-forth puzzles (gates that need TWO keys - one lies far behind you). Then:
   1. **Mr Shorty Phong** duel: human form, then he turns into a hat-wearing monster.
-  2. More trials and story, then **Mr Sy** duel: plague-doctor form, then a giant venom serpent.
-  3. **Quoc, the Dark Lord** (spiked bone crown, black spiked armour, ragged cape, red eyes) - **8 stages**: form 0 the Dark Lord himself, then 7 monster forms (Dark Imp, Hellhound, Chained Demon, Iron General, Winged Archdemon, Ashen Titan, Eternal Eclipse), each with its own look and skills. When form 3 (the Chained Demon) begins, QuanSadBoy, HoangKiller, DuongDracular and Santree join the fight with their own skills.
+  2. More trials and story, then **Doctor Sy** duel: plague-doctor form, then a giant venom serpent.
+  3. **Quoc, the Fallen Lanternbearer** (spiked bone crown, black spiked armour, ragged cape, red eyes) - **8 stages**: form 0 the Dark Lord himself, then 7 monster forms (Dark Imp, Hellhound, Chained Demon, Iron General, Winged Archdemon, Ashen Titan, Eternal Eclipse), each with its own look and skills. When form 3 (the Chained Demon) begins, QuanSadBoy, HoangKiller, DuongDracular and Santree join the fight with their own skills.
 - Code: `src/foes.js` (all new art), forms/dialogue tables near `FORMS`/`MINI` in `src/game.js`.
 
 ## The movie (story placement)
@@ -115,7 +115,7 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **Boss fights are long** (roughly 1-3 minutes each, longer later), have **armor** (bombs and flames pierce it), **dodge** your attacks and use their own signature skills:
   slime goo/splits, spider webs + ceiling ambush, golem crystal eruptions + shield (break it with a bomb), pharaoh curse (reversed controls) + sand tornado,
   frost king ice cage + blizzard, magma titan lava columns + meteors + fire sweep, the Eclipse darkness + shadow clones + black hole.
-- **Ignarok the Ashwing** - a giant talking dragon. Map 1: fight it near the start, it flees at 25% health. Map 6: it returns in 3 forms (red, three-headed, shadow).
+- **Ignar / Ignarok** - a giant talking dragon. Map 1: fight it near the start, it flees at 25% health. Map 6: it returns in 3 forms (red, three-headed, shadow).
 - **Animation:** bosses crouch before slamming, stretch in the air, squash on landing (dust + shockwave rings), lean into charges, recoil when shooting, fade away to teleport, turn invisible to stalk you (`cloak`), brace behind a guard, and roar. Small monsters have walk cycles, wind-ups, burrow underground (scorpions/beetles), blink-teleport (ghosts/wisps), raise shields (knights), pop in when summoned and spin away when killed.
 - **Monsters** come in sizes: small (fast), big (tanky), elite (armored); later maps have more, faster and tougher enemies.
 - **Mr Shorty's trials** (maps 1, 3, 6, 7) now mix waves of monsters with a torch puzzle; reinforcements keep coming until you solve it.
@@ -136,9 +136,9 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 
 ## 10 maps, Star Gems and the in-level bag
 - **10 maps**. After the Volcano come three new lands, then the Shadow Citadel (Quoc) as map 10:
-  - Map 7 **Glowcap Swamp**: giant glowing mushrooms; boss **Spore Queen**.
-  - Map 8 **Sunken Deep**: underwater, you swim (press jump again and again to rise, the water slows your fall); boss **Abyssal Kraken**.
-  - Map 9 **Deepdig Tunnels**: mines with wooden supports; boss **Gravemaw the Great Worm**, which hides underground, rumbles under a hero for a moment and bursts out - jump away in time.
+  - Map 7 **Glowcap Swamp**: giant glowing mushrooms; boss **Morvella**.
+  - Map 8 **Sunken Deep**: underwater, you swim (press jump again and again to rise, the water slows your fall); boss **Oktavor**.
+  - Map 9 **Deepdig Tunnels**: mines with wooden supports; boss **Vorgrub**, which hides underground, rumbles under a hero for a moment and bursts out - jump away in time.
 - Internally the new lands are BIOMES 7-9 and the Citadel stays BIOMES 6; `LORDER` in `src/levels.js` is the play order and `LDIFF` keeps the Citadel the hardest.
 - New side characters: Old Croak the frog sage, Granny Moss the witch, Nami the mermaid, Captain Redbeard, Old Tu the fisherman, Bay the miner, Grandpa Mole, Lirio the bard - and **Mira the Gem Trader** on every map.
 - **Star Gems**: 4 hidden in every map (usually up high). Trade them with Mira (or the "Star Gems" tab of the shop) for supply crates, gold, permanent +1 heart / +1 damage, a golden glow, dragon wings and 4 secret co-op heroes.
@@ -149,31 +149,31 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - Every land got an art pass (`src/scenery.js` + tile details in `drawWorld`): textured ground with buried stones/roots/gems, soft depth shading, swaying grass and flowers, snow caps, glowing cracks, roots/icicles/stalactites/kelp hanging under ledges, styled platforms (planks, stone, ice, metal grates, coral) with ropes and chains, 50+ props (fences, wells, shrines, pyramids' statues, ice lamps, gothic pillars, minecarts, anchors...), a distant landmark per land (castle, giant tree, crystal spires, pyramids, aurora and ice castle, lava fall, moon and towers, giant mushroom, sunken ship, mine tunnels), drifting clouds, birds/bats/fish, haze, big foreground plants, a colour mood per land and a soft vignette.
 - **Hidden nooks**: in each land a few patches of ground are not really there - walk over them and fall into a small treasure room (look for the tiny sparkle).
 - **10 easter eggs** (one per land) hidden in those nooks - affectionate homages to famous anime, shown only as objects and hints (no names, no logos). Each first find gives a Star Gem.
-- **7 Wish Orbs** with 1-7 stars hidden in seven lands. Gather all seven and a great green dragon grants a wish.
+- **Lyra's Seven Notes**: a crystal music note (one colour each) hidden in each of seven lands. Gather all seven and Lyra sings her whole song; the Lightcrane, a crane made of light, grants a wish.
 - **Saving on this device**: every checkpoint saves your progress in the level (local storage of this browser / this PC's app). "Resume" on the title screen puts you back at your last checkpoint.
 
 ## Divine tier, summons and the deep bosses
 - **Divine tier (16-20)**: 10 swords, 5 armors, 5 pets and 5 special weapons above Mythic.
-  - Divine swords and armors: a charged skill: land 22 hits, then press the item's slot key (**1** or **2** for a weapon, **3** for the armor; gamepad R3) to summon a giant for up to 30 seconds - Stone Titan, Storm God, Sea Goddess, Phoenix, Moon Goddess, Golden Dragon Emperor, Frost Giant, Sun Emperor, Shadow Shogun, Ancient Treant, Golden Guardian, Valkyrie, Shadow Copies, Archangel, Stone Golems.
-  - Divine pets (Little Wyrmling, Baby Kirin, Pebble Golem, Star Whale, Kitsune Kit) fight and gather gold, and every 60 s transform for 7 s (Great Dragon, Thunder Kirin, Stone Titan, Sky Whale, Nine-Tailed Fox).
+  - Divine swords and armors: a charged skill: land 22 hits, then press the item's slot key (**1** or **2** for a weapon, **3** for the armor; gamepad R3) to summon a giant for up to 30 seconds - Earthvein Colossus, Thunderpeal Lord, Tidecrest Maiden, Phoenix, Paleglow Lady, Elder Goldscale, Glacierfang Giant, Emperor of the Old Sun, Unshadowed General, Old Rootheart, Dawnward Warden, Starspear Maiden, Shadow Trio, Aureole Herald, Gateguard Twins.
+  - Divine pets (Coalpup, Qilin Foal, Cobblekin, Starfin Calf, Azure Kit) fight and gather gold, and every 60 s transform for 7 s (Coalheart Drake, Boltmane Qilin, Earthvein Colossus, Lightwhale, Azure Vixen).
   - Divine weapons: Glacier Bow (rain of ice arrows over the screen), Reaper's Scythe (boomerang that stuns and poisons), Meteor Staff (one colossal meteor), Sun Chakram (bounces through 8 enemies), Singularity Cannon (huge black hole then a blast).
-- The Spore Queen, the Kraken and Gravemaw use the artist's designs (`assets/ref/new_bosses.webp`, cut by `tools/cut_bosses.py`), move like living creatures and have their own horror voices.
-- The Kraken waits in a huge sea cave: the camera pulls back so the hero looks tiny next to it. Gravemaw's arena is a cavern at the bottom of a deep pit in the tunnels.
-- Shortcuts to hear and see each deep boss right away: `?boss=7` (Spore Queen), `?boss=8` (Kraken), `?boss=9` (Gravemaw). Click the game once so the browser allows sound. `?level=N` (0-9) starts map N from the beginning (e.g. `?level=8` for the Sunken Deep dive).
-- **The Sunken Deep is now a vertical dive** (`genOcean` in `src/levels.js`): you start on a shore with Nami the mermaid, Captain Redbeard and the trader (an opening scene gives the quest), then swim down through six dark zones separated by stone shelves with a hole to the next zone. The deeper you go, the darker it gets and the stronger the currents pushing you away from the way down. Three **Sea Pearls** are hidden in side caves in the walls (other caves hold Star Gems and a secret); bringing all three near the **Tide Door** opens the Kraken's cavern.
-- The Kraken fights in a huge tall cavern: it hovers and follows your height, so you fight both on the floor and swimming up; its "tentacle sweep" fills the cavern with bands of tentacles with a single safe gap to swim into.
+- The Morvella, Oktavor and Vorgrub use the artist's designs (`assets/ref/new_bosses.webp`, cut by `tools/cut_bosses.py`), move like living creatures and have their own horror voices.
+- Oktavor waits in a huge sea cave: the camera pulls back so the hero looks tiny next to it. Vorgrub's arena is a cavern at the bottom of a deep pit in the tunnels.
+- Shortcuts to hear and see each deep boss right away: `?boss=7` (Morvella), `?boss=8` (Oktavor), `?boss=9` (Vorgrub). Click the game once so the browser allows sound. `?level=N` (0-9) starts map N from the beginning (e.g. `?level=8` for the Sunken Deep dive).
+- **The Sunken Deep is now a vertical dive** (`genOcean` in `src/levels.js`): you start on a shore with Nami the mermaid, Captain Redbeard and the trader (an opening scene gives the quest), then swim down through six dark zones separated by stone shelves with a hole to the next zone. The deeper you go, the darker it gets and the stronger the currents pushing you away from the way down. Three **Sea Pearls** are hidden in side caves in the walls (other caves hold Star Gems and a secret); bringing all three near the **Tide Door** opens Oktavor's cavern.
+- Oktavor fights in a huge tall cavern: it hovers and follows your height, so you fight both on the floor and swimming up; its "tentacle sweep" fills the cavern with bands of tentacles with a single safe gap to swim into.
 - Underwater the hero tilts and kicks while swimming and lunges when attacking.
 - Every boss slowly heals if nobody hits it for 30 seconds.
 
 ## Ranks, the giant forest and the lake
 - **Ranks**: every sword, armor, pet and weapon has a grade from **F** up to **SSS** (SSS / SS / S / A / B / C / D / E / F), shown as a badge on each item and in the details. A rank row above the shop grid filters by grade (click it or press **[** and **]**).
-- **Giant Forest** (map 7, Glowcap Swamp): the last part of the level is a long, dark forest of huge glowing mushrooms and trees, full of monsters on the ground and in the canopy. At the end the **Spore Queen** does not walk in: a shadow shows up on the ground, locks on you and she crashes down from the sky - run out of the shadow in time!
-- **The Lake** (map 9, Deepdig Tunnels): the pit at the end of the tunnels drops you into a huge flooded cavern. You swim and fight Gravemaw in the water; it digs through the lake bed and bursts out under you. A few islands at the surface give you dry ground.
+- **Giant Forest** (map 7, Glowcap Swamp): the last part of the level is a long, dark forest of huge glowing mushrooms and trees, full of monsters on the ground and in the canopy. At the end the **Morvella** does not walk in: a shadow shows up on the ground, locks on you and she crashes down from the sky - run out of the shadow in time!
+- **The Lake** (map 9, Deepdig Tunnels): the pit at the end of the tunnels drops you into a huge flooded cavern. You swim and fight Vorgrub in the water; it digs through the lake bed and bursts out under you. A few islands at the surface give you dry ground.
 
 ## Guns (20)
 - A new weapon type with its own shop tab: **20 guns**, from the E-rank Flintlock up to the SSS Omega and Celestial Judgment. Put one in Slot 1 or Slot 2 and **hold** the attack key (J / H / mouse) to keep firing; Up / Down aim. Every gun has a magazine (shown on the slot) and reloads when empty, with recoil, muzzle flash, shell casings and its own sounds.
 - C-B guns have special ammo (fire, ice that freezes every 5th shot, plasma bursts, tesla lightning, grenades), A guns are heavy (railgun that pierces everything, Gatling that spins up to 14 shots/s, void pistol that leaves black holes).
-- **S**: Solar Cannon (sun bolts every 5th shot), The Judge (lightning from the sky + thunder nova). **SS**: Supernova Rifle (homing stars, star ring, supernova blast), Dragon Breath (cone of dragon fire, summons a dragon). **SSS**: OMEGA (reality-tearing beams, void lightning, orbital barrage of 14 sky beams, black hole) and Celestial Judgment (3 homing holy bullets, summons an Archangel and the Sun Emperor, and a Divine Judgment that strikes every enemy on screen and heals you).
+- **S**: Solar Cannon (sun bolts every 5th shot), The Judge (lightning from the sky + thunder nova). **SS**: Supernova Rifle (homing stars, star ring, supernova blast), Dragon Breath (cone of dragon fire, summons a dragon). **SSS**: OMEGA (reality-tearing beams, void lightning, orbital barrage of 14 sky beams, black hole) and Celestial Judgment (3 homing holy bullets, summons an Aureole Herald and the Emperor of the Old Sun, and a Divine Judgment that strikes every enemy on screen and heals you).
 
 ## Title screen and world map (UI redesign)
 - **Title**: a twilight scene with a burning Eclipse rising behind layered mountains and a ruined castle, fireflies, embers, mist and the hero beside his lantern; a big gold glowing logo with lantern ornaments; the menu is a glass panel with a glowing selection bar and a bobbing lantern pointer.
@@ -186,8 +186,8 @@ Languages: Vietnamese + English (switch on the title screen). Progress is saved 
 - **It runs straight into map 1:** after the title card the first map starts with a dialogue (`MAP1_OPEN`: the narrator, the hero and Lila, who gives the old sword and the J hint). Map 1's pages, mid-way beat, Lila, Pip, the Slime King (who sleeps on the First Tower), Shorty's trial and Lyra's rescue were rewritten for the new story; beating the boss relights the First Tower.
 - In solo play, story lines written for "Ember" are spoken by the hero the player picked.
 - **Map films:** the first time you enter a map from the world map, a short film plays (`MFILM[li]` in src/game.js: captions, sounds and a `draw(t)` per film), then an end card with the map's name, and the map begins with a dialogue (`MFILM[li].open`). Enter skips the film; `save.films` remembers which were seen.
-- **Map 2, Whispering Forest (29 s):** the thread of light flies from the First Tower to the sleeping Second Tower; the hero and Lyra walk through the whispering forest (eyes glowing among the leaves); the Ancient Tree opens its eyes and remembers a laughing boy with a lantern a hundred years ago, in faded gold: Quoc; QuanSadBoy walks in reading and bumps into the hero. The map then opens with Quan's book about the old Lanternbearer (nine towers lit, lost at the tenth). Beating the Spider Queen, Lyra sings and the Second Tower blazes. Castle Aurelia after map 2 was rewritten: the king said goodbye to Quoc in that courtyard a hundred years ago, and eight towers are still dark.
-- **Map 3, Crystal Caverns (29 s):** the second thread of light dives into the mountain where the Third Tower is buried; the hero, Lyra and Quan walk through the dark caverns and the crystals wake as the lantern passes ("the crystals keep a memory of every light that touches them"); the great crystal blazes and shows young Quoc lighting a tower while his colour fades from gold to grey: every tower takes a little of the Lanternbearer's warmth, that is the price; Mr Sy steps out of the dark ("Master Quoc paid that price nine times. Will you pay it ten?") and the Golem wakes. Beating the Golem, the Third Tower's light pours up through every crystal. A caption is hidden as soon as the next one starts (films and opening).
+- **Map 2, Whispering Forest (29 s):** the thread of light flies from the First Tower to the sleeping Second Tower; the hero and Lyra walk through the whispering forest (eyes glowing among the leaves); the Ancient Tree opens its eyes and remembers a laughing boy with a lantern a hundred years ago, in faded gold: Quoc; QuanSadBoy walks in reading and bumps into the hero. The map then opens with Quan's book about the old Lanternbearer (nine towers lit, lost at the tenth). Beating the Veylith, Lyra sings and the Second Tower blazes. Castle Aurelia after map 2 was rewritten: the king said goodbye to Quoc in that courtyard a hundred years ago, and eight towers are still dark.
+- **Map 3, Crystal Caverns (29 s):** the second thread of light dives into the mountain where the Third Tower is buried; the hero, Lyra and Quan walk through the dark caverns and the crystals wake as the lantern passes ("the crystals keep a memory of every light that touches them"); the great crystal blazes and shows young Quoc lighting a tower while his colour fades from gold to grey: every tower takes a little of the Lanternbearer's warmth, that is the price; Doctor Sy steps out of the dark ("Master Quoc paid that price nine times. Will you pay it ten?") and the Golem wakes. Beating the Golem, the Third Tower's light pours up through every crystal. A caption is hidden as soon as the next one starts (films and opening).
 - Maps 4-10 still use the old story text; their films come next.
 
 ## Project layout
@@ -240,7 +240,7 @@ Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future 
 - Summon sprite strips play at a fixed 10 fps, packed on a bottom-centre pivot; the death strip plays once.
 - Bosses have 70% more health (50% for multi-form bosses) and 4 blood phases (75/50/25%): each phase roars, calls minions, raises fury and, from phase 2, adds a short shield.
 - Artist sprites for summons: see assets/summons/README.md.
-- The Sun Emperor now has the artist's sprites too (walk, idle, attack, hurt and the Ancient form; its death sheet was too dark to cut, so it uses the dissolve).
+- The Emperor of the Old Sun now has the artist's sprites too (walk, idle, attack, hurt and the Ancient form; its death sheet was too dark to cut, so it uses the dissolve).
 - Summon art: the artist's design sheets live in art/summon_sheets; `tools/extract_summons.py` (rembg, birefnet-general-lite) cuts them into idle/walk/attack/hurt/death strips plus the Ancient final form, and `tools/clean_summons.py` removes captions/labels. The game reads assets/summons/manifest.json; kinds without art keep the built-in pixel giants.
 
 ## Dash and parry
@@ -298,10 +298,10 @@ Hero `miku` (src/heroes.js) is a fan tribute to Hatsune Miku (c) Crypton Future 
 1. **Entrance**, different for each god:
    - Rising from the hero's shadow (Shadow Clone, Nine-Tails)
    - A smoke burst (Shogun)
-   - A meteor crash (Titan, Golems, Frost Giant)
-   - A lightning strike (Storm God, Kirin, Valkyrie)
-   - A pillar of light (Moon Goddess, Angel, Sun Emperor, Aegis)
-   - A water geyser (Sea Goddess) or growing roots (Treant)
+   - A meteor crash (Titan, Golems, Glacierfang Giant)
+   - A lightning strike (Thunderpeal Lord, Kirin, Starspear Maiden)
+   - A pillar of light (Paleglow Lady, Angel, Emperor of the Old Sun, Aegis)
+   - A water geyser (Tidecrest Maiden) or growing roots (Treant)
    - Swooping in from the sky (the flyers)
 2. **The 3-step rule:** a 0.5 s freeze then a head turn to lock the target (glowing eyes), a wind-up, then the character's own gait:
    - heavy stomps that shake the ground
@@ -344,9 +344,9 @@ These are inspired by classic play styles but use original names and designs, so
 The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven only by gravity, X-only walking, a grounded check), implemented in this engine:
 - **Spawn:** a downward probe (`sumProbe`) from the hero finds the floor. The summon appears on that point (in front of the hero if that spot is at the same height, otherwise at the hero's own spot), never in the air, over a pit or inside a wall.
 - **Gravity only:** walkers change Y only by falling, accelerating at 1100 px/s² up to 600 px/s, or by climbing a step of at most one tile. Nothing lifts them up.
-- **X only:** a wall stops them instead of teleporting them on top of it, and a pit or a drop deeper than 3 tiles stops them at the edge (`sumStepX`). The teleport casters (Storm God, Moon Goddess, Angel, Sun Emperor, Sea Goddess) reappear on the ground beside the target instead of hanging in the sky. A leap lands on the real floor of the landing spot.
+- **X only:** a wall stops them instead of teleporting them on top of it, and a pit or a drop deeper than 3 tiles stops them at the edge (`sumStepX`). The teleport casters (Thunderpeal Lord, Paleglow Lady, Angel, Emperor of the Old Sun, Tidecrest Maiden) reappear on the ground beside the target instead of hanging in the sky. A leap lands on the real floor of the landing spot.
 - **Grounded check:** while a walker is falling it neither walks forward nor attacks. If it ever falls out of the level it reappears next to its owner.
-- The real flyers (Phoenix, Dragons, Sky Whale) still fly.
+- The real flyers (Phoenix, Dragons, Lightwhale) still fly.
 
 ## Fan heroes (TEST BUILD ONLY)
 - All of them start with **5 hearts**.
@@ -524,9 +524,9 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - **Map films 5-10:** every map now opens with a short film (24-28 s) and an opening dialogue:
   - **Frostbite Peaks:** the Fifth Tower locked in ice; Lyra's song cracks it a little; Seraph tells how the king froze his own heart; Sy shatters the ice cage on the summit.
   - **Ember Volcano:** the Sixth Tower sinking in lava; a shard of old lantern glass: here Quoc's lantern cracked for the first time, and he walked on with it; Ignarok, grown up, flies over the smoke.
-  - **Glowcap Swamp:** cold glowing mushrooms remember Quoc's dream and whisper his last words, "I wish someone would walk with me"; the Spore Queen opens her eyes.
-  - **Sunken Deep:** the thread dives off the cliff; a whale of light shows the way down to the drowned Eighth Tower and the Kraken's arms (Nami's shore quest still plays when the map begins).
-  - **Deepdig Tunnels:** Shorty, alone, admits he only wanted his master to smile; Gravemaw breaks through the rock.
+  - **Glowcap Swamp:** cold glowing mushrooms remember Quoc's dream and whisper his last words, "I wish someone would walk with me"; the Morvella opens her eyes.
+  - **Sunken Deep:** the thread dives off the cliff; a whale of light shows the way down to the drowned Eighth Tower and Oktavor's arms (Nami's shore quest still plays when the map begins).
+  - **Deepdig Tunnels:** Shorty, alone, admits he only wanted his master to smile; Vorgrub breaks through the rock.
   - **Shadow Citadel:** nine threads meet over the Citadel; Quoc waits under the dark Tenth Tower; the friends from the road walk up behind the team.
 
 ## Boss fixes and the controls guide
@@ -540,3 +540,28 @@ The same rules a Unity Rigidbody2D summon would use (raycast spawn, Y driven onl
 - **The top of the map is a ceiling:** Kirby (and Bong, who flies the same way) could flutter-jump past the top of the map and over the arena walls; every hero now stops at the top edge.
 - **Double jump for every hero from map 1** (it used to unlock on map 2). The map-1 tip now says how to double jump and where the controls guide is (the old tip listed every key and ran past the screen's edges).
 - **Old intro film retired:** the title menu's "Intro film" now replays the new opening film and returns to the title; the first screen at launch only waits for a key (it unlocks the sound) and then shows the title.
+
+## Names (phase 2B)
+Every boss and summon has a new name; each English name was checked on the web for clashes with other games. Bosses
+also have a title and a one-line intro, shown on a **boss card** when a fight starts, on every form change and on every
+dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not change.
+
+| What | Name (EN / VI) | Title |
+|---|---|---|
+| Map 1 boss | Gulgor | the Lantern Gulper / Bụng Nuốt Đèn |
+| Map 2 boss | Veylith | the Hush Spinner / Kẻ Dệt Lời Thì Thầm |
+| Map 3 boss | Prismor | the Silent Prism / Trái Tim Pha Lê Câm |
+| Map 4 boss | Khepsar | the One Who Begged to Sleep / Kẻ Xin Được Ngủ |
+| Map 5 boss | Rimvald | the Self-Frozen Heart / Trái Tim Tự Đóng Băng |
+| Map 6 boss | Kaldrok | the Walking Forge / Lò Rèn Biết Đi |
+| Map 7 boss | Morvella | the Swamp's Lullaby / Lời Ru Của Đầm Lầy |
+| Map 8 boss | Oktavor | Drowner of the Eighth Tower / Kẻ Nhấn Chìm Tháp Thứ Tám |
+| Map 9 boss | Vorgrub | the Ember Eater / Miệng Nuốt Tàn Lửa |
+| Map 10 fight | Quoc, King of the Eclipse / Quốc, Vua Nhật Thực | the Lanternbearer Who Went Dark / Người Giữ Đèn Đã Tắt |
+| Quoc's 8 forms | the Fallen Lanternbearer, the Lonely Shade, the Masterless Hound, the Oath-Chained, the Warmthless Knight, Wings That Fell Short, Ash of Nine Towers, HEART OF THE ECLIPSE | Step 1-8: The Fall, Loneliness, Lost, Bound, Empty, Failure, Burned Out, Darkness |
+| Gatekeepers | Mr Shorty Phong / Ngài Shorty Phong → Shorty Phong, the Tall-Hat Fiend; Doctor Sy / Thầy Sy → Sy, the Venom Wyrm | the Tall-Hat Butler, the Grin Turned Fang; the Green-Coat Poisoner, the Final Dose |
+| Dragon | Ignar (map 1) → Ignarok Ashscale / Vảy Tro, Ignarok of Three Furies / Ba Đầu Thịnh Nộ, Ignarok the Duskflame / Cánh Đêm | the Lost Hatchling; the Grown Flame, Rage Split Three Ways, the Swallowed Flame |
+| Divine swords → beings | Earthvein Greatsword → Earthvein Colossus; Thunderpeal → Thunderpeal Lord; Tidecrest Blade → Tidecrest Maiden; Pyreplume → Relit Phoenix; Paleglow Edge → Paleglow Lady; Goldscale Blade → Elder Goldscale; Glacierfang → Glacierfang Giant; Lost Sun Blade → Emperor of the Old Sun; Unshadowed Katana → Unshadowed General; Rootheart Blade → Old Rootheart | |
+| Divine armours → beings | Dawnward Plate → Dawnward Warden; Starspear Plate → Starspear Maiden; Cloak of Three Shadows → Shadow Trio; Aureole Robe → Aureole Herald; Twinmount Plate → Gateguard Twins | |
+| Pets → big forms | Coalpup → Coalheart Drake; Qilin Foal → Boltmane Qilin; Cobblekin → Cobble Colossus; Starfin Calf → Lightwhale; Azure Kit → Azure Vixen | |
+| Secret | Lyra's Seven Notes → the Lightcrane (was 7 Wish Orbs and a green dragon) | |

@@ -380,7 +380,7 @@ function genLevel(li) {
     for (let i = 0; i < 4; i++) { set(x0 + 16 + i, gy - 4, '='); set(x0 + 30 + i, gy - 4, '='); }
     spawn('heart', x0 + 4, gy - 2);
   }
-  function pMini(who) { // Mr Shorty / Mr Sy duel: sealed arena, resolved in game.js
+  function pMini(who) { // Shorty / Sy duel: sealed arena, resolved in game.js
     const n = 54, x0 = pzFlat(n);
     L.minis.push({ id: L.id++, who, lw: x0 + 8, rw: x0 + n - 6, trig: x0 + 11, gy });
     for (let i = 0; i < 4; i++) { set(x0 + 17 + i, gy - 4, '='); set(x0 + 33 + i, gy - 4, '='); }

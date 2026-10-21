@@ -275,3 +275,5 @@ print('ok')
 # (applied afterwards: the card sits at y 110 so its second line stays above the item bar; the young dragon speaks
 # with the dragon's voice: audio.js blip maps 'dragon_young' to 'dragon')
 # (and: the Vietnamese 'Quoc drags you into...' message now spells Quốc)
+# (applied afterwards, by hand: the co-op desert line names Khepsar; comments say Sy / Oktavor instead of Mr Sy / the
+# Kraken; README gets the new names and a "Names (phase 2B)" table)
