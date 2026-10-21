@@ -590,3 +590,5 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
 - Hitboxes follow the art: each boss's `w` / `h` is the solid body of its sheet (`tools/pixel/hitbox.py`; thin parts
   such as staffs, spider legs and tentacle tips are left out). The art is shifted by `SHEET_OFF` so its body sits on the
   hitbox. Three were tuned by hand: the coiled Venom Wyrm (60×70), Oktavor (110×140) and Mr Shorty Phong (24×60).
+- Dragons: Ignar (map 1) and Ignarok's three forms (map 6) draw from `assets/sprites/ignar`, `ignarok1-3`
+  (`tools/pixel/dragon.py`): hover, fly, wind-up, breath, dive (the body still tilts), perch, hurt, death, stage change.

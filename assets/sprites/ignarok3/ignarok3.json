@@ -1,0 +1,91 @@
+{
+ "name": "ignarok3",
+ "cell": [
+  163,
+  122
+ ],
+ "anchor": [
+  81,
+  62
+ ],
+ "facing": "right",
+ "palette": [
+  "#06040e",
+  "#120c24",
+  "#2a1c4a",
+  "#4a2a78",
+  "#6a4aa0",
+  "#2a1a48",
+  "#4a2a78",
+  "#7a4ab0",
+  "#a07ad0",
+  "#0a0818",
+  "#1a1238",
+  "#3a2468",
+  "#5a3a90",
+  "#6a5a88",
+  "#a898c8",
+  "#ff3aff",
+  "#ffffff",
+  "#7a2aff",
+  "#c08aff",
+  "#ffd0ff"
+ ],
+ "notes": "Ignarok the Duskflame (map 6, form 3). Flyer: anchor = body centre.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "ignarok3_idle.png"
+  },
+  "walk": {
+   "frames": 6,
+   "fps": 12,
+   "loop": true,
+   "file": "ignarok3_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "ignarok3_tele.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "ignarok3_cast.png"
+  },
+  "dive": {
+   "frames": 4,
+   "fps": 10,
+   "loop": false,
+   "file": "ignarok3_dive.png"
+  },
+  "perch": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "ignarok3_perch.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "ignarok3_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "ignarok3_death.png"
+  },
+  "evo": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "ignarok3_evo.png"
+  }
+ }
+}

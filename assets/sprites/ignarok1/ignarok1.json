@@ -1,0 +1,91 @@
+{
+ "name": "ignarok1",
+ "cell": [
+  163,
+  122
+ ],
+ "anchor": [
+  81,
+  62
+ ],
+ "facing": "right",
+ "palette": [
+  "#1e0608",
+  "#5a0e14",
+  "#8e2028",
+  "#c83a30",
+  "#f06a4a",
+  "#a87020",
+  "#d9a030",
+  "#ffd34e",
+  "#ffe8a0",
+  "#3a0810",
+  "#6a1420",
+  "#a02a30",
+  "#d04a40",
+  "#a89878",
+  "#e8dfc0",
+  "#ffe033",
+  "#ffffff",
+  "#ff6a1a",
+  "#ffd34e",
+  "#fff6c0"
+ ],
+ "notes": "Ignarok Ashscale (map 6, form 1). Flyer: anchor = body centre.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "ignarok1_idle.png"
+  },
+  "walk": {
+   "frames": 6,
+   "fps": 12,
+   "loop": true,
+   "file": "ignarok1_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "ignarok1_tele.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "ignarok1_cast.png"
+  },
+  "dive": {
+   "frames": 4,
+   "fps": 10,
+   "loop": false,
+   "file": "ignarok1_dive.png"
+  },
+  "perch": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "ignarok1_perch.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "ignarok1_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "ignarok1_death.png"
+  },
+  "evo": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "ignarok1_evo.png"
+  }
+ }
+}

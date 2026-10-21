@@ -2313,6 +2313,7 @@
   };
   const DS_MAX = { dive: 6.5, perch: 5.5, breath: 2.6, tripleBreath: 2.6, shadowBreath: 2.8, fireballs: 4, gust: 3, roar: 2.5, tailsweep: 2.2, summon: 2, vanish: 2.5, darkness: 2.5 };
   function makeDragon(def) {
+    if (typeof loadSheet !== 'undefined') (def.kind === 'young' ? ['ignar'] : ['ignarok1', 'ignarok2', 'ignarok3']).forEach(n => loadSheet(n));
     const cfg = DRG[def.kind], st = cfg.stages[0], cx = (def.lw + def.rw) / 2 * TS;
     return { isBoss: true, isDragon: true, def, tr: def, stage: 0, form: st.form, w: st.w, h: st.h, x: cx - st.w / 2, y: Q.cam.y - st.h - 80, vx: 0, vy: 0, hp: st.hp, max: st.hp, armor: st.armor, cfg: { name: st.name || NPCS.dragon.name, armor: st.armor }, skills: st.skills, sp: st.sp, dir: -1, st: 'enter', timer: 1.8, t: 0, flash: 0, invul: 0, wing: 0, flapT: 0, sk: null, lastSk: null, evCd: 1, fury: 1, hide: false };
   }
@@ -2396,14 +2397,37 @@
     if (d.st !== 'flee' && d.st !== 'enter') { d.x = clamp(d.x, (tr.lw + 1) * TS, tr.rw * TS - d.w); d.y = clamp(d.y, Q.cam.y - 30, tr.gy * TS - d.h / 2 - 2); }
     if (!d.hide && d.st !== 'enter' && d.st !== 'talk' && (d.def.kind !== 'young' || (d.st === 'act' && d.sk === 'dive'))) hitPlB({ x: d.x + 6, y: d.y + 4, w: d.w - 12, h: d.h - 8 }, () => hurtPlayer(d.def.kind === 'young' ? 1 : 2, c.x));
   }
+  const DRAGON_SHEET = ['ignar', 'ignarok1', 'ignarok2', 'ignarok3'];
+  function dragonFrame(d) {
+    if (typeof loadSheet === 'undefined') return null;
+    const S = loadSheet(DRAGON_SHEET[d.form] || 'ignar'); if (!S.ready) return null;
+    let st = 'idle';
+    if (d.dead) st = 'death';
+    else if (d.flash > 0) st = 'hurt';
+    else if (d.st === 'morph') st = 'evo';
+    else if (d.st === 'flee' || d.st === 'flee0' || d.st === 'enter') st = 'walk';
+    else if (d.st === 'tele') st = 'tele';
+    else if (d.st === 'act') st = d.sk === 'dive' ? 'dive' : (d.sk === 'perch' && d.ph === 1) ? 'perch' : (/reath|fireballs|gust|roar/.test(d.sk || '') ? 'cast' : 'walk');
+    else if (d.dodgeT > 0) st = 'walk';
+    if (!S.st[st]) st = 'idle';
+    if (d.anSt !== st) { d.anSt = st; d.anT0 = Q.t; }
+    const A = S.st[st], n = A.fr.length, el = Q.t - d.anT0;
+    let i = A.loop ? Math.floor(el * A.fps) % n : Math.floor(el * A.fps);
+    if (st === 'death') i = Math.floor((d.deadT || 0) / 2.3 * n);
+    if (!A.loop && i >= n) i = st === 'cast' || st === 'evo' ? n - 3 + ((i - n) % 3) : n - 1;
+    return A.fr[Math.max(0, Math.min(n - 1, i))];
+  }
   function drawDragon(camX, camY) {
     const d = Q.dragon; if (!d || d.hide) return;
-    const spr = dragonSprite(d.form, d.wing), cx = Math.round(d.x + d.w / 2 - camX), cy = Math.round(d.y + d.h / 2 - camY);
+    const spr = dragonSprite(d.form, d.wing), cx = Math.round(d.x + d.w / 2 - camX), cy = Math.round(d.y + d.h / 2 - camY), DF = dragonFrame(d);
     if (d.form === 3) { g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.18 + Math.sin(d.t * 3) * 0.06; disc(g, cx, cy + 6, 48, '#7a2aff'); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
     if (d.invul > 0 && d.invul < 50 && Math.floor(Q.t * 20) % 2 === 0) g.globalAlpha = 0.5;
     const img = d.flash > 0 ? (d.dir < 0 ? spr.fw : spr.cw) : (d.dir < 0 ? spr.f : spr.c);
     { let rot = 0, sy = 1, sx = 1; if (d.st === 'act' && d.sk === 'dive') rot = d.ph === 1 ? d.side * 0.5 : (d.ph === 2 ? d.side * 0.12 : 0); if (d.st === 'tele') { sy = 0.95; sx = 1.04; } if (d.st === 'act' && d.sk === 'perch' && d.ph === 1) { sy = 0.96; }
-      g.save(); g.translate(cx, cy + 8); if (rot) g.rotate(rot); g.drawImage(img, -spr.w * sx / 2, -spr.h * sy / 2, spr.w * sx, spr.h * sy); g.restore(); }
+      g.save(); g.translate(cx, cy + 8); if (rot) g.rotate(rot);
+      if (DF) { const fl = d.dir < 0, im = fl ? DF.f : DF.c; g.drawImage(im, -(fl ? DF.w - 1 - DF.ax : DF.ax), -DF.ay); }
+      else g.drawImage(img, -spr.w * sx / 2, -spr.h * sy / 2, spr.w * sx, spr.h * sy);
+      g.restore(); }
     g.globalAlpha = 1;
     if (d.st === 'tele' || (d.st === 'act' && /reath/.test(d.sk || ''))) { const m = dMouth(d), mx = Math.round(m.x - camX), my = Math.round(m.y - camY); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(mx, my, 0, mx, my, 16); gr.addColorStop(0, d.form === 3 ? 'rgba(200,100,255,.7)' : 'rgba(255,170,40,.75)'); gr.addColorStop(1, 'rgba(255,100,20,0)'); g.fillStyle = gr; g.fillRect(mx - 16, my - 16, 32, 32); g.globalCompositeOperation = 'source-over'; }
   }

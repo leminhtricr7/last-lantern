@@ -1,0 +1,91 @@
+{
+ "name": "ignar",
+ "cell": [
+  106,
+  80
+ ],
+ "anchor": [
+  52,
+  41
+ ],
+ "facing": "right",
+ "palette": [
+  "#2a0e06",
+  "#8a3a12",
+  "#c8601e",
+  "#f08a3a",
+  "#ffc070",
+  "#c89030",
+  "#ffd060",
+  "#ffe8a0",
+  "#fff4d0",
+  "#6a2410",
+  "#a8401a",
+  "#e0703a",
+  "#ffa060",
+  "#a89878",
+  "#e8dfc0",
+  "#fff033",
+  "#ffffff",
+  "#ff6a1a",
+  "#ffd34e",
+  "#fff6c0"
+ ],
+ "notes": "Ignar, the Lost Hatchling (map 1). Flyer: anchor = body centre.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "ignar_idle.png"
+  },
+  "walk": {
+   "frames": 6,
+   "fps": 12,
+   "loop": true,
+   "file": "ignar_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "ignar_tele.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "ignar_cast.png"
+  },
+  "dive": {
+   "frames": 4,
+   "fps": 10,
+   "loop": false,
+   "file": "ignar_dive.png"
+  },
+  "perch": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "ignar_perch.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "ignar_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "ignar_death.png"
+  },
+  "evo": {
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "file": "ignar_evo.png"
+  }
+ }
+}
