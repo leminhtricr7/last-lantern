@@ -105,6 +105,17 @@ const Snd = (() => {
     bubbles() { for (let i = 0; i < 4; i++) tone(300 + Math.random() * 300, 0.07, 'sine', 0.05, 400, ac.currentTime + i * 0.05); },
     flame() { noise(0.4, 0.2, 700); tone(220, 0.4, 'sawtooth', 0.08, 120); }
   });
+  // phase 5 (A1, A3): a pot breaking (by material) and a bush being cut
+  Object.assign(sfx, {
+    brkclay() { noise(0.18, 0.22, 900); tone(420, 0.06, 'square', 0.06, -200); for (let i = 0; i < 4; i++) tone(700 + Math.random() * 500, 0.04, 'square', 0.03, -300, ac.currentTime + 0.04 + i * 0.03); },
+    brkglass() { noise(0.2, 0.18, 3500); for (let i = 0; i < 5; i++) tone(1800 + Math.random() * 1600, 0.25, 'sine', 0.04, 0, ac.currentTime + i * 0.035); },
+    brkstone() { noise(0.25, 0.25, 300); tone(140, 0.12, 'square', 0.08, -60); for (let i = 0; i < 3; i++) noise(0.05, 0.1, 900, ac.currentTime + 0.06 + i * 0.05); },
+    brkmetal() { tone(900, 0.4, 'square', 0.05, -120); tone(1350, 0.5, 'sine', 0.06); noise(0.08, 0.14, 4000); },
+    brkwood() { noise(0.15, 0.2, 700); tone(180, 0.1, 'triangle', 0.12, -70); tone(260, 0.06, 'square', 0.04, -100, ac.currentTime + 0.05); },
+    leafcut() { noise(0.16, 0.16, 2200); noise(0.3, 0.06, 1200, ac.currentTime + 0.05); tone(600, 0.06, 'triangle', 0.03, 500); },
+    snowcut() { noise(0.2, 0.16, 1800); noise(0.12, 0.1, 3600, ac.currentTime + 0.04); },
+    drycut() { for (let i = 0; i < 4; i++) noise(0.03, 0.12, 2600, ac.currentTime + i * 0.035); noise(0.2, 0.05, 1500); }
+  });
   function play(n) { if (!ac || !sfx[n]) return; const now = ac.currentTime; if (now - (lastT[n] || -1) < 0.03) return; lastT[n] = now; sfx[n](); }
 
   // ---------- voices: creature growls, hero grunts, NPC speech blips ----------

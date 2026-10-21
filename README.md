@@ -621,3 +621,10 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   tiles, a moving platform (metal) or water, and plays `Snd.surf(kind)`. `nearSounds` adds a torch crackle when you pass
   a torch, bubbling when lava is close, and a gust of wind when you stand high up outdoors. Co-op guests play their own
   footsteps and nearby sounds locally.
+- Pots and bushes (phase 5, A3 + A1): `addBreakables` in levels.js puts 9-12 pots by the checkpoints of every map
+  (clay, amphora, crystal, ice, stone, bronze, mushroom, coral or barrel by theme) and a bush every 12-20 tiles on the
+  outdoor maps (leaf, fern, dry, snow, glowing mushrooms), on free ground only. A sword swing, dagger, shot or bomb breaks
+  them, fire burns bushes (`breakBrk` in game.js): pieces fly, a sound per material, and a small drop (pots: 60% 1-3
+  coins, 20% ammo, 8% a heart when someone is hurt; bushes: 25% a coin, 8% daggers, 4% a heart). Broken ones stay broken
+  after a death and in the checkpoint save (`Q.brokenB`, `save.resume.brokenB`); the host decides and co-op guests get
+  them through the `brk` world list.

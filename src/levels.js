@@ -188,6 +188,40 @@ const PUZZLES = {
 const TRIAL_WAVES = { 0: 2, 2: 3, 5: 4, 6: 5 };
 
 
+// ============ phase 5 (A1, A3): pots that break and bushes that can be cut ============
+// placed after a map is built, on free ground only (never on spikes, lava, gates, in the arena or on top of anything)
+const POT_STYLE = { meadow: 'clay', forest: 'clay', caves: 'crystal', desert: 'amphora', frost: 'ice', volcano: 'stone', citadel: 'bronze', swamp: 'shroom', ocean: 'coral', tunnels: 'barrel' };
+const BUSH_STYLE = { meadow: 'leaf', forest: 'fern', desert: 'dry', frost: 'snow', swamp: 'glow' };
+function addBreakables(L, li) {
+  const B = L.B, G = L.grid, H = L.H, rn = mulberry32(4242 + li * 613), out = L.brk = [], used = [];
+  const inArena = (x, y) => L.arena && x >= L.arena.x0 - 3 && (L.arena.y0 === undefined || y >= L.arena.y0);
+  const bad = c => c === '^' || c === '~' || c === 'G' || c === 'X';
+  const okAt = (x, y) => x > 8 && x < L.W - 3 && y > 2 && y < H && G[y][x] === '#' && G[y - 1][x] === ' ' && G[y - 2][x] === ' ' && !inArena(x, y)
+    && ![-1, 0, 1].some(d => bad(G[y - 1][x + d]) || bad(G[y][x + d]) || bad(G[y - 2][x + d]));
+  const free = (x, y, d) => !used.some(u => Math.abs(u[0] - x) < d && Math.abs(u[1] - y) < 3)
+    && !L.spawns.some(sp => sp.type !== 'coin' && Math.abs(sp.x / TS - x) < 2.5 && Math.abs(sp.y / TS - y) < 3);
+  const put = (t, x, y, st) => { used.push([x, y]); out.push({ t, s: st, x: x * TS + TS / 2, y: y * TS, id: L.id++ }); };
+  // pots: by the checkpoints (a rest stop after a hard stretch), now and then two side by side
+  const ps = POT_STYLE[B.id] || 'clay'; let pots = 0;
+  L.checkpoints.forEach((cp, i) => {
+    if (pots >= 12) return; const cx = Math.floor(cp.x / TS), cy = Math.round(cp.y / TS);
+    for (const dx of (i % 2 ? [4, 5, 6, -4, -5, -6] : [-4, -5, -6, 4, 5, 6])) {
+      let y = -1; for (let yy = cy - 2; yy <= cy + 2; yy++) if (okAt(cx + dx, yy)) { y = yy; break; }
+      if (y < 0 || !free(cx + dx, y, 2)) continue;
+      put('pot', cx + dx, y, ps); pots++;
+      const nx = cx + dx + (dx > 0 ? 1 : -1); if (rn() < 0.45 && pots < 12 && okAt(nx, y) && free(nx, y, 1)) { put('pot', nx, y, ps); pots++; }
+      break;
+    }
+  });
+  // bushes: along the ground every 12-20 tiles, on the outdoor maps only
+  const bs = BUSH_STYLE[B.id]; if (!bs) return;
+  const top = x => { for (let y = 2; y < H; y++) if (G[y][x] === '#' || G[y][x] === 'I') return G[y - 1][x] === ' ' ? y : -1; return -1; };
+  const nearCp = x => L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 3);
+  for (let x = 14; x < (L.arena ? L.arena.x0 - 4 : L.W - 4); x += 12 + Math.floor(rn() * 9)) {
+    for (let k = 0; k < 4; k++) { const xx = x + k, y = top(xx); if (y > 0 && okAt(xx, y) && free(xx, y, 3) && !nearCp(xx)) { put('bush', xx, y, bs); break; } }
+  }
+}
+
 // ============ THE SUNKEN DEEP: a vertical level. You start on the shore, dive, and swim down through six zones to Oktavor ============
 function genOcean(B, li) {
   const rnd = mulberry32(9001 + li * 7919), R = (a, b) => a + Math.floor(rnd() * (b - a + 1));
@@ -255,6 +289,7 @@ function genOcean(B, li) {
   L.arena = { x0: 3, x1: W - 3, gy: GY, y0: ARY0, rects: [[12, 96, 31, 98]] };
   L.spawns.push({ id: L.id++, type: 'boss', x: (W - 24) * TS, y: GY * TS });
   L.endX = W * TS;
+  addBreakables(L, li);
   return L;
 }
 
@@ -722,5 +757,6 @@ function genLevel(li) {
       while (ty > 1 && n < 5 && (grid[ty][tx] === '#' || grid[ty][tx] === 'I')) { ty--; n++; }
       if (n) sp.y = (ty + 1) * TS;
     } }
+  addBreakables(L, li);
   return L;
 }

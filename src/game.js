@@ -998,7 +998,7 @@
     P.x = L.start.x; P.y = L.start.y - P.h;
     Q = {
       li, L, P, B: L.B, bg: bgs(li), ts: tiles(li), crum: new Map(), taken: new Set(), cp: null, cpIdx: -1,
-      ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), trials: [], trialsDone: new Set(), rings: [], ghosts: [], corpses: [], zones: [], tmpCells: [], dragon: null, dragons: [], dragonsDone: new Set(), tmpCells2: 0, windT: 0, windDir: 1, darkBoost: 0, darkBoostT: 0, nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
+      ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), brokenB: new Set(), brk: [], trials: [], trialsDone: new Set(), rings: [], ghosts: [], corpses: [], zones: [], tmpCells: [], dragon: null, dragons: [], dragonsDone: new Set(), tmpCells2: 0, windT: 0, windDir: 1, darkBoost: 0, darkBoostT: 0, nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
       cam: { x: 0, y: 0 }, coinsRun: 0, time: 0, safe: { x: P.x, y: P.y }, menu: 0,
       dj: true, dashAb: li >= 3 || save.cleared.indexOf(2) >= 0,
       arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0, minisDone: new Set(), mainBoss: null, mainArena: null, syFig: null
@@ -1025,6 +1025,7 @@
     Q.dragons = L.dragons.map(t => Object.assign({}, t, { state: Q.dragonsDone.has(t.id) ? 'done' : 'idle' }));
     for (const m of (L.minis || [])) for (let y = 0; y < m.gy; y++) { L.grid[y][m.lw] = ' '; L.grid[y][m.rw] = ' '; }
     Q.minis = (L.minis || []).map(m => Object.assign({}, m, { state: Q.minisDone.has(m.id) ? 'done' : 'idle' })); Q.syFig = null;
+    Q.brk = (L.brk || []).filter(b => !Q.brokenB.has(b.id)).map(b => Object.assign({}, b, { hitT: 0 }));   // phase 5: pots and bushes
     for (const gd of L.gates) { const open = Q.solved.has(gd.id); for (let y = gd.y0; y <= gd.y1; y++) L.grid[y][gd.x] = open ? ' ' : 'G'; }
     for (const w of L.xwalls) for (const t of w.tiles) L.grid[t[1]][t[0]] = Q.brokenX.has(t[0] + ',' + t[1]) ? ' ' : 'X';
     Q.gates = L.gates.map(gd => Object.assign({}, gd, { open: Q.solved.has(gd.id), seqIdx: 0, timer: 0, levers: 0 }));
@@ -1588,6 +1589,7 @@
   function swordHit() {
     if (Q.P.counterHit) { Q.P.counterHit = false; Q.P.counterT = 0; pop(Q.P.x + 4, Q.P.y - 14, sv('COUNTER x2', 'PHẢN ĐÒN x2'), '#ffd34e'); Snd.play('explode'); }
     const P = Q.P, r = swordRect(), sw = P.sw || ITEM.iron, st = sw.st, base = baseDmg() + (st.dmg || 0);
+    for (const b of Q.brk) if (!b.dead && !P.atkHit.has(b) && ov(r, brkBox(b))) { P.atkHit.add(b); breakBrk(b, 'sword'); }
     const list = Q.ents.slice().concat(bossTargets());
     for (const e of list) {
       if (e.dead || e.hid || P.atkHit.has(e)) continue;
@@ -2511,6 +2513,66 @@
     Q.projs = Q.projs.filter(p => !p.dead);
   }
 
+  // ===================== phase 5 (A1, A3): pots that break and bushes that can be cut =====================
+  // [mid, dark, light, accent] per style; the pot styles follow the map's theme, bushes only grow on the outdoor maps
+  const BRK_COL = { clay: ['#c8743a', '#7a3e1c', '#eaa266', '#4a2a14'], amphora: ['#e0b060', '#9a6a28', '#ffe0a0', '#2a6ac8'], crystal: ['#8a88e0', '#4c4aa0', '#e0e0ff', '#6ee7f2'],
+    ice: ['#bfeaff', '#6ec8e8', '#ffffff', '#3a8ac0'], stone: ['#5a5a66', '#2e2a30', '#80808f', '#ff7a2a'], bronze: ['#c08a3a', '#6e4a1a', '#f0c070', '#5aa890'], shroom: ['#a85ac8', '#5e2a7a', '#d8a0f0', '#c8f0a0'],
+    coral: ['#e86a8a', '#9a3a5a', '#ffb0c4', '#f0e0c0'], barrel: ['#8a6a3a', '#4a3418', '#b08a50', '#a8a8b8'],
+    leaf: ['#4a9a3a', '#24602a', '#a4e86b', '#ff8ac8'], fern: ['#2f7a4a', '#174a2e', '#7ad68a', '#2f7a4a'], dry: ['#a8803a', '#5e4018', '#e0c070', '#c86a3a'],
+    snow: ['#3a7a5a', '#1e4a3a', '#ffffff', '#cfe8ff'], glow: ['#6a9a3a', '#2a4a22', '#c8f0a0', '#9fffd0'] };
+  const BRK_SND = { clay: 'brkclay', amphora: 'brkclay', coral: 'brkclay', shroom: 'brkclay', crystal: 'brkglass', ice: 'brkglass', stone: 'brkstone', bronze: 'brkmetal', barrel: 'brkwood', leaf: 'leafcut', fern: 'leafcut', glow: 'leafcut', snow: 'snowcut', dry: 'drycut' };
+  const brkSpr = {};
+  function brkSprite(st) {
+    if (brkSpr[st]) return brkSpr[st];
+    const [m, d, l, a] = BRK_COL[st] || BRK_COL.clay;
+    const POT = P => {   // a round jar: shaded body, neck, rim, a band
+      P.ell(5, 7, 4, 4, d); P.ell(4, 6, 3, 3, m); P.rect(3, 2, 4, 2, m); P.rect(5, 2, 2, 2, d); P.rect(2, 1, 6, 1, d); P.px(3, 5, l); P.px(3, 6, l); P.line(1, 8, 9, 8, a);
+    };
+    const F = {
+      clay: POT, amphora: P => { POT(P); P.px(1, 4, d); P.px(8, 4, d); P.px(0, 5, d); P.px(9, 5, d); P.line(2, 6, 8, 6, a); },
+      coral: P => { POT(P); P.px(6, 9, a); P.px(2, 7, a); P.px(7, 5, a); }, ice: P => { POT(P); P.px(2, 10, l); P.px(5, 11, l); P.px(8, 10, l); },
+      bronze: P => { POT(P); P.rect(4, 0, 2, 1, a); P.line(1, 8, 9, 8, a); },
+      crystal: P => { P.tri(5, 0, 9, 6, 1, 6, m); P.tri(1, 6, 9, 6, 5, 11, d); P.line(4, 2, 2, 6, l); P.px(5, 6, a); P.px(6, 7, a); },
+      stone: P => { P.rect(1, 3, 8, 8, m); P.rect(6, 3, 3, 8, d); P.rect(0, 2, 10, 1, d); P.rect(2, 11, 6, 1, d); P.px(2, 4, l); P.px(4, 7, a); P.px(5, 8, a); P.px(5, 9, a); },
+      shroom: P => { P.rect(2, 4, 6, 7, m); P.rect(6, 4, 2, 7, d); P.ell(5, 3, 5, 2, d); P.ell(4, 2, 4, 1, m); P.px(2, 2, a); P.px(6, 2, a); P.px(3, 6, l); },
+      barrel: P => { P.rect(1, 1, 8, 11, m); P.rect(7, 1, 2, 11, d); P.line(4, 1, 4, 11, d); P.rect(1, 3, 8, 1, a); P.rect(1, 9, 8, 1, a); P.px(2, 5, l); P.px(2, 6, l); },
+      leaf: P => { P.ell(4, 6, 4, 3, d); P.ell(10, 6, 4, 3, d); P.ell(7, 4, 4, 3, m); P.ell(3, 5, 3, 2, m); P.ell(10, 5, 3, 2, m); P.px(5, 2, l); P.px(8, 3, l); P.px(2, 4, l); P.px(11, 4, a); P.px(4, 7, a); },
+      fern: P => { for (let i = 0; i < 5; i++) { const x0 = 2 + i * 2.5; P.line(7, 9, Math.round(x0), 1 + Math.abs(i - 2), i % 2 ? d : m); P.px(Math.round(x0), 1 + Math.abs(i - 2), l); } P.ell(7, 8, 4, 1, d); },
+      dry: P => { P.line(1, 9, 6, 2, d); P.line(4, 9, 9, 3, m); P.line(7, 9, 12, 2, d); P.line(2, 5, 11, 6, m); P.line(3, 3, 10, 8, d); P.px(6, 2, l); P.px(9, 3, l); P.px(12, 2, a); },
+      snow: P => { P.ell(4, 6, 4, 3, d); P.ell(10, 6, 4, 3, d); P.ell(7, 5, 4, 3, m); P.ell(7, 3, 4, 1, l); P.ell(3, 4, 3, 1, l); P.ell(11, 4, 2, 1, l); P.px(5, 7, a); },
+      glow: P => { P.rect(2, 5, 2, 4, d); P.rect(7, 3, 2, 6, d); P.rect(11, 6, 2, 3, d); P.ell(3, 4, 3, 2, m); P.ell(8, 2, 3, 2, m); P.ell(12, 5, 2, 1, m); P.px(2, 3, a); P.px(8, 1, a); P.px(9, 2, a); P.px(12, 4, a); P.px(7, 8, l); }
+    };
+    const pot = !BUSH_STYLE_SET.has(st);
+    return (brkSpr[st] = paint(pot ? 10 : 14, pot ? 12 : 10, F[st] || POT, '#140c10'));
+  }
+  const BUSH_STYLE_SET = new Set(['leaf', 'fern', 'dry', 'snow', 'glow']);
+  function brkBox(b) { return b.t === 'pot' ? { x: b.x - 5, y: b.y - 12, w: 10, h: 12 } : { x: b.x - 7, y: b.y - 10, w: 14, h: 10 }; }
+  function drawBrk(camX, camY) {
+    for (const b of Q.brk) {
+      if (b.dead || b.x < camX - 20 || b.x > camX + VW + 20) continue;
+      const sp = brkSprite(b.s), sway = b.t === 'bush' ? Math.round(Math.sin(Q.t * 1.6 + b.x * 0.05) * 0.6) : 0;
+      g.drawImage(sp.c, Math.round(b.x - camX - sp.w / 2) + sway, Math.round(b.y - camY - sp.h + 1));
+    }
+  }
+  // break one: pieces fly, its own sound, and a small drop (coins, ammo, a heart only when someone is hurt). The host
+  // decides; the drop and the missing pot reach co-op guests through the usual world lists.
+  function breakBrk(b, how) {
+    if (b.dead || (coop && coop.role === 'client')) return;
+    b.dead = true; Q.brokenB.add(b.id);
+    const c = BRK_COL[b.s] || BRK_COL.clay, pot = b.t === 'pot', cx = b.x, cy = b.y - (pot ? 6 : 5);
+    emit(cx, cy, pot ? 14 : 18, { col: [c[0], c[1], c[2]], sp0: 30, sp1: pot ? 110 : 80, vy: pot ? -60 : -40 });
+    Snd.play(how === 'fire' ? 'flame' : (BRK_SND[b.s] || 'brkclay'));
+    const hurt = (Q.players || [Q.P]).some(p => p.hp < maxHP()), r = Math.random();
+    const drop = (kind, ex) => Q.items.push(Object.assign({ kind, x: cx, y: cy, id: -1, vy: -rr(80, 130), vx: rr(-30, 30), ph: 0, drop: true }, ex || {}));
+    if (pot) {
+      const n = r < 0.6 ? 1 + ((Math.random() * 3) | 0) : 0; for (let i = 0; i < n; i++) drop('coin');
+      if (Math.random() < 0.2) { const w = ['dagger', 'dagger', 'bomb', 'flask'][(Math.random() * 4) | 0]; drop('pk', { what: w, amt: w === 'dagger' ? 3 : 1, keep: false }); }
+      if (hurt && Math.random() < 0.08) drop('heart');
+    } else if (how !== 'fire') {
+      if (r < 0.25) drop('coin'); else if (r < 0.33) drop('pk', { what: 'dagger', amt: 2, keep: false });
+      if (hurt && Math.random() < 0.04) drop('heart');
+    }
+  }
   // phase 5 (D): what the hero is standing on decides the footstep: the map's ground, its floating ledges, ice, a moving
   // platform, or water
   const GROUND_SURF = { meadow: 'grass', forest: 'grass', caves: 'stone', desert: 'sand', frost: 'snow', volcano: 'stone', citadel: 'stone', swamp: 'mud', ocean: 'sand', tunnels: 'dirt' };
@@ -2751,13 +2813,13 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
 
   function saveResume() {
     if (coop || DEMO) return;
-    save.resume = { li: Q.li, pearls: Q.pearls || 0, cp: Q.cp, taken: [...Q.taken], solved: [...Q.solved], brokenX: [...Q.brokenX], trialsDone: [...Q.trialsDone], dragonsDone: [...Q.dragonsDone], minisDone: [...Q.minisDone], coinsRun: Q.coinsRun, time: Q.time, cpCount: Q.cpCount || 0, midDone: !!Q.midDone, ammo: save.ammo };
+    save.resume = { li: Q.li, pearls: Q.pearls || 0, cp: Q.cp, taken: [...Q.taken], solved: [...Q.solved], brokenX: [...Q.brokenX], brokenB: [...Q.brokenB], trialsDone: [...Q.trialsDone], dragonsDone: [...Q.dragonsDone], minisDone: [...Q.minisDone], coinsRun: Q.coinsRun, time: Q.time, cpCount: Q.cpCount || 0, midDone: !!Q.midDone, ammo: save.ammo };
     writeSave();
   }
   function resumeLevel() {
     const r = save.resume; if (!r || !BIOMES[r.li]) return;
     startLevel(r.li);
-    Q.taken = new Set(r.taken || []); Q.solved = new Set(r.solved || []); Q.brokenX = new Set(r.brokenX || []); Q.trialsDone = new Set(r.trialsDone || []); Q.dragonsDone = new Set(r.dragonsDone || []); Q.minisDone = new Set(r.minisDone || []);
+    Q.taken = new Set(r.taken || []); Q.solved = new Set(r.solved || []); Q.brokenX = new Set(r.brokenX || []); Q.brokenB = new Set(r.brokenB || []); Q.trialsDone = new Set(r.trialsDone || []); Q.dragonsDone = new Set(r.dragonsDone || []); Q.minisDone = new Set(r.minisDone || []);
     Q.cp = r.cp; Q.cpCount = r.cpCount; Q.midDone = r.midDone; Q.coinsRun = r.coinsRun || 0; Q.time = r.time || 0;
     Q.pearls = r.pearls || 0; Q.questShown = true; if (Q.L.pearlGate && Q.pearls >= 3) { const pg = Q.L.pearlGate; pg.open = true; for (let y = pg.y0; y <= pg.y1; y++) for (let x = pg.x0; x <= pg.x1; x++) Q.L.grid[y][x] = ' '; }
     initEntities(); Q.scn = buildScene();
@@ -3325,6 +3387,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     for (const e of Q.ents) if (!e.dead && Math.hypot(e.x + e.w / 2 - x, e.y + e.h / 2 - y) < r + 6) hurtEnemy(e, dmg, true);
     for (const b of bossTargets()) if (Math.hypot(b.x + b.w / 2 - x, b.y + b.h / 2 - y) < r + b.w / 2) hurtBoss(b, dmg, true);
     if (!soft) breakWalls(x, y, r);
+    for (const b of Q.brk) if (!b.dead && Math.hypot(b.x - x, b.y - 6 - y) < r + 8) breakBrk(b, 'bomb');
     const P = Q.P; if (!soft && Math.hypot(P.x + 4 - x, P.y + 7 - y) < r * 0.8) { P.vx += (P.x + 4 < x ? -1 : 1) * 140; P.vy = -150; }
     Q.fps.push({ t: 'blast', x, y, life: 0.25, r });
   }
@@ -3341,6 +3404,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       const box = { x: p.x - 3, y: p.y - 3, w: 6, h: 6 };
       if (p.t === 'wave') { if (hitTile) { p.dead = true; continue; } if (Math.random() < 0.7) emit(p.x, p.y + rr(-3, 3), 1, { col: ['#ffd34e', '#f08a2b', '#e0453a'], sp0: 3, sp1: 14, grav: -10, l0: 0.15, l1: 0.3 }); }
       if (p.t === 'dagger') for (const pz of Q.pz) if (pz.type === 'lever' && !pz.on && ov(box, { x: pz.x - 9, y: pz.y - 15, w: 18, h: 15 })) { leverPull(pz); p.dead = true; }
+      if (p.dead) continue;
+      if (p.t !== 'bomb' && p.t !== 'flask') for (const b of Q.brk) if (!b.dead && ov(box, brkBox(b))) { breakBrk(b, 'shot'); if (p.t === 'dagger') p.dead = true; break; }
       if (p.dead) continue;
       let hit = null;
       for (const e of Q.ents) if (!e.dead && !e.hid && ov(box, e) && !(e.cfg && e.cfg.ai === 'blob' && e.st !== 'up')) { hit = e; break; }
@@ -3367,6 +3432,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         f.tick = 0.4; const box = { x: f.x - 13, y: f.y - 20, w: 26, h: 20 };
         for (const e of Q.ents) if (!e.dead && ov(box, e)) hurtEnemy(e, 1, true);
         for (const b of bossTargets()) if (ov(box, b)) hurtBoss(b, 1, true);
+        for (const br of Q.brk) if (!br.dead && br.t === 'bush' && ov(box, brkBox(br))) breakBrk(br, 'fire');   // fire burns bushes
       }
       for (const pz of Q.pz) if (pz.type === 'torch' && !pz.lit && Math.abs(pz.x - f.x) < 20 && Math.abs(pz.y - f.y) < 24) lightTorch(pz);
     }
@@ -3637,7 +3703,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (Q.shake > 0) Q.shake -= dt;
     if (Q.msgT > 0) Q.msgT -= dt;
     if (Q.wishT > 0) Q.wishT -= dt;
-    updatePlats(dt); updateCrumble(dt); nearSounds(dt);
+    updatePlats(dt); updateCrumble(dt); nearSounds(dt); if (Q.brk.some(b => b.dead)) Q.brk = Q.brk.filter(b => !b.dead);
     if (st === 'bossintro' && !(Q.boss && Q.boss.st === 'intro')) Q.state = 'play'; // never get stuck in the intro
     if (st === 'bossintro') { asP(coop ? bossTgt(dt) : Q.P, () => updateBoss(dt)); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
     if (!Q.P.down) updatePlayer(dt);
@@ -3713,6 +3779,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       if (d.x < camX - 20 || d.x > camX + VW + 20) continue;
       const sp = ts.decor[d.k]; g.drawImage(sp.c, Math.round(d.x - camX - sp.w / 2), Math.round(d.y - camY - sp.h + 1));
     }
+    drawBrk(camX, camY);
     drawProps(camX, camY);
     // moving platforms
     for (const p of L.plats) {
@@ -6065,7 +6132,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     return o;
   }
   // lists of world objects sent with ids; only the fields that changed are sent again
-  const QLISTS = ['ents', 'projs', 'fps', 'fires', 'zones', 'rings', 'ghosts', 'corpses', 'items', 'traps', 'pz', 'gates', 'trials', 'minis', 'dragons'];
+  const QLISTS = ['ents', 'projs', 'fps', 'fires', 'zones', 'rings', 'ghosts', 'corpses', 'items', 'traps', 'pz', 'gates', 'trials', 'minis', 'dragons', 'brk'];
   const QONE = ['boss', 'dragon', 'syFig', 'mainBoss'];
   const GLISTS = ['allies', 'pops', 'bolts', 'holes', 'torn', 'sums', 'slashes', 'mtraps'];
   const GONE = ['god', 'dr', 'lyra'];
