@@ -1,0 +1,81 @@
+{
+ "name": "veylith",
+ "cell": [
+  80,
+  56
+ ],
+ "anchor": [
+  40,
+  53
+ ],
+ "facing": "right",
+ "palette": [
+  "#0e0814",
+  "#1e1430",
+  "#3a2654",
+  "#5a3e7a",
+  "#8a6ab0",
+  "#a898c0",
+  "#e0d8ee",
+  "#4ad08a",
+  "#d8ffe0",
+  "#e8e0f0",
+  "#9be564",
+  "#ff3a5a",
+  "#ffb0c0",
+  "#6a1430",
+  "#8a2a5a",
+  "#c05a8a"
+ ],
+ "notes": "Veylith, the Hush Spinner (map 2).",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "veylith_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "veylith_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "veylith_tele.png"
+  },
+  "slam": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "veylith_slam.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 10,
+   "loop": false,
+   "file": "veylith_cast.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "veylith_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "veylith_death.png"
+  },
+  "rage": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "veylith_rage.png"
+  }
+ }
+}

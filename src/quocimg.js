@@ -35,6 +35,27 @@ loadQuocArt();
   devilSprite = function (roar) { const s = QUOC_IMG[roar ? 'portrait_roar' : 'portrait_smirk']; return s || painted(roar); };
 }
 
+// pixel-art sprite sheets made with tools/pixel: assets/sprites/<name>/<name>.json lists the states; each state is one
+// horizontal strip of equal cells facing right. Every frame keeps its anchor (feet, bottom centre) as ax / ay.
+const SHEETS = {};
+function loadSheet(name) {
+  if (SHEETS[name]) return SHEETS[name];
+  const S = SHEETS[name] = { ready: false, st: {} };
+  fetch('assets/sprites/' + name + '/' + name + '.json').then(r => r.json()).then(m => {
+    S.m = m; let left = Object.keys(m.states).length;
+    for (const st in m.states) {
+      const info = m.states[st], img = new Image();
+      img.onload = () => {
+        const fr = [];
+        for (let i = 0; i < info.frames; i++) { const s = imgSprite(img, i * m.cell[0], 0, m.cell[0], m.cell[1]); s.ax = m.anchor[0]; s.ay = m.anchor[1]; fr.push(s); }
+        S.st[st] = { fr, fps: info.fps, loop: info.loop };
+        if (--left === 0) S.ready = true;
+      };
+      img.src = 'assets/sprites/' + name + '/' + info.file;
+    }
+  }).catch(() => { S.failed = true; });
+  return S;
+}
 // Morvella, Oktavor and Vorgrub from the artist's sheet (cut by tools/cut_bosses.py), keyed by map index
 const BOSS_IMG = {};
 (function () {

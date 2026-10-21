@@ -1,0 +1,79 @@
+{
+ "name": "rimvald",
+ "cell": [
+  92,
+  118
+ ],
+ "anchor": [
+  46,
+  114
+ ],
+ "facing": "right",
+ "palette": [
+  "#060c1a",
+  "#14244a",
+  "#24447a",
+  "#3a6aaa",
+  "#6a9ad8",
+  "#6ac0e8",
+  "#a8e4ff",
+  "#e0f8ff",
+  "#ffffff",
+  "#c8d8e8",
+  "#bff3ff",
+  "#ff3a5a",
+  "#8a1a2a",
+  "#c03a4a"
+ ],
+ "notes": "Rimvald, the Self-Frozen Heart (map 5).",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "rimvald_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "rimvald_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "rimvald_tele.png"
+  },
+  "slam": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "rimvald_slam.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 10,
+   "loop": false,
+   "file": "rimvald_cast.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "rimvald_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "rimvald_death.png"
+  },
+  "rage": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "rimvald_rage.png"
+  }
+ }
+}

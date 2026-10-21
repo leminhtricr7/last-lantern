@@ -1070,6 +1070,7 @@
     return e;
   }
   function makeBoss(s) {
+    if (BOSS_SHEET[Q.li] && typeof loadSheet !== 'undefined') loadSheet(BOSS_SHEET[Q.li]);
     if (Q.li === 6) return makeFormBoss(FORMS.quoc, s.x, s.y, { id: 'quoc', who: 'quoc' });
     const c = BOSS[Q.li], hp = Math.round(c.hp * (1.7 + 0.55 * HARDK(Q.li)) * (1 + 0.02 * totalShards()));
     return { isBoss: true, cfg: c, spr: bossSprite(Q.li), x: s.x - c.w / 2, y: s.y - c.h, w: c.w, h: c.h, vx: 0, vy: 0, hp, max: 0, dir: -1, st: 'sleep', timer: 0, flash: 0, t: 0, sk: null, atkSk: null, lastSk: null, onGround: false, noOneWay: true, n: 0, phase: 0, shield: 0, evCd: 1, invul: 0, hide: false, closeT: 0, fury: 1, armor: c.armor };
@@ -3837,10 +3838,41 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }
     if (Math.abs(sw) > 0.97 && (b.stepFx || 0) < Q.t) { b.stepFx = Q.t + 0.12; emit(b.x + b.w / 2 - Math.sign(sw) * b.w * 0.22, b.y + b.h, 3, { col: ['#cfd6e6', '#8a8aa0'], sp0: 5, sp1: 25, vy: -12, grav: 40, l0: 0.2, l1: 0.4 }); }
   }
+  // which boss uses which sprite sheet (by map); null = the old drawing
+  const BOSS_SHEET = ['gulgor', 'veylith', 'prismor', 'khepsar', 'rimvald', 'kaldrok', null, null, null, null];   // (maps 7-9 keep the artist's pictures for now; their sheets exist in assets/sprites)
+  function bossSheet(b) {
+    const name = b.cfg === BOSS[Q.li] ? BOSS_SHEET[Q.li] : null; if (!name || typeof loadSheet === 'undefined') return null;
+    const S = loadSheet(name); return S.ready && S.st.idle ? S : null;
+  }
+  // the frame for the boss's state; one-shot states start from their first frame when the state begins
+  function sheetFrame(b, S) {
+    let st;
+    if (b.dead) st = 'death';
+    else if (b.flash > 0 && S.st.hurt) st = 'hurt';
+    else if (b.st === 'tele') st = 'tele';
+    else if (b.st === 'act') st = (SLAM_L.indexOf(b.sk) >= 0 || b.sk === 'charge' || b.sk === 'rush' || b.sk === 'stomp') ? 'slam' : 'cast';
+    else if (b.moveT > 0 || b.st === 'evade') st = 'walk';
+    else st = (b.phase >= 1 && S.st.rage) ? 'rage' : 'idle';
+    if (!S.st[st]) st = 'idle';
+    if (b.anSt !== st) { b.anSt = st; b.anT0 = Q.t; }
+    const A = S.st[st], n = A.fr.length, el = st === 'death' ? (Q.bossDeadT || 0) : Q.t - b.anT0;
+    let i;
+    if (st === 'death') i = Math.min(n - 1, Math.floor(el / 1.4 * n));
+    else if (st === 'tele') { const tot = (BS[b.atkSk] ? BS[b.atkSk].tele : 0.6) / (b.fury || 1); i = Math.min(n - 1, Math.floor(el / Math.max(0.1, tot) * n)); }
+    else if (A.loop) i = Math.floor(el * A.fps) % n;
+    else { i = Math.floor(el * A.fps); if (i >= n) i = st === 'hurt' ? n - 1 : n - 3 + ((i - n) % 3); }   // long skills keep looping their last three frames
+    return A.fr[Math.max(0, Math.min(n - 1, i))];
+  }
+  function drawSheetFrame(fr, x, bot, flip, flash, al) {
+    const img = flash ? (flip ? fr.fw : fr.cw) : (flip ? fr.f : fr.c), ax = flip ? fr.w - 1 - fr.ax : fr.ax;
+    if (al < 1) g.globalAlpha = Math.max(0, al);
+    g.drawImage(img, Math.round(x - ax), Math.round(bot - fr.ay)); g.globalAlpha = 1;
+  }
   function drawBoss(camX, camY) {
-    const b = Q.boss; if (b.dead && Q.t % 0.1 > 0.05) return;
+    const b = Q.boss, SH = bossSheet(b); if (b.dead && !SH && Q.t % 0.1 > 0.05) return;
     { const fr = bossFrame(b); if (fr) b.spr = fr; }
-    if (typeof BOSS_IMG !== 'undefined' && BOSS_IMG[Q.li] && b.cfg === BOSS[Q.li]) b.spr = BOSS_IMG[Q.li];
+    if (!SH && typeof BOSS_IMG !== 'undefined' && BOSS_IMG[Q.li] && b.cfg === BOSS[Q.li]) b.spr = BOSS_IMG[Q.li];
+    const SF = SH ? sheetFrame(b, SH) : null; if (SF) b.spr = SF;
     const c = b.cfg, x = Math.round(b.x + b.w / 2 - camX), bot = Math.round(b.y + b.h - camY), gyy = Math.round(Q.L.arena.gy * TS - camY);
     if (b.hide) {
       if (b.st === 'dropwait') {
@@ -3871,7 +3903,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     let al = P.al; if (b.invul > 0 && Math.floor(Q.t * 20) % 2 === 0) al = Math.min(al, 0.45);
     const bst = b.flash > 0 ? 'hurt' : (!b.onGround && !c.fly && !c.eclipse ? 'jump' : (b.moveT > 0 || b.st === 'evade' ? ((b.mvSpd || 0) > 75 || b.st === 'evade' || Math.abs(b.vx || 0) > 140 ? 'run' : 'walk') : 'idle'));
     const BA = animPose(bst, b.t, b.dir || 1, bst === 'hurt' ? 1 - clamp(b.flash / 0.15, 0, 1) : b.vy), bsx = bst === 'hurt' ? 1 : BA.sx, bsy = bst === 'hurt' ? 1 : BA.sy;
-    { const walker = (bst === 'walk' || bst === 'run') && b.onGround && !c.fly && !c.eclipse && !c.swim && !c.art, img = BA.red ? redOf(b.spr) : b.spr, fl = (b.flash > 0 && !BA.red) || tele || b.revT > 0;
+    if (SF) drawSheetFrame(SF, x + P.ox, bot + bob, b.dir < 0, (tele && b.st !== 'tele') || b.revT > 0 || (b.flash > 0 && !SH.st.hurt), al);   // the sheet has its own hurt flash and wind-up frames
+    else { const walker = (bst === 'walk' || bst === 'run') && b.onGround && !c.fly && !c.eclipse && !c.swim && !c.art, img = BA.red ? redOf(b.spr) : b.spr, fl = (b.flash > 0 && !BA.red) || tele || b.revT > 0;
       const dx = x + P.ox + (bst === 'hurt' ? BA.ox : 0), dy = bot + bob + P.oy + BA.oy, ksx = P.sx * bsx * (c.artScale || 1), ksy = P.sy * bsy * (c.artScale || 1), rt = P.rot + BA.rot * 0.5;
       if (walker) drawBossStride(img, dx, dy, b.dir < 0, fl, ksx, ksy, rt, al, b.t * (bst === 'run' ? 13 : 8), bst === 'run' ? 0.28 : 0.18, b);
       else drawSprT(g, img, dx, dy, b.dir < 0, fl, ksx, ksy, rt, al); }

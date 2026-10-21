@@ -1,0 +1,81 @@
+{
+ "name": "prismor",
+ "cell": [
+  96,
+  92
+ ],
+ "anchor": [
+  48,
+  88
+ ],
+ "facing": "right",
+ "palette": [
+  "#0c0e18",
+  "#262c3e",
+  "#3e4660",
+  "#5e6a88",
+  "#8a96b0",
+  "#3a1a6a",
+  "#6a3ab0",
+  "#a86aff",
+  "#e0c8ff",
+  "#6ee7f2",
+  "#f4fcff",
+  "#ff3a2a",
+  "#ff6a3a",
+  "#ffb08a",
+  "#4a2a3a",
+  "#7a3a4a"
+ ],
+ "notes": "Prismor, the Silent Prism (map 3).",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "prismor_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "prismor_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "prismor_tele.png"
+  },
+  "slam": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "prismor_slam.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 10,
+   "loop": false,
+   "file": "prismor_cast.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "prismor_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "prismor_death.png"
+  },
+  "rage": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "prismor_rage.png"
+  }
+ }
+}

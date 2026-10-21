@@ -1,0 +1,82 @@
+{
+ "name": "khepsar",
+ "cell": [
+  92,
+  118
+ ],
+ "anchor": [
+  46,
+  114
+ ],
+ "facing": "right",
+ "palette": [
+  "#140c06",
+  "#6a5a3a",
+  "#a89068",
+  "#d8c498",
+  "#f4e8c8",
+  "#8a6a14",
+  "#d8a82a",
+  "#ffe08a",
+  "#1a3a8a",
+  "#3a6ad8",
+  "#2a1a10",
+  "#ffd34e",
+  "#e8c890",
+  "#ff3a2a",
+  "#8a2a2a",
+  "#5a1414",
+  "#ffb08a"
+ ],
+ "notes": "Khepsar, the One Who Begged to Sleep (map 4).",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "khepsar_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "khepsar_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "khepsar_tele.png"
+  },
+  "slam": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "khepsar_slam.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 10,
+   "loop": false,
+   "file": "khepsar_cast.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "khepsar_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "khepsar_death.png"
+  },
+  "rage": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "khepsar_rage.png"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "name": "morvella",
+ "cell": [
+  112,
+  112
+ ],
+ "anchor": [
+  56,
+  108
+ ],
+ "facing": "right",
+ "palette": [
+  "#100818",
+  "#3a1a5a",
+  "#6a2a8a",
+  "#9a4ab8",
+  "#c87ae0",
+  "#7ee8c0",
+  "#d8fff0",
+  "#8a8a7a",
+  "#c8d0b8",
+  "#e8f0d8",
+  "#4a3a2a",
+  "#7a5a3a",
+  "#e8e0d0",
+  "#2a1a3a",
+  "#ff3a5a",
+  "#8a1a3a",
+  "#c03a5a"
+ ],
+ "notes": "Morvella, the Swamp's Lullaby (map 7). Glides on root feet.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "morvella_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "morvella_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "morvella_tele.png"
+  },
+  "slam": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "morvella_slam.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 10,
+   "loop": false,
+   "file": "morvella_cast.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "morvella_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "morvella_death.png"
+  },
+  "rage": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "morvella_rage.png"
+  }
+ }
+}

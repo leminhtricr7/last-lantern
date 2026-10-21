@@ -575,3 +575,13 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   state, every cell the same size, facing right) plus `<name>.json` (cell, anchor, fps, frames, loop, palette).
 - Samples: Kaldrok (96×96, 8 states, 49 frames) and the Relit Phoenix (80×80, 8 states, 47 frames). Previews (contact
   sheets, GIFs, an in-game-scale comparison) are in `docs/sprites_3A/`. Not wired into the game yet.
+
+## Sprites (phase 3B, main bosses)
+- Bosses now read pixel-art sprite sheets (`loadSheet` in src/quocimg.js, `bossSheet` / `sheetFrame` / `drawSheetFrame`
+  in src/game.js). The frame follows the boss state: idle, walk, tele (wind-up, timed to the real wind-up), slam
+  (stomps, slams, jumps, charges), cast (shots, spells), hurt (own white flash), death (plays over the 1.4 s death), and
+  rage from the second phase on. The anchor (feet, bottom centre) sits on the bottom centre of the hitbox.
+- In the game: Gulgor, Veylith, Prismor, Khepsar, Rimvald, Kaldrok (maps 1-6). Morvella, Oktavor and Vorgrub have
+  sheets too (`tools/pixel/deep.py`) but keep the artist's pictures for now (`BOSS_SHEET` in src/game.js).
+- Each boss: 8 states, 49 frames. Rebuild with `python tools/pixel/gulgor.py`, `veylith.py`, `giants.py`, `deep.py`.
+  Previews in `docs/sprites_3B/`.

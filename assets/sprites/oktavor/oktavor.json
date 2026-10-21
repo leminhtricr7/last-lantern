@@ -1,0 +1,81 @@
+{
+ "name": "oktavor",
+ "cell": [
+  144,
+  120
+ ],
+ "anchor": [
+  72,
+  116
+ ],
+ "facing": "right",
+ "palette": [
+  "#12060c",
+  "#3a0e22",
+  "#6a1a3a",
+  "#9a2a4a",
+  "#c8506a",
+  "#e8a0b0",
+  "#ffd0d8",
+  "#ffd34e",
+  "#14060a",
+  "#1a1418",
+  "#4a4a5a",
+  "#8a8aa0",
+  "#e8c8a0",
+  "#ff3a2a",
+  "#5a2a8a",
+  "#8a4ab8"
+ ],
+ "notes": "Oktavor, Drowner of the Eighth Tower (map 8). Swims: \"walk\" is its swim cycle.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "oktavor_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "oktavor_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "oktavor_tele.png"
+  },
+  "slam": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "oktavor_slam.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 10,
+   "loop": false,
+   "file": "oktavor_cast.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "oktavor_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "oktavor_death.png"
+  },
+  "rage": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "oktavor_rage.png"
+  }
+ }
+}

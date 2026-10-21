@@ -1,0 +1,81 @@
+{
+ "name": "gulgor",
+ "cell": [
+  64,
+  56
+ ],
+ "anchor": [
+  32,
+  53
+ ],
+ "facing": "right",
+ "palette": [
+  "#0e1a10",
+  "#1e5a2a",
+  "#2e8a3a",
+  "#56c04a",
+  "#a4e86b",
+  "#fff6a0",
+  "#ffd34e",
+  "#6a4a14",
+  "#c89a1c",
+  "#ffe08a",
+  "#ff3a2a",
+  "#e8f0d0",
+  "#3a0e10",
+  "#8a2a1a",
+  "#ff6a3a",
+  "#b8402a"
+ ],
+ "notes": "Gulgor, the Lantern Gulper (map 1). Hops instead of walking (walk frames leave the ground).",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "gulgor_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "gulgor_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "gulgor_tele.png"
+  },
+  "slam": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "gulgor_slam.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 10,
+   "loop": false,
+   "file": "gulgor_cast.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "gulgor_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "gulgor_death.png"
+  },
+  "rage": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "gulgor_rage.png"
+  }
+ }
+}

@@ -139,3 +139,64 @@ def check(name, states, cell, anchor, palette, ground=True):
             if ground and st not in ('death',) and bb and bb[3] != anchor[1] + 1 and st not in ('slam', 'tele', 'cast', 'hurt'):
                 issues.append('%s[%d] feet at %d, anchor %d' % (st, i, bb[3] - 1, anchor[1]))
     return issues
+
+# ---------------- shared animation parts (phase 3B) ----------------
+import random
+def recolor(img, mapping):
+    """a palette swap (rage forms): {'#old': '#new'}"""
+    m = {hexc(a)[:3]: hexc(b) for a, b in mapping.items()}; out = img.copy(); p = out.load()
+    for y in range(out.size[1]):
+        for x in range(out.size[0]):
+            c = p[x, y]
+            if c[3] and c[:3] in m: p[x, y] = m[c[:3]]
+    return out
+
+def shatter(img, k, ground, seed=5, ember=None):
+    """death: the figure breaks into 4x4 chunks that fall to the ground and scatter, then fade out (k: 0..1)"""
+    w, h = img.size; out = Image.new('RGBA', (w, h), (0, 0, 0, 0)); rnd = random.Random(seed); src = img.load(); o = out.load()
+    bb = img.getbbox()
+    if not bb: return out
+    cx = (bb[0] + bb[2]) / 2
+    for by in range(bb[1], bb[3], 4):
+        for bx in range(bb[0], bb[2], 4):
+            vx = (bx - cx) * 0.25 + rnd.uniform(-2, 2); fall = (ground - by) * min(1, k * 1.4 * rnd.uniform(0.7, 1.1))
+            keep = rnd.random() > max(0, k - 0.55) * 2.2   # chunks disappear in the second half
+            if not keep: continue
+            dx = round(vx * k * 3); dy = round(fall)
+            for y in range(by, min(by + 4, bb[3])):
+                for x in range(bx, min(bx + 4, bb[2])):
+                    c = src[x, y]
+                    if not c[3]: continue
+                    nx, ny = x + dx, min(ground, y + dy)
+                    if 1 <= nx < w - 1 and 1 <= ny < h - 1 and not o[nx, ny][3]: o[nx, ny] = c
+    if ember and k < 0.9:
+        for i in range(int(10 * (1 - k))):
+            x = round(cx + rnd.uniform(-14, 14)); y = round(ground - rnd.uniform(2, 24) * (1 - k))
+            if 1 <= x < w - 1 and 1 <= y < h - 1: o[x, y] = hexc(ember)
+    return out
+
+def std_states(draw, rage_map, ground, walk_frames=8, ember=None, slam_hit_fx=None):
+    """the standard boss set from one drawing function draw(p) -> Frame-finished image. p keys:
+    t (loop phase 0..1), walk (bool), raise (0..1 wind-up), strike (0..1 impact), cast (0..1), recoil (0..1), flash"""
+    D = lambda **k: draw(dict(dict(t=0, walk=False, raise_=0, strike=0, cast=0, recoil=0, flash=False), **k))
+    idle = [D(t=i / 6) for i in range(6)]
+    walk = [D(t=i / walk_frames, walk=True) for i in range(walk_frames)]
+    tele = [D(t=i / 4, raise_=(i + 1) / 4) for i in range(4)]
+    slam = [D(t=0.1, raise_=1), D(t=0.2, raise_=0.5), D(t=0.3, strike=1), D(t=0.4, strike=1), D(t=0.5, strike=0.5), D(t=0.6, strike=0.2)]
+    cast = [D(t=i / 6, cast=c) for i, c in enumerate([0.2, 0.5, 0.9, 1, 1, 0.5])]
+    hurt = [D(recoil=0.6), D(recoil=1, flash=True), D(recoil=0.4)]
+    last = D(recoil=1, t=0.5)
+    death = [D(recoil=0.7, t=0.1), D(recoil=1, t=0.3, flash=True), D(recoil=1, t=0.5), last] + [shatter(last, (i + 1) / 6, ground, ember=ember) for i in range(6)]
+    rage = [recolor(f, rage_map) for f in [D(t=i / 6, rage=True) for i in range(6)]]
+    return {'idle': (idle, 8, True), 'walk': (walk, 10, True), 'tele': (tele, 8, False), 'slam': (slam, 12, False), 'cast': (cast, 10, False),
+            'hurt': (hurt, 12, False), 'death': (death, 10, False), 'rage': (rage, 10, True)}
+
+def build(name, draw_states, cell, anchor, palette, notes, ground_check=True, skip=()):
+    import os as _os
+    root = _os.path.join(_os.path.dirname(__file__), '..', '..')
+    folder = _os.path.join(root, 'assets', 'sprites', name)
+    save_set(name, folder, cell, anchor, draw_states, palette, notes)
+    preview(name, folder, draw_states, cell, 3, _os.path.join(root, 'docs', 'sprites_3B'))
+    issues = [i for i in check(name, {k: v for k, v in draw_states.items() if k not in skip}, cell, anchor, palette, ground=ground_check)]
+    for i in issues: print('CHECK', i)
+    print(name, 'ok', sum(len(v[0]) for v in draw_states.values()), 'frames')

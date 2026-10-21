@@ -1,0 +1,80 @@
+{
+ "name": "vorgrub",
+ "cell": [
+  112,
+  128
+ ],
+ "anchor": [
+  56,
+  124
+ ],
+ "facing": "right",
+ "palette": [
+  "#100806",
+  "#3a2418",
+  "#5e3c26",
+  "#8a5c3a",
+  "#b88a5a",
+  "#d8c8a8",
+  "#f4ecd8",
+  "#8a1a0a",
+  "#ff6a1a",
+  "#ffd34e",
+  "#4a3a2a",
+  "#6a5a4a",
+  "#2a1a3a",
+  "#5a2a5a",
+  "#ff3a2a"
+ ],
+ "notes": "Vorgrub, the Ember Eater (map 9). Burrows: the game hides it while underground.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "vorgrub_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "vorgrub_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "vorgrub_tele.png"
+  },
+  "slam": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "vorgrub_slam.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 10,
+   "loop": false,
+   "file": "vorgrub_cast.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "vorgrub_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "vorgrub_death.png"
+  },
+  "rage": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "vorgrub_rage.png"
+  }
+ }
+}
