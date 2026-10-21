@@ -569,7 +569,7 @@
       { k: 'KeyK', x: w - s * 1.5, y: h - s * 1.9, r: r * 0.85, l: '»' }, { k: 'Escape', x: w - s * 0.5, y: s * 0.5, r: r * 0.7, l: 'II' },
       { k: 'KeyL', x: w - s * 2.9, y: h - s * 1.5, r: r * 0.8, l: '●' }, { k: 'KeyT', x: w - s * 2.3, y: h - s * 2.7, r: r * 0.85, l: '⇆' }, { k: 'KeyQ', x: w - s * 3.3, y: h - s * 0.5, r: r * 0.6, l: '⇄' }, { k: 'KeyF', x: w - s * 3.5, y: h - s * 2.4, r: r * 0.8, l: '◆' }, { k: 'TouchSum', x: w - s * 2.3, y: h - s * 2.9, r: r * 0.75, l: '★' }
     ];
-    if (scene === 'play' && Q && (Q.nearNpc || Q.nearPz || (Q.nearCp && travelBlock() === '')) && Q.state === 'play') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '...' });
+    if (scene === 'play' && Q && (Q.nearNpc || Q.nearPz || Q.nearPost || (Q.nearCp && travelBlock() === '')) && Q.state === 'play') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '...' });
     if (scene === 'shop') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '→' });
     if (scene !== 'play' || (Q && (Q.state === 'pause' || Q.state === 'shop'))) { b.push({ k: 'ArrowUp', x: s * 1.4, y: h - s * 2.0, r, l: '▲' }); b.push({ k: 'ArrowDown', x: s * 1.4, y: h - s * 0.2 - s * 0.0, r: 0.01, l: '' }); b[b.length - 1] = { k: 'ArrowDown', x: s * 2.7, y: h - s * 2.0, r, l: '▼' }; }
     return b;
@@ -646,8 +646,8 @@
         const wx = gx + Q.cam.x, wy = gy + Q.cam.y;
         const npc = Q.nearNpc && near(wx, wy, Q.nearNpc.x, Q.nearNpc.y - 14, 16, 20);
         const pz = Q.nearPz && near(wx, wy, Q.nearPz.x, Q.nearPz.y - 10, 16, 20);
-        const cpT = Q.nearCp && near(wx, wy, Q.nearCp.x, Q.nearCp.y - 24, 12, 14) && travelBlock() === '';
-        if (npc || pz || cpT) pressed.KeyE = true; else { faceMouse(gx); pressed.KeyJ = true; }
+        const cpT = Q.nearCp && near(wx, wy, Q.nearCp.x, Q.nearCp.y - 24, 12, 14) && travelBlock() === '', postT = Q.nearPost && near(wx, wy, (Q.nearPost.postX + 0.5) * TS, Q.nearPost.y * TS - 10, 12, 14);
+        if (npc || pz || cpT || postT) pressed.KeyE = true; else { faceMouse(gx); pressed.KeyJ = true; }
       } else pressed.Enter = true; // intro, talk, tablet, dead, complete
     }
   }
@@ -918,7 +918,7 @@
   }
   function solid(tx, ty) {
     const c = ch(tx, ty);
-    if (c === '#' || c === 'I' || c === 'G' || c === 'X' || c === 'H' || c === 'K') return true;
+    if (c === '#' || c === 'I' || c === 'G' || c === 'X' || c === 'H' || c === 'K' || c === 'B') return true;
     if (c === 'C') { const s = Q.crum.get(ty * Q.L.W + tx); return !(s && s.st === 2); }
     return false;
   }
@@ -1028,7 +1028,8 @@
     for (const m of (L.minis || [])) for (let y = 0; y < m.gy; y++) { L.grid[y][m.lw] = ' '; L.grid[y][m.rw] = ' '; }
     Q.minis = (L.minis || []).map(m => Object.assign({}, m, { state: Q.minisDone.has(m.id) ? 'done' : 'idle' })); Q.syFig = null;
     Q.brk = (L.brk || []).filter(b => !Q.brokenB.has(b.id)).map(b => Object.assign({}, b, { hitT: 0 }));   // phase 5: pots and bushes
-    for (const gd of L.gates) { const open = Q.solved.has(gd.id); for (let y = gd.y0; y <= gd.y1; y++) L.grid[y][gd.x] = open ? ' ' : 'G'; }
+    for (const r of L.crateRooms || []) resetCrate(r, true);   // phase 5: crates start at their start tile
+    for (const gd of L.gates) { const open = Q.solved.has(gd.id); if (gd.bridge) { for (const t of gd.bridge) L.grid[t[1]][t[0]] = open ? '=' : ' '; continue; } for (let y = gd.y0; y <= gd.y1; y++) L.grid[y][gd.x] = open ? ' ' : 'G'; }
     for (const w of L.xwalls) for (const t of w.tiles) L.grid[t[1]][t[0]] = Q.brokenX.has(t[0] + ',' + t[1]) ? ' ' : 'X';
     for (const c of L.covers || []) L.grid[c.y][c.x] = Q.brokenX.has(c.x + ',' + c.y) ? ' ' : c.c;   // phase 5: secret-room covers
     Q.gates = L.gates.map(gd => Object.assign({}, gd, { open: Q.solved.has(gd.id), seqIdx: 0, timer: 0, levers: 0 }));
@@ -1529,7 +1530,11 @@
     if (P.atk > 0) P.atk -= dt;
     // riding platforms
     if (P.riding) { P.x += P.riding.dx; P.y += P.riding.dy; }
-    { const blk = moveX(P, P.vx * dt); P.push = blk && dir !== 0 && P.onGround ? 0.14 : Math.max(0, (P.push || 0) - dt); }
+    { const blk = moveX(P, P.vx * dt); P.push = blk && dir !== 0 && P.onGround ? 0.14 : Math.max(0, (P.push || 0) - dt);
+      if (blk && dir !== 0 && P.onGround && !(coop && coop.role === 'client')) {   // phase 5 (A2): push a crate
+        const tx = dir > 0 ? Math.floor((P.x + P.w + 1) / TS) : Math.floor((P.x - 1) / TS), ty = Math.floor((P.y + P.h - 2) / TS);
+        if (ch(tx, ty) === 'B') { P.pushT = (P.pushT || 0) + dt; if (P.pushT > 0.3) { P.pushT = 0; pushCrate(tx, ty, dir); } } else P.pushT = 0;
+      } else P.pushT = 0; }
     heroMech(P, dt, dir);
     stallWatch(P, dt, dir);
     if (P.hurtA > 0) P.hurtA -= dt; if (P.landA > 0) P.landA -= dt; P.airT = P.onGround ? 0 : (P.airT || 0) + dt;
@@ -2573,6 +2578,53 @@
     txt((T2.sel === T2.here ? sv('You are here', 'Bạn đang ở đây') : sv('Checkpoint ', 'Checkpoint ') + (T2.sel + 1) + ' / ' + n) + '  ·  ' + (vertMap() ? sv('depth ', 'độ sâu ') : sv('way to the boss ', 'đường tới boss ')) + pct + '%', VW / 2, 136, { al: 'center', size: 8, col: '#ffd34e' });
     txt(sv('Left / right: choose   ·   Enter / A: go   ·   Esc / B: cancel', 'Trái / phải: chọn   ·   Enter / A: đi   ·   Esc / B: thôi'), VW / 2, 168, { al: 'center', size: 6, col: '#8892aa' });
   }
+  // ===================== phase 5 (A2, A5): crates, plates and the signpost =====================
+  // A crate is one solid tile ('B') in the map rows, so players, enemies, shots and co-op guests all treat it like any wall.
+  // Leaning on it for 0.3 s slides it one tile (only into a free tile). The stopper wall, the vault and its door bound its
+  // row; a signpost puts it back at its start tile if it gets stuck (it can only ever be pushed, never pulled).
+  let crateSpr = null;
+  function crateSprite() {
+    return crateSpr || (crateSpr = paint(16, 16, P => {
+      P.rect(1, 1, 14, 14, '#9a6a34'); P.rect(1, 1, 14, 2, '#c08a4a'); P.rect(1, 13, 14, 2, '#5e3b1a'); P.rect(13, 1, 2, 14, '#7a4e26');
+      P.line(2, 2, 13, 13, '#5e3b1a'); P.line(13, 2, 2, 13, '#5e3b1a'); P.rect(1, 1, 2, 2, '#c8c8d4'); P.rect(13, 1, 2, 2, '#c8c8d4'); P.rect(1, 13, 2, 2, '#c8c8d4'); P.rect(13, 13, 2, 2, '#c8c8d4');
+    }, '#1a0e06'));
+  }
+  const crateAt = r => { for (let x = r.x0; x <= r.x0 + 10; x++) if (ch(x, r.y - 1) === 'B') return x; return -1; };
+  function resetCrate(r, silent) {
+    if (coop && coop.role === 'client') return;
+    const cx = crateAt(r);
+    if (!silent && cx === r.sx) { Q.msg = sv('The crate is already at its start.', 'Thùng đang ở chỗ ban đầu rồi.'); Q.msgT = 2; return; }
+    const box = { x: r.sx * TS, y: (r.y - 1) * TS, w: TS, h: TS };
+    if (!silent && (Q.players || [Q.P]).some(p => ov(box, p))) { Q.msg = sv('Step away from the crate\'s start first.', 'Hãy bước ra khỏi chỗ đặt thùng trước.'); Q.msgT = 2; return; }
+    for (let x = r.x0; x <= r.x0 + 10; x++) if (ch(x, r.y - 1) === 'B') Q.L.grid[r.y - 1][x] = ' ';
+    Q.L.grid[r.y - 1][r.sx] = 'B';
+    if (!silent) { Snd.play('crate'); Snd.play('chime'); emit(r.sx * TS + 8, r.y * TS - 8, 14, { col: ['#c08a4a', '#fff', '#9fe8ff'], sp0: 20, sp1: 80 }); Q.msg = sv('The crate is back at its start.', 'Thùng đã về chỗ ban đầu.'); Q.msgT = 2.5; }
+  }
+  function pushCrate(tx, ty, dir) {
+    const nx = tx + dir; if (ch(nx, ty) !== ' ') return;
+    const box = { x: nx * TS, y: ty * TS, w: TS, h: TS };
+    if ((Q.players || [Q.P]).some(p => ov(box, p)) || Q.ents.some(e => !e.dead && ov(box, e))) return;
+    Q.L.grid[ty][tx] = ' '; Q.L.grid[ty][nx] = 'B'; Snd.play('crate');
+    emit(tx * TS + 8 + dir * 6, (ty + 1) * TS - 2, 6, { col: ['#c8b890', '#8a6a44'], sp0: 10, sp1: 40, vy: -10 });
+  }
+  function updateCrates(dt) {
+    if (coop && coop.role === 'client') return;
+    const me = Q.me || Q.P; Q.nearPost = null;
+    for (const r of Q.L.crateRooms || []) {
+      const gd = gateOf(r.gate);
+      if (gd && !gd.open && ch(r.plateX, r.y - 1) === 'B') { Snd.play('crate'); openGate(gd); emit(r.plateX * TS + 8, r.y * TS - 4, 14, { col: ['#9fe8ff', '#fff', '#ffd34e'], sp0: 20, sp1: 70 }); }
+      if (me && Math.abs(me.x + me.w / 2 - (r.postX + 0.5) * TS) < 20 && Math.abs(me.y + me.h - r.y * TS) < 10 && Q.state === 'play') Q.nearPost = r;
+    }
+  }
+  function drawCrateRooms(camX, camY) {
+    for (const r of Q.L.crateRooms || []) {
+      if (r.x0 * TS > camX + VW + 40 || (r.x0 + 16) * TS < camX - 40) continue;
+      const gd = gateOf(r.gate), pressed2 = ch(r.plateX, r.y - 1) === 'B' || (gd && gd.open), px = r.plateX * TS - camX, py = r.y * TS - camY;
+      g.fillStyle = '#14101c'; g.fillRect(px + 1, py - (pressed2 ? 1 : 2), 14, pressed2 ? 1 : 2); g.fillStyle = pressed2 ? '#6a7090' : '#9fe8ff'; g.fillRect(px + 2, py - (pressed2 ? 1 : 2), 12, 1);   // the stone plate
+      const sx = (r.postX + 0.5) * TS - camX; g.fillStyle = '#5a3a22'; g.fillRect(sx - 1, py - 14, 2, 14); g.fillStyle = '#8a5a2a'; g.fillRect(sx - 6, py - 18, 12, 7); g.fillStyle = '#c08a4a'; g.fillRect(sx - 6, py - 18, 12, 1); g.fillStyle = '#3a2410'; g.fillRect(sx - 3, py - 15, 6, 1); g.fillRect(sx - 3, py - 13, 4, 1);
+      if (Q.nearPost === r && Q.state === 'play') txt(sv('E: Reset crate', 'E: Đặt lại thùng'), sx, py - 24, { al: 'center', size: 6, col: '#ffd34e', world: true });
+    }
+  }
   // ===================== phase 5 (C): secret rooms: covers, chests and their stories =====================
   function breakCover(tx, ty) {
     if (coop && coop.role === 'client') return;
@@ -3566,12 +3618,13 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
 
   // ===================== puzzles =====================
   const gateOf = id => Q.gates.find(gd => gd.id === id);
-  function setGateTiles(gd, c) { for (let y = gd.y0; y <= gd.y1; y++) Q.L.grid[y][gd.x] = c; }
+  function setGateTiles(gd, c) { if (gd.bridge) { for (const t of gd.bridge) Q.L.grid[t[1]][t[0]] = c === ' ' ? '=' : ' '; return; } for (let y = gd.y0; y <= gd.y1; y++) Q.L.grid[y][gd.x] = c; }   // a bridge gate (phase 5) builds ledges when it opens
   function openGate(gd, silent) {
     if (gd.open) return;
     gd.open = true; setGateTiles(gd, ' ');
     if (gd.need === 'timed') gd.timer = gd.T; else Q.solved.add(gd.id);
-    if (!silent) { Snd.play('gate'); Q.shake = 0.5; Q.msg = T('gateopen'); Q.msgT = 3; for (let y = 2; y < gd.y1; y += 2) emit(gd.x * TS + 8, y * TS, 3, { col: ['#cfd6e6', '#8d9bbd'], sp0: 10, sp1: 40 }); }
+    if (!silent && gd.bridge) { Snd.play('chime'); Snd.play('lever'); Q.msg = sv('A staircase of light rises!', 'Một cầu thang ánh sáng hiện ra!'); Q.msgT = 3; for (const t of gd.bridge) emit(t[0] * TS + 8, t[1] * TS + 4, 4, { col: ['#9fe8ff', '#fff', '#ffd34e'], sp0: 10, sp1: 50, vy: -20 }); }
+    else if (!silent) { Snd.play('gate'); Q.shake = 0.5; Q.msg = T('gateopen'); Q.msgT = 3; for (let y = 2; y < gd.y1; y += 2) emit(gd.x * TS + 8, y * TS, 3, { col: ['#cfd6e6', '#8d9bbd'], sp0: 10, sp1: 40 }); }
   }
   function closeGate(gd) {
     gd.open = false; gd.timer = 0; gd.levers = 0; setGateTiles(gd, 'G'); Snd.play('gate');
@@ -3705,7 +3758,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       if ((Q.nearPz === pz || (coop && Q.me && Q.me !== Q.P && nearPzFor(Q.me) === pz)) && Q.state === 'play') txt(pz.type === 'torch' ? T('light') : (pz.type === 'tablet' ? T('read') : (pz.type === 'cage' ? T('free') : T('use'))), x, y - (pz.type === 'cage' ? 52 : 26), { al: 'center', size: 6, col: '#ffd34e' });
     }
     for (const gd of Q.gates) {
-      if (gd.open && gd.need !== 'timed') continue;
+      if ((gd.open && gd.need !== 'timed') || gd.need === 'plate' || gd.bridge) continue;   // plate doors and lever stairs have no icon of their own
       const gx = Math.round(gd.x * TS - camX + 8), gy2 = Math.round((gd.y1 - 3) * TS - camY);
       if (gx < -20 || gx > VW + 20) continue;
       if (gd.need === 'key') { drawSpr(g, icon('key'), gx, gy2, false); if (gd.keys > 1) { drawSpr(g, icon('key'), gx, gy2 - 12, false); txt('x' + gd.keys, gx + 10, gy2 - 6, { size: 6, col: '#ffd34e' }); } }
@@ -3823,6 +3876,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (act.pauseP && st === 'play') { Q.state = 'pause'; Q.menu = 0; return; }
     if (act.shopP && st === 'play') { openShopInGame(); return; }
     if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && Q.nearCp) { const why = travelBlock(); if (why === '') { openTravel(); return; } if (why) { Q.msg = why; Q.msgT = 2.5; Snd.play('select'); } }
+    if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && !Q.nearCp && Q.nearPost) { resetCrate(Q.nearPost); return; }
     if (st === 'travel') { updateTravel(); return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
     if (Q.freeze > 0) { Q.freeze -= dt; updateParticles(dt); return; }
@@ -3830,7 +3884,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (Q.shake > 0) Q.shake -= dt;
     if (Q.msgT > 0) Q.msgT -= dt;
     if (Q.wishT > 0) Q.wishT -= dt;
-    updatePlats(dt); updateCrumble(dt); nearSounds(dt); if (Q.brk.some(b => b.dead)) Q.brk = Q.brk.filter(b => !b.dead);
+    updatePlats(dt); updateCrumble(dt); nearSounds(dt); updateCrates(dt); if (Q.brk.some(b => b.dead)) Q.brk = Q.brk.filter(b => !b.dead);
     if (st === 'bossintro' && !(Q.boss && Q.boss.st === 'intro')) Q.state = 'play'; // never get stuck in the intro
     if (st === 'bossintro') { asP(coop ? bossTgt(dt) : Q.P, () => updateBoss(dt)); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
     if (!Q.P.down) updatePlayer(dt);
@@ -3894,6 +3948,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       else if (c === 'G') g.drawImage(ts.gate, dx, dy);
       else if (c === 'X') g.drawImage(ts.cracked, dx, dy);
       else if (c === 'H' || c === 'K') drawCover(c, tx, ty, dx, dy, v);
+      else if (c === 'B') { const sp = crateSprite(); g.drawImage(sp.c, dx - 1, dy - 1); }
       else if (c === '~') g.drawImage(ts.lava[above === '~' ? 1 : 0][lf], dx, dy);
       else if (c === 'C') {
         const s = Q.crum.get(ty * L.W + tx);
@@ -3907,7 +3962,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       if (d.x < camX - 20 || d.x > camX + VW + 20) continue;
       const sp = ts.decor[d.k]; g.drawImage(sp.c, Math.round(d.x - camX - sp.w / 2), Math.round(d.y - camY - sp.h + 1));
     }
-    drawBrk(camX, camY);
+    drawBrk(camX, camY); drawCrateRooms(camX, camY);
     drawProps(camX, camY);
     // moving platforms
     for (const p of L.plats) {
@@ -5162,7 +5217,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     ['Next throwing item', 'Đổi đồ ném', ['Q / mouse wheel', 'Q / lăn chuột'], ['L3 (press left stick)', 'L3 (bấm cần trái)']],
     ['Swap weapon', 'Đổi vũ khí', ['T / middle click', 'T / chuột giữa'], 'LT'],
     ['g', 'OTHER', 'KHÁC', '#c8a0ff'],
-    ['Talk / use (people, levers, signs; at a checkpoint: fast travel)', 'Nói chuyện / dùng (người, cần gạt, bảng; ở checkpoint: dịch chuyển)', 'E', 'Y'],
+    ['Talk / use / fast travel (checkpoint)', 'Nói chuyện / dùng / dịch chuyển nhanh', 'E', 'Y'],
+    ['Push a crate: walk into it', 'Đẩy thùng: đi dồn vào nó', 'Arrows / A D', 'Stick'],
     ['Shop & bag', 'Cửa hàng & túi đồ', 'B', 'Back'],
     ['Pause menu', 'Tạm dừng', 'Esc', 'Start'],
     ['Sound on / off  ·  fullscreen', 'Tắt / bật tiếng  ·  toàn màn hình', 'M  ·  F11', '-'],
@@ -6151,7 +6207,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
   function guestInteract(P) {
     if (!(act.talkP && Q.state === 'play')) return;
     const npc = nearNpcFor(P); if (npc) { startTalk(npc); return; }
-    const pz = nearPzFor(P); if (pz) usePz(pz);
+    const pz = nearPzFor(P); if (pz) { usePz(pz); return; }
+    for (const r of Q.L.crateRooms || []) if (Math.abs(P.x + P.w / 2 - (r.postX + 0.5) * TS) < 20 && Math.abs(P.y + P.h - r.y * TS) < 10) { resetCrate(r); return; }   // a guest can reset a crate too
   }
   function coopHostPlayers(dt) {
     const me = Q.me, ar = Q.L.arena;
@@ -6860,7 +6917,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       { en: '"Oh little flame, so brave and bright, you hit the slimes with all your might..." Too much?', vi: '"Ơi ngọn lửa nhỏ dũng cảm sáng ngời, chém lũ slime chẳng nghỉ ngơi..." Hơi lố hả?' }] }
   });
   // ===================== SCENERY: tile details, props, living sky, foreground, colour mood =====================
-  const SOLC = c => c === '#' || c === 'I' || c === 'C' || c === 'X' || c === 'G' || c === 'H' || c === 'K';
+  const SOLC = c => c === '#' || c === 'I' || c === 'C' || c === 'X' || c === 'G' || c === 'H' || c === 'K' || c === 'B';
   function buildScene() {
     const L = Q.L, B = Q.B, rn = mulberry32(4242 + Q.li * 59), props = [], kinds = BIOME_PROPS[B.id] || [];
     const endX = (L.arena ? L.arena.x0 : L.W) - 2, topOf = x => { for (let y = 2; y < L.H - 1; y++) { const c = L.grid[y][x]; if (c === '#' || c === 'I') return L.grid[y - 1][x] === ' ' ? y : -1; if (c !== ' ') return -1; } return -1; };

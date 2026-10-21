@@ -107,6 +107,7 @@ const Snd = (() => {
   });
   // phase 5 (A1, A3): a pot breaking (by material) and a bush being cut
   Object.assign(sfx, {
+    crate() { noise(0.22, 0.14, 250); tone(95, 0.18, 'triangle', 0.1, -30); tone(70, 0.12, 'square', 0.04, -20, ac.currentTime + 0.05); },
     brkclay() { noise(0.18, 0.22, 900); tone(420, 0.06, 'square', 0.06, -200); for (let i = 0; i < 4; i++) tone(700 + Math.random() * 500, 0.04, 'square', 0.03, -300, ac.currentTime + 0.04 + i * 0.03); },
     brkglass() { noise(0.2, 0.18, 3500); for (let i = 0; i < 5; i++) tone(1800 + Math.random() * 1600, 0.25, 'sine', 0.04, 0, ac.currentTime + i * 0.035); },
     brkstone() { noise(0.25, 0.25, 300); tone(140, 0.12, 'square', 0.08, -60); for (let i = 0; i < 3; i++) noise(0.05, 0.1, 900, ac.currentTime + 0.06 + i * 0.05); },

@@ -200,7 +200,8 @@ function addSecretRooms(L, li) {
   const KEEP = new Set(['npc', 'pk', 'key', 'shard', 'egg', 'orb', 'rare', 'chest', 'heart', 'cage', 'boss', 'lever', 'torch', 'rune', 'tablet', 'pearl', 'spiketrap', 'turret', 'rockfall', 'jets', 'saw']);   // things a room must not sit under; enemies may walk above it
   const busy = x => L.spawns.some(sp => KEEP.has(sp.type) && Math.abs(sp.x / TS - x) < 6) || L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 7)
     || (L.nooks || []).some(n => Math.abs(n.x - x) < 10) || L.gates.some(gd => Math.abs(gd.x - x) < 8) || (L.secretRooms || []).some(r => Math.abs(r.x - x) < 14)
-    || [].concat(L.trials || [], L.minis || [], L.dragons || []).some(t => x > t.lw - 8 && x < t.rw + 8);   // never inside a sealed trial or duel arena
+    || [].concat(L.trials || [], L.minis || [], L.dragons || []).some(t => x > t.lw - 8 && x < t.rw + 8)   // never inside a sealed trial or duel arena
+    || (L.crateRooms || []).some(r => x > r.x0 - 8 && x < r.x0 + 20) || (L.stairs || []).some(r => x > r.x0 - 8 && x < r.x0 + 22);
   L.secretRooms = []; L.covers = L.covers || [];
   const done = [false, false, false];
   for (let pass = 0; pass < 2; pass++) for (let k = 0; k < 3; k++) {
@@ -208,23 +209,33 @@ function addSecretRooms(L, li) {
     const a = pass ? 30 : Math.floor(30 + (end - 30) * k / 3), b = pass ? end : Math.floor(30 + (end - 30) * (k + 1) / 3);
     for (let tries = 0; tries < 400; tries++) {
       const x0 = a + Math.floor(rn() * Math.max(1, b - a - 9)); let y = -1;
-      for (let yy = 4; yy <= H - 5; yy++) if (SOL(G[yy][x0]) && G[yy - 1][x0] === ' ') { y = yy; break; }
+      for (let yy = 4; yy <= H - 4; yy++) if (SOL(G[yy][x0]) && G[yy - 1][x0] === ' ' && [1, 2, 3].every(d => SOL(G[yy + d] && G[yy + d][x0]))) { y = yy; break; }   // a real floor (cave ceilings have air under them)
       if (y < 0 || busy(x0 + 4)) continue;
+      const dep = G[y + 4] && SOL(G[y + 4][x0]) ? 3 : 2;   // 3 tiles deep with a ledge; 2 deep where the ground is thin (the opening is then within one jump)
       let ok = true;
-      for (let i = 0; i < 8 && ok; i++) { for (let d = 1; d <= 3 && ok; d++) if (G[y - d][x0 + i] !== ' ') ok = false; for (let d = 0; d <= 4 && ok; d++) if (!SOL(G[y + d][x0 + i])) ok = false; }
+      for (let i = 0; i < 8 && ok; i++) { for (let d = 1; d <= 3 && ok; d++) if (G[y - d][x0 + i] !== ' ') ok = false; for (let d = 0; d <= dep + 1 && ok; d++) if (!G[y + d] || !SOL(G[y + d][x0 + i])) ok = false; }
       if (!ok) continue;
-      for (let i = 1; i <= 6; i++) for (let d = 1; d <= 3; d++) G[y + d][x0 + i] = ' ';
-      G[y + 2][x0 + 2] = '='; G[y + 2][x0 + 3] = '=';
+      for (let i = 1; i <= 6; i++) for (let d = 1; d <= dep; d++) G[y + d][x0 + i] = ' ';
+      if (dep === 3) { G[y + 2][x0 + 2] = '='; G[y + 2][x0 + 3] = '='; }
       const cov = kinds[k] === 'hedge' ? 'H' : (kinds[k] === 'brick' ? 'K' : 'X'), tiles = [[x0 + 3, y], [x0 + 4, y], [x0 + 5, y]];   // 3 wide: easy to jump back out
       tiles.forEach(t => { G[t[1]][t[0]] = cov; });
       if (cov === 'X') L.xwalls.push({ tiles, secret: true }); else tiles.forEach(t => L.covers.push({ x: t[0], y: t[1], c: cov }));
-      L.spawns.push({ id: L.id++, type: 'chest', k, x: (x0 + 6) * TS + TS / 2, y: (y + 4) * TS });
-      for (let i = 1; i <= 3; i++) L.spawns.push({ id: L.id++, type: 'coin', x: (x0 + i) * TS + TS / 2, y: (y + 4) * TS });
+      L.spawns.push({ id: L.id++, type: 'chest', k, x: (x0 + 6) * TS + TS / 2, y: (y + dep + 1) * TS });
+      for (let i = 1; i <= 3; i++) L.spawns.push({ id: L.id++, type: 'coin', x: (x0 + i) * TS + TS / 2, y: (y + dep + 1) * TS });
       L.secretRooms.push({ x: x0, y, kind: kinds[k] }); done[k] = true;
       break;
     }
   }
 }
+
+// ============ phase 5 (A2, A5): a crate vault and a lever stair, both optional side rooms with a chest ============
+// They are built on a flat stretch the generator reserves for them (see extraRoom in genLevel), so nothing else is there:
+// no enemies, traps, pickups or decor, and both are low enough to hop over, so the main path is never blocked.
+//  - crate vault: push the crate (it moves one tile each time you lean on it) onto the stone plate to open the little vault
+//    with the chest. A signpost resets the crate if it ever gets stuck against a wall.
+//  - lever stair: a chest sits on a ledge too high to jump to (128 px; a double jump reaches 93); the lever on the ground
+//    builds a staircase up to it.
+const CRATE_MAPS = { 2: 1, 3: 1, 4: 1, 9: 1, 6: 2 }, STAIR_MAPS = { 3: 1, 4: 1, 5: 1, 7: 1, 9: 1, 6: 2 };
 
 // ============ phase 5 (A1, A3): pots that break and bushes that can be cut ============
 // placed after a map is built, on free ground only (never on spikes, lava, gates, in the arena or on top of anything)
@@ -672,6 +683,31 @@ function genLevel(li) {
     if (li >= 2) { const f = B.enemies.find(e => FLY.has(e.t)); if (f) spawn(f.t, x0 + top[0] - 1, Math.max(3, gy - top[2] - 3)); }
   }
 
+  // phase 5 (A2, A5): a reserved flat stretch with a crate vault or a lever stair (see the comment above CRATE_MAPS)
+  L.crateRooms = []; L.stairs = [];
+  function extraRoom(kind) {
+    if (kind === 'stair' && gy < 10) gy = 10;   // the ledge is 8 tiles up and needs a tile of headroom
+    const x0 = x, W = kind === 'crate' ? 18 : 19;
+    flat(W, { safe: true });
+    L.spawns = L.spawns.filter(sp => !((sp.type === 'coin' || sp.type === 'heart' || sp.type === 'pk') && sp.x / TS >= x0 - 1 && sp.x / TS <= x0 + W));
+    L.decor = L.decor.filter(d => !(d.x / TS >= x0 - 1 && d.x / TS <= x0 + W));
+    const y = gy, chest = (k, tx, ty) => L.spawns.push({ id: L.id++, type: 'chest', k, x: tx * TS + TS / 2, y: ty * TS });
+    if (kind === 'crate') {
+      set(x0 + 1, y - 1, '#');                                              // the stopper: the crate can never be pushed away to the left
+      for (let i = 12; i <= 16; i++) set(x0 + i, y - 2, '#');               // the vault roof (2 tiles high in all: easy to hop over)
+      set(x0 + 16, y - 1, '#'); set(x0 + 12, y - 1, 'G');                   // its right wall and its door
+      const gid = L.id++; L.gates.push({ id: gid, x: x0 + 12, y0: y - 1, y1: y - 1, need: 'plate' });
+      chest(4, x0 + 14, y); for (let i = 0; i < 3; i++) spawn('coin', x0 + 13 + i, y - 1);
+      L.crateRooms.push({ id: L.id++, x0: x0 + 1, y, sx: x0 + 4, plateX: x0 + 9, gate: gid, postX: x0 + 6 });
+    } else {
+      for (let i = 12; i <= 16; i++) set(x0 + i, y - 8, '=');                // the ledge: 128 px up
+      const tiles = []; [[3, 3], [4, 3], [5, 3], [6, 5], [7, 5], [8, 5], [9, 7], [10, 7], [11, 7]].forEach(t => tiles.push([x0 + t[0], y - t[1]]));
+      const gid = L.id++; L.gates.push({ id: gid, x: x0 + 3, y0: 1, y1: 0, need: 'lever', count: 1, bridge: tiles });
+      spawn('lever', x0 + 1, y, { gate: gid });
+      chest(5, x0 + 14, y - 8); for (let i = 0; i < 3; i++) spawn('coin', x0 + 12 + i, y - 9);
+      L.stairs.push({ x0, y });
+    }
+  }
   // ---- assemble ----
   flat(10, { safe: true });
   L.start = { x: 3 * TS, y: gy * TS };
@@ -683,10 +719,12 @@ function genLevel(li) {
   const pzAt = pzList.map((t, i) => (t === 'dragon' && li === 0) ? 70 : Math.floor(B.len * (0.14 + 0.7 * (i + 0.5) / pzList.length)));
   let nextCp = 42, placed = 0, tierN = 0, vineN = 0;
   const shardAt = [0.2, 0.5, 0.76].map(f => Math.floor(B.len * f));
+  const exList = [].concat(Array(CRATE_MAPS[li] || 0).fill('crate'), Array(STAIR_MAPS[li] || 0).fill('stair')).sort((p, q) => (p < q ? 1 : -1)).map((k, i, arr) => ({ k, at: Math.floor(B.len * (0.3 + 0.4 * (i + 0.5) / arr.length)) })); let exIdx = 0;   // phase 5
   while (x < B.len - 16) {
     if (x > nextCp) { const ax = x; flat(6, { safe: true, cp: true, heart: rnd() < 0.5 }); if (plan.cps && cpNpcIdx < plan.cps.length) { spawn('npc', ax + 4, gy, { who: plan.cps[cpNpcIdx++] }); } nextCp = x + R(38, 52); continue; }
     if (li === 7 && vineN < 5 && x > B.len * (0.08 + 0.15 * vineN)) { vineGap(); vineN++; continue; }   // at least five vine crossings in the swamp
     if (placed < 3 && x > shardAt[placed]) { secret(placed); placed++; continue; }
+    if (exIdx < exList.length && x > exList[exIdx].at) { extraRoom(exList[exIdx++].k); continue; }
     if (pzIdx < pzList.length && x > pzAt[pzIdx]) { runPuzzle(pzList[pzIdx++]); continue; }
     if (tierN < 3 && x > B.len * (0.18 + 0.24 * tierN)) { tiers(); tierN++; continue; }   // at least three multi-level sections per map
     const r = rnd(), d = diff();
@@ -761,7 +799,8 @@ function genLevel(li) {
   // ground step safety: if the pre-arena ground is not at row 10 build ramp
   { const rn = mulberry32(777 + li * 131), endX = (L.arena ? L.arena.x0 : W) - 8, nooks = [];
     const SOL = c => c === '#' || c === 'I', topOf = x => { for (let y = 3; y < H - 1; y++) if (SOL(L.grid[y][x])) return L.grid[y - 1][x] === ' ' ? y : -1; return -1; };
-    const busy = x => L.spawns.some(sp => Math.abs(sp.x / TS - x) < 4) || L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 5);
+    const busy = x => L.spawns.some(sp => Math.abs(sp.x / TS - x) < 4) || L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 5)
+      || L.crateRooms.some(r => x > r.x0 - 9 && x < r.x0 + 19) || L.stairs.some(r => x > r.x0 - 4 && x < r.x0 + 21);   // phase 5: never dig a fake floor under a crate vault or a stair
     for (let part = 0; part < 3; part++) {
       const a = Math.floor(20 + (endX - 20) * part / 3), b = Math.floor(20 + (endX - 20) * (part + 1) / 3);
       for (let tries = 0; tries < 400; tries++) {   // phase 5 (C): 40 tries left four maps with only two nooks

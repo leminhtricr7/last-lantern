@@ -640,3 +640,12 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   left/right (or tap a point), Enter / A goes, Esc / B cancels. Locked during a boss, dragon, trial or duel, while a timed
   gate runs and while anyone carries a key, so no gate can be skipped. In co-op only the host opens it and the whole group
   travels. The reached checkpoints (`Q.cpSeen`) are kept through deaths and in the checkpoint save.
+- Crates and lever stairs (phase 5, A2 + A5): the generator reserves a flat stretch (`extraRoom` in levels.js) for optional
+  side rooms. Crate vault (Caverns, Desert, Frost, Tunnels, Citadel x2): a crate is one solid tile (`B`); lean on it for
+  0.3 s to slide it one tile, push it onto the stone plate and the little vault with the chest opens (`need: 'plate'` gate).
+  A stopper wall and the vault bound its row and a signpost resets it (E, host or guest). Lever stair (Desert, Frost,
+  Volcano, Swamp, Tunnels, Citadel x2): a chest on a ledge 128 px up (a double jump reaches 93 px); the lever on the ground
+  builds a staircase of ledges (`bridge` gate). Both are 2 tiles high or less, so the main path is never blocked, and no
+  fake-floor nook or secret room is dug under them. Solved vaults and stairs stay solved (`Q.solved`, checkpoint save);
+  crates always start at their start tile. Secret rooms now also fit thin ground (2 tiles deep, no ledge needed), so every
+  land map has 3 of them (the Caverns had none after the layout changed).
