@@ -569,7 +569,7 @@
       { k: 'KeyK', x: w - s * 1.5, y: h - s * 1.9, r: r * 0.85, l: '»' }, { k: 'Escape', x: w - s * 0.5, y: s * 0.5, r: r * 0.7, l: 'II' },
       { k: 'KeyL', x: w - s * 2.9, y: h - s * 1.5, r: r * 0.8, l: '●' }, { k: 'KeyT', x: w - s * 2.3, y: h - s * 2.7, r: r * 0.85, l: '⇆' }, { k: 'KeyQ', x: w - s * 3.3, y: h - s * 0.5, r: r * 0.6, l: '⇄' }, { k: 'KeyF', x: w - s * 3.5, y: h - s * 2.4, r: r * 0.8, l: '◆' }, { k: 'TouchSum', x: w - s * 2.3, y: h - s * 2.9, r: r * 0.75, l: '★' }
     ];
-    if (scene === 'play' && Q && (Q.nearNpc || Q.nearPz || Q.nearPost || (Q.nearCp && travelBlock() === '')) && Q.state === 'play') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '...' });
+    if (scene === 'play' && Q && (Q.nearNpc || Q.nearPz || Q.nearPost || Q.nearFish || (Q.P && Q.P.fish) || (Q.nearCp && travelBlock() === '')) && Q.state === 'play') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '...' });
     if (scene === 'shop') b.push({ k: 'KeyE', x: w - s * 0.8, y: h - s * 2.3, r: r * 0.9, l: '→' });
     if (scene !== 'play' || (Q && (Q.state === 'pause' || Q.state === 'shop'))) { b.push({ k: 'ArrowUp', x: s * 1.4, y: h - s * 2.0, r, l: '▲' }); b.push({ k: 'ArrowDown', x: s * 1.4, y: h - s * 0.2 - s * 0.0, r: 0.01, l: '' }); b[b.length - 1] = { k: 'ArrowDown', x: s * 2.7, y: h - s * 2.0, r, l: '▼' }; }
     return b;
@@ -647,7 +647,8 @@
         const npc = Q.nearNpc && near(wx, wy, Q.nearNpc.x, Q.nearNpc.y - 14, 16, 20);
         const pz = Q.nearPz && near(wx, wy, Q.nearPz.x, Q.nearPz.y - 10, 16, 20);
         const cpT = Q.nearCp && near(wx, wy, Q.nearCp.x, Q.nearCp.y - 24, 12, 14) && travelBlock() === '', postT = Q.nearPost && near(wx, wy, (Q.nearPost.postX + 0.5) * TS, Q.nearPost.y * TS - 10, 12, 14);
-        if (npc || pz || cpT || postT) pressed.KeyE = true; else { faceMouse(gx); pressed.KeyJ = true; }
+        const fishT = (Q.nearFish || (Q.P && Q.P.fish)) && near(wx, wy, Q.P.x + 4, Q.P.y + 2, 26, 22);
+        if (npc || pz || cpT || postT || fishT) pressed.KeyE = true; else { faceMouse(gx); pressed.KeyJ = true; }
       } else pressed.Enter = true; // intro, talk, tablet, dead, complete
     }
   }
@@ -1000,7 +1001,7 @@
     P.x = L.start.x; P.y = L.start.y - P.h;
     Q = {
       li, L, P, B: L.B, bg: bgs(li), ts: tiles(li), crum: new Map(), taken: new Set(), cp: null, cpIdx: -1,
-      ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), brokenB: new Set(), brk: [], cpSeen: new Set(), trials: [], trialsDone: new Set(), rings: [], ghosts: [], corpses: [], zones: [], tmpCells: [], dragon: null, dragons: [], dragonsDone: new Set(), tmpCells2: 0, windT: 0, windDir: 1, darkBoost: 0, darkBoostT: 0, nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
+      ents: [], items: [], projs: [], traps: [], fps: [], fires: [], gates: [], pz: [], solved: new Set(), brokenX: new Set(), brokenB: new Set(), brk: [], cpSeen: new Set(), fishLeft: {}, trials: [], trialsDone: new Set(), rings: [], ghosts: [], corpses: [], zones: [], tmpCells: [], dragon: null, dragons: [], dragonsDone: new Set(), tmpCells2: 0, windT: 0, windDir: 1, darkBoost: 0, darkBoostT: 0, nearPz: null, parts: [], boss: null, nearNpc: null, talk: null, state: 'intro', stateT: 0, t: 0, freeze: 0, shake: 0,
       cam: { x: 0, y: 0 }, coinsRun: 0, time: 0, safe: { x: P.x, y: P.y }, menu: 0,
       dj: true, dashAb: li >= 3 || save.cleared.indexOf(2) >= 0,
       arenaSealed: false, bossDead: false, weather: [], banner: 0, msg: null, msgT: 0, minisDone: new Set(), mainBoss: null, mainArena: null, syFig: null
@@ -1462,6 +1463,8 @@
     if (!P.vine) { unembed(P, P.face || 1); P.x = clamp(P.x, 0, Q.L.W * TS - P.w); if (P.y < 0) { P.y = 0; P.vy = Math.max(P.vy, 0); } }   // never inside a wall, never past the map's sides or its top
     if (P.vineCd > 0) P.vineCd -= dt;
     if (vineStep(P, dt)) return;   // hanging on a vine: the vine drives the body
+    if (P.fishCool > 0) P.fishCool -= dt;
+    if (P.fish && fishStep(P, dt)) return;   // phase 5 (A4): fishing holds the hero still
     // timers
     if (act.jumpP) P.jumpBuf = 0.12; else P.jumpBuf -= dt;
     if (P.onGround) { P.coyote = 0.09; P.jumps = 0; } else P.coyote -= dt;
@@ -2788,6 +2791,98 @@
     Q.dnT = (Q.dnT || 0) - dt; if (Q.dnT > 0) return; Q.dnT = 0.5;
     const me = Q.me || Q.P, ph = me && dayPhase(me.x); Snd.ambNight(ph ? ph.night : 0);
   }
+  // ===================== phase 5 (A4): fishing at a post (the Sunken Deep's shore, the swamp's two ponds) =====================
+  // Lean on nothing: stand at the post (it shows "E: Fish"), press E to cast, wait for the bite (2-6 s), then press E again while
+  // the needle is in the green. Any move, jump, attack or hit stops it. It is optional, works with one button (keyboard E,
+  // gamepad Y, the touch use button), never freezes the world (so co-op friends are not held up) and is limited to 5 casts per
+  // post per visit. The state lives on the player (`P.fish`), so co-op guests see it and can fish too.
+  const FISH_CASTS = 5;
+  const fishSpotNear = P => { for (const sp of Q.L.fishSpots || []) if (P.onGround && Math.abs(P.x + P.w / 2 - (sp.x + 0.5) * TS) < 14 && Math.abs(P.y + P.h - sp.y * TS) < 6) return sp; return null; };
+  const needleAt = t => 1 - Math.abs(((t * 1.1) % 2) - 1);
+  function updateFishing() {
+    const me = Q.me || Q.P; Q.nearFish = me && !me.fish && Q.state === 'play' ? fishSpotNear(me) : null;
+  }
+  function startFish(P, sp) {
+    if (P.fish || P.fishCool > 0 || !P.onGround || (coop && coop.role === 'client')) return;
+    if (Q.ents.some(e => !e.dead && !e.hid && Math.abs(e.x - P.x) < 130 && Math.abs(e.y - P.y) < 60)) { if (isMe(P)) { Q.msg = sv('Not with monsters so close!', 'Quái ở gần quá, không câu được!'); Q.msgT = 2; } return; }
+    const left = Q.fishLeft[sp.id] === undefined ? FISH_CASTS : Q.fishLeft[sp.id];
+    if (left <= 0) { if (isMe(P)) { Q.msg = sv('The fish have stopped biting here.', 'Cá không còn cắn ở đây nữa.'); Q.msgT = 2.5; } Snd.play('select'); return; }
+    Q.fishLeft[sp.id] = left - 1;
+    P.face = sp.bx * TS + 8 > P.x ? 1 : -1; P.vx = 0;
+    P.fish = { sp: sp.id, ph: 'wait', t: 0, tw: 2 + Math.random() * 4, bx: sp.bx * TS + 8, by: sp.by * TS + 3, bt: 0, ct: 0, zc: 0.3 + Math.random() * 0.4, zw: 0.28, hp0: P.hp };
+    Snd.play('whoosh'); emit(P.fish.bx, P.fish.by, 8, { col: ['#bfeaff', '#fff'], sp0: 15, sp1: 50, vy: -40 });
+    if (isMe(P)) { Q.msg = sv('Cast! Wait for the bite... (' + (left - 1) + ' casts left)', 'Thả câu! Chờ cá cắn... (còn ' + (left - 1) + ' lần)'); Q.msgT = 2.5; }
+  }
+  function endFish(P, why, refund) {
+    const f = P.fish; P.fish = null; P.fishCool = 0.5;
+    if (f && refund && Q.fishLeft[f.sp] !== undefined) Q.fishLeft[f.sp]++;
+    if (why && isMe(P)) { Q.msg = why; Q.msgT = 2.2; }
+  }
+  function fishStep(P, dt) {
+    const f = P.fish; if (!f) return false;
+    if (Q.state !== 'play' || !P.onGround || P.down || P.hp < f.hp0) { endFish(P, P.hp < f.hp0 ? sv('Ouch! The line snapped.', 'Ái! Dây câu đứt rồi.') : null, false); return false; }
+    if (act.left || act.right || act.jumpP || act.atkP || act.dashP || act.backP) { endFish(P, sv('You reeled in.', 'Bạn thu dây câu về.'), f.ph === 'wait'); return false; }
+    if (Q.ents.some(e => !e.dead && !e.hid && Math.abs(e.x - P.x) < 70 && Math.abs(e.y - P.y) < 40)) { endFish(P, sv('Something is coming!', 'Có thứ gì đang tới!'), true); return false; }
+    f.t += dt; P.vx = 0; P.anim += 0;
+    if (f.ph === 'wait') {
+      if (act.talkP && f.t > 0.35) { endFish(P, sv('Nothing bit yet. Reeled in.', 'Chưa có cá cắn. Thu dây về.'), true); return true; }
+      if (f.t >= f.tw) { f.ph = 'bite'; f.bt = 0; Snd.play('splash'); emit(f.bx, f.by, 12, { col: ['#bfeaff', '#fff'], sp0: 20, sp1: 70, vy: -60 }); if (isMe(P)) { Q.msg = sv('A bite! Press E when the needle is in the green!', 'Cá cắn câu! Nhấn E khi kim nằm trong vùng xanh!'); Q.msgT = 2.6; } }
+    } else if (f.ph === 'bite') {
+      f.bt += dt;
+      if (act.talkP) {
+        if (Math.abs(needleAt(f.bt) - f.zc) < f.zw / 2) { f.ph = 'catch'; f.ct = 0; Snd.play('chime'); emit(f.bx, f.by, 14, { col: ['#bfeaff', '#fff', '#ffd34e'], sp0: 30, sp1: 90, vy: -80 }); }
+        else { endFish(P, sv('Too early! It got away.', 'Hụt rồi! Cá thoát mất.'), false); return true; }
+      } else if (f.bt > 2.6) { endFish(P, sv('It got away...', 'Cá thoát mất...'), false); return true; }
+    } else if (f.ph === 'catch') {
+      f.ct += dt;
+      if (f.ct > 0.5) { giveCatch(P, f); endFish(P, null, false); }
+    }
+    return true;
+  }
+  function giveCatch(P, f) {
+    const x = P.x + 4 + P.face * 8, y = P.y, r = Math.random(), mine = isMe(P);
+    const drop = (kind, ex) => Q.items.push(Object.assign({ kind, x, y, id: -1, vy: -rr(80, 140), vx: rr(-25, 25), ph: 0, drop: true }, ex || {}));
+    const say = (en, vi, col) => { pop(P.x + 4, P.y - 22, sv(en, vi), col || '#9fe8ff'); if (mine) { Q.msg = sv(en, vi); Q.msgT = 3; } };
+    const maxh = P.mhp || maxHP();
+    if (r < 0.42) { const n = 3 + ((Math.random() * 4) | 0); for (let i = 0; i < n; i++) drop('coin'); say('A fat fish! Sold for ' + n + ' coins.', 'Cá to! Bán được ' + n + ' xu.'); }
+    else if (r < 0.52) { drop('coin'); say('An old boot... and a coin inside!', 'Một chiếc ủng cũ... có một đồng xu bên trong!'); }
+    else if (r < 0.70) { const w = ['dagger', 'dagger', 'bomb', 'flask'][(Math.random() * 4) | 0]; drop('pk', { what: w, amt: w === 'dagger' ? 4 : 2, keep: false }); say('A fisherman\'s pouch: ' + (w === 'dagger' ? 'daggers' : (w === 'bomb' ? 'bombs' : 'fire flasks')) + '!', 'Túi của dân chài: ' + (w === 'dagger' ? 'dao găm' : (w === 'bomb' ? 'bom' : 'bình lửa')) + '!'); }
+    else if (r < 0.95) { P.hp = Math.min(maxh, P.hp + 1); emit(P.x + 4, P.y + 4, 10, { col: ['#ff7fb0', '#fff'], sp0: 10, sp1: 40 }); Snd.play('heart'); say('A tasty fish! +1 heart.', 'Cá ngon! +1 tim.', '#ff9fc0'); }
+    else { P.hp = maxh; for (let i = 0; i < 10; i++) drop('coin'); emit(P.x + 4, P.y + 4, 30, { col: ['#ffd34e', '#fff6c0', '#fff'], sp0: 20, sp1: 100 }); Snd.play('relic'); say('A GOLDEN FISH! Full health and a pile of coins!', 'CÁ VÀNG! Hồi đầy máu và một đống xu!', '#ffd34e'); if (mine && !DEMO) { save.goldFish = (save.goldFish | 0) + 1; writeSave(); } }
+  }
+  function drawPonds(camX, camY) {
+    for (const o of Q.L.ponds || []) {
+      if (o.x1 * TS < camX - 20 || o.x0 * TS > camX + VW + 20) continue;
+      const x = o.x0 * TS - camX, y = o.y * TS - camY, w = (o.x1 - o.x0 + 1) * TS;
+      g.fillStyle = 'rgba(40,120,110,.9)'; g.fillRect(x, y + 3, w, TS - 3); g.fillStyle = 'rgba(120,220,190,.55)'; g.fillRect(x, y + 3, w, 2);
+      for (let i = 0; i < w / 8; i++) { const a = 0.5 + 0.5 * Math.sin(Q.t * 2 + i * 1.7); g.fillStyle = 'rgba(220,255,240,' + (0.25 * a).toFixed(2) + ')'; g.fillRect(x + i * 8 + 2 + Math.round(Math.sin(Q.t + i) * 1.5), y + 5 + (i % 3) * 3, 3, 1); }
+    }
+  }
+  function drawFishing(camX, camY) {
+    for (const sp of Q.L.fishSpots || []) {   // the fishing post: a pole with a bobber sign
+      const px = Math.round((sp.x + 0.5) * TS - camX), py = Math.round(sp.y * TS - camY);
+      if (px < -20 || px > VW + 20) continue;
+      g.fillStyle = '#4a2e18'; g.fillRect(px - 1, py - 16, 2, 16); g.fillStyle = '#7a5028'; g.fillRect(px - 1, py - 16, 1, 16);
+      g.fillStyle = '#14101c'; g.fillRect(px - 5, py - 21, 10, 7); g.fillStyle = '#f0f4ff'; g.fillRect(px - 4, py - 20, 8, 5); g.fillStyle = '#e0453a'; g.fillRect(px - 4, py - 20, 8, 2); g.fillStyle = '#14101c'; g.fillRect(px - 1, py - 18, 2, 1);
+      if (Q.nearFish === sp && Q.state === 'play') txt(sv('E: Fish', 'E: Câu cá'), px, py - 28, { al: 'center', size: 6, col: '#9fe8ff', world: true });
+    }
+    for (const p of Q.players || [Q.P]) {
+      const f = p.fish; if (!f) continue;
+      const hx = p.x + 4 + p.face * 7 - camX, hy = p.y + 6 - camY, bx = f.bx - camX, bob = f.ph === 'bite' ? 2 + Math.sin(Q.t * 30) * 1.5 : Math.sin(Q.t * 3 + f.t) * 0.8, by = f.by - camY + bob;
+      g.strokeStyle = 'rgba(230,240,255,.85)'; g.lineWidth = 1; g.beginPath(); g.moveTo(hx, hy - 4); g.lineTo(hx + p.face * 6, hy - 10);
+      for (let i = 1; i <= 8; i++) { const t = i / 8, x = hx + p.face * 6 + (bx - hx - p.face * 6) * t, y = (hy - 10) + (by - hy + 10) * t + Math.sin(t * Math.PI) * 6; g.lineTo(x, y); }
+      g.stroke();
+      g.fillStyle = '#f0f4ff'; g.fillRect(Math.round(bx) - 1, Math.round(by) - 2, 3, 2); g.fillStyle = '#e0453a'; g.fillRect(Math.round(bx) - 1, Math.round(by) - 4, 3, 2);
+      g.strokeStyle = 'rgba(200,235,255,' + (0.5 - 0.2 * Math.sin(Q.t * 3)).toFixed(2) + ')'; g.beginPath(); g.ellipse(bx, by + 1, 4 + Math.sin(Q.t * 3 + f.t) * 1.2, 1.4, 0, 0, Math.PI * 2); g.stroke();
+      const gx = Math.round(p.x + 4 - camX), gyy = Math.round(p.y - 14 - camY);
+      if (f.ph === 'bite') {   // the needle gauge
+        g.fillStyle = '#14101c'; g.fillRect(gx - 19, gyy - 1, 38, 7); g.fillStyle = '#3a3450'; g.fillRect(gx - 18, gyy, 36, 5);
+        g.fillStyle = '#5ad87a'; g.fillRect(Math.round(gx - 18 + 36 * (f.zc - f.zw / 2)), gyy, Math.round(36 * f.zw), 5);
+        g.fillStyle = '#fff'; g.fillRect(Math.round(gx - 18 + 35 * needleAt(f.bt)), gyy - 2, 2, 9);
+        txt('!', gx, gyy - 8, { al: 'center', size: 8, bold: true, col: '#ffd34e', world: true });
+      } else if (f.ph === 'catch') { txt('!', gx, gyy - 8, { al: 'center', size: 8, bold: true, col: '#9fff9f', world: true }); }
+    }
+  }
   // phase 5 (D): what the hero is standing on decides the footstep: the map's ground, its floating ledges, ice, a moving
   // platform, or water
   const GROUND_SURF = { meadow: 'grass', forest: 'grass', caves: 'stone', desert: 'sand', frost: 'snow', volcano: 'stone', citadel: 'stone', swamp: 'mud', ocean: 'sand', tunnels: 'dirt' };
@@ -3922,6 +4017,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (act.shopP && st === 'play') { openShopInGame(); return; }
     if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && Q.nearCp) { const why = travelBlock(); if (why === '') { openTravel(); return; } if (why) { Q.msg = why; Q.msgT = 2.5; Snd.play('select'); } }
     if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && !Q.nearCp && Q.nearPost) { resetCrate(Q.nearPost); return; }
+    if (st === 'play' && act.talkP && !Q.nearNpc && !Q.nearPz && (!Q.nearCp || travelBlock() === null) && !Q.nearPost && Q.nearFish && !Q.P.fish) { startFish(Q.P, Q.nearFish); return; }
     if (st === 'travel') { updateTravel(); return; }
     if (st === 'play' && act.talkP) { if (Q.nearNpc) { startTalk(Q.nearNpc); return; } if (Q.nearPz) { usePz(Q.nearPz); return; } }
     if (Q.freeze > 0) { Q.freeze -= dt; updateParticles(dt); return; }
@@ -3929,7 +4025,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (Q.shake > 0) Q.shake -= dt;
     if (Q.msgT > 0) Q.msgT -= dt;
     if (Q.wishT > 0) Q.wishT -= dt;
-    updatePlats(dt); updateCrumble(dt); nearSounds(dt); updateCrates(dt); updateDayNight(dt); if (Q.brk.some(b => b.dead)) Q.brk = Q.brk.filter(b => !b.dead);
+    updatePlats(dt); updateCrumble(dt); nearSounds(dt); updateCrates(dt); updateDayNight(dt); updateFishing(); if (Q.brk.some(b => b.dead)) Q.brk = Q.brk.filter(b => !b.dead);
     if (st === 'bossintro' && !(Q.boss && Q.boss.st === 'intro')) Q.state = 'play'; // never get stuck in the intro
     if (st === 'bossintro') { asP(coop ? bossTgt(dt) : Q.P, () => updateBoss(dt)); updateCam(dt); updateParticles(dt); updateWeather(dt); Q.P.vx = 0; Q.P.vy = Math.min(380, Q.P.vy + GRAV * dt); moveY(Q.P, Q.P.vy * dt); return; }
     if (!Q.P.down) updatePlayer(dt);
@@ -4009,7 +4105,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       if (d.x < camX - 20 || d.x > camX + VW + 20) continue;
       const sp = ts.decor[d.k]; g.drawImage(sp.c, Math.round(d.x - camX - sp.w / 2), Math.round(d.y - camY - sp.h + 1));
     }
-    drawBrk(camX, camY); drawCrateRooms(camX, camY);
+    drawBrk(camX, camY); drawCrateRooms(camX, camY); drawPonds(camX, camY);
+    drawFishing(camX, camY);
     drawProps(camX, camY);
     // moving platforms
     for (const p of L.plats) {
@@ -5266,6 +5363,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     ['g', 'OTHER', 'KHÁC', '#c8a0ff'],
     ['Talk / use / fast travel (checkpoint)', 'Nói chuyện / dùng / dịch chuyển nhanh', 'E', 'Y'],
     ['Push a crate: walk into it', 'Đẩy thùng: đi dồn vào nó', 'Arrows / A D', 'Stick'],
+    ['Fish: E at a post, E on a bite', 'Câu cá: E ở cột câu, E khi cá cắn', 'E', 'Y'],
     ['Shop & bag', 'Cửa hàng & túi đồ', 'B', 'Back'],
     ['Pause menu', 'Tạm dừng', 'Esc', 'Start'],
     ['Sound on / off  ·  fullscreen', 'Tắt / bật tiếng  ·  toàn màn hình', 'M  ·  F11', '-'],
@@ -6256,6 +6354,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const npc = nearNpcFor(P); if (npc) { startTalk(npc); return; }
     const pz = nearPzFor(P); if (pz) { usePz(pz); return; }
     for (const r of Q.L.crateRooms || []) if (Math.abs(P.x + P.w / 2 - (r.postX + 0.5) * TS) < 20 && Math.abs(P.y + P.h - r.y * TS) < 10) { resetCrate(r); return; }   // a guest can reset a crate too
+    if (!P.fish) { const sp = fishSpotNear(P); if (sp) startFish(P, sp); }   // ... and fish
   }
   function coopHostPlayers(dt) {
     const me = Q.me, ar = Q.L.arena;
@@ -6398,7 +6497,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     return out;
   }
   function packPlayer(p) {
-    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, vn: p.vine ? p.vine.v.i : -1, ws: p.ws, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, armT: p.armT, armDur: p.armDur, armDir: p.armDir, armSpin: p.armSpin, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
+    return { s: p.slot, hero: p.hero, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, vx: Math.round(p.vx), vy: Math.round(p.vy), face: p.face, onGround: p.onGround, anim: Math.round(p.anim * 100) / 100, atk: p.atk, atkDown: p.atkDown, dash: p.dash, inv: Math.round(p.inv * 100) / 100, hp: p.hp, mhp: p.mhp, emo: p.emo, emoT: p.emoT, down: !!p.down, downT: p.downT, shield: p.shield, skCd: Math.round((p.skCd || 0) * 10) / 10, wcd: p.wcd, wmax: p.wmax, ammo: p.ammo, sel: p.sel, vn: p.vine ? p.vine.v.i : -1, ws: p.ws, chg: p.chg || null, h: p.h, mom: p.mom, ball: p.ball, spin: p.spin, form: p.form, ess: p.ess, dk: p.dk, armT: p.armT, armDur: p.armDur, armDir: p.armDir, armSpin: p.armSpin, concT: p.concT, fsw: p.fsw && p.fsw.t > 0 ? p.fsw : null, oraT: p.oraT, standT: p.standT, copy: p.copy, inhT: p.inhT, flutter: p.flutter, gatT: p.gatT, hurtA: p.hurtA, landA: p.landA, fish: p.fish || null, punch: p.punch ? { ext: p.punch.ext || 0, dir: p.punch.dir, dy: p.punch.dy, reach: p.punch.reach } : null, mouse: p.mouse ? { x: Math.round(p.mouse.x), y: Math.round(p.mouse.y), f: p.mouse.f } : null, parryT: Math.round((p.parryT || 0) * 100) / 100, hold: p.hold || null, gunT: p.gunT || 0, gunId: p.gunId || null, keys: p.keys, sw: p.sw ? { $r: 'ITEM.' + p.sw.id } : null, pinv: { w: (p.bag || save.inv).w, armor: (p.bag || save.inv).armor } };
   }
   function coopSnapshot() {
     if (Q.talk && !Q.talk.id) { Q.talk.id = ++coop.tkN; Q.talk.doneList = Q.talk.doneList || []; }
@@ -9293,5 +9392,5 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     }, 400); }
   }
   { const m = location.search.match(/room=([A-Za-z0-9]{5})/); if (m) setTimeout(() => { enterScene('coop'); coopJoin(m[1]); }, 300); }
-  if (!RELEASE && location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, spawnSummon: (k, o) => spawnSummon(k, 30, Q.P, true, o), evolveSummon: s => evolveSummon(s), bossSprite: li => bossSprite(li), formSprite: k => formSprite(k), npcSpr: k => npcSpr(k), pump: (n, ms) => { let t = Math.max(performance.now(), frame.last || 0); for (let i = 0; i < n; i++) { t += ms || 16; step(t); } }, mfGo: (li, v, hold) => { startMapFilm(li); mf.t = v || 0; mf.hold = !!hold; }, mfT: v => { mf.t = v; }, opSeek: (v, play) => { if (!op) startOpening(); op.t = v; op.hold = !play; }, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
+  if (!RELEASE && location.search.indexOf('debug') >= 0) window.LL = { getCtx: () => g, giveCatch: (P, r) => { const o = Math.random; Math.random = () => r; try { giveCatch(P || Q.P, {}); } finally { Math.random = o; } }, spawnSummon: (k, o) => spawnSummon(k, 30, Q.P, true, o), evolveSummon: s => evolveSummon(s), bossSprite: li => bossSprite(li), formSprite: k => formSprite(k), npcSpr: k => npcSpr(k), pump: (n, ms) => { let t = Math.max(performance.now(), frame.last || 0); for (let i = 0; i < n; i++) { t += ms || 16; step(t); } }, mfGo: (li, v, hold) => { startMapFilm(li); mf.t = v || 0; mf.hold = !!hold; }, mfT: v => { mf.t = v; }, opSeek: (v, play) => { if (!op) startOpening(); op.t = v; op.hold = !play; }, get titleSel() { return titleSel; }, setTitleSel: v => { titleSel = v; }, updateTitle, titleLayout, titleItems, titleState: () => title, sumArt, drawSumArt, SUM_H, summonItems, castSummons, get FAN_IMG() { return FAN_IMG; }, FAN_RIG, useSk, chargeHit, slotId, skNeed, petMorph, startCine, get cn() { return cn; }, drawCine, spawnSummon, updateSummons, sumTarget, summonSprite, summonParts, GIANT, BEAST, dragonSprite, startLevel, coopJoin, coopStart, coopHostNet, coopClientInput, coopClientTick, coopInit, newPlayer, asP, coopHostPlayers, mkCoopTest() { coopInit('host'); coop.me = 0; Q.me = Q.P; Q.P.slot = 0; setHero(Q.P, 'ember'); const p = newPlayer(); p.slot = 1; p.x = Q.P.x - 10; p.y = Q.P.y; p.safe = { x: p.x, y: p.y }; p.bag = { w: ['iron', null], armor: null, pet: null, own: ['iron'] }; p.ammo = { dagger: 5, bomb: 2, flask: 2 }; p.wcd = [0, 0]; p.wmax = [1, 1]; setHero(p, 'ember'); Q.players = [Q.P, p]; return p; }, get Q() { return Q; }, save, genLevel, BIOMES, setScene: s => { scene = s; }, startCut: li => { cutLevel = li; enterScene('cutscene'); }, cutAdv: sec => { for (let i = 0; i < sec * 100; i++) updateCut(0.01); return cut.phase + ' line ' + cut.i; }, cutNext: () => { act.okP = true; updateCut(0.01); act.okP = false; return cut.i; }, EN, BOSS, NPCS, kingSprite, horseSprite, hurtBoss, nextForm, spawnAllies, beginMini, makeFormBoss, FORMS, MINI, completeLevel, updatePlay, act, enterScene, equipItem, fireWeapon, useSlot, updateShopScene, drawShop, pressed, owned, cardAct, setTab, foes, hurtPlayer, grantLeek, openCard: id => { shopCard = { it: ITEM[id], opt: 0 }; }, shopSel: i => { shopIdx = i; }, get scene() { return scene; }, get op() { return op; }, startOpening, get coop() { return coop; }, resumeLevel, NET, coopUI, HEROES, setHero, heroSkill, clearPressed, solid, ch, maxHP, openGate, explode, solveAll() { for (const gd of Q.gates) { if (!gd.open) openGate(gd, true); if (gd.need === 'timed') gd.timer = 1e9; } for (const w of Q.L.xwalls) for (const t of w.tiles) { Q.L.grid[t[1]][t[0]] = ' '; Q.brokenX.add(t[0] + ',' + t[1]); } } };
 })();

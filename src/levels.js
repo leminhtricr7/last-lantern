@@ -201,7 +201,7 @@ function addSecretRooms(L, li) {
   const busy = x => L.spawns.some(sp => KEEP.has(sp.type) && Math.abs(sp.x / TS - x) < 6) || L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 7)
     || (L.nooks || []).some(n => Math.abs(n.x - x) < 10) || L.gates.some(gd => Math.abs(gd.x - x) < 8) || (L.secretRooms || []).some(r => Math.abs(r.x - x) < 14)
     || [].concat(L.trials || [], L.minis || [], L.dragons || []).some(t => x > t.lw - 8 && x < t.rw + 8)   // never inside a sealed trial or duel arena
-    || (L.crateRooms || []).some(r => x > r.x0 - 8 && x < r.x0 + 20) || (L.stairs || []).some(r => x > r.x0 - 8 && x < r.x0 + 22);
+    || (L.crateRooms || []).some(r => x > r.x0 - 8 && x < r.x0 + 20) || (L.stairs || []).some(r => x > r.x0 - 8 && x < r.x0 + 22) || (L.ponds || []).some(r => x > r.x0 - 10 && x < r.x1 + 8);
   L.secretRooms = []; L.covers = L.covers || [];
   const done = [false, false, false];
   for (let pass = 0; pass < 2; pass++) for (let k = 0; k < 3; k++) {
@@ -236,6 +236,7 @@ function addSecretRooms(L, li) {
 //  - lever stair: a chest sits on a ledge too high to jump to (128 px; a double jump reaches 93); the lever on the ground
 //    builds a staircase up to it.
 const CRATE_MAPS = { 2: 1, 3: 1, 4: 1, 9: 1, 6: 2 }, STAIR_MAPS = { 3: 1, 4: 1, 5: 1, 7: 1, 9: 1, 6: 2 };
+const POND_MAPS = { 7: 2 };   // phase 5 (A4): two small ponds to fish in on the swamp (the Sunken Deep has its shore)
 
 // ============ phase 5 (A1, A3): pots that break and bushes that can be cut ============
 // placed after a map is built, on free ground only (never on spikes, lava, gates, in the arena or on top of anything)
@@ -338,6 +339,8 @@ function genOcean(B, li) {
   L.arena = { x0: 3, x1: W - 3, gy: GY, y0: ARY0, rects: [[12, 96, 31, 98]] };
   L.spawns.push({ id: L.id++, type: 'boss', x: (W - 24) * TS, y: GY * TS });
   L.endX = W * TS;
+  for (let xx = 22; xx <= 27; xx++) set(xx, WY, '=');   // phase 5 (A4): a little wooden pier past the shore's NPCs, to fish from
+  L.fishSpots = [{ id: L.id++, x: 26, y: WY, bx: 30, by: WY }];
   addBreakables(L, li);
   return L;
 }
@@ -684,15 +687,19 @@ function genLevel(li) {
   }
 
   // phase 5 (A2, A5): a reserved flat stretch with a crate vault or a lever stair (see the comment above CRATE_MAPS)
-  L.crateRooms = []; L.stairs = [];
+  L.crateRooms = []; L.stairs = []; L.ponds = []; L.fishSpots = [];
   function extraRoom(kind) {
     if (kind === 'stair' && gy < 10) gy = 10;   // the ledge is 8 tiles up and needs a tile of headroom
-    const x0 = x, W = kind === 'crate' ? 18 : 19;
+    const x0 = x, W = kind === 'crate' ? 18 : (kind === 'pond' ? 17 : 19);
     flat(W, { safe: true });
     L.spawns = L.spawns.filter(sp => !((sp.type === 'coin' || sp.type === 'heart' || sp.type === 'pk') && sp.x / TS >= x0 - 1 && sp.x / TS <= x0 + W));
     L.decor = L.decor.filter(d => !(d.x / TS >= x0 - 1 && d.x / TS <= x0 + W));
     const y = gy, chest = (k, tx, ty) => L.spawns.push({ id: L.id++, type: 'chest', k, x: tx * TS + TS / 2, y: ty * TS });
-    if (kind === 'crate') {
+    if (kind === 'pond') {   // a pond one tile deep (walkable, just wet-looking) with a fishing post at its edge
+      for (let i = 6; i <= 11; i++) set(x0 + i, y, ' ');
+      L.ponds.push({ x0: x0 + 6, x1: x0 + 11, y });
+      L.fishSpots.push({ id: L.id++, x: x0 + 3, y, bx: x0 + 8, by: y });
+    } else if (kind === 'crate') {
       set(x0 + 1, y - 1, '#');                                              // the stopper: the crate can never be pushed away to the left
       for (let i = 12; i <= 16; i++) set(x0 + i, y - 2, '#');               // the vault roof (2 tiles high in all: easy to hop over)
       set(x0 + 16, y - 1, '#'); set(x0 + 12, y - 1, 'G');                   // its right wall and its door
@@ -719,7 +726,7 @@ function genLevel(li) {
   const pzAt = pzList.map((t, i) => (t === 'dragon' && li === 0) ? 70 : Math.floor(B.len * (0.14 + 0.7 * (i + 0.5) / pzList.length)));
   let nextCp = 42, placed = 0, tierN = 0, vineN = 0;
   const shardAt = [0.2, 0.5, 0.76].map(f => Math.floor(B.len * f));
-  const exList = [].concat(Array(CRATE_MAPS[li] || 0).fill('crate'), Array(STAIR_MAPS[li] || 0).fill('stair')).sort((p, q) => (p < q ? 1 : -1)).map((k, i, arr) => ({ k, at: Math.floor(B.len * (0.3 + 0.4 * (i + 0.5) / arr.length)) })); let exIdx = 0;   // phase 5
+  const exList = [].concat(Array(CRATE_MAPS[li] || 0).fill('crate'), Array(STAIR_MAPS[li] || 0).fill('stair'), Array(POND_MAPS[li] || 0).fill('pond')).sort((p, q) => (p < q ? 1 : -1)).map((k, i, arr) => ({ k, at: Math.floor(B.len * (0.3 + 0.4 * (i + 0.5) / arr.length)) })); let exIdx = 0;   // phase 5
   while (x < B.len - 16) {
     if (x > nextCp) { const ax = x; flat(6, { safe: true, cp: true, heart: rnd() < 0.5 }); if (plan.cps && cpNpcIdx < plan.cps.length) { spawn('npc', ax + 4, gy, { who: plan.cps[cpNpcIdx++] }); } nextCp = x + R(38, 52); continue; }
     if (li === 7 && vineN < 5 && x > B.len * (0.08 + 0.15 * vineN)) { vineGap(); vineN++; continue; }   // at least five vine crossings in the swamp
@@ -800,7 +807,7 @@ function genLevel(li) {
   { const rn = mulberry32(777 + li * 131), endX = (L.arena ? L.arena.x0 : W) - 8, nooks = [];
     const SOL = c => c === '#' || c === 'I', topOf = x => { for (let y = 3; y < H - 1; y++) if (SOL(L.grid[y][x])) return L.grid[y - 1][x] === ' ' ? y : -1; return -1; };
     const busy = x => L.spawns.some(sp => Math.abs(sp.x / TS - x) < 4) || L.checkpoints.some(cp => Math.abs(cp.x / TS - x) < 5)
-      || L.crateRooms.some(r => x > r.x0 - 9 && x < r.x0 + 19) || L.stairs.some(r => x > r.x0 - 4 && x < r.x0 + 21);   // phase 5: never dig a fake floor under a crate vault or a stair
+      || L.crateRooms.some(r => x > r.x0 - 9 && x < r.x0 + 19) || L.stairs.some(r => x > r.x0 - 4 && x < r.x0 + 21) || L.ponds.some(r => x > r.x0 - 10 && x < r.x1 + 8);   // phase 5: never dig a fake floor under a crate vault or a stair
     for (let part = 0; part < 3; part++) {
       const a = Math.floor(20 + (endX - 20) * part / 3), b = Math.floor(20 + (endX - 20) * (part + 1) / 3);
       for (let tries = 0; tries < 400; tries++) {   // phase 5 (C): 40 tries left four maps with only two nooks

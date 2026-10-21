@@ -656,3 +656,10 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   No timer, no save and no co-op sync are needed: each player sees the hour of the place they stand in. Gameplay effect:
   up to +0.25 darkness on top of the map's own (lantern light still works), never on top of a dark zone, and none inside the
   boss arena. Caves, Volcano, Tunnels, the Deep and the Citadel have no cycle.
+- Fishing (phase 5, A4): fishing posts on a little wooden pier at the Sunken Deep's shore and beside the swamp's two
+  shallow ponds (`POND_MAPS`, `fishSpots` in levels.js). Stand at a post and press E (gamepad Y, touch use button) to cast,
+  wait 2-6 s for the bite, then press E again while the needle is in the green (`fishStep` in game.js). Moving, jumping,
+  attacking, a hit or a monster within 70 px stops it (a cast is refunded if nothing bit yet); not allowed with monsters
+  within 130 px; 5 casts per post per visit. The world keeps running, so co-op friends are never held up, and the state sits on
+  the player (`P.fish`) so guests see it and can fish too. Catches: coins (42%), an old boot with a coin (10%), ammo (18%),
+  +1 heart (25%), and a rare golden fish (5%): full health, 10 coins, counted in `save.goldFish` for the coming quests.
