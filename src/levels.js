@@ -238,6 +238,25 @@ function addSecretRooms(L, li) {
 const CRATE_MAPS = { 2: 1, 3: 1, 4: 1, 9: 1, 6: 2 }, STAIR_MAPS = { 3: 1, 4: 1, 5: 1, 7: 1, 9: 1, 6: 2 };
 const POND_MAPS = { 7: 2 };   // phase 5 (A4): two small ponds to fish in on the swamp (the Sunken Deep has its shore)
 
+// ============ phase 5 (E): where each map's side-quest items hide ============
+// Marks existing objects (bushes, pots, chests) with `q = k`; the game turns them into quest items only while that quest is
+// active and the piece has not been found, so the generated map is the same whatever the save says.
+const QUEST_SRC = { 0: ['bush', 'bush', 'bush'], 1: ['chest', 'chest', 'chest'], 2: ['pot', 'pot', 'pot', 'pot'], 3: ['vault', 'stair', 'pot'], 4: ['pot', 'pot', 'pot'],
+  5: ['pot', 'pot', 'pot'], 7: ['bush', 'bush', 'bush', 'bush'], 9: ['pot', 'pot', 'pot'] };
+function addQuestSources(L, li) {
+  const list = QUEST_SRC[li]; if (!list) return;
+  const chests = L.spawns.filter(sp => sp.type === 'chest'), brk = (t) => (L.brk || []).filter(b => b.t === t).sort((a, b) => a.x - b.x);
+  const spread = (arr, k, n) => { const free = arr.filter(o => o.q === undefined); if (!free.length) return null; return free[Math.min(free.length - 1, Math.floor((k + 0.5) * free.length / n))]; };
+  list.forEach((kind, k) => {
+    let o = null;
+    if (kind === 'vault') o = chests.find(c => c.k === 4 && c.q === undefined);
+    else if (kind === 'stair') o = chests.find(c => c.k === 5 && c.q === undefined);
+    else if (kind === 'chest') o = chests.filter(c => c.q === undefined && c.k < 4).sort((a, b) => a.x - b.x)[0];
+    if (!o) o = spread(brk(kind === 'bush' ? 'bush' : 'pot'), k, list.length) || spread(brk('pot'), k, list.length) || spread(brk('bush'), k, list.length);
+    if (o) o.q = k;
+  });
+}
+
 // ============ phase 5 (A1, A3): pots that break and bushes that can be cut ============
 // placed after a map is built, on free ground only (never on spikes, lava, gates, in the arena or on top of anything)
 const POT_STYLE = { meadow: 'clay', forest: 'clay', caves: 'crystal', desert: 'amphora', frost: 'ice', volcano: 'stone', citadel: 'bronze', swamp: 'shroom', ocean: 'coral', tunnels: 'barrel' };
@@ -844,5 +863,6 @@ function genLevel(li) {
     } }
   addSecretRooms(L, li);
   addBreakables(L, li);
+  addQuestSources(L, li);
   return L;
 }

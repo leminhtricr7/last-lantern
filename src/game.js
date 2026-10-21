@@ -50,6 +50,8 @@
   while (save.relics.length < 10) save.relics.push(0);
   if (!save.ammo) save.ammo = { dagger: 0, bomb: 0, flask: 0 };
   if (!Array.isArray(save.orbs)) save.orbs = []; if (!save.eggs || typeof save.eggs !== 'object') save.eggs = {};
+  if (!save.quests || typeof save.quests !== 'object') save.quests = {};   // phase 5 (E): side quests and the Lantern of Nine Towers
+  save.lantern9 = !!save.lantern9;
   if (!Array.isArray(save.fishLog)) save.fishLog = [];   // phase 5 (A4): the species you have caught
   save.rare = save.rare | 0; if (!save.rareGot || typeof save.rareGot !== 'object') save.rareGot = {};
   save.bonusHP = save.bonusHP | 0; save.bonusDmg = save.bonusDmg | 0; if (!save.cos || typeof save.cos !== 'object') save.cos = {};
@@ -1039,7 +1041,7 @@
     for (const t of L.trials) for (let y = 0; y < t.gy; y++) L.grid[y][t.lw] = ' ';
     Q.trials = L.trials.map(t => Object.assign({}, t, { state: Q.trialsDone.has(t.id) ? 'done' : 'idle', wave: 0, cd: 0 }));
     for (const s of L.spawns) {
-      if (s.type === 'chest') { Q.items.push({ kind: 'chest', k: s.k, x: s.x, y: s.y, id: s.id, open: Q.taken.has(s.id), ph: 0 }); continue; }
+      if (s.type === 'chest') { Q.items.push({ kind: 'chest', k: s.k, q: s.q, x: s.x, y: s.y, id: s.id, open: Q.taken.has(s.id), ph: 0 }); continue; }
       if (Q.taken.has(s.id)) continue;
       if (s.type === 'coin') Q.items.push({ kind: 'coin', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
       else if (s.type === 'heart') Q.items.push({ kind: 'heart', x: s.x, y: s.y - 4, id: s.id, ph: Math.random() * 6 });
@@ -2678,7 +2680,8 @@
   };
   function openChest(it) {
     if (coop && coop.role === 'client') return;
-    it.open = true; Q.taken.add(it.id); Snd.play('key'); Snd.play('coin'); addRing(it.x, it.y - 6, '#ffd34e', 26, 0.4);
+    it.open = true; Q.taken.add(it.id); Snd.play('key'); Snd.play('coin');
+    if (it.q !== undefined) questFound(it.q, it.x, it.y - 8);   // phase 5 (E) addRing(it.x, it.y - 6, '#ffd34e', 26, 0.4);
     emit(it.x, it.y - 6, 22, { col: ['#ffd34e', '#fff6c0', '#fff'], sp0: 20, sp1: 90, vy: -50 });
     const drop = (kind, ex) => Q.items.push(Object.assign({ kind, x: it.x, y: it.y - 8, id: -1, vy: -rr(110, 170), vx: rr(-50, 50), ph: 0, drop: true }, ex || {}));
     const n = 8 + ((Math.random() * 7) | 0); for (let i = 0; i < n; i++) drop('coin');
@@ -2736,6 +2739,7 @@
     if (b.dead || (coop && coop.role === 'client')) return;
     b.dead = true; Q.brokenB.add(b.id);
     const c = BRK_COL[b.s] || BRK_COL.clay, pot = b.t === 'pot', cx = b.x, cy = b.y - (pot ? 6 : 5);
+    if (b.q !== undefined) questFound(b.q, cx, cy);   // phase 5 (E)
     emit(cx, cy, pot ? 14 : 18, { col: [c[0], c[1], c[2]], sp0: 30, sp1: pot ? 110 : 80, vy: pot ? -60 : -40 });
     Snd.play(how === 'fire' ? 'flame' : (BRK_SND[b.s] || 'brkclay'));
     const hurt = (Q.players || [Q.P]).some(p => p.hp < maxHP()), r = Math.random();
@@ -2901,6 +2905,7 @@
     }
     let isNew = false;
     if (mine && spec.r > 0 && save.fishLog.indexOf(spec.id) < 0) { save.fishLog.push(spec.id); isNew = true; if (!DEMO) writeSave(); }
+    questFish(P, spec);
     if (mine) { fishCardOf(P, spec, isNew); Q.msg = sv('Caught: ' + spec.en + '!', 'Câu được: ' + spec.vi + '!'); Q.msgT = 3; }
     else pop(P.x + 4, P.y - 22, sv(spec.en + '!', spec.vi + '!'), '#9fe8ff');
   }
@@ -3085,6 +3090,147 @@
       } else if (f.ph === 'catch') { txt('!', gx, gyy - 8, { al: 'center', size: 8, bold: true, col: '#9fff9f', world: true }); }
     }
   }
+  // ===================== phase 5 (E): the Tower Embers: one short side quest per map =====================
+  // Each of the nine tower maps has an NPC with a small errand about the Lantern Keepers' past, using the new features
+  // (bushes, jars, secret chests, vaults, fishing). It has three stages (not taken, under way, done) with different
+  // dialogue, remembered in `save.quests[li] = { s: 0|1|2, n: found, got: [pieces found] }` (an optional field: old saves
+  // simply have none). Finishing gives a little coin and ammo and one Tower Ember (a memory of that tower). With all nine,
+  // Lila in the Shadow Citadel lights the Lantern of Nine Towers: a bonus story page and a pale-gold glow round the lantern.
+  // No stats are given. In co-op the host's save keeps the progress; guests see the dialogue.
+  const EMBER_MAPS = [0, 1, 2, 3, 4, 5, 7, 8, 9];
+  const QL = (a, b) => ({ en: a, vi: b });
+  const QUESTS = {
+    0: { who: 'lila', n: 3, col: '#ffe08a', title: QL('The wind chime', 'Chuông gió'), item: QL('chime piece', 'mảnh chuông'), reward: { coins: 60, gift: { dagger: 5 } },
+      offer: [QL(`Before the towers went dark, my grandmother hung a wind chime by this road to warn travellers of storms. The wind scattered its pieces into the bushes.`, `Trước khi các tháp tắt, bà tôi treo một chuông gió bên con đường này để báo bão cho người đi đường. Gió đã thổi các mảnh của nó vào mấy bụi cây.`),
+        QL(`Could you slash the bushes along the road and find three pieces? A lantern-bearer should hear it ring again.`, `Bạn chém mấy bụi cây dọc đường và tìm ba mảnh giúp tôi nhé? Người giữ đèn nên được nghe nó ngân lại.`)],
+      active: [QL(`Three chime pieces hide in the bushes along the road. Slash them down!`, `Ba mảnh chuông nằm trong các bụi cây dọc đường. Chém chúng đi nhé!`)],
+      done: [QL(`It rings! Just like when I was small... Thank you, lantern-bearer.`, `Nó ngân rồi! Y như hồi tôi còn bé... Cảm ơn bạn, người giữ đèn.`),
+        QL(`The First Keeper hung this chime so the village could hear the storm before the light failed. Take this ember: it remembers the First Tower.`, `Người Giữ Đèn đầu tiên treo chuông này để dân làng nghe bão tới trước khi ánh sáng tắt. Hãy nhận tàn lửa này: nó nhớ Tháp Thứ Nhất.`)],
+      thanks: [QL(`The chime sings every time the wind turns. It sounds like hope.`, `Chuông ngân mỗi khi gió đổi hướng. Nghe như niềm hy vọng.`)] },
+    1: { who: 'bram', n: 3, col: '#ffd0a0', title: QL('The patrol\'s name tags', 'Thẻ tên đội tuần'), item: QL('name tag', 'thẻ tên'), reward: { coins: 80, gift: { bomb: 2 } },
+      offer: [QL(`My night patrol vanished into the roots under this forest. Each of them wore a bronze name tag. If I cannot bring their families a tag, I bring them nothing.`, `Đội tuần đêm của tôi biến mất dưới rễ cây của khu rừng này. Ai cũng đeo một thẻ tên đồng. Nếu không mang được thẻ nào về cho gia đình họ, tôi chẳng có gì để đưa cả.`),
+        QL(`The tags lie in hollows under the ground. Look for odd bricks, cracked walls and bushes that hide a way down. Bring me three.`, `Các thẻ nằm trong những hốc dưới lòng đất. Hãy tìm viên gạch lạ, bức tường nứt và bụi cây che lối xuống. Mang về cho tôi ba cái.`)],
+      active: [QL(`Three tags, in the secret hollows: odd bricks, cracked walls, bushes that hide a hole. Bombs help.`, `Ba thẻ, trong các hốc bí mật: gạch lạ, tường nứt, bụi cây che lối. Bom sẽ giúp ích.`)],
+      done: [QL(`Rook... Wren... Alder. Now I can tell their families. Thank you.`, `Rook... Wren... Alder. Giờ tôi có thể báo cho gia đình họ. Cảm ơn bạn.`),
+        QL(`The Second Tower's patrol kept a lamp lit for every lost traveller. This ember is the last of their lamp.`, `Đội tuần của Tháp Thứ Hai thắp một ngọn đèn cho mỗi người lạc lối. Tàn lửa này là phần cuối của ngọn đèn ấy.`)],
+      thanks: [QL(`Rest easy, lanterns. The forest is quieter now.`, `Yên nghỉ nhé, những ngọn đèn. Khu rừng đã yên hơn rồi.`)] },
+    2: { who: 'wizard', n: 4, col: '#c8b8ff', title: QL('Echo jars', 'Bình vọng âm'), item: QL('echo', 'tiếng vọng'), reward: { coins: 100, gift: { flask: 3 } },
+      offer: [QL(`The cutters who dug these caverns stored their songs in crystal jars. Break one and the song escapes. Mine are all silent now.`, `Những người thợ đào hang này cất bài hát của họ vào các bình pha lê. Đập vỡ một cái là bài hát thoát ra. Mấy bình của tôi giờ đều im lặng.`),
+        QL(`Break four crystal jars and listen closely. I need to know who sang them.`, `Hãy đập bốn bình pha lê và lắng nghe thật kỹ. Tôi cần biết ai đã hát chúng.`)],
+      active: [QL(`Four jars still hold a song. Break them and listen.`, `Còn bốn cái bình giữ bài hát. Đập chúng và lắng nghe nhé.`)],
+      done: [QL(`Ah... a lullaby for the stone itself! Now I remember.`, `À... một bài ru cho chính hòn đá! Giờ tôi nhớ ra rồi.`),
+        QL(`The cutters sang to the crystal so it would not crack. The Third Tower's ember is a hum. Take it.`, `Thợ đá hát cho pha lê để nó không nứt. Tàn lửa của Tháp Thứ Ba là một tiếng ngân nhẹ. Nhận lấy nhé.`)],
+      thanks: [QL(`I hum it every night now. The caves hum back.`, `Đêm nào tôi cũng ngân nga nó. Hang động ngân nga đáp lại.`)] },
+    3: { who: 'smith', n: 3, col: '#ffb870', title: QL('The first lantern\'s moulds', 'Khuôn của chiếc đèn đầu tiên'), item: QL('mould piece', 'mảnh khuôn'), reward: { coins: 120, gift: { bomb: 3 } },
+      offer: [QL(`I want to forge a lantern the way the First Keeper did, but I have no moulds. Three pieces are hidden in this desert.`, `Ta muốn rèn một chiếc đèn như Người Giữ Đèn đầu tiên đã làm, nhưng ta không có khuôn. Ba mảnh khuôn được giấu trong sa mạc này.`),
+        QL(`One behind a crate-and-plate vault, one on a ledge only a lever's staircase reaches, and one in a jar. Bring them to Durin!`, `Một mảnh sau hầm có thùng và bàn đạp, một mảnh trên kệ chỉ cầu thang của cần gạt mới lên tới, và một mảnh trong bình. Mang về cho Durin nhé!`)],
+      active: [QL(`Three mould pieces: a plate vault, a high ledge with a lever, and a jar. Durin is waiting!`, `Ba mảnh khuôn: hầm bàn đạp, kệ cao có cần gạt, và một cái bình. Durin đang đợi!`)],
+      done: [QL(`These are the First Keeper's own moulds! Look at the fit...`, `Đây là khuôn của chính Người Giữ Đèn đầu tiên! Nhìn độ khít xem...`),
+        QL(`The first lantern cast in this desert held its light for a hundred years. Take the Fourth Tower's ember.`, `Chiếc đèn đầu tiên đúc ở sa mạc này giữ ánh sáng suốt một trăm năm. Nhận tàn lửa của Tháp Thứ Tư đi.`)],
+      thanks: [QL(`Durin's forge is hot again, thanks to you.`, `Lò của Durin lại nóng lên rồi, nhờ có bạn.`)] },
+    4: { who: 'angel', n: 3, col: '#bfeaff', title: QL('Warm coals', 'Than sưởi ấm'), item: QL('warm coal', 'cục than ấm'), reward: { coins: 100, gift: { flask: 3 } },
+      offer: [QL(`Climbers freeze on these peaks. Long ago the Keepers left coals that never cool in jars of ice, for anyone who was lost.`, `Người leo núi chết cóng trên những đỉnh này. Ngày xưa các Người Giữ Đèn để lại những cục than không bao giờ nguội trong bình băng, cho bất cứ ai lạc đường.`),
+        QL(`Break three ice jars and bring me the warm coals. I will give them to the next traveller.`, `Hãy đập ba bình băng và mang than ấm về cho tôi. Tôi sẽ trao chúng cho người lữ hành kế tiếp.`)],
+      active: [QL(`Three ice jars hold warm coals. Break them and keep the coals warm!`, `Ba bình băng chứa than ấm. Đập chúng và giữ than cho ấm nhé!`)],
+      done: [QL(`Warm... the light is with you, lantern-bearer.`, `Ấm quá... ánh sáng ở bên bạn, người giữ đèn.`),
+        QL(`Rimvald once warmed lost travellers here, before the cold took his heart. Take the Fifth Tower's ember.`, `Rimvald từng sưởi ấm những người lạc đường ở đây, trước khi giá lạnh lấy đi trái tim ông. Nhận tàn lửa của Tháp Thứ Năm nhé.`)],
+      thanks: [QL(`The coals still glow in the climbers' hands.`, `Than vẫn sáng trong tay những người leo núi.`)] },
+    5: { who: 'smith', n: 3, col: '#ff9a4a', title: QL('Heart-coals', 'Than tim lửa'), item: QL('heart-coal', 'than tim lửa'), reward: { coins: 140, gift: { bomb: 3 } },
+      offer: [QL(`The old forge-master hid heart-coals in stone jars: coal that never goes out. I need three to wake the Sixth Tower's furnace.`, `Thợ cả lò rèn ngày xưa giấu than tim lửa trong các hũ đá: thứ than không bao giờ tắt. Ta cần ba cục để đánh thức lò của Tháp Thứ Sáu.`),
+        QL(`Break stone jars on the way. And mind the heat!`, `Đập mấy hũ đá dọc đường. Và coi chừng nóng!`)],
+      active: [QL(`Three heart-coals in the stone jars. Do not drop them in the lava!`, `Ba cục than tim lửa trong các hũ đá. Đừng làm rơi chúng xuống dung nham!`)],
+      done: [QL(`Still burning after all these years! This is the forge-master's coal.`, `Vẫn cháy sau ngần ấy năm! Đây đúng là than của thợ cả.`),
+        QL(`His rule: never let the fire go out, never let it go wild. Take the Sixth Tower's ember.`, `Luật của ông: đừng để lửa tắt, đừng để lửa hoang. Nhận tàn lửa của Tháp Thứ Sáu nhé.`)],
+      thanks: [QL(`The furnace purrs. Almost kindly.`, `Lò rèn kêu rừ rừ. Gần như hiền hậu.`)] },
+    7: { who: 'witch', n: 4, col: '#9fffd0', title: QL('Glowcaps for a lullaby', 'Nấm sáng cho lời ru'), item: QL('glowcap', 'nấm sáng'), reward: { coins: 120, gift: { dagger: 6 } },
+      offer: [QL(`Hee-hee. An old woman cannot sleep in a swamp that bites. A tea of four glowcaps would cure that.`, `Hi hi. Bà già này chẳng ngủ nổi trong đầm lầy biết cắn. Trà bốn cây nấm sáng sẽ chữa được đấy.`),
+        QL(`Slash the glowing bushes and bring me four caps. Do not eat them. Or do. I am not your mother.`, `Chém mấy bụi nấm phát sáng và mang cho bà bốn cây. Đừng ăn nhé. Mà ăn cũng được. Bà đâu phải mẹ ngươi.`)],
+      active: [QL(`Four glowcaps from the glowing bushes. The tea will not brew itself!`, `Bốn cây nấm sáng từ mấy bụi phát sáng. Trà đâu có tự pha!`)],
+      done: [QL(`Mmm... I can feel the tea working. Hee-hee.`, `Ừm... bà thấy trà ngấm rồi. Hi hi.`),
+        QL(`Someone sang here long before the swamp learned to bite. Morvella's lullaby... Take the Seventh Tower's ember.`, `Có người từng hát ru ở đây từ lâu trước khi đầm lầy biết cắn. Lời ru của Morvella... Nhận tàn lửa của Tháp Thứ Bảy đi.`)],
+      thanks: [QL(`I slept like a stone. A very comfortable stone.`, `Bà ngủ như đá. Một hòn đá rất thoải mái.`)] },
+    8: { who: 'pirate', n: 3, col: '#6ee7f2', title: QL('Three kinds of fish', 'Ba loài cá'), item: QL('kind of fish', 'loài cá'), reward: { coins: 140, gift: { flask: 3 } }, fish: true,
+      offer: [QL(`Argh. My crew has eaten nothing but old boots for a week. A pirate has his pride, but not his appetite.`, `Gừ. Cả thủy thủ đoàn của ta ăn toàn ủng cũ suốt một tuần. Cướp biển có lòng tự trọng, nhưng đâu có sức ăn.`),
+        QL(`Fish from the pier or the boat and catch three DIFFERENT kinds. Far out they are bigger. Do not meet what lives out there.`, `Câu từ cầu tàu hoặc thuyền và bắt ba LOÀI cá KHÁC NHAU. Ngoài xa cá to hơn. Đừng đụng vào thứ sống ngoài đó.`)],
+      active: [QL(`Three different kinds of fish. Cast from the pier, or sail out. But mind the beast!`, `Ba loài cá khác nhau. Thả câu ở cầu tàu hoặc chèo thuyền ra. Nhưng coi chừng quái vật!`)],
+      done: [QL(`A feast! The crew is crying. Pirates cry when they eat, it is natural.`, `Một bữa tiệc! Cả đoàn khóc rồi. Cướp biển ăn là khóc, bình thường thôi.`),
+        QL(`The Eighth Tower's keeper kept a lighthouse log, and it ends mid-sentence. His ember is in the water still. Take it.`, `Người giữ Tháp Thứ Tám ghi nhật ký hải đăng, và nó dừng giữa câu. Tàn lửa của ông vẫn còn dưới nước. Nhận lấy đi.`)],
+      thanks: [QL(`No more boots on the menu, thanks to you.`, `Nhờ bạn mà thực đơn hết ủng rồi.`)] },
+    9: { who: 'miner', n: 3, col: '#ffd34e', title: QL('Lost mining lamps', 'Đèn mỏ thất lạc'), item: QL('mining lamp', 'đèn mỏ'), reward: { coins: 160, gift: { bomb: 3 } },
+      offer: [QL(`Three of my friends went deeper when the order came to dig. Their lamps stayed in barrels along the tunnel.`, `Ba người bạn của tôi đi sâu hơn khi có lệnh đào. Đèn của họ vẫn nằm trong các thùng dọc đường hầm.`),
+        QL(`Break the barrels and bring me their lamps. A miner should not lose his lamp twice.`, `Hãy đập mấy cái thùng và mang đèn của họ về cho tôi. Thợ mỏ không nên mất đèn hai lần.`)],
+      active: [QL(`Three lamps in the barrels along the tunnel. Break them open!`, `Ba cái đèn trong các thùng dọc đường hầm. Đập chúng ra nhé!`)],
+      done: [QL(`Their lamps... still warm. Thank you, lantern-bearer.`, `Đèn của họ... vẫn còn ấm. Cảm ơn bạn, người giữ đèn.`),
+        QL(`Scratched on the barrels: "Dig deeper," said Quoc. "The dark is warm down there." Take the Ninth Tower's ember.`, `Khắc trên thùng: "Đào sâu nữa," Quốc nói. "Dưới đó bóng tối ấm lắm." Nhận tàn lửa của Tháp Thứ Chín nhé.`)],
+      thanks: [QL(`I hang their lamps where I can see them.`, `Tôi treo đèn của họ chỗ nào tôi nhìn thấy được.`)] }
+  };
+  const qState = li => ((save.quests[li] && save.quests[li].s) | 0);
+  const qGot = (li, k) => !!(save.quests[li] && (save.quests[li].got || []).indexOf(k) >= 0);
+  const embersHave = () => EMBER_MAPS.filter(li => qState(li) === 2).length;
+  const questHost = () => !(coop && coop.role === 'client');
+  function questFound(k, x, y) {   // a source (bush, jar, chest) gave up a quest piece
+    const q = QUESTS[Q.li]; if (!q || q.fish || qState(Q.li) !== 1 || qGot(Q.li, k) || !questHost()) return;
+    Q.items.push({ kind: 'qitem', k, x, y, id: -1, vy: -110, vx: rr(-20, 20), ph: 0, drop: true });
+  }
+  function questTake(it) {
+    const q = QUESTS[Q.li], st = save.quests[Q.li]; it.dead = true; if (!q || !st) return;
+    if (st.got.indexOf(it.k) < 0) { st.got.push(it.k); st.n = st.got.length; }
+    Snd.play('chime'); emit(it.x, it.y, 14, { col: [q.col, '#fff'], sp0: 20, sp1: 80 }); addRing(it.x, it.y, q.col, 22, 0.4);
+    Q.msg = LN(q.title) + ': ' + sv(q.item.en + ' ', q.item.vi + ' ') + st.n + ' / ' + q.n + (st.n >= q.n ? sv('  -  go back to the NPC!', '  -  quay lại gặp NPC nhé!') : ''); Q.msgT = 4;
+    if (!DEMO) writeSave();
+  }
+  function questFish(P, spec) {   // the Sunken Deep's quest: catch three different kinds of fish
+    const q = QUESTS[8], st = save.quests[8]; if (Q.li !== 8 || !q || !st || st.s !== 1 || !isMe(P) || spec.r <= 0 || !questHost()) return;
+    if (st.got.indexOf(spec.id) >= 0) return;
+    st.got.push(spec.id); st.n = st.got.length; if (!DEMO) writeSave();
+    Q.msgT = 0; setTimeout(() => { if (Q && Q.li === 8) { Q.msg = LN(q.title) + ': ' + st.n + ' / ' + q.n + (st.n >= q.n ? sv('  -  go back to the pirate!', '  -  quay lại gặp tên cướp biển!') : ''); Q.msgT = 4; } }, 900);
+  }
+  // what the NPC says now (and what happens when the talk ends); null = just the usual lines
+  function questTalk(who) {
+    const li = Q.li;
+    if (li === 6 && who === 'lila') {   // the finale: the Lantern of Nine Towers
+      const n = embersHave();
+      if (save.lantern9) return { lines: [QL(`The nine embers still glow in your lantern. The Keepers would be proud.`, `Chín tàn lửa vẫn sáng trong đèn bạn. Các Người Giữ Đèn sẽ tự hào lắm.`)], end: null };
+      if (n >= 9) return { lines: [QL(`Nine embers... all of them! Hold out your lantern.`, `Chín tàn lửa... đủ cả! Đưa đèn của bạn ra đây.`),
+        QL(`Each tower remembers: the chime, the lamp, the song, the moulds, the coals, the forge, the lullaby, the lighthouse, the lamps. Together they make a light that darkness cannot swallow.`, `Mỗi tháp đều nhớ: chuông gió, ngọn đèn, bài hát, khuôn đúc, than ấm, lò rèn, lời ru, hải đăng, những cây đèn mỏ. Gộp lại thành thứ ánh sáng mà bóng tối không nuốt nổi.`),
+        QL(`Quoc was a Keeper too. He forgot that a light is not held alone. Go, and remind him.`, `Quốc cũng từng là Người Giữ Đèn. Anh ấy quên rằng ánh sáng không phải thứ nắm giữ một mình. Đi đi, và nhắc anh ấy nhé.`)],
+        end: () => { save.lantern9 = true; save.coins += 300; if (coop) coop.gold = (coop.gold || 0) + 300; if (!DEMO) writeSave(); Snd.play('relic'); Q.G.flash = Math.max(Q.G.flash || 0, 0.4); addRing(Q.P.x + 4, Q.P.y + 7, '#ffe08a', 80, 0.8); emit(Q.P.x + 4, Q.P.y + 7, 40, { col: ['#ffe08a', '#c8b8ff', '#fff'], sp0: 30, sp1: 140 }); Q.msg = sv('The Lantern of Nine Towers! +300 coins and a pale-gold glow round your lantern.', 'Ngọn Đèn Chín Tháp! +300 xu và vầng sáng vàng nhạt quanh đèn của bạn.'); Q.msgT = 6; } };
+      return { lines: [QL(`I am gathering the Keepers' memories, one ember from each of the nine towers. You hold ${n} of 9.`, `Tôi đang gom ký ức của các Người Giữ Đèn, mỗi tháp một tàn lửa. Bạn đang giữ ${n} / 9.`),
+        QL(`Helping the people in each land (the chime, the tags, the jars, the moulds, the coals, the forge, the glowcaps, the fish, the lamps) earns an ember. Bring them all to me.`, `Giúp người dân ở mỗi vùng đất (chuông gió, thẻ tên, bình vọng âm, khuôn đúc, than sưởi, lò rèn, nấm sáng, cá, đèn mỏ) sẽ có một tàn lửa. Mang đủ về cho tôi.`)], end: null };
+    }
+    const q = QUESTS[li]; if (!q || q.who !== who) return null;
+    const st = qState(li), n = (save.quests[li] && save.quests[li].n) | 0;
+    if (st === 0) return { lines: q.offer, end: () => { save.quests[li] = { s: 1, n: 0, got: [] }; if (!DEMO) writeSave(); Snd.play('chime'); Q.msg = sv('New quest: ', 'Nhiệm vụ mới: ') + LN(q.title); Q.msgT = 4; } };
+    if (st === 1 && n < q.n) return { lines: q.active, end: null };
+    if (st === 1) return { lines: q.done, end: () => {
+      save.quests[li].s = 2; save.coins += q.reward.coins; if (coop) coop.gold = (coop.gold || 0) + q.reward.coins; if (q.reward.gift) giveGift(q.reward.gift, false);
+      if (!DEMO) writeSave(); Snd.play('relic'); addRing(Q.P.x + 4, Q.P.y + 7, q.col, 50, 0.6); emit(Q.P.x + 4, Q.P.y + 7, 30, { col: [q.col, '#fff'], sp0: 20, sp1: 100 });
+      Q.msg = sv('Tower Ember ' + embersHave() + ' / 9! +' + q.reward.coins + ' coins', 'Tàn Lửa Tháp ' + embersHave() + ' / 9! +' + q.reward.coins + ' xu'); Q.msgT = 5; } };
+    return { lines: q.thanks, end: null, prefix: true };
+  }
+  function questMark(who) {   // '!' over an NPC with a quest to give, '?' when it can be handed in
+    const li = Q.li; if (li === 6) return who === 'lila' && !save.lantern9 && embersHave() >= 9 ? '?' : null;
+    const q = QUESTS[li]; if (!q || q.who !== who) return null;
+    const st = qState(li); if (st === 0) return '!'; if (st === 1 && ((save.quests[li].n | 0) >= q.n)) return '?'; return null;
+  }
+  const QITEM_COL = () => (QUESTS[Q.li] && QUESTS[Q.li].col) || '#ffe08a';
+  function drawQItem(x, y, it) {
+    const col = QITEM_COL(), bob = Math.round(Math.sin(it.ph * 3) * 1.5);
+    g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.3 + Math.sin(it.ph * 5) * 0.1; disc(g, x, y + bob, 9, col); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+    g.fillStyle = '#14101c'; g.fillRect(x - 4, y - 6 + bob, 9, 11); g.fillStyle = col; g.fillRect(x - 3, y - 5 + bob, 7, 9); g.fillStyle = '#fff'; g.fillRect(x - 2, y - 4 + bob, 2, 4); g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(x + 1, y + bob, 3, 4);
+    if (Math.random() < 0.15) emit(it.x + rr(-5, 5), it.y + rr(-6, 4), 1, { col: [col, '#fff'], sp0: 2, sp1: 8, grav: -10, l0: 0.3, l1: 0.7 });
+  }
+  function drawLantern9() {   // the Lantern of Nine Towers: a pale-gold glow and nine sparks circling the lantern
+    if (!save.lantern9 || Q.state === 'talk') return; const P = Q.me || Q.P, camX = Q.cam.x, camY = Q.cam.y; if (!P || P.down) return;
+    const x = P.x + 4 + P.face * 6 - camX, y = P.y + 8 - camY;
+    g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.16 + Math.sin(Q.t * 2.5) * 0.04; disc(g, Math.round(x), Math.round(y), 13, '#ffe08a'); g.globalAlpha = 1;
+    for (let i = 0; i < 9; i++) { const a = Q.t * 1.4 + i * 0.698, r = 9 + (i % 3) * 2; g.globalAlpha = 0.8; g.fillStyle = i % 2 ? '#ffe08a' : '#c8b8ff'; g.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r * 0.7), 1, 1); }
+    g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+  }
+  function drawQuestHud() {   // the running quest of this map, top right
+    const q = QUESTS[Q.li], st = q && save.quests[Q.li]; if (!q || !st || st.s !== 1) return;
+    txt(LN(q.title) + '  ' + (st.n | 0) + ' / ' + q.n, VW - 6, 26, { al: 'right', size: 6, col: (st.n | 0) >= q.n ? '#9fff9f' : q.col });
+  }
   // phase 5 (D): what the hero is standing on decides the footstep: the map's ground, its floating ledges, ice, a moving
   // platform, or water
   const GROUND_SURF = { meadow: 'grass', forest: 'grass', caves: 'stone', desert: 'sand', frost: 'snow', volcano: 'stone', citadel: 'stone', swamp: 'mud', ocean: 'sand', tunnels: 'dirt' };
@@ -3108,8 +3254,9 @@
   }
   // ----- NPC dialogue & shop -----
   function startTalk(it) {
-    const d = (DLG[Q.li] || {})[it.who] || NPCS[it.who].generic || [{ en: '...', vi: '...' }];
-    Q.talk = { it, npc: NPCS[it.who], lines: d, i: 0, t: 0 }; Q.state = 'talk'; Snd.blip(it.who); Q.P.vx = 0;
+    let d = (DLG[Q.li] || {})[it.who] || NPCS[it.who].generic || [{ en: '...', vi: '...' }], onEnd = null;
+    const qt = questTalk(it.who); if (qt) { d = qt.prefix ? qt.lines.concat(d) : qt.lines; onEnd = qt.end; }   // phase 5 (E): the side quest
+    Q.talk = { it, npc: NPCS[it.who], lines: d, i: 0, t: 0, onEnd }; Q.state = 'talk'; Snd.blip(it.who); Q.P.vx = 0;
   }
   function startScripted(who, lines, after) {
     if (coop && coop.role === 'host') { lines = teamLines(lines, who); if (who === 'ember' && lines[0]) who = lines[0].w; }
@@ -3123,6 +3270,7 @@
   }
   function endTalk() {
     const tk = Q.talk, n = tk.npc, it = tk.it; Q.talk = null;
+    if (tk.onEnd) tk.onEnd();
     if (tk.after) { Q.state = 'play'; tk.after(); return; }
     if (n.trade) { Q.state = 'play'; openShopInGame('trade'); return; }
     if (n.shop) { Q.state = 'shop'; Q.menu = 0; Q.shopMsg = ''; Q.shopWho = it.who; return; }
@@ -3304,6 +3452,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         }
       } else if (it.kind === 'chest') {
         if (!it.open && d < 14) openChest(it);
+      } else if (it.kind === 'qitem') {
+        if (d < 13 && questHost()) questTake(it);
       } else if (it.kind === 'rare') {
         if (d < 13) {
           it.dead = true; Snd.play('shard'); emit(it.x, it.y, 26, { col: ['#c07bff', '#6ee7f2', '#fff'], sp0: 20, sp1: 110 }); addRing(it.x, it.y, '#c07bff', 30, 0.4);
@@ -4371,6 +4521,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         const by = y + Math.round(Math.sin(it.ph * 2) * 2), col = NOTE_COL[(it.n - 1) % 7][0];
         g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35; disc(g, x, by, 11, col); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
         drawSpr(g, noteSprite(it.n), x, by + 8, false);
+      } else if (it.kind === 'qitem') { drawQItem(x, y, it);
       } else if (it.kind === 'chest') { const sp = chestSprite(it.open); g.drawImage(sp.c, Math.round(x - sp.w / 2), Math.round(it.y - camY - sp.h + 1)); if (!it.open && Math.random() < 0.06) emit(it.x + rr(-6, 6), it.y - rr(4, 10), 1, { col: ['#ffd34e', '#fff'], sp0: 2, sp1: 8, grav: -10, l0: 0.4, l1: 0.8 }); }
       else if (it.kind === 'rare') {
         const by = y + Math.round(Math.sin(it.ph * 3) * 2);
@@ -4390,6 +4541,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
         const n = NPCS[it.who], sp = npcSpr(n.spr), bob = 0, NA = animPose('idle', it.ph, 1, 0);
         drawSprT(g, sp, x, y, Q.P.x + 4 < it.x, false, NA.sx, NA.sy, 0);
         const by = y - sp.h - 4 - bob;
+        { const mk = questMark(it.who); if (mk) txt(mk, x, by - 10 + Math.round(Math.sin(Q.t * 4) * 1.5), { al: 'center', size: 9, bold: true, col: mk === '!' ? '#ffd34e' : '#9fff9f', world: true }); }   // phase 5 (E)
         if ((Q.nearNpc === it || (coop && Q.me && Q.me !== Q.P && nearNpcFor(Q.me) === it)) && Q.state === 'play') { txt(T('talk'), x, by - 4, { al: 'center', size: 6, col: '#ffd34e', world: true }); }
         else if (Q.nearNpc !== it && !(coop && Q.me && Q.me !== Q.P && nearNpcFor(Q.me) === it)) { g.fillStyle = '#1b1626'; g.fillRect(x - 4, by - 5, 9, 7); g.fillStyle = '#fff'; g.fillRect(x - 3, by - 4, 7, 5); g.fillStyle = '#1b1626'; g.fillRect(x - 2, by - 2, 1, 1); g.fillRect(x, by - 2, 1, 1); g.fillRect(x + 2, by - 2, 1, 1); }
       } else if (it.kind === 'cp') {
@@ -4816,7 +4968,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       txt(LN(b.cfg.name) + (b.forms ? '  [' + (b.fi + 1) + '/' + b.forms.length + ']' : '') + (b.cfg.armor > 0 ? '   [' + Math.round(b.cfg.armor * 100) + '% ' + (save.lang === 'vi' ? 'giáp' : 'armor') + ']' : ''), VW / 2, y + 14, { al: 'center', size: 8 });
     }
     drawGearHUD();
-    drawFishCard();
+    drawFishCard(); drawQuestHud();
     if (Q.msgT > 0 && Q.msg && Q.state === 'play') txt(Q.msg, VW / 2, VH - 14, { al: 'center', size: 7, alpha: Math.min(1, Q.msgT) });
   }
 
@@ -4826,7 +4978,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     const sh = Q.shake > 0 ? Q.shake * 8 : 0;
     if (sh > 0) g.translate(Math.round(rr(-sh, sh)), Math.round(rr(-sh, sh)));
     { const z = Q.zoom || 1; if (z !== 1) { VW = BVW / z; VH = BVH / z; g.save(); g.scale(z, z); }
-      try { drawWorld(); drawFog(); drawLighting(); drawCreepEyes(Math.round(Q.cam.x), Math.round(Q.cam.y)); drawWeather(); drawGrade(); drawGearTop(Math.round(Q.cam.x), Math.round(Q.cam.y)); if (Q.G.tsT > 0) drawTimeStop(); }
+      try { drawWorld(); drawFog(); drawLighting(); drawLantern9(); drawCreepEyes(Math.round(Q.cam.x), Math.round(Q.cam.y)); drawWeather(); drawGrade(); drawGearTop(Math.round(Q.cam.x), Math.round(Q.cam.y)); if (Q.G.tsT > 0) drawTimeStop(); }
       finally { if (z !== 1) { g.restore(); VW = BVW; VH = BVH; } } }
     g.restore();
     if (!hiOn) drawPlayOver();   // with hi-res sprites on screen the HUD comes later, in its own pass above them
@@ -4851,6 +5003,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
       [[sv('Music', 'Nhạc'), save.mvol], [sv('Effects', 'Hiệu ứng'), save.svol]].forEach(([n, v], j) => { const i = 5 + j, on = Q.menu === i; txt((on ? '< ' : '  ') + n + ': ' + Math.round((v === undefined ? 1 : v) * 100) + '%' + (on ? ' >' : '  '), VW / 2, 76 + i * 13, { al: 'center', size: 8, col: on ? '#ffd34e' : '#a8b0d0' }); });
       txt('M: ' + (Snd.muted ? 'Sound OFF' : 'Sound ON') + '    F11: ' + T('full'), VW / 2, 200, { al: 'center', size: 6, col: '#8892aa' });
       txt(save.lang === 'vi' ? 'Nhấp chuột: đánh / chọn menu   Chuột phải: ném   Lăn chuột: đổi đồ' : 'Click: attack / menus   Right-click: throw   Wheel: switch', VW / 2, 210, { al: 'center', size: 5, col: '#8892aa' });
+      txt(sv('Tower Embers: ', 'Tàn Lửa Tháp: ') + embersHave() + ' / 9' + (save.lantern9 ? sv('   (Lantern of Nine Towers)', '   (Ngọn Đèn Chín Tháp)') : ''), VW / 2, 36, { al: 'center', size: 6, col: save.lantern9 ? '#ffe08a' : '#cfd6e6' });
       txt(T('relics'), VW / 2, 166, { al: 'center', size: 6, col: '#8892aa' });
       for (let i = 0; i < 10; i++) { const ic = icon('r' + LORDER[i]); g.globalAlpha = save.relics[LORDER[i]] ? 1 : 0.2; g.drawImage(ic.c, VW / 2 - 10 * 10 + i * 20 + 2, 172); }
       g.globalAlpha = 1;

@@ -668,3 +668,14 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   (warning ripples and a fin, then it leaps and bites): it hunts the boat or a swimmer but never past tile 44, the safe
   distance, where it loses interest and sinks. It cannot be fought. Three bites wreck the boat and you swim back (the boat is
   mended at its mooring 25 s later). `updateSea`, `boatStep`, `drawSea`; `Q.boat` / `Q.beast` are synced to co-op guests.
+- Side quests and the Tower Embers (phase 5, E): each of the nine tower maps has one short quest from an NPC already there
+  (`QUESTS` in game.js): the wind chime (Meadow, Lila: pieces in three bushes), the patrol's name tags (Forest, Bram: the three
+  secret chests), echo jars (Caverns, the wizard: four crystal jars), the first lantern's moulds (Desert, Durin: the vault, the
+  stair chest and a jar), warm coals (Frost, Seraph: ice jars), heart-coals (Volcano, Durin: stone jars), glowcaps (Swamp, the
+  witch: four glowing bushes), three kinds of fish (Sunken Deep, the pirate on the shore) and lost mining lamps (Tunnels, the
+  miner: barrels). Three dialogue stages (offer, under way, done), a marker over the NPC ('!' to take, '?' to hand in), a tracker
+  at the top right, a small coin and ammo reward and a Tower Ember each (a memory of that tower). With all nine, Lila in the
+  Shadow Citadel lights the Lantern of Nine Towers: 300 coins, a bonus story page and a pale-gold glow with nine sparks round
+  your lantern. No stats. The generator only marks bushes, jars and chests (`addQuestSources`, `q = k`), so maps are the same
+  whatever the save says. Progress is `save.quests[li] = { s, n, got }` (optional; old saves have none) and `save.lantern9`;
+  in co-op the host's save keeps it. The pause menu shows the ember count.
