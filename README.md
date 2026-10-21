@@ -581,7 +581,6 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
   in src/game.js). The frame follows the boss state: idle, walk, tele (wind-up, timed to the real wind-up), slam
   (stomps, slams, jumps, charges), cast (shots, spells), hurt (own white flash), death (plays over the 1.4 s death), and
   rage from the second phase on. The anchor (feet, bottom centre) sits on the bottom centre of the hitbox.
-- In the game: Gulgor, Veylith, Prismor, Khepsar, Rimvald, Kaldrok (maps 1-6). Morvella, Oktavor and Vorgrub have
-  sheets too (`tools/pixel/deep.py`) but keep the artist's pictures for now (`BOSS_SHEET` in src/game.js).
+- In the game: all nine main bosses (maps 1-9). Oktavor is drawn at 1.5x (`SHEET_SCALE`) to fill its big hitbox.
 - Each boss: 8 states, 49 frames. Rebuild with `python tools/pixel/gulgor.py`, `veylith.py`, `giants.py`, `deep.py`.
   Previews in `docs/sprites_3B/`.

@@ -3839,7 +3839,8 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     if (Math.abs(sw) > 0.97 && (b.stepFx || 0) < Q.t) { b.stepFx = Q.t + 0.12; emit(b.x + b.w / 2 - Math.sign(sw) * b.w * 0.22, b.y + b.h, 3, { col: ['#cfd6e6', '#8a8aa0'], sp0: 5, sp1: 25, vy: -12, grav: 40, l0: 0.2, l1: 0.4 }); }
   }
   // which boss uses which sprite sheet (by map); null = the old drawing
-  const BOSS_SHEET = ['gulgor', 'veylith', 'prismor', 'khepsar', 'rimvald', 'kaldrok', null, null, null, null];   // (maps 7-9 keep the artist's pictures for now; their sheets exist in assets/sprites)
+  const BOSS_SHEET = ['gulgor', 'veylith', 'prismor', 'khepsar', 'rimvald', 'kaldrok', null, 'morvella', 'oktavor', 'vorgrub'];
+  const SHEET_SCALE = { oktavor: 1.5 };   // the octopus's hitbox is far bigger than its cell: drawn at 1.5x
   function bossSheet(b) {
     const name = b.cfg === BOSS[Q.li] ? BOSS_SHEET[Q.li] : null; if (!name || typeof loadSheet === 'undefined') return null;
     const S = loadSheet(name); return S.ready && S.st.idle ? S : null;
@@ -3863,10 +3864,10 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     else { i = Math.floor(el * A.fps); if (i >= n) i = st === 'hurt' ? n - 1 : n - 3 + ((i - n) % 3); }   // long skills keep looping their last three frames
     return A.fr[Math.max(0, Math.min(n - 1, i))];
   }
-  function drawSheetFrame(fr, x, bot, flip, flash, al) {
-    const img = flash ? (flip ? fr.fw : fr.cw) : (flip ? fr.f : fr.c), ax = flip ? fr.w - 1 - fr.ax : fr.ax;
+  function drawSheetFrame(fr, x, bot, flip, flash, al, k) {
+    const img = flash ? (flip ? fr.fw : fr.cw) : (flip ? fr.f : fr.c), ax = flip ? fr.w - 1 - fr.ax : fr.ax; k = k || 1;
     if (al < 1) g.globalAlpha = Math.max(0, al);
-    g.drawImage(img, Math.round(x - ax), Math.round(bot - fr.ay)); g.globalAlpha = 1;
+    g.drawImage(img, Math.round(x - ax * k), Math.round(bot - fr.ay * k), Math.round(fr.w * k), Math.round(fr.h * k)); g.globalAlpha = 1;
   }
   function drawBoss(camX, camY) {
     const b = Q.boss, SH = bossSheet(b); if (b.dead && !SH && Q.t % 0.1 > 0.05) return;
@@ -3903,7 +3904,7 @@ const found = { en: 'Secret found! (' + Object.keys(save.eggs).length + ' / ' + 
     let al = P.al; if (b.invul > 0 && Math.floor(Q.t * 20) % 2 === 0) al = Math.min(al, 0.45);
     const bst = b.flash > 0 ? 'hurt' : (!b.onGround && !c.fly && !c.eclipse ? 'jump' : (b.moveT > 0 || b.st === 'evade' ? ((b.mvSpd || 0) > 75 || b.st === 'evade' || Math.abs(b.vx || 0) > 140 ? 'run' : 'walk') : 'idle'));
     const BA = animPose(bst, b.t, b.dir || 1, bst === 'hurt' ? 1 - clamp(b.flash / 0.15, 0, 1) : b.vy), bsx = bst === 'hurt' ? 1 : BA.sx, bsy = bst === 'hurt' ? 1 : BA.sy;
-    if (SF) drawSheetFrame(SF, x + P.ox, bot + bob, b.dir < 0, (tele && b.st !== 'tele') || b.revT > 0 || (b.flash > 0 && !SH.st.hurt), al);   // the sheet has its own hurt flash and wind-up frames
+    if (SF) drawSheetFrame(SF, x + P.ox, bot + bob, b.dir < 0, (tele && b.st !== 'tele') || b.revT > 0 || (b.flash > 0 && !SH.st.hurt), al, SHEET_SCALE[BOSS_SHEET[Q.li]]);   // the sheet has its own hurt flash and wind-up frames
     else { const walker = (bst === 'walk' || bst === 'run') && b.onGround && !c.fly && !c.eclipse && !c.swim && !c.art, img = BA.red ? redOf(b.spr) : b.spr, fl = (b.flash > 0 && !BA.red) || tele || b.revT > 0;
       const dx = x + P.ox + (bst === 'hurt' ? BA.ox : 0), dy = bot + bob + P.oy + BA.oy, ksx = P.sx * bsx * (c.artScale || 1), ksy = P.sy * bsy * (c.artScale || 1), rt = P.rot + BA.rot * 0.5;
       if (walker) drawBossStride(img, dx, dy, b.dir < 0, fl, ksx, ksy, rt, al, b.t * (bst === 'run' ? 13 : 8), bst === 'run' ? 0.28 : 0.18, b);
