@@ -1,0 +1,76 @@
+{
+ "name": "phoenix",
+ "cell": [
+  80,
+  80
+ ],
+ "anchor": [
+  42,
+  46
+ ],
+ "facing": "right",
+ "palette": [
+  "#2a0a0a",
+  "#5a0e0c",
+  "#8a1a12",
+  "#d8381a",
+  "#ff7a1a",
+  "#ffc23a",
+  "#ffe86a",
+  "#fff6d0",
+  "#3e3842",
+  "#6a6270",
+  "#a8a0aa"
+ ],
+ "notes": "Relit Phoenix (Pyreplume). A flyer: \"walk\" is its flight cycle; the anchor is the centre of the body.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "phoenix_idle.png"
+  },
+  "walk": {
+   "frames": 6,
+   "fps": 12,
+   "loop": true,
+   "file": "phoenix_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "phoenix_tele.png"
+  },
+  "attack": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "phoenix_attack.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "phoenix_hurt.png"
+  },
+  "death": {
+   "frames": 8,
+   "fps": 10,
+   "loop": false,
+   "file": "phoenix_death.png"
+  },
+  "spawn": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "phoenix_spawn.png"
+  },
+  "evo": {
+   "frames": 8,
+   "fps": 10,
+   "loop": false,
+   "file": "phoenix_evo.png"
+  }
+ }
+}

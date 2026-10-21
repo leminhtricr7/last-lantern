@@ -1,0 +1,79 @@
+{
+ "name": "kaldrok",
+ "cell": [
+  96,
+  96
+ ],
+ "anchor": [
+  48,
+  93
+ ],
+ "facing": "right",
+ "palette": [
+  "#140a0c",
+  "#24161a",
+  "#3a2628",
+  "#56383a",
+  "#7a5650",
+  "#8e2a12",
+  "#e0521a",
+  "#ff9a2a",
+  "#ffd84a",
+  "#fff4c8",
+  "#8a7660",
+  "#c8b498",
+  "#4a3a46",
+  "#ff3a2a"
+ ],
+ "notes": "Kaldrok, the Walking Forge (map 6). Rage = the same idle with white-hot lava and red eyes.",
+ "states": {
+  "idle": {
+   "frames": 6,
+   "fps": 8,
+   "loop": true,
+   "file": "kaldrok_idle.png"
+  },
+  "walk": {
+   "frames": 8,
+   "fps": 10,
+   "loop": true,
+   "file": "kaldrok_walk.png"
+  },
+  "tele": {
+   "frames": 4,
+   "fps": 8,
+   "loop": false,
+   "file": "kaldrok_tele.png"
+  },
+  "slam": {
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "file": "kaldrok_slam.png"
+  },
+  "cast": {
+   "frames": 6,
+   "fps": 10,
+   "loop": false,
+   "file": "kaldrok_cast.png"
+  },
+  "hurt": {
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "file": "kaldrok_hurt.png"
+  },
+  "death": {
+   "frames": 10,
+   "fps": 10,
+   "loop": false,
+   "file": "kaldrok_death.png"
+  },
+  "rage": {
+   "frames": 6,
+   "fps": 10,
+   "loop": true,
+   "file": "kaldrok_rage.png"
+  }
+ }
+}

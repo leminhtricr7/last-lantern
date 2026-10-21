@@ -1,0 +1,23 @@
+kaldrok: cell 96x96, anchor (48, 93), 8 states, 49 frames
+  idle     6 frames @  8 fps, feet row 93, loop seam 1188 px (other steps 10-1223 px) OK
+  walk     8 frames @ 10 fps, feet row 93, loop seam 1748 px (other steps 1423-1743 px) OK
+  tele     4 frames @  8 fps, feet row 93
+  slam     6 frames @ 12 fps, feet row 93
+  cast     6 frames @ 10 fps, feet row 93
+  hurt     3 frames @ 12 fps, feet row 93
+  death   10 frames @ 10 fps
+  rage     6 frames @ 10 fps, feet row 93, loop seam 1149 px (other steps 10-1208 px) OK
+  colours used: 14 (limit 16, white flash frame not counted: OK)
+  facing right; flip: mirror each frame and put the anchor at x = 48
+
+phoenix: cell 80x80, anchor (42, 46), 8 states, 47 frames
+  idle     6 frames @ 10 fps, loop seam 1465 px (other steps 741-1483 px) OK
+  walk     6 frames @ 12 fps, loop seam 1197 px (other steps 332-1200 px) OK
+  tele     4 frames @  8 fps
+  attack   6 frames @ 12 fps
+  hurt     3 frames @ 12 fps
+  death    8 frames @ 10 fps
+  spawn    6 frames @ 12 fps
+  evo      8 frames @ 10 fps
+  colours used: 11 (limit 16, white flash frame not counted: OK)
+  facing right; flip: mirror each frame and put the anchor at x = 38

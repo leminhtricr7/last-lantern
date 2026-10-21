@@ -565,3 +565,13 @@ dragon stage. Internal keys in the code (`titan`, `kraken`, `form3`...) did not 
 | Divine armours → beings | Dawnward Plate → Dawnward Warden; Starspear Plate → Starspear Maiden; Cloak of Three Shadows → Shadow Trio; Aureole Robe → Aureole Herald; Twinmount Plate → Gateguard Twins | |
 | Pets → big forms | Coalpup → Coalheart Drake; Qilin Foal → Boltmane Qilin; Cobblekin → Cobble Colossus; Starfin Calf → Lightwhale; Azure Kit → Azure Vixen | |
 | Secret | Lyra's Seven Notes → the Lightcrane (was 7 Wish Orbs and a green dragon) | |
+
+## Sprites (phase 3A samples)
+- `tools/pixel/` is a small pixel-art kit: parts are hard-edged shapes shaded from one top-left light, a 1-px outline is
+  added around the figure, and every frame is checked (palette ≤ 16 colours, clean alpha, padding, feet on the anchor
+  line, loop seams). `python tools/pixel/kaldrok.py`, `python tools/pixel/phoenix.py` rebuild the samples;
+  `python tools/pixel/verify.py` re-checks them.
+- Output format (for the code to read in phase 3B): `assets/sprites/<name>/<name>_<state>.png` (one horizontal strip per
+  state, every cell the same size, facing right) plus `<name>.json` (cell, anchor, fps, frames, loop, palette).
+- Samples: Kaldrok (96×96, 8 states, 49 frames) and the Relit Phoenix (80×80, 8 states, 47 frames). Previews (contact
+  sheets, GIFs, an in-game-scale comparison) are in `docs/sprites_3A/`. Not wired into the game yet.
